@@ -1,0 +1,19 @@
+
+  StormLib history
+  ================
+
+ Version 6.22
+
+ - Properly deals with MPQs protected by w3xMaster
+
+ Version 6.21
+
+ - SFileRenameFile now properly re-crypts the file if necessary.
+ - SFileFindFirstFile correctly deals with deleted files
+
+ Version 6.20
+
+ - Fixed lots of bugs when processing files with same names but different locales
+ - Fixed bugs when repeately extracts the same file with MPQ_FILE_SINGLE_UNIT flag
+ - Added SFileFlushArchive
+ - Fixed issue opening AVI files renamed to MPQ using SFileCreateArchiveEx

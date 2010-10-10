@@ -1,0 +1,45 @@
+LIBRARY	BNCSutil
+VERSION 1.1
+EXPORTS
+	bncsutil_getVersion=_bncsutil_getVersion@0 @1
+	bncsutil_getVersionString=_bncsutil_getVersionString@4 @2
+	
+	calcHashBuf=_calcHashBuf@12 @3
+	doubleHashPassword=_doubleHashPassword@16 @4
+	hashPassword=_hashPassword@8 @5
+	
+	kd_quick=_kd_quick@28
+	kd_init=_kd_init@0 @6
+	kd_create=_kd_create@8 @7
+	kd_free=_kd_free@4 @8
+	kd_val2Length=_kd_val2Length@4 @9
+	kd_product=_kd_product@4 @10
+	kd_val1=_kd_val1@4 @11
+	kd_val2=_kd_val2@4 @12
+	kd_longVal2=_kd_longVal2@8 @13
+	kd_calculateHash=_kd_calculateHash@12 @14
+	kd_getHash=_kd_getHash@8 @15
+	kd_isValid=_kd_isValid@4 @16
+
+	checkRevision=_checkRevision@20 @17
+	checkRevisionFlat=_checkRevisionFlat@24 @18
+	getExeInfo=_getExeInfo@20 @19
+
+	extractMPQNumber=_extractMPQNumber@4 @20
+	
+	nls_account_create=_nls_account_create@12 @21
+	nls_account_logon=_nls_account_logon@12 @22
+	nls_free=_nls_free@4 @23
+	nls_get_A=_nls_get_A@8 @24
+	nls_get_K=_nls_get_K@12 @25
+	nls_get_M1=_nls_get_M1@16 @26
+	nls_get_S=_nls_get_S@16 @27
+	nls_get_v=_nls_get_v@12 @28
+	nls_init=_nls_init@8 @29
+	nls_init_l=_nls_init_l@16 @30
+	nls_reinit=_nls_reinit@12 @31
+	nls_reinit_l=_nls_reinit_l@20 @32
+	nls_check_M2=_nls_check_M2@16 @33
+	nls_check_signature=_nls_check_signature@8 @34
+	nls_account_change_proof=_nls_account_change_proof@20 @35
+	
