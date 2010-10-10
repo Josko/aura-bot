@@ -272,7 +272,7 @@ inline void CIRC :: ExtractPackets( )
 						
 						return;
 					}
-					else if( Command == "bneton" )
+					else if( Command == "bnetson" )
 					{
 						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 							(*i)->Activate( );	
@@ -335,10 +335,10 @@ inline void CIRC :: ExtractPackets( )
 						}
 					}
 
-					if( !strIP.empty( ) ) 
+					if( strIP.empty( ) ) 
 					{
 						unsigned long IP = ToInt( Parts[6] );			
-						unsigned long divider = 16777216;
+						unsigned long divider = 16777216UL;
 						for( int i = 0; i <= 3; ++i )
 						{
 							stringstream out;
