@@ -166,16 +166,17 @@ inline void CIRC :: ExtractPackets( )
 		if( Parts.size( ) >= 3 && Parts[1] == "PRIVMSG" )
 		{
 			// parse info
-
-			string Nickname = Parts[0].substr( 1, Parts[0].find( "!" )-1 );
-			string Hostname = Parts[0].substr( Parts[0].find("@")+1 );
-			string Target	= Parts[2];
+			
 			string Message	= (*i).substr( Parts[0].size( ) + Parts[1].size( ) + Parts[2].size( ) + 4, (*i).size( ) - Parts[0].size( ) - Parts[1].size( ) - Parts[2].size( ) - 5  );
 			
 			// real small messages aren't our thang...
 			
 			if( Message.size( ) < 2 )
 				return;
+				
+			string Nickname = Parts[0].substr( 1, Parts[0].find( "!" )-1 );
+			string Hostname = Parts[0].substr( Parts[0].find("@")+1 );
+			string Target	= Parts[2];			
 
 			// ignore ACTIONs for now
 

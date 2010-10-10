@@ -97,7 +97,7 @@ string UTIL_ByteArrayToDecString( BYTEARRAY b )
 
 	string result = UTIL_ToString( b[0] );
 
-	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); i++ )
+	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); ++i )
 		result += " " + UTIL_ToString( *i );
 
 	return result;
@@ -110,7 +110,7 @@ string UTIL_ByteArrayToHexString( BYTEARRAY b )
 
 	string result = UTIL_ToHexString( b[0] );
 
-	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); i++ )
+	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); ++i )
 	{
 		if( *i < 16 )
 			result += " 0" + UTIL_ToHexString( *i );

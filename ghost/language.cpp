@@ -341,11 +341,6 @@ string CLanguage :: SpoofCheckByReplying( )
 	return m_CFG->GetString( "lang_0041", "lang_0041" );
 }
 
-string CLanguage :: GameRefreshed( )
-{
-	return m_CFG->GetString( "lang_0042", "lang_0042" );
-}
-
 string CLanguage :: SpoofPossibleIsAway( string user )
 {
 	string Out = m_CFG->GetString( "lang_0043", "lang_0043" );
@@ -688,16 +683,6 @@ string CLanguage :: PlayersStillDownloading( string stilldownloading )
 	return Out;
 }
 
-string CLanguage :: RefreshMessagesEnabled( )
-{
-	return m_CFG->GetString( "lang_0090", "lang_0090" );
-}
-
-string CLanguage :: RefreshMessagesDisabled( )
-{
-	return m_CFG->GetString( "lang_0091", "lang_0091" );
-}
-
 string CLanguage :: AtLeastOneGameActiveUseForceToShutdown( )
 {
 	return m_CFG->GetString( "lang_0092", "lang_0092" );
@@ -766,18 +751,6 @@ string CLanguage :: UnableToCreateGameNotLoggedIn( string gamename )
 {
 	string Out = m_CFG->GetString( "lang_0102", "lang_0102" );
 	UTIL_Replace( Out, "$GAMENAME$", gamename );
-	return Out;
-}
-
-string CLanguage :: AdminLoggedIn( )
-{
-	return m_CFG->GetString( "lang_0103", "lang_0103" );
-}
-
-string CLanguage :: AdminInvalidPassword( string attempt )
-{
-	string Out = m_CFG->GetString( "lang_0104", "lang_0104" );
-	UTIL_Replace( Out, "$ATTEMPT$", attempt );
 	return Out;
 }
 
@@ -947,94 +920,6 @@ string CLanguage :: UnableToCreateGameInvalidMap( string gamename )
 	return Out;
 }
 
-string CLanguage :: WaitingForPlayersBeforeAutoStart( string players, string playersleft )
-{
-	string Out = m_CFG->GetString( "lang_0129", "lang_0129" );
-	UTIL_Replace( Out, "$PLAYERS$", players );
-	UTIL_Replace( Out, "$PLAYERSLEFT$", playersleft );
-	return Out;
-}
-
-string CLanguage :: AutoStartDisabled( )
-{
-	return m_CFG->GetString( "lang_0130", "lang_0130" );
-}
-
-string CLanguage :: AutoStartEnabled( string players )
-{
-	string Out = m_CFG->GetString( "lang_0131", "lang_0131" );
-	UTIL_Replace( Out, "$PLAYERS$", players );
-	return Out;
-}
-
-string CLanguage :: AnnounceMessageEnabled( )
-{
-	return m_CFG->GetString( "lang_0132", "lang_0132" );
-}
-
-string CLanguage :: AnnounceMessageDisabled( )
-{
-	return m_CFG->GetString( "lang_0133", "lang_0133" );
-}
-
-string CLanguage :: AutoHostEnabled( )
-{
-	return m_CFG->GetString( "lang_0134", "lang_0134" );
-}
-
-string CLanguage :: AutoHostDisabled( )
-{
-	return m_CFG->GetString( "lang_0135", "lang_0135" );
-}
-
-string CLanguage :: UnableToLoadSaveGamesOutside( )
-{
-	return m_CFG->GetString( "lang_0136", "lang_0136" );
-}
-
-string CLanguage :: UnableToLoadSaveGameGameInLobby( )
-{
-	return m_CFG->GetString( "lang_0137", "lang_0137" );
-}
-
-string CLanguage :: LoadingSaveGame( string file )
-{
-	string Out = m_CFG->GetString( "lang_0138", "lang_0138" );
-	UTIL_Replace( Out, "$FILE$", file );
-	return Out;
-}
-
-string CLanguage :: UnableToLoadSaveGameDoesntExist( string file )
-{
-	string Out = m_CFG->GetString( "lang_0139", "lang_0139" );
-	UTIL_Replace( Out, "$FILE$", file );
-	return Out;
-}
-
-string CLanguage :: UnableToCreateGameInvalidSaveGame( string gamename )
-{
-	string Out = m_CFG->GetString( "lang_0140", "lang_0140" );
-	UTIL_Replace( Out, "$GAMENAME$", gamename );
-	return Out;
-}
-
-string CLanguage :: UnableToCreateGameSaveGameMapMismatch( string gamename )
-{
-	string Out = m_CFG->GetString( "lang_0141", "lang_0141" );
-	UTIL_Replace( Out, "$GAMENAME$", gamename );
-	return Out;
-}
-
-string CLanguage :: AutoSaveEnabled( )
-{
-	return m_CFG->GetString( "lang_0142", "lang_0142" );
-}
-
-string CLanguage :: AutoSaveDisabled( )
-{
-	return m_CFG->GetString( "lang_0143", "lang_0143" );
-}
-
 string CLanguage :: DesyncDetected( )
 {
 	return m_CFG->GetString( "lang_0144", "lang_0144" );
@@ -1184,41 +1069,9 @@ string CLanguage :: TypeYesToVote( string commandtrigger )
 	return Out;
 }
 
-string CLanguage :: PlayersNotYetPingedAutoStart( string notpinged )
-{
-	string Out = m_CFG->GetString( "lang_0166", "lang_0166" );
-	UTIL_Replace( Out, "$NOTPINGED$", notpinged );
-	return Out;
-}
-
 string CLanguage :: WasKickedForNotSpoofChecking( )
 {
 	return m_CFG->GetString( "lang_0167", "lang_0167" );
-}
-
-string CLanguage :: WasKickedForHavingFurthestScore( string score, string average )
-{
-	string Out = m_CFG->GetString( "lang_0168", "lang_0168" );
-	UTIL_Replace( Out, "$SCORE$", score );
-	UTIL_Replace( Out, "$AVERAGE$", average );
-	return Out;
-}
-
-string CLanguage :: PlayerHasScore( string player, string score )
-{
-	string Out = m_CFG->GetString( "lang_0169", "lang_0169" );
-	UTIL_Replace( Out, "$PLAYER$", player );
-	UTIL_Replace( Out, "$SCORE$", score );
-	return Out;
-}
-
-string CLanguage :: RatedPlayersSpread( string rated, string total, string spread )
-{
-	string Out = m_CFG->GetString( "lang_0170", "lang_0170" );
-	UTIL_Replace( Out, "$RATED$", rated );
-	UTIL_Replace( Out, "$TOTAL$", total );
-	UTIL_Replace( Out, "$SPREAD$", spread );
-	return Out;
 }
 
 string CLanguage :: ErrorListingMaps( )
@@ -1382,56 +1235,9 @@ string CLanguage :: ValidServers( string servers )
 	return Out;
 }
 
-string CLanguage :: TeamCombinedScore( string team, string score )
-{
-	string Out = m_CFG->GetString( "lang_0197", "lang_0197" );
-	UTIL_Replace( Out, "$TEAM$", team );
-	UTIL_Replace( Out, "$SCORE$", score );
-	return Out;
-}
-
-string CLanguage :: BalancingSlotsCompleted( )
-{
-	return m_CFG->GetString( "lang_0198", "lang_0198" );
-}
-
-string CLanguage :: PlayerWasKickedForFurthestScore( string name, string score, string average )
-{
-	string Out = m_CFG->GetString( "lang_0199", "lang_0199" );
-	UTIL_Replace( Out, "$NAME$", name );
-	UTIL_Replace( Out, "$SCORE$", score );
-	UTIL_Replace( Out, "$AVERAGE$", average );
-	return Out;
-}
-
-string CLanguage :: LocalAdminMessagesEnabled( )
-{
-	return m_CFG->GetString( "lang_0200", "lang_0200" );
-}
-
-string CLanguage :: LocalAdminMessagesDisabled( )
-{
-	return m_CFG->GetString( "lang_0201", "lang_0201" );
-}
-
 string CLanguage :: WasDroppedDesync( )
 {
 	return m_CFG->GetString( "lang_0202", "lang_0202" );
-}
-
-string CLanguage :: WasKickedForHavingLowestScore( string score )
-{
-	string Out = m_CFG->GetString( "lang_0203", "lang_0203" );
-	UTIL_Replace( Out, "$SCORE$", score );
-	return Out;
-}
-
-string CLanguage :: PlayerWasKickedForLowestScore( string name, string score )
-{
-	string Out = m_CFG->GetString( "lang_0204", "lang_0204" );
-	UTIL_Replace( Out, "$NAME$", name );
-	UTIL_Replace( Out, "$SCORE$", score );
-	return Out;
 }
 
 string CLanguage :: ReloadingConfigurationFiles( )
@@ -1442,32 +1248,6 @@ string CLanguage :: ReloadingConfigurationFiles( )
 string CLanguage :: CountDownAbortedSomeoneLeftRecently( )
 {
 	return m_CFG->GetString( "lang_0206", "lang_0206" );
-}
-
-string CLanguage :: UnableToCreateGameMustEnforceFirst( string gamename )
-{
-	string Out = m_CFG->GetString( "lang_0207", "lang_0207" );
-	UTIL_Replace( Out, "$GAMENAME$", gamename );
-	return Out;
-}
-
-string CLanguage :: UnableToLoadReplaysOutside( )
-{
-	return m_CFG->GetString( "lang_0208", "lang_0208" );
-}
-
-string CLanguage :: LoadingReplay( string file )
-{
-	string Out = m_CFG->GetString( "lang_0209", "lang_0209" );
-	UTIL_Replace( Out, "$FILE$", file );
-	return Out;
-}
-
-string CLanguage :: UnableToLoadReplayDoesntExist( string file )
-{
-	string Out = m_CFG->GetString( "lang_0210", "lang_0210" );
-	UTIL_Replace( Out, "$FILE$", file );
-	return Out;
 }
 
 string CLanguage :: CommandTrigger( string trigger )

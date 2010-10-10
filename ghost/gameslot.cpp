@@ -25,7 +25,7 @@
 // CGameSlot
 //
 
-CGameSlot :: CGameSlot( BYTEARRAY &n )
+CGameSlot :: CGameSlot( BYTEARRAY &n ) : m_PID( 0 ), m_DownloadStatus( 255 ), m_SlotStatus( SLOTSTATUS_OPEN ), m_Computer( 0 ), m_Team( 0 ), m_Colour( 1 ), m_Race( SLOTRACE_RANDOM ), m_ComputerType( SLOTCOMP_NORMAL ), m_Handicap( 100 )
 {
 	if( n.size( ) >= 7 )
 	{
@@ -46,18 +46,6 @@ CGameSlot :: CGameSlot( BYTEARRAY &n )
 			m_Handicap = n[8];
 		else
 			m_Handicap = 100;
-	}
-	else
-	{
-		m_PID = 0;
-		m_DownloadStatus = 255;
-		m_SlotStatus = SLOTSTATUS_OPEN;
-		m_Computer = 0;
-		m_Team = 0;
-		m_Colour = 1;
-		m_Race = SLOTRACE_RANDOM;
-		m_ComputerType = SLOTCOMP_NORMAL;
-		m_Handicap = 100;
 	}
 }
 

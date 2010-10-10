@@ -63,8 +63,6 @@ CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned
 
 	if( !m_GHost->m_BindAddress.empty( ) )
 		CONSOLE_Print( "[GAME: " + m_GameName + "] attempting to bind to address [" + m_GHost->m_BindAddress + "]" );
-	else
-		CONSOLE_Print( "[GAME: " + m_GameName + "] attempting to bind to all available addresses" );
 
 	if( m_Socket->Listen( m_GHost->m_BindAddress, m_HostPort ) )
 		CONSOLE_Print( "[GAME: " + m_GameName + "] listening on port " + UTIL_ToString( m_HostPort ) );

@@ -338,7 +338,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.4" )
 {
 	vector<string> channels;
 	vector<string> locals;
@@ -449,7 +449,6 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL )
 	m_Exiting = false;
 	m_ExitingNice = false;
 	m_Enabled = true;
-	m_Version = "0.3";
 	m_HostCounter = 1;
 	m_AllGamesFinished = false;
 
@@ -778,7 +777,7 @@ bool CGHost :: Update( long usecBlock )
 	if( NumFDs == 0 )
 	{
 		// we don't have any sockets (i.e. we aren't connected to battle.net maybe due to a lost connection and there aren't any games running)
-		// select will return immediately and we'll chew up the CPU if we let it loop so just sleep for 50ms to kill some time
+		// select will return immediately and we'll chew up the CPU if we let it loop so just sleep for 100ms to kill some time
 
 		MILLISLEEP( 100 );
 	}
