@@ -168,16 +168,13 @@ inline void CIRC :: ExtractPackets( )
 			// parse info
 			
 			string Message	= (*i).substr( Parts[0].size( ) + Parts[1].size( ) + Parts[2].size( ) + 4, (*i).size( ) - Parts[0].size( ) - Parts[1].size( ) - Parts[2].size( ) - 5  );
-			
-			// real small messages aren't our thang...
-			
 			if( Message.size( ) < 2 )
 				return;
 				
 			string Nickname = Parts[0].substr( 1, Parts[0].find( "!" )-1 );
 			string Hostname = Parts[0].substr( Parts[0].find("@")+1 );
-			string Target	= Parts[2];			
-
+			string Target	= Parts[2];
+			
 			// ignore ACTIONs for now
 
 			if( Message[0] != '\x01' )
@@ -209,15 +206,6 @@ inline void CIRC :: ExtractPackets( )
 						m_OriginalNick= false;
 						return;
 					}
-					else if( ( Command == "quit" || Command == "exit" ) && Root )
-					{
-						if( Payload.empty( ) )
-							Payload = "Quit";
-							
-						SendIRC( "QUIT :" + Payload );
-						m_Exiting = true;
-						return;
-					}
 					else if( Command == "dcclist" )
 					{
 						string on;
@@ -245,7 +233,7 @@ inline void CIRC :: ExtractPackets( )
 						m_Socket->Reset( );
 						m_WaitingToConnect = true;
 						m_LastConnectionAttemptTime = GetTime( );
-						return;
+						return;						
 					}
 					else if( Command == "bnetoff" )
 					{
@@ -265,7 +253,6 @@ inline void CIRC :: ExtractPackets( )
 								{
 									(*i)->Deactivate( );
 									PrivMsg( "BNET [" + (*i)->GetServerAlias( ) + "] deactivated.", Target );
-									return;
 								}
 							}
 						}
@@ -300,7 +287,6 @@ inline void CIRC :: ExtractPackets( )
 						{
 							CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol :: EID_IRC, Nickname, Message );
 							(*i)->ProcessChatEvent( &event );
-							return;
 						}
 					}
 				}
@@ -383,8 +369,10 @@ inline void CIRC :: ExtractPackets( )
 			// join channels
 
 			for( vector<string> :: iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
+			{
 				SendIRC( "JOIN " + (*i) );
-			
+			}
+				
 			return;
 		}
 		else if( Parts.size( ) >= 2 && Parts[1] == "353" )
