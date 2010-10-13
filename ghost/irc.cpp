@@ -11,8 +11,7 @@
 //// CIRC ////
 //////////////
 
-CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, uint16_t nDCCPort, vector<string> nLocals  ) 
-: m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_DCCPort( nDCCPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) )
+CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals  ) : m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) )
 {
 	m_Socket = new CTCPClient( );
 
@@ -298,9 +297,9 @@ inline void CIRC :: ExtractPackets( )
 				transform( Message.begin( ), Message.end( ), Message.begin( ), (int(*)(int))tolower );
 				
 				if( Message.size( ) > 25 && Message.substr( 1, 13 ) == "dcc chat chat" ) 
-				{				
-					int Port = ToInt( Parts[7].substr( 0, Parts[7].find( '\x01' ) ) );
+				{	
 					string strIP;
+					unsigned int Port = ToInt( Parts[7].substr( 0, Parts[7].find( '\x01' ) ) );					
 
 					for( vector<string> :: iterator i = m_Locals.begin( ); i != m_Locals.end( ); ++i )
 					{
@@ -324,8 +323,7 @@ inline void CIRC :: ExtractPackets( )
 							strIP += out.str( ) + ".";
 						}
 						strIP = strIP.substr( 0, strIP.size( ) - 1 );
-					}
-					
+					}					
 					
 					for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
 					{
@@ -436,7 +434,6 @@ CDCC :: CDCC( CIRC *nIRC, const string nIP, const uint16_t nPort, const string n
 	m_Socket = new CTCPClient( );
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 	m_Socket->Connect( string( ), nIP, nPort );
-	m_Socket->SetKeepAlive( );
 }
 
 CDCC :: ~CDCC( )
@@ -464,20 +461,15 @@ void CDCC :: Update( void *fd, void *send_fd )
 		m_Socket->DoRecv( (fd_set *)fd );
 		m_Socket->PutBytes( "Welcome! :)\n" );
 		m_Socket->DoSend( (fd_set *)send_fd );		
-		return;
-	}
-	
-	if( m_Socket->HasError( ) ) 
+	}	
+	else if( m_Socket->HasError( ) ) 
 	{
 		m_Socket->Reset( );
-		return;
-	}
-	
-	if( m_Socket->GetConnected( ) ) 
+	}	
+	else if( m_Socket->GetConnected( ) ) 
 	{
 		m_Socket->DoRecv( (fd_set *)fd );
 		m_Socket->DoSend( (fd_set *)send_fd );
-		return;
 	}
 }
 
@@ -485,7 +477,7 @@ void CDCC :: Connect( string IP, uint32_t Port )
 {	
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 	
-	m_Socket->Reset( );	
+	m_Socket->Disconnect( );	
 	m_IP = IP;		
 	m_Socket->Connect( string( ), m_IP, Port );
 }
