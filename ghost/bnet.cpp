@@ -1766,7 +1766,16 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 							(*i)->QueueChatCommand( Message, Name, true, false );
 					}
 				}
+				
+				//
+				// !R
+				//
 
+				else if( Command == "r" && !Payload.empty( ) )
+				{
+					QueueChatCommand( "/r " + Payload );				
+				}
+				
 				//
 				// !WHOIS
 				//
@@ -1902,10 +1911,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				}
 				
 				//
-				// !O
+				// !ONLINE
 				//
 				
-				else if( Command == "o" )
+				else if( Command == "o" || Command == "online" )
 				{
 					QueueChatCommand( "/w Clan007 -o" );
 				}
@@ -2105,7 +2114,6 @@ void CBNET :: QueueGameUncreate( )
 void CBNET :: UnqueueGameRefreshes( )
 {
 	queue<BYTEARRAY> Packets;
-	bool Unqueued = false;
 
 	while( !m_OutPackets.empty( ) )
 	{

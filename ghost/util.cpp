@@ -520,9 +520,9 @@ string UTIL_AddPathSeperator( string path )
 }
 
 BYTEARRAY UTIL_EncodeStatString( BYTEARRAY &data )
-{
-	unsigned char Mask = 1;
+{	
 	BYTEARRAY Result;
+	unsigned char Mask = 1;
 
 	for( unsigned int i = 0; i < data.size( ); ++i )
 	{
@@ -546,7 +546,7 @@ BYTEARRAY UTIL_EncodeStatString( BYTEARRAY &data )
 
 BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
 {
-	unsigned char Mask;
+	unsigned char Mask = 1;
 	BYTEARRAY Result;
 
 	for( unsigned int i = 0; i < data.size( ); ++i )

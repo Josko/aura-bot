@@ -11,7 +11,8 @@
 //// CIRC ////
 //////////////
 
-CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, uint16_t nDCCPort, vector<string> nLocals  ) : m_GHost( nGHost ), m_Server( nServer ), m_Nickname( nNickname ), m_Username( nUsername ), m_Password( nPassword ), m_Port( nPort ), m_Channels( nChannels ), m_CommandTrigger( nCommandTrigger ), m_NicknameCpy( nNickname ), m_WaitingToConnect( true ), m_Exiting( false ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ), m_DCCPort( nDCCPort ), m_Locals( nLocals )
+CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, uint16_t nDCCPort, vector<string> nLocals  ) 
+: m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_DCCPort( nDCCPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) )
 {
 	m_Socket = new CTCPClient( );
 
@@ -253,6 +254,7 @@ inline void CIRC :: ExtractPackets( )
 								{
 									(*i)->Deactivate( );
 									PrivMsg( "BNET [" + (*i)->GetServerAlias( ) + "] deactivated.", Target );
+									return;
 								}
 							}
 						}
@@ -283,33 +285,21 @@ inline void CIRC :: ExtractPackets( )
 
 						transform( Command.begin( ), Command.end( ), Command.begin( ), (int(*)(int))tolower );
 
-						if( Command != "quit" || Command != "exit" )
-						{
-							CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol :: EID_IRC, Nickname, Message );
-							(*i)->ProcessChatEvent( &event );
-						}
+						CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol :: EID_IRC, Nickname, Message );
+						(*i)->ProcessChatEvent( &event );
+						break;
 					}
 				}
 			}
 			else 
 			{
 				// look for DCC CHAT requests
+				
 				transform( Message.begin( ), Message.end( ), Message.begin( ), (int(*)(int))tolower );
+				
 				if( Message.size( ) > 25 && Message.substr( 1, 13 ) == "dcc chat chat" ) 
 				{				
 					int Port = ToInt( Parts[7].substr( 0, Parts[7].find( '\x01' ) ) );
-
-					vector<CDCC *> :: iterator Present = m_DCC.end( );
-
-					for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-					{
-						if( (*i)->m_Nickname == Nickname )
-						{
-							Present = i;
-							break;
-						}
-					}
-
 					string strIP;
 
 					for( vector<string> :: iterator i = m_Locals.begin( ); i != m_Locals.end( ); ++i )
@@ -335,26 +325,28 @@ inline void CIRC :: ExtractPackets( )
 						}
 						strIP = strIP.substr( 0, strIP.size( ) - 1 );
 					}
-						
+					
+					
+					for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
+					{
+						if( (*i)->m_Nickname == Nickname )
+						{
+							(*i)->Connect( strIP, Port );
+							return;
+						}
+					}						
 
-					if( Present != m_DCC.end( ) )
-						(*Present)->Connect( strIP, Port );
-					else
-						m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
-						
-					return;
+					m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
 				}
 			}
 		}		
 		else if( Parts.size( ) >= 2 && Parts[0] == "PING" )
 		{
 			SendIRC( "PONG " + Parts[1] );
-			return;
 		}
 		else if( Parts.size( ) >= 2 && Parts[0] == "NOTICE" )
 		{
 			CONSOLE_Print2( "[IRC: " + m_Server + "] " + (*i) );
-			return;
 		}
 		else if( Parts.size( ) >= 2 && Parts[1] == "221" )
 		{
@@ -372,22 +364,18 @@ inline void CIRC :: ExtractPackets( )
 			{
 				SendIRC( "JOIN " + (*i) );
 			}
-				
-			return;
 		}
 		else if( Parts.size( ) >= 2 && Parts[1] == "353" )
 		{
 			// we don't actually check if we joined all of the channels
 
 			CONSOLE_Print2( "[IRC: " + m_Server + "] joined at least one channel successfully" );
-			return;
 		}
 		else if( Parts.size( ) >= 4 && Parts[1] == "KICK" && Parts[3] == m_Nickname )
 		{
 			// rejoin the channel if we get kicked
 
 			SendIRC( "JOIN " + Parts[2] );
-			return;
 		}
 		else if( Parts.size( ) >= 2 && Parts[1] == "433" )
 		{
@@ -396,7 +384,6 @@ inline void CIRC :: ExtractPackets( )
 			m_OriginalNick = false;
 			m_Nickname.append( "_" );
 			SendIRC( "NICK " + m_Nickname );
-			return;
 		}
 	}
 }
@@ -431,7 +418,7 @@ void CIRC :: PrivMsg( const string &message, const string &target )
 unsigned long int CIRC :: ToInt( const string &s )
 {
 	stringstream out;
-	unsigned long int result;
+	unsigned long result;
 	out << s;
 	out >> result;
 
@@ -470,42 +457,35 @@ unsigned int CDCC :: SetFD( void *fd, void *send_fd, int *nfds )
 	return NumFDs;
 }
 
-bool CDCC :: Update( void *fd, void *send_fd )
+void CDCC :: Update( void *fd, void *send_fd )
 {
 	if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) ) 
 	{
 		m_Socket->DoRecv( (fd_set *)fd );
 		m_Socket->PutBytes( "Welcome! :)\n" );
-		m_Socket->DoSend( (fd_set *)send_fd );			
-		return false;
+		m_Socket->DoSend( (fd_set *)send_fd );		
+		return;
 	}
-	else if( m_Socket->HasError( ) ) 
+	
+	if( m_Socket->HasError( ) ) 
 	{
 		m_Socket->Reset( );
-		return true;
+		return;
 	}
-	else if( m_Socket->GetConnected( ) ) 
+	
+	if( m_Socket->GetConnected( ) ) 
 	{
 		m_Socket->DoRecv( (fd_set *)fd );
 		m_Socket->DoSend( (fd_set *)send_fd );
-		return false;
-	}	
-
-	return false;
+		return;
+	}
 }
 
 void CDCC :: Connect( string IP, uint32_t Port )
-{
-	m_Socket->Disconnect( );
-
-	if( m_IP != IP )
-	{
-		m_IP = IP;
-		m_Socket->Connect( string( ), m_IP, Port );
-	}
-	else
-	{
-		m_Socket->Connect( string( ), m_IP, Port );
-		m_Socket->SetKeepAlive( );
-	}
+{	
+	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
+	
+	m_Socket->Reset( );	
+	m_IP = IP;		
+	m_Socket->Connect( string( ), m_IP, Port );
 }

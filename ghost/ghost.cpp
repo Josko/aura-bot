@@ -57,8 +57,11 @@
  #include <mach/mach_time.h>
 #endif
 
+/*
 string gLogFile = "ghost.log";
 ofstream *gLog = NULL;
+*/
+
 CGHost *gGHost = NULL;
 
 uint32_t GetTime( )
@@ -125,7 +128,7 @@ void CONSOLE_Print( string message )
 {
 	cout << message << endl;
 
-	// logging
+	/* logging
 
 	if( gLog && !gLog->fail( ) )
 	{
@@ -137,7 +140,7 @@ void CONSOLE_Print( string message )
 		Time.erase( Time.size( ) - 1 );
 		*gLog << "[" << Time << "] " << message << endl;
 		gLog->flush( );
-	}
+	} */
 
 	if( gGHost )
 		if( gGHost->m_IRC && gGHost->m_IRC->m_DCC.size( ) )
@@ -148,7 +151,7 @@ void CONSOLE_Print2( string message )
 {
 	cout << message << endl;
 
-	// logging
+	/* logging
 
 	if( gLog && !gLog->fail( ) )
 	{
@@ -160,14 +163,14 @@ void CONSOLE_Print2( string message )
 		Time.erase( Time.size( ) - 1 );
 		*gLog << "[" << Time << "] " << message << endl;
 		gLog->flush( );
-	}
+	} */
 }
 
 void CONSOLE_Print3( string message )
 {
 	cout << message << endl;
 
-	// logging
+	/* logging
 
 	if( gLog && !gLog->fail( ) )
 	{
@@ -179,7 +182,7 @@ void CONSOLE_Print3( string message )
 		Time.erase( Time.size( ) - 1 );
 		*gLog << "[" << Time << "] " << message << endl;
 		gLog->flush( );
-	}
+	} */
 
 	if( gGHost )
 	{
@@ -219,16 +222,17 @@ int main( )
 	CConfig CFG;
 	CFG.Read( "default.cfg" );
 
-	gLog = new ofstream( );
-	gLog->open( gLogFile.c_str( ), ios :: app );
+	// gLog = new ofstream( );
+	// gLog->open( gLogFile.c_str( ), ios :: app );
 
 	CONSOLE_Print( "[GHOST] starting up" );
 
+	/*
 	if( gLog->fail( ) )
 		CONSOLE_Print( "[GHOST] unable to open [" + gLogFile + "] for appending, logging is disabled" );
 	else
 		CONSOLE_Print( "[GHOST]logging is enabled and [" + gLogFile + "] is now locked" );
-
+	*/
 
 	// signal( SIGABRT, SignalCatcher );
 	signal( SIGINT, SignalCatcher );
@@ -323,13 +327,14 @@ int main( )
 	timeEndPeriod( TimerResolution );
 #endif
 
+	/*
 	if( gLog )
 	{
 		if( !gLog->fail( ) )
 			gLog->close( );
 
 		delete gLog;
-	}
+	} */
 
 	return 0;
 }
@@ -338,7 +343,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.4" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.5" )
 {
 	vector<string> channels;
 	vector<string> locals;
@@ -358,9 +363,9 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.4" )
 		line.clear( );
 
 		if( i == 1 )
-			line = CFG->GetString( "irc_local", string( ) );
+			line = CFG->GetString( "dcc_local", string( ) );
 		else
-			line = CFG->GetString( "irc_local" + UTIL_ToString( i ), string( ) );
+			line = CFG->GetString( "dcc_local" + UTIL_ToString( i ), string( ) );
 
 		if( !line.empty( ) )
 			locals.push_back( line );

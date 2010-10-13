@@ -25,6 +25,7 @@
  #include <winsock2.h>
  #include <errno.h>
 
+/*
  #define EADDRINUSE WSAEADDRINUSE
  #define EADDRNOTAVAIL WSAEADDRNOTAVAIL
  #define EAFNOSUPPORT WSAEAFNOSUPPORT
@@ -61,6 +62,7 @@
  #define ETOOMANYREFS WSAETOOMANYREFS
  #define EUSERS WSAEUSERS
  #define EWOULDBLOCK WSAEWOULDBLOCK
+ */
 #else
  #include <arpa/inet.h>
  #include <errno.h>
@@ -156,7 +158,6 @@ public:
 	virtual void DoSend( fd_set *send_fd );
 	virtual void Disconnect( );
 	virtual void SetNoDelay( );
-	virtual void SetKeepAlive( );
 };
 
 //

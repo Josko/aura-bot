@@ -301,16 +301,6 @@ void CTCPSocket :: SetNoDelay( )
 #endif
 }
 
-void CTCPSocket :: SetKeepAlive( )
-{
-	int OptVal = 1;
-#ifdef WIN32
-	setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, (const char *)&OptVal, sizeof( OptVal ) );
-#else
-	setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, &OptVal, sizeof( OptVal ) );
-#endif
-}
-
 //
 // CTCPClient
 //

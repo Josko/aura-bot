@@ -1,8 +1,8 @@
-SHELL = /bin/sh
+﻿SHELL = /bin/sh
 SYSTEM = $(shell uname)
 C++ = g++
 CC = gcc
-DFLAGS = -DGHOST_MYSQL
+DFLAGS = -Wall -DGHOST_MYSQL
 OFLAGS = -O3
 LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lboost_date_time-mt -lboost_thread-mt -lboost_system-mt -lboost_filesystem-mt
 CFLAGS =

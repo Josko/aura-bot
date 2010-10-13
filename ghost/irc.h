@@ -21,11 +21,9 @@ public:
 	uint16_t m_DCCPort;
 	bool m_Exiting;
 	bool m_WaitingToConnect;
-	bool m_FirstConnect;
 	bool m_OriginalNick;
 	uint32_t m_LastConnectionAttemptTime;
-	uint32_t m_LastPacketTime;	
-
+	uint32_t m_LastPacketTime;
 
 	CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, uint16_t nDCCPort, vector<string> nLocals );
 	~CIRC( );
@@ -56,7 +54,7 @@ public:
 	~CDCC( );
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-	bool Update( void *fd, void *send_fd );
+	void Update( void *fd, void *send_fd );
 	void Connect( string IP, uint32_t Port );
 };
 

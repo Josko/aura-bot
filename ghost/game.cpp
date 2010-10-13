@@ -874,6 +874,31 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 				else
 					SendAllChat( m_GHost->m_Language->UnableToStartDownloadFoundMoreThanOneMatch( Payload ) );
 			}
+			
+			//
+			// !DOWNLOADS
+			//
+
+			else if( ( Command == "downloads" || Command == "dls" ) && !Payload.empty( ) )
+			{
+				uint32_t Downloads = UTIL_ToUInt32( Payload );
+
+				if( Downloads == 0 )
+				{
+					SendAllChat( m_GHost->m_Language->MapDownloadsDisabled( ) );
+					m_GHost->m_AllowDownloads = 0;
+				}
+				else if( Downloads == 1 )
+				{
+					SendAllChat( m_GHost->m_Language->MapDownloadsEnabled( ) );
+					m_GHost->m_AllowDownloads = 1;
+				}
+				else if( Downloads == 2 )
+				{
+					SendAllChat( m_GHost->m_Language->MapDownloadsConditional( ) );
+					m_GHost->m_AllowDownloads = 2;
+				}
+			}
 
 			//
 			// !DROP

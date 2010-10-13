@@ -34,7 +34,7 @@
 // CPotentialPlayer
 //
 
-CPotentialPlayer :: CPotentialPlayer( CGameProtocol *nProtocol, CBaseGame *nGame, CTCPSocket *nSocket ) : m_Socket( nSocket ), m_Protocol( nProtocol ), m_Game( nGame ), m_DeleteMe( false ), m_Error( false ), m_IncomingJoinPlayer( NULL )
+CPotentialPlayer :: CPotentialPlayer( CGameProtocol *nProtocol, CBaseGame *nGame, CTCPSocket *nSocket ) : m_Protocol( nProtocol ), m_Game( nGame ), m_Socket( nSocket ), m_DeleteMe( false ), m_Error( false ), m_IncomingJoinPlayer( NULL )
 {
 
 }
@@ -371,7 +371,6 @@ void CGamePlayer :: ProcessPackets( )
 	CIncomingAction *Action = NULL;
 	CIncomingChatPlayer *ChatPlayer = NULL;
 	CIncomingMapSize *MapSize = NULL;
-	bool HasMap = false;
 	uint32_t CheckSum = 0;
 	uint32_t Pong = 0;
 
