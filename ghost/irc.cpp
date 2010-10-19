@@ -388,10 +388,8 @@ inline void CIRC :: ExtractPackets( )
 
 void CIRC :: SendIRC( const string &message )
 {
-	// see if we're connected then append the ending byte
-
 	if( m_Socket->GetConnected( ) )
-		m_Socket->PutBytes( message + '\x0a' );
+		m_Socket->PutBytes( message.substr( 0, 300 ) + '\x0a' );	
 }
 
 void CIRC :: SendDCC( const string &message )
@@ -402,14 +400,14 @@ void CIRC :: SendDCC( const string &message )
 }
 
 void CIRC :: PrivMsg( const string &message, const string &target )
-{
+{		
 	if( m_Socket->GetConnected( ) )
 	{
-		if( !target.empty( ) )		
-			m_Socket->PutBytes( "PRIVMSG " + target + " :" + message + '\x0a' );
+		if( !target.empty( ) )
+			m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 255 ? message.substr( 0, 255 ) : message )+ '\x0a' );
 		else
 			for( vector<string> :: iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
-				m_Socket->PutBytes( "PRIVMSG " + (*i) + " :" + message + '\x0a' );
+				m_Socket->PutBytes( "PRIVMSG " + (*i) + " :" + ( message.size( ) > 255 ? message.substr( 0, 255 ) : message ) + '\x0a' );
 	}
 }
 

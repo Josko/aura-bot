@@ -41,7 +41,7 @@ using namespace boost :: filesystem;
 // CBNET
 //
 
-CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, uint32_t nHostCounterID ) : m_GHost( nGHost ), m_Exiting( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_RootAdmin( nRootAdmin ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_MaxMessageLength( nMaxMessageLength ), m_HostCounterID( nHostCounterID ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_PublicCommands( nPublicCommands ), m_Deactivated( false )
+CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, uint32_t nHostCounterID ) : m_GHost( nGHost ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_RootAdmin( nRootAdmin ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_PublicCommands( nPublicCommands ), m_SpamChannel( "allstars" ), m_Deactivated( false )
 {
 	m_Socket = new CTCPClient( );
 	m_Protocol = new CBNETProtocol( );
@@ -82,6 +82,7 @@ CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDK
 	m_LastOutPacketSize = 0;
 	m_LastAdminRefreshTime = GetTime( );
 	m_LastBanRefreshTime = GetTime( );
+	m_LastSpamTicks = 0;
 }
 
 CBNET :: ~CBNET( )
@@ -458,6 +459,19 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		{
 			m_Socket->PutBytes( m_Protocol->SEND_SID_NULL( ) );
 			m_LastNullTime = GetTime( );
+		}
+		
+		// spam game every 2.5 seconds
+		
+		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3199 ) )
+		{
+			if( m_GHost->m_CurrentGame )
+			{
+				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
+				m_LastSpamTicks = GetTicks( );
+			}
+			else
+				m_Spam = false;
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
@@ -1400,7 +1414,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				{
 					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
 
-					if( Payload.size( ) > 4 && Payload.substr( Payload.size( ) - 4  ) != ".cfg" )
+					if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".cfg" ) )
 						Payload.append( ".cfg" );
 
 					directory_iterator EndIterator;
@@ -1718,6 +1732,29 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					else
 						QueueChatCommand( "Games in progress, use !restart force" );
 				}
+				
+				//
+				// !SPAM
+				//
+				
+				else if( Command == "spam" && m_Server == "europe.battle.net" )
+				{
+					if( m_Spam )
+					{
+						m_Spam = false;
+						QueueChatCommand( "/j " + m_FirstChannel );
+						m_SpamChannel = "allstars";
+						CONSOLE_Print3( "Allstars spam is off." );					
+					}
+					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
+					{
+						m_Spam = true;
+						QueueChatCommand( "/j allstars" );
+						CONSOLE_Print3( "Allstars spam is on." );		
+					}
+					else
+						QueueChatCommand( "No current game or it's public or game name isn't 4 letters long" );
+				}
 
 				//
 				// !UNHOST
@@ -1862,6 +1899,21 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					else
 						QueueChatCommand( m_GHost->m_Language->ThereIsNoGameInTheLobby( UTIL_ToString( m_GHost->m_Games.size( ) ), UTIL_ToString( m_GHost->m_MaxGames ) ), User, Whisper, IRC );
 				}
+				
+				//
+				// !GETPLAYERS
+				//
+				
+				else if( Command == "getplayers" && !Payload.empty( ) )
+				{
+					uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
+
+					if( GameNumber < m_GHost->m_Games.size( ) )
+						QueueChatCommand( "Players in game [" + m_GHost->m_Games[GameNumber]->GetGameName( ) + "] are: " + m_GHost->m_Games[GameNumber]->GetPlayers( ), User, Whisper, IRC );
+					else
+						QueueChatCommand( m_GHost->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, IRC );				
+				
+				}
 
 				//
 				// !STATSDOTA
@@ -1927,6 +1979,11 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] joined channel [" + Message + "]" );
 		m_CurrentChannel = Message;
+		
+		if( m_Spam && m_GHost->m_CurrentGame )
+		{
+			m_GHost->m_CurrentGame->SendAllChat( "Joined channel [" + Message + "] for spamming." ) ;
+		}
 	}
 	else if( Event == CBNETProtocol :: EID_INFO )
 	{
@@ -1941,7 +1998,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		if( Split != string :: npos )
 			UserName = Message.substr( 0, Split );
 		else
-			UserName = Message.substr( 0 );
+			UserName = Message;
 
 		// handle spoof checking for current game
 		// this case covers whois results which are used when hosting a public game (we send out a "/whois [player]" for each player)
@@ -1978,6 +2035,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	else if( Event == CBNETProtocol :: EID_ERROR )
 	{
 		CONSOLE_Print( "[ERROR: " + m_ServerAlias + "] " + Message );
+		
+		if( m_Spam && Message == "Channel is full." )
+		{
+			m_SpamChannel += "/j allstars";
+			QueueChatCommand( "/j " + m_SpamChannel );
+		}
 	}
 }
 
@@ -2005,30 +2068,28 @@ void CBNET :: QueueEnterChat( )
 		m_OutPackets.push( m_Protocol->SEND_SID_ENTERCHAT( ) );
 }
 
-void CBNET :: QueueChatCommand( string chatCommand )
+void CBNET :: QueueChatCommand( const string &chatCommand )
 {
 	if( chatCommand.empty( ) )
 		return;
 
-	if( m_LoggedIn )
+	if( m_LoggedIn && m_OutPackets.size( ) <= 10 )
 	{
-		if( m_PasswordHashType == "pvpgn" && chatCommand.size( ) > m_MaxMessageLength )
-			chatCommand = chatCommand.substr( 0, 200 );
-
-		if( chatCommand.size( ) > 255 )
-			chatCommand = chatCommand.substr( 0, 255 );
-
-		if( m_OutPackets.size( ) > 10 )
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] too many (" + UTIL_ToString( m_OutPackets.size( ) ) + ") packets queued, discarding" );
+		CONSOLE_Print( "[QUEUED: " + m_ServerAlias + "] " + chatCommand );
+		
+		if( m_PasswordHashType == "pvpgn" )			
+			m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( chatCommand.substr( 0, 200 ) ) );	
+		else if( chatCommand.size( ) > 255 )
+			m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( chatCommand.substr( 0, 255 ) ) );
 		else
-		{
-			CONSOLE_Print( "[QUEUED: " + m_ServerAlias + "] " + chatCommand );
-			m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( chatCommand ) );
-		}
+			m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( chatCommand ) );	
 	}
+	else
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] too many (" + UTIL_ToString( m_OutPackets.size( ) ) + ") packets queued, discarding" );
 }
 
-void CBNET :: QueueChatCommand( string chatCommand, string user, bool whisper, bool irc )
+
+void CBNET :: QueueChatCommand( const string &chatCommand, const string &user, bool whisper, bool irc )
 {
 	if( chatCommand.empty( ) )
 		return;
@@ -2051,7 +2112,7 @@ void CBNET :: QueueChatCommand( string chatCommand, string user, bool whisper, b
 		QueueChatCommand( chatCommand );
 }
 
-void CBNET :: QueueGameCreate( unsigned char state, string gameName, string hostName, CMap *map, uint32_t hostCounter )
+void CBNET :: QueueGameCreate( unsigned char state, const string &gameName, const string &hostName, CMap *map, uint32_t hostCounter )
 {
 	if( m_LoggedIn && map )
 	{
@@ -2066,7 +2127,7 @@ void CBNET :: QueueGameCreate( unsigned char state, string gameName, string host
 	}
 }
 
-void CBNET :: QueueGameRefresh( unsigned char state, string gameName, string hostName, CMap *map, uint32_t hostCounter )
+void CBNET :: QueueGameRefresh( unsigned char state, const string &gameName, string hostName, CMap *map, uint32_t hostCounter )
 {
 	if( hostName.empty( ) )
 	{
@@ -2185,7 +2246,7 @@ CDBBan *CBNET :: IsBannedName( string name )
 	return NULL;
 }
 
-CDBBan *CBNET :: IsBannedIP( string ip )
+CDBBan *CBNET :: IsBannedIP( const string &ip )
 {
 	// todotodo: optimize this - maybe use a map?
 

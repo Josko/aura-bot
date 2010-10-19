@@ -33,7 +33,7 @@ public:
 	void SendIRC( const string &message );
 	void SendDCC( const string &message );
 	void PrivMsg( const string &message, const string &target );
-	unsigned long int ToInt( const string &s );
+	unsigned long ToInt( const string &s );
 };
 
 class CGHost;

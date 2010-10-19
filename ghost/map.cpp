@@ -754,6 +754,10 @@ void CMap :: Load( CConfig *CFG, string nCFGFile )
 
 	m_MapHeight = MapHeight;
 	m_MapType = CFG->GetString( "map_type", string( ) );
+	
+	if( m_MapType == "dota" )
+		CONSOLE_Print( "[MAP] using dotastats" );
+	
 	m_MapDefaultHCL = CFG->GetString( "map_defaulthcl", string( ) );
 	m_MapLoadInGame = CFG->GetInt( "map_loadingame", 0 ) == 0 ? false : true;
 

@@ -136,6 +136,7 @@ public:
 	virtual uint32_t GetNumPlayers( );
 	virtual uint32_t GetNumHumanPlayers( );
 	virtual string GetDescription( );
+	virtual string GetPlayers( );
 
 	// processing functions
 

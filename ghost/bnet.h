@@ -81,6 +81,7 @@ private:
 	vector<string> m_Admins;						// vector of cached admins
 	vector<CDBBan *> m_Bans;						// vector of cached bans
 	bool m_Exiting;									// set to true and this class will be deleted next update
+	bool m_Spam;								// spam game in allstars
 	string m_Server;								// battle.net server to connect to
 	string m_ServerIP;								// battle.net server to connect to (the IP address so we don't have to resolve it every time we connect)
 	string m_ServerAlias;							// battle.net server alias (short name, e.g. "USEast")
@@ -99,7 +100,6 @@ private:
 	BYTEARRAY m_EXEVersion;							// custom exe version for PvPGN users
 	BYTEARRAY m_EXEVersionHash;						// custom exe version hash for PvPGN users
 	string m_PasswordHashType;						// password hash type for PvPGN users
-	uint32_t m_MaxMessageLength;					// maximum message length for PvPGN users
 	uint32_t m_HostCounterID;						// the host counter ID to identify players from this realm
 	uint32_t m_LastDisconnectedTime;				// GetTime when we were last disconnected from battle.net
 	uint32_t m_LastConnectionAttemptTime;			// GetTime when we last attempted to connect to battle.net
@@ -108,11 +108,13 @@ private:
 	uint32_t m_LastOutPacketSize;
 	uint32_t m_LastAdminRefreshTime;				// GetTime when the admin list was last refreshed from the database
 	uint32_t m_LastBanRefreshTime;					// GetTime when the ban list was last refreshed from the database
+	uint32_t m_LastSpamTicks;
 	bool m_FirstConnect;							// if we haven't tried to connect to battle.net yet
 	bool m_WaitingToConnect;						// if we're waiting to reconnect to battle.net after being disconnected
 	bool m_LoggedIn;								// if we've logged into battle.net or not
 	bool m_InChat;									// if we've entered chat or not (but we're not necessarily in a chat channel yet)
 	bool m_PublicCommands;							// whether to allow public commands or not
+	string m_SpamChannel;
 	bool m_Deactivated;
 
 public:
@@ -154,22 +156,22 @@ public:
 	void SendGetFriendsList( );
 	void SendGetClanList( );
 	void QueueEnterChat( );
-	void QueueChatCommand( string chatCommand );
-	void QueueChatCommand( string chatCommand, string user, bool whisper, bool irc );
-	void QueueGameCreate( unsigned char state, string gameName, string hostName, CMap *map, uint32_t hostCounter );
-	void QueueGameRefresh( unsigned char state, string gameName, string hostName, CMap *map, uint32_t hostCounter );
+	void QueueChatCommand( const string &chatCommand );
+	void QueueChatCommand( const string &chatCommand, const string &user, bool whisper, bool irc );
+	void QueueGameCreate( unsigned char state, const string &gameName, const string &hostName, CMap *map, uint32_t hostCounter );
+	void QueueGameRefresh( unsigned char state, const string &gameName, string hostName, CMap *map, uint32_t hostCounter );
 	void QueueGameUncreate( );
 
 	void UnqueueGameRefreshes( );
 
 	// other functions
 
-	void Deactivate( )					{ m_Socket->Reset( ); m_Deactivated = true; m_WaitingToConnect = true; m_InChat = false; m_LoggedIn = false; }
-	void Activate( )					{ m_Deactivated = false; }
+	void Deactivate( )					{ m_Socket->Reset( ); m_Deactivated = true; m_WaitingToConnect = true; m_InChat = false; m_LoggedIn = false; m_Spam = false; }
+	void Activate( )					{ m_Deactivated = false; m_Spam = false; }
 	bool IsAdmin( string name );
 	bool IsRootAdmin( string name );
 	CDBBan *IsBannedName( string name );
-	CDBBan *IsBannedIP( string ip );
+	CDBBan *IsBannedIP( const string &ip );
 	void AddAdmin( string name );
 	void AddBan( string name, string ip, string gamename, string admin, string reason );
 	void RemoveAdmin( string name );

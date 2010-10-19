@@ -169,6 +169,22 @@ string CBaseGame :: GetDescription( )
 	return Description;
 }
 
+string CBaseGame :: GetPlayers( )
+{
+	string Players;
+	
+	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+	{
+		if( !(*i)->GetLeftMessageSent( ) )
+			Players += (*i)->GetName( ) + ", ";
+	}
+	
+	if( Players.size( ) > 2 )
+		Players = Players.substr( 0, Players.size( ) - 2 );
+		
+	return Players;
+}
+
 unsigned int CBaseGame :: SetFD( void *fd, void *send_fd, int *nfds )
 {
 	int NumFDs = 0;
