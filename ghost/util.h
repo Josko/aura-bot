@@ -27,11 +27,11 @@ BYTEARRAY UTIL_CreateByteArray( unsigned char *a, int size );
 BYTEARRAY UTIL_CreateByteArray( unsigned char c );
 BYTEARRAY UTIL_CreateByteArray( uint16_t i, bool reverse );
 BYTEARRAY UTIL_CreateByteArray( uint32_t i, bool reverse );
-uint16_t UTIL_ByteArrayToUInt16( BYTEARRAY b, bool reverse, unsigned int start = 0 );
-uint32_t UTIL_ByteArrayToUInt32( BYTEARRAY b, bool reverse, unsigned int start = 0 );
+uint16_t UTIL_ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsigned int start = 0 );
+uint32_t UTIL_ByteArrayToUInt32( const BYTEARRAY &b, bool reverse, unsigned int start = 0 );
 string UTIL_ByteArrayToDecString( BYTEARRAY b );
 string UTIL_ByteArrayToHexString( BYTEARRAY b );
-void UTIL_AppendByteArray( BYTEARRAY &b, BYTEARRAY append );
+void UTIL_AppendByteArray( BYTEARRAY &b, const BYTEARRAY &append );
 void UTIL_AppendByteArrayFast( BYTEARRAY &b, BYTEARRAY &append );
 void UTIL_AppendByteArray( BYTEARRAY &b, unsigned char *a, int size );
 void UTIL_AppendByteArray( BYTEARRAY &b, string append, bool terminator = true );
@@ -40,8 +40,8 @@ void UTIL_AppendByteArray( BYTEARRAY &b, uint16_t i, bool reverse );
 void UTIL_AppendByteArray( BYTEARRAY &b, uint32_t i, bool reverse );
 BYTEARRAY UTIL_ExtractCString( BYTEARRAY &b, unsigned int start );
 unsigned char UTIL_ExtractHex( BYTEARRAY &b, unsigned int start, bool reverse );
-BYTEARRAY UTIL_ExtractNumbers( string s, unsigned int count );
-BYTEARRAY UTIL_ExtractHexNumbers( string s );
+BYTEARRAY UTIL_ExtractNumbers( const string &s, unsigned int count );
+BYTEARRAY UTIL_ExtractHexNumbers( string &s );
 
 // conversions
 
@@ -63,7 +63,7 @@ string UTIL_MSToString( uint32_t ms );
 
 // files
 
-bool UTIL_FileExists( string file );
+bool UTIL_FileExists( string &file );
 string UTIL_FileRead( string file, uint32_t start, uint32_t length );
 string UTIL_FileRead( string file );
 bool UTIL_FileWrite( string file, unsigned char *data, uint32_t length );
@@ -77,8 +77,8 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data );
 
 // other
 
-bool UTIL_IsLanIP( BYTEARRAY ip );
-bool UTIL_IsLocalIP( BYTEARRAY ip, vector<BYTEARRAY> &localIPs );
+bool UTIL_IsLanIP( BYTEARRAY &ip );
+bool UTIL_IsLocalIP( BYTEARRAY &ip, vector<BYTEARRAY> &localIPs );
 void UTIL_Replace( string &Text, string Key, string Value );
 vector<string> UTIL_Tokenize( string s, char delim );
 

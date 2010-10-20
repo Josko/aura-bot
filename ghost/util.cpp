@@ -64,7 +64,7 @@ BYTEARRAY UTIL_CreateByteArray( uint32_t i, bool reverse )
 		return result;
 }
 
-uint16_t UTIL_ByteArrayToUInt16( BYTEARRAY b, bool reverse, unsigned int start )
+uint16_t UTIL_ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsigned int start )
 {
 	if( b.size( ) < start + 2 )
 		return 0;
@@ -77,7 +77,7 @@ uint16_t UTIL_ByteArrayToUInt16( BYTEARRAY b, bool reverse, unsigned int start )
 	return (uint16_t)( temp[1] << 8 | temp[0] );
 }
 
-uint32_t UTIL_ByteArrayToUInt32( BYTEARRAY b, bool reverse, unsigned int start )
+uint32_t UTIL_ByteArrayToUInt32( const BYTEARRAY& b, bool reverse, unsigned int start )
 {
 	if( b.size( ) < start + 4 )
 		return 0;
@@ -121,7 +121,7 @@ string UTIL_ByteArrayToHexString( BYTEARRAY b )
 	return result;
 }
 
-void UTIL_AppendByteArray( BYTEARRAY &b, BYTEARRAY append )
+void UTIL_AppendByteArray( BYTEARRAY &b, const BYTEARRAY &append )
 {
 	b.insert( b.end( ), append.begin( ), append.end( ) );
 }
@@ -209,7 +209,7 @@ unsigned char UTIL_ExtractHex( BYTEARRAY &b, unsigned int start, bool reverse )
 	return 0;
 }
 
-BYTEARRAY UTIL_ExtractNumbers( string s, unsigned int count )
+BYTEARRAY UTIL_ExtractNumbers( const string &s, unsigned int count )
 {
 	// consider the string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
@@ -233,7 +233,7 @@ BYTEARRAY UTIL_ExtractNumbers( string s, unsigned int count )
 	return result;
 }
 
-BYTEARRAY UTIL_ExtractHexNumbers( string s )
+BYTEARRAY UTIL_ExtractHexNumbers( string &s )
 {
 	// consider the string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
@@ -396,7 +396,7 @@ string UTIL_MSToString( uint32_t ms )
 	return MinString + "m" + SecString + "s";
 }
 
-bool UTIL_FileExists( string file )
+bool UTIL_FileExists( string &file )
 {
 	struct stat fileinfo;
 
@@ -565,7 +565,7 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
 	return Result;
 }
 
-bool UTIL_IsLanIP( BYTEARRAY ip )
+bool UTIL_IsLanIP( BYTEARRAY &ip )
 {
 	if( ip.size( ) != 4 )
 		return false;
@@ -595,7 +595,7 @@ bool UTIL_IsLanIP( BYTEARRAY ip )
 	return false;
 }
 
-bool UTIL_IsLocalIP( BYTEARRAY ip, vector<BYTEARRAY> &localIPs )
+bool UTIL_IsLocalIP( BYTEARRAY &ip, vector<BYTEARRAY> &localIPs )
 {
 	if( ip.size( ) != 4 )
 		return false;

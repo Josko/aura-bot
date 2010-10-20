@@ -1234,9 +1234,6 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 			}
 		}
 	}
-	
-			
-
 
 	// check if the new player's name is banned but only if bot_banmethod is not 0
 	// this is because if bot_banmethod is 0 and we announce the ban here it's possible for the player to be rejected later because the game is full
@@ -1309,7 +1306,6 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 	// we can't just use the spoof checked realm like in EventPlayerBotCommand because the player hasn't spoof checked yet
 
 	bool AnyAdminCheck = IsAdmin( joinPlayer->GetName( ) );
-
 	bool Reserved = IsReserved( joinPlayer->GetName( ) ) || AnyAdminCheck || IsOwner( joinPlayer->GetName( ) );
 
 	// try to find a slot
@@ -1522,7 +1518,6 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 	if( !Others.empty( ) )
 		SendAllChat( m_GHost->m_Language->MultipleIPAddressUsageDetected( joinPlayer->GetName( ), Others ) );
 
-
 	// abort the countdown if there was one in progress
 
 	if( m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
@@ -1559,7 +1554,7 @@ void CBaseGame :: EventPlayerLeft( CGamePlayer *player, uint32_t reason )
 
 void CBaseGame :: EventPlayerLoaded( CGamePlayer *player )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float)( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000, 2 ) + " seconds" );
+	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float)( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
 
 	if( m_LoadInGame )
 	{
@@ -2015,7 +2010,7 @@ void CBaseGame :: EventPlayerDropRequest( CGamePlayer *player )
 				++Votes;
 		}
 
-		if( (float)Votes / m_Players.size( ) > 0.50 )
+		if( (float)Votes / m_Players.size( ) > 0.50f )
 			StopLaggers( m_GHost->m_Language->LaggedOutDroppedByVote( ) );
 	}
 }
@@ -2076,15 +2071,15 @@ void CBaseGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *map
 	{
 		// calculate download rate
 
-		float Seconds = (float)( GetTicks( ) - player->GetStartedDownloadingTicks( ) ) / 1000;
-		float Rate = (float)MapSize / 1024 / Seconds;
+		float Seconds = (float)( GetTicks( ) - player->GetStartedDownloadingTicks( ) ) / 1000.f;
+		float Rate = (float)MapSize / 1024.f / Seconds;
 		CONSOLE_Print( "[GAME: " + m_GameName + "] map download finished for player [" + player->GetName( ) + "] in " + UTIL_ToString( Seconds, 1 ) + " seconds" );
 		SendAllChat( m_GHost->m_Language->PlayerDownloadedTheMap( player->GetName( ), UTIL_ToString( Seconds, 1 ), UTIL_ToString( Rate, 1 ) ) );
 		player->SetDownloadFinished( true );
 		player->SetFinishedDownloadingTime( GetTime( ) );
 	}
 
-	unsigned char NewDownloadStatus = (unsigned char)( (float)mapSize->GetMapSize( ) / MapSize * 100 );
+	unsigned char NewDownloadStatus = (unsigned char)( (float)mapSize->GetMapSize( ) / MapSize * 100.f );
 	unsigned char SID = GetSIDFromPID( player->GetPID( ) );
 
 	if( NewDownloadStatus > 100 )

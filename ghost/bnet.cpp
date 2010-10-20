@@ -471,7 +471,10 @@ bool CBNET :: Update( void *fd, void *send_fd )
 				m_LastSpamTicks = GetTicks( );
 			}
 			else
+			{
 				m_Spam = false;
+				CONSOLE_Print3( "Spam is turned off automagically" );
+			}
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
@@ -1730,7 +1733,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						m_GHost->Restart( false );
 					}
 					else
-						QueueChatCommand( "Games in progress, use !restart force" );
+						QueueChatCommand( "Games in progress, use !restart force", User, Whisper, IRC );
 				}
 				
 				//

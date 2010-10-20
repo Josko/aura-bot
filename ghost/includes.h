@@ -39,8 +39,8 @@
 #include <map>
 #include <queue>
 #include <set>
-#include <string>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -68,7 +68,5 @@ uint32_t GetTicks( );		// milliseconds
 void CONSOLE_Print( string message ); // CONSOLE and DCC
 void CONSOLE_Print2( string message ); // CONSOLE
 void CONSOLE_Print3( string message ); // CONSOLE and DCC and IRC
-void DEBUG_Print( string message );
-void DEBUG_Print( BYTEARRAY b );
 
 #endif
