@@ -328,7 +328,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.56" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.57" )
 {
 	vector<string> channels;
 	vector<string> locals;
@@ -955,6 +955,8 @@ void CGHost :: EventBNETGameRefreshFailed( CBNET *bnet )
 		}
 
 		m_CurrentGame->SendAllChat( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
+		
+		CONSOLE_Print3( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name." );
 
 		// we take the easy route and simply close the lobby if a refresh fails
 		// it's possible at least one refresh succeeded and therefore the game is still joinable on at least one battle.net (plus on the local network) but we don't keep track of that

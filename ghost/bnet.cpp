@@ -463,9 +463,9 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		
 		// spam game every 2.5 seconds
 		
-		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3199 ) )
+		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3500 ) )
 		{
-			if( m_GHost->m_CurrentGame )
+			if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
 			{
 				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
 				m_LastSpamTicks = GetTicks( );
@@ -473,7 +473,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			else
 			{
 				m_Spam = false;
-				CONSOLE_Print3( "Spam is turned off automagically" );
+				CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Spam is turned off automagically." );
 			}
 		}
 
@@ -1747,13 +1747,13 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						m_Spam = false;
 						QueueChatCommand( "/j " + m_FirstChannel );
 						m_SpamChannel = "allstars";
-						CONSOLE_Print3( "Allstars spam is off." );					
+						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is off." );					
 					}
 					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
 					{
 						m_Spam = true;
 						QueueChatCommand( "/j allstars" );
-						CONSOLE_Print3( "Allstars spam is on." );		
+						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
 					}
 					else
 						QueueChatCommand( "No current game or it's public or game name isn't 4 letters long" );
@@ -1983,7 +1983,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] joined channel [" + Message + "]" );
 		m_CurrentChannel = Message;
 		
-		if( m_Spam && m_GHost->m_CurrentGame )
+		if( m_Spam )
 		{
 			m_GHost->m_CurrentGame->SendAllChat( "Joined channel [" + Message + "] for spamming." ) ;
 		}
@@ -2037,11 +2037,15 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	}
 	else if( Event == CBNETProtocol :: EID_ERROR )
 	{
-		CONSOLE_Print( "[ERROR: " + m_ServerAlias + "] " + Message );
+		CONSOLE_Print( "[ERROR: " + m_ServerAlias + "] " + Message );		
 		
 		if( m_Spam && Message == "Channel is full." )
-		{
-			m_SpamChannel += "/j allstars";
+		{			
+			if( m_SpamChannel == "allstars/j allstars/j allstars" )
+				m_SpamChannel = "allstars";
+			else
+				m_SpamChannel += "/j allstars";
+				
 			QueueChatCommand( "/j " + m_SpamChannel );
 		}
 	}
@@ -2097,7 +2101,7 @@ void CBNET :: QueueChatCommand( const string &chatCommand, const string &user, b
 	if( chatCommand.empty( ) )
 		return;
 
-	// if destination is IRC send it there
+	// if the destination is IRC send it there
 	
 	if( irc )
 	{

@@ -2,7 +2,7 @@
 SYSTEM = $(shell uname)
 C++ = g++
 CC = gcc
-DFLAGS = -Wall -DGHOST_MYSQL -DSQLITE_THREADSAFE=0
+DFLAGS = -Wall -DSQLITE_THREADSAFE=0
 OFLAGS = -O3
 LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lboost_date_time-mt -lboost_thread-mt -lboost_system-mt -lboost_filesystem-mt
 CFLAGS =

@@ -404,10 +404,10 @@ void CIRC :: PrivMsg( const string &message, const string &target )
 	if( m_Socket->GetConnected( ) )
 	{
 		if( !target.empty( ) )
-			m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 255 ? message.substr( 0, 255 ) : message )+ '\x0a' );
+			m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 320 ? message.substr( 0, 320 ) : message )+ '\x0a' );
 		else
 			for( vector<string> :: iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
-				m_Socket->PutBytes( "PRIVMSG " + (*i) + " :" + ( message.size( ) > 255 ? message.substr( 0, 255 ) : message ) + '\x0a' );
+				m_Socket->PutBytes( "PRIVMSG " + (*i) + " :" + ( message.size( ) > 320 ? message.substr( 0, 320 ) : message ) + '\x0a' );
 	}
 }
 
