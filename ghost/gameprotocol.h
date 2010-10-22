@@ -129,6 +129,7 @@ public:
 	BYTEARRAY SEND_W3GS_COUNTDOWN_START( );
 	BYTEARRAY SEND_W3GS_COUNTDOWN_END( );
 	BYTEARRAY SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *> actions, uint16_t sendInterval );
+	BYTEARRAY SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> actions );
 	BYTEARRAY SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, string message );
 	BYTEARRAY SEND_W3GS_START_LAG( vector<CGamePlayer *> players, bool loadInGame = false );
 	BYTEARRAY SEND_W3GS_STOP_LAG( CGamePlayer *player, bool loadInGame = false );
@@ -139,8 +140,7 @@ public:
 	BYTEARRAY SEND_W3GS_DECREATEGAME( );
 	BYTEARRAY SEND_W3GS_MAPCHECK( string mapPath, BYTEARRAY mapSize, BYTEARRAY mapInfo, BYTEARRAY mapCRC, BYTEARRAY mapSHA1 );
 	BYTEARRAY SEND_W3GS_STARTDOWNLOAD( unsigned char fromPID );
-	BYTEARRAY SEND_W3GS_MAPPART( unsigned char fromPID, unsigned char toPID, uint32_t start, string *mapData );
-	BYTEARRAY SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> actions );
+	BYTEARRAY SEND_W3GS_MAPPART( unsigned char fromPID, unsigned char toPID, uint32_t start, string *mapData );	
 
 	// other functions
 

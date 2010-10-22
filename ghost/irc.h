@@ -22,7 +22,6 @@ public:
 	bool m_WaitingToConnect;
 	bool m_OriginalNick;
 	uint32_t m_LastConnectionAttemptTime;
-	uint32_t m_LastPacketTime;
 
 	CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals );
 	~CIRC( );
@@ -49,7 +48,7 @@ public:
 	uint16_t m_Port;
 	const string m_Nickname;
 
-	CDCC( CIRC *nIRC, const string nIP, const uint16_t nPort, const string nNickname );
+	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, string nNickname );
 	~CDCC( );
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );

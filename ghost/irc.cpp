@@ -11,7 +11,7 @@
 //// CIRC ////
 //////////////
 
-CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals  ) : m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) )
+CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals  ) : m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 )
 {
 	m_Socket = new CTCPClient( );
 
@@ -53,7 +53,6 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		m_Socket->Reset( );
 		m_WaitingToConnect = true;
 		m_LastConnectionAttemptTime = GetTime( );
-		m_LastPacketTime = GetTime( );
 		return m_Exiting;
 	}
 
@@ -65,22 +64,11 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		m_Socket->Reset( );
 		m_WaitingToConnect = true;
 		m_LastConnectionAttemptTime = GetTime( );
-		m_LastPacketTime = GetTime( );
 		return m_Exiting;
 	}
 
 	if( m_Socket->GetConnected( ) )
 	{
-		if( ( GetTime( ) - m_LastPacketTime ) >= 300 )
-		{
-			CONSOLE_Print( "[IRC: " + m_Server + "] ping timeout, waiting 30 seconds to reconnect" );
-			m_Socket->Reset( );
-			m_WaitingToConnect = true;
-			m_LastConnectionAttemptTime = GetTime( );
-			m_LastPacketTime = GetTime( );
-			return m_Exiting;
-		}
-
 		// the socket is connected and everything appears to be working properly
 
 		m_Socket->DoRecv( (fd_set *)fd );
@@ -160,7 +148,6 @@ inline void CIRC :: ExtractPackets( )
 
 	for( vector<string> :: iterator i = Packets.begin( ); i != Packets.end( ); ++i )
 	{
-		m_LastPacketTime = GetTime( );
 		vector<string> Parts = UTIL_Tokenize( (*i).substr( 0, (*i).size( ) - 1) , ' ' );
 
 		if( Parts.size( ) >= 3 && Parts[1] == "PRIVMSG" )
@@ -389,7 +376,7 @@ inline void CIRC :: ExtractPackets( )
 void CIRC :: SendIRC( const string &message )
 {
 	if( m_Socket->GetConnected( ) )
-		m_Socket->PutBytes( message.substr( 0, 300 ) + '\x0a' );	
+		m_Socket->PutBytes( message + '\x0a' );	
 }
 
 void CIRC :: SendDCC( const string &message )
@@ -427,7 +414,7 @@ unsigned long int CIRC :: ToInt( const string &s )
 
 // Used for establishing a DCC Chat connection to other clients and sending large amounts of data
 
-CDCC :: CDCC( CIRC *nIRC, const string nIP, const uint16_t nPort, const string nNickname ) : m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ), m_Nickname( nNickname )
+CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, string nNickname ) : m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ), m_Nickname( nNickname )
 {
 	m_Socket = new CTCPClient( );
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
@@ -475,7 +462,8 @@ void CDCC :: Connect( string IP, uint32_t Port )
 {	
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 	
-	m_Socket->Disconnect( );	
-	m_IP = IP;		
+	m_Socket->Reset( );	
+	m_IP = IP;
+	m_Port = Port;		
 	m_Socket->Connect( string( ), m_IP, Port );
 }

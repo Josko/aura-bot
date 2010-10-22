@@ -461,7 +461,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = GetTime( );
 		}
 		
-		// spam game every 2.5 seconds
+		// spam game every 3.5 seconds
 		
 		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3500 ) )
 		{
@@ -471,10 +471,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 				m_LastSpamTicks = GetTicks( );
 			}
 			else
-			{
 				m_Spam = false;
-				CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Spam is turned off automagically." );
-			}
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
@@ -642,6 +639,7 @@ inline void CBNET :: ProcessPackets( )
 				}
 
 				break;
+				
 			case CBNETProtocol :: SID_CHATEVENT:
 				ChatEvent = m_Protocol->RECEIVE_SID_CHATEVENT( Packet->GetData( ) );
 
@@ -668,6 +666,7 @@ inline void CBNET :: ProcessPackets( )
 				}
 
 				break;
+				
 			case CBNETProtocol :: SID_PING:
 				m_Socket->PutBytes( m_Protocol->SEND_SID_PING( m_Protocol->RECEIVE_SID_PING( Packet->GetData( ) ) ) );
 				break;
@@ -746,6 +745,7 @@ inline void CBNET :: ProcessPackets( )
 				}
 
 				break;
+				
 			case CBNETProtocol :: SID_AUTH_ACCOUNTLOGON:
 				if( m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGON( Packet->GetData( ) ) )
 				{
@@ -1747,7 +1747,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						m_Spam = false;
 						QueueChatCommand( "/j " + m_FirstChannel );
 						m_SpamChannel = "allstars";
-						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is off." );					
+						CONSOLE_Print3( "Allstars spam is off." );					
 					}
 					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
 					{
@@ -1983,7 +1983,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] joined channel [" + Message + "]" );
 		m_CurrentChannel = Message;
 		
-		if( m_Spam )
+		if( m_Spam && m_GHost->m_CurrentGame )
 		{
 			m_GHost->m_CurrentGame->SendAllChat( "Joined channel [" + Message + "] for spamming." ) ;
 		}

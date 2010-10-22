@@ -328,7 +328,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.57" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.58" )
 {
 	vector<string> channels;
 	vector<string> locals;
@@ -1000,19 +1000,15 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
 	m_MaxGames = CFG->GetInt( "bot_maxgames", 5 );
 	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
-
-	if( BotCommandTrigger.empty( ) )
-		BotCommandTrigger = "!";
-
 	m_CommandTrigger = BotCommandTrigger[0];
+	
 	m_MapCFGPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mapcfgpath", string( ) ) );
-
 	m_MapPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mappath", string( ) ) );
-	m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0GHost" );
+	m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0Aura" );
 
 	if( m_VirtualHostName.size( ) > 15 )
 	{
-		m_VirtualHostName = "|cFF4080C0GHost";
+		m_VirtualHostName = "|cFF4080C0Aura";
 		CONSOLE_Print( "[GHOST] warning - bot_virtualhostname is longer than 15 characters, using default virtual host name" );
 	}
 
@@ -1033,7 +1029,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 		m_VoteKickPercentage = 100;
 	}
 
-	m_TCPNoDelay = CFG->GetInt( "tcp_nodelay", 0 ) == 0 ? false : true;
+	m_TCPNoDelay = CFG->GetInt( "tcp_nodelay", 1 ) == 0 ? false : true;
 }
 
 void CGHost :: ExtractScripts( )
