@@ -1756,7 +1756,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
 					}
 					else
-						QueueChatCommand( "No current game or it's public or game name isn't 4 letters long" );
+						QueueChatCommand( "No current game or it's public or game name isn't 4 letters long.", User, Whisper, IRC );
 				}
 
 				//
