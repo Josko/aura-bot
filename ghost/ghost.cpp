@@ -328,7 +328,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.58" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.59" )
 {
 	vector<string> channels;
 	vector<string> locals;
@@ -357,8 +357,7 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.58" )
 	}
 
 	m_IRC = new CIRC( this, CFG->GetString( "irc_server", string( ) ), CFG->GetString( "irc_nickname", string( ) ), CFG->GetString( "irc_username", string( ) ), CFG->GetString( "irc_password", string( ) ), channels, CFG->GetInt( "irc_port", 6667 ), CFG->GetString( "irc_commandtrigger", "!" ), locals );
-
-	m_UDPSocket = new CUDPSocket( );
+        m_UDPSocket = new CUDPSocket( );
 	m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
 	m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
 	m_ReconnectSocket = NULL;
@@ -1145,7 +1144,8 @@ void CGHost :: LoadIPToCountryData( )
 				parser >> IP1;
 				parser >> IP2;
 				parser >> Country;
-				m_DBLocal->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
+				// m_DBLocal->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
+                                m_DBLocal->ThreadedFromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
 
 				// it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
 				// so let's print a progress meter just to keep the user from getting worried

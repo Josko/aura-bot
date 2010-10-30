@@ -63,7 +63,7 @@ public:
 // CGame
 //
 
-CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer ) : CBaseGame( nGHost, nMap, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_CallableGameAdd( NULL )
+CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer ) : CBaseGame( nGHost, nMap, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_CallableGameAdd( NULL ), m_NumFrom( 0 )
 {
 	m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
 
@@ -100,6 +100,9 @@ CGame :: ~CGame( )
 	}
 
 	for( vector<PairedBanCheck> :: iterator i = m_PairedBanChecks.begin( ); i != m_PairedBanChecks.end( ); ++i )
+		m_GHost->m_Callables.push_back( i->second );
+
+        for( vector<PairedFromCheck> :: iterator i = m_PairedFromChecks.begin( ); i != m_PairedFromChecks.end( ); ++i )
 		m_GHost->m_Callables.push_back( i->second );
 
 	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); ++i )
@@ -151,6 +154,38 @@ bool CGame :: Update( void *fd, void *send_fd )
 			m_GHost->m_DB->RecoverCallable( i->second );
 			delete i->second;
 			i = m_PairedBanChecks.erase( i );
+		}
+		else
+			++i;
+	}
+
+        for( vector<PairedFromCheck> :: iterator i = m_PairedFromChecks.begin( ); i != m_PairedFromChecks.end( ); )
+	{
+		if( i->second->GetReady( ) )
+		{
+                        ++m_NumFrom;
+
+                        m_From += i->second->GetResult( ) + "ms, ";
+                        m_From = m_From.substr( 0, m_From.size( ) - 2 );
+
+                        if( m_NumFrom == i->first )
+                        {
+                            if( ( m_GameLoading || m_GameLoaded ) && m_From.size( ) > 100 )
+                            {
+                                SendAllChat( m_From );
+                                m_From.clear( );
+                            }
+
+                            if( !m_From.empty( ) )
+					SendAllChat( m_From );
+
+                            m_From.clear( );
+                            m_NumFrom = 0;
+                        }                       	
+
+			m_GHost->m_DB->RecoverCallable( i->second );
+			delete i->second;
+			i = m_PairedFromChecks.erase( i );
 		}
 		else
 			++i;
@@ -508,13 +543,13 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 							}
 						}
 
-						SendAllChat( m_GHost->m_Language->CheckedPlayer( LastMatch->GetName( ), LastMatch->GetNumPings( ) > 0 ? UTIL_ToString( LastMatch->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", m_GHost->m_DBLocal->FromCheck( UTIL_ByteArrayToUInt32( LastMatch->GetExternalIP( ), true ) ), LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No", IsOwner( LastMatch->GetName( ) ) ? "Yes" : "No", LastMatch->GetSpoofed( ) ? "Yes" : "No", LastMatch->GetJoinedRealm( ).empty( ) ? "LAN" : LastMatch->GetJoinedRealm( ), LastMatch->GetReserved( ) ? "Yes" : "No" ) );
+						SendAllChat( m_GHost->m_Language->CheckedPlayer( LastMatch->GetName( ), LastMatch->GetNumPings( ) > 0 ? UTIL_ToString( LastMatch->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", "??", LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No", IsOwner( LastMatch->GetName( ) ) ? "Yes" : "No", LastMatch->GetSpoofed( ) ? "Yes" : "No", LastMatch->GetJoinedRealm( ).empty( ) ? "LAN" : LastMatch->GetJoinedRealm( ), LastMatch->GetReserved( ) ? "Yes" : "No" ) );
 					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToCheckPlayerFoundMoreThanOneMatch( Payload ) );
 				}
 				else
-					SendAllChat( m_GHost->m_Language->CheckedPlayer( User, player->GetNumPings( ) > 0 ? UTIL_ToString( player->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", m_GHost->m_DBLocal->FromCheck( UTIL_ByteArrayToUInt32( player->GetExternalIP( ), true ) ), AdminCheck || RootAdminCheck ? "Yes" : "No", IsOwner( User ) ? "Yes" : "No", player->GetSpoofed( ) ? "Yes" : "No", player->GetJoinedRealm( ).empty( ) ? "LAN" : player->GetJoinedRealm( ), player->GetReserved( ) ? "Yes" : "No" ) );
+					SendAllChat( m_GHost->m_Language->CheckedPlayer( User, player->GetNumPings( ) > 0 ? UTIL_ToString( player->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", "??", AdminCheck || RootAdminCheck ? "Yes" : "No", IsOwner( User ) ? "Yes" : "No", player->GetSpoofed( ) ? "Yes" : "No", player->GetJoinedRealm( ).empty( ) ? "LAN" : player->GetJoinedRealm( ), player->GetReserved( ) ? "Yes" : "No" ) );
 			}
 
 			//
@@ -959,32 +994,11 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string
 			//
 
 			else if( Command == "from" || Command == "f" )
-			{
-				string Froms;
-
+			{                                
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-				{
-					// we reverse the byte order on the IP because it's stored in network byte order
-
-					Froms += (*i)->GetNameTerminated( );
-					Froms += ": (";
-					Froms += m_GHost->m_DBLocal->FromCheck( UTIL_ByteArrayToUInt32( (*i)->GetExternalIP( ), true ) );
-					Froms += ")";
-
-					if( i != m_Players.end( ) - 1 )
-						Froms += ", ";
-
-					if( ( m_GameLoading || m_GameLoaded ) && Froms.size( ) > 100 )
-					{
-						// cut the text into multiple lines ingame
-
-						SendAllChat( Froms );
-						Froms.clear( );
-					}
+				{					
+                                        m_PairedFromChecks.push_back( PairedFromCheck( m_Players.size( ), m_GHost->m_DBLocal->ThreadedFromCheck( UTIL_ByteArrayToUInt32( (*i)->GetExternalIP( ), true ) ) ) );
 				}
-
-				if( !Froms.empty( ) )
-					SendAllChat( Froms );
 			}
 
 			//

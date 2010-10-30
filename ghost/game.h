@@ -40,6 +40,7 @@ typedef pair<string,CCallableBanCheck *> PairedBanCheck;
 typedef pair<string,CCallableBanAdd *> PairedBanAdd;
 typedef pair<string,CCallableGamePlayerSummaryCheck *> PairedGPSCheck;
 typedef pair<string,CCallableDotAPlayerSummaryCheck *> PairedDPSCheck;
+typedef pair<unsigned char,CCallableFromCheck *> PairedFromCheck;
 
 class CGame : public CBaseGame
 {
@@ -54,8 +55,12 @@ protected:
 	vector<PairedBanAdd> m_PairedBanAdds;		// vector of paired threaded database ban adds in progress
 	vector<PairedGPSCheck> m_PairedGPSChecks;	// vector of paired threaded database game player summary checks in progress
 	vector<PairedDPSCheck> m_PairedDPSChecks;	// vector of paired threaded database DotA player summary checks in progress
+        vector<PairedFromCheck> m_PairedFromChecks;     // vector of paired threaded database from checks in progress
 
 public:
+        string m_From;
+        unsigned char m_NumFrom;
+        
 	CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer );
 	virtual ~CGame( );
 

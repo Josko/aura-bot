@@ -315,27 +315,27 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			if( DotAPlayerSummary )
 			{
 				string Summary = m_GHost->m_Language->HasPlayedDotAGamesWithThisBot(	i->second->GetName( ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-																						UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) );
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
+                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) );
 
 				QueueChatCommand( Summary, i->first, !i->first.empty( ), false );
 			}
@@ -460,7 +460,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_Socket->PutBytes( m_Protocol->SEND_SID_NULL( ) );
 			m_LastNullTime = GetTime( );
 		}
-		
+                
 		// spam game every 3.5 seconds
 		
 		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3500 ) )
@@ -541,7 +541,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 		m_WaitingToConnect = false;
 		m_LastConnectionAttemptTime = GetTime( );
-		return m_Exiting;
 	}
 
 	return m_Exiting;
