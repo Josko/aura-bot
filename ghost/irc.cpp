@@ -227,6 +227,10 @@ inline void CIRC :: ExtractPackets( )
 						m_LastConnectionAttemptTime = GetTime( );
 						return;
 					}
+					else if( Command == "quit" && Root )
+	                                {
+	                                        SendIRC( "QUIT: Quit" );
+	                                }
 					else if( Command == "bnetoff" )
 					{
 						if( Payload.empty( ) )
@@ -254,6 +258,29 @@ inline void CIRC :: ExtractPackets( )
 					}
 					else if( Command == "bneton" )
 					{
+<<<<<<< .mine
+						if( Payload.empty( ) )
+						{
+							for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+							{
+								(*i)->Activate( );
+								PrivMsg( "[BNET: " + (*i)->GetServerAlias( ) + "] activated.", Target );
+							}
+						}
+						else
+						{
+							for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+							{
+								if( (*i)->GetServerAlias( ) == Payload )
+								{
+									(*i)->Activate( );
+									PrivMsg( "[BNET: " + (*i)->GetServerAlias( ) + "] activated.", Target );
+									return;
+								}
+							}
+						}
+						
+=======
 						if( Payload.empty( ) )
 						{
 							for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
@@ -275,6 +302,7 @@ inline void CIRC :: ExtractPackets( )
 							}
 						}
                                                 
+>>>>>>> .r14
 						return;
 					}
 				}
@@ -294,6 +322,14 @@ inline void CIRC :: ExtractPackets( )
 				// look for DCC CHAT requests
 
 				transform( Message.begin( ), Message.end( ), Message.begin( ), (int(*)(int))tolower );
+<<<<<<< .mine
+				
+				if( Message.size( ) > 25 && Message.substr( 1, 13 ) == "dcc chat chat" ) 
+				{						
+					string strIP, strPort = Parts[7].substr( 0, Parts[7].find( '\1' ) );
+					unsigned int Port = UTIL_ToUInt32( strPort );		
+=======
+>>>>>>> .r14
 
 				if( Message.size( ) > 25 && Message.substr( 1, 13 ) == "dcc chat chat" )
 				{
@@ -312,14 +348,30 @@ inline void CIRC :: ExtractPackets( )
 
 					if( strIP.empty( ) )
 					{
+<<<<<<< .mine
+						unsigned long IP = UTIL_ToUInt32( Parts[6] ), divider = 16777216UL;
+												
+						for( int i = 0; i < 4; ++i )
+=======
                                                 unsigned long IP = UTIL_ToUInt32( Parts[6] ), divider = 16777216UL;
 						
 						for( int i = 0; i <= 3; ++i )
+>>>>>>> .r14
 						{
-							stringstream out;
-							out << (unsigned long) IP / divider;
+							stringstream ss;
+							ss << (unsigned long) IP / divider;
+							
 							IP %= divider;
 							divider /= 256;
+<<<<<<< .mine
+							strIP += ss.str( );
+							
+							if( i != 3 )
+								strIP += '.';
+						}						
+					}					
+					
+=======
                                                         strIP += out.str( );
 
                                                         if( i != 3 )
@@ -327,6 +379,7 @@ inline void CIRC :: ExtractPackets( )
 						}
 					}
 
+>>>>>>> .r14
 					for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
 					{
 						if( (*i)->m_Nickname == Nickname )
@@ -334,7 +387,11 @@ inline void CIRC :: ExtractPackets( )
 							(*i)->Connect( strIP, Port );
 							return;
 						}
+<<<<<<< .mine
+					}									
+=======
 					}
+>>>>>>> .r14
 
 					m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
 				}
@@ -382,7 +439,11 @@ inline void CIRC :: ExtractPackets( )
 			// nick taken, append _
 
 			m_OriginalNick = false;
+<<<<<<< .mine
+			m_Nickname += '_';
+=======
 			m_Nickname += "_";
+>>>>>>> .r14
 			SendIRC( "NICK " + m_Nickname );
 		}
 	}
@@ -391,7 +452,11 @@ inline void CIRC :: ExtractPackets( )
 void CIRC :: SendIRC( const string &message )
 {
 	if( m_Socket->GetConnected( ) )
+<<<<<<< .mine
+		m_Socket->PutBytes( message + LF );	
+=======
 		m_Socket->PutBytes( message + LF );
+>>>>>>> .r14
 }
 
 void CIRC :: SendDCC( const string &message )
@@ -450,9 +515,15 @@ void CDCC :: Update( void *fd, void *send_fd )
 	{
 		m_Socket->DoRecv( (fd_set *)fd );
 		m_Socket->PutBytes( "Welcome! :)\n" );
+<<<<<<< .mine
+		m_Socket->DoSend( (fd_set *)send_fd );		
+	}
+	else if( m_Socket->HasError( ) ) 
+=======
 		m_Socket->DoSend( (fd_set *)send_fd );
 	}
 	else if( m_Socket->HasError( ) )
+>>>>>>> .r14
 	{
 		m_Socket->Reset( );
 	}
@@ -463,12 +534,24 @@ void CDCC :: Update( void *fd, void *send_fd )
 	}
 }
 
-void CDCC :: Connect( string IP, uint32_t Port )
+void CDCC :: Connect( string IP, uint16_t Port )
 {
+<<<<<<< .mine
+	m_Socket->Reset( );	
+=======
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 
 	m_Socket->Disconnect ( );
+>>>>>>> .r14
 	m_IP = IP;
+<<<<<<< .mine
+	m_Port = Port;
+	
+	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );	
+			
+	m_Socket->Connect( string( ), m_IP, m_Port );
+=======
 	m_Port = Port;
 	m_Socket->Connect( string( ), m_IP, Port );
+>>>>>>> .r14
 }

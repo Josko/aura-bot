@@ -15,7 +15,7 @@ public:
 	string m_Nickname;
 	string m_NicknameCpy;
 	string m_Username;
-	string m_CommandTrigger;	
+	string m_CommandTrigger;
 	string m_Password;
 	uint16_t m_Port;
 	bool m_Exiting;
@@ -52,6 +52,6 @@ public:
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
 	void Update( void *fd, void *send_fd );
-	void Connect( string IP, uint32_t Port );
+	void Connect( string IP, uint16_t Port );
 };
 
