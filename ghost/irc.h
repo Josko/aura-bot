@@ -45,7 +45,7 @@ public:
 	CTCPClient *m_Socket;
 	string m_IP;
 	uint16_t m_Port;
-	const string m_Nickname;
+	string m_Nickname;
 
 	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, string nNickname );
 	~CDCC( );
