@@ -170,7 +170,7 @@ public:
 	~CSQLITE3( );
 
 	bool GetReady( )			{ return m_Ready; }
-	vector<string> *GetRow( )               { return &m_Row; }
+	vector<string> *GetRow( )	{ return &m_Row; }
 	string GetError( );
 
 	int Prepare( string query, void **Statement );
@@ -190,29 +190,58 @@ class CGHostDBSQLite : public CGHostDB
 private:
 	string m_File;
 	CSQLITE3 *m_DB;
-        uint32_t m_OutstandingCallables;
-        queue<void *> m_IdleConnections;
-	uint32_t m_NumConnections;        
-        
+
+	// we keep some prepared statements in memory rather than recreating them each function call
+	// this is an optimization because preparing statements takes time
+	// however it only pays off if you're going to be using the statement extremely often
+
+	void *FromAddStmt;
+	void *FromCheckStmt;
+	void *BanCheckStmt;
+	void *AdminCheckStmt;
 public:
 	CGHostDBSQLite( CConfig *CFG );
 	virtual ~CGHostDBSQLite( );
 
-        virtual void CreateThread( CBaseCallable *callable );
+	virtual void Upgrade1_2( );
+	virtual void Upgrade2_3( );
+	virtual void Upgrade3_4( );
+	virtual void Upgrade4_5( );
+	virtual void Upgrade5_6( );
+	virtual void Upgrade6_7( );
+	virtual void Upgrade7_8( );
 
-        virtual string GetStatus( );
-	virtual void RecoverCallable( CBaseCallable *callable );
-
-        virtual bool Begin( );
-	virtual bool Commit( );       
+	virtual bool Begin( );
+	virtual bool Commit( );
+	virtual uint32_t AdminCount( string server );
+	virtual bool AdminCheck( string server, string user );
+	virtual bool AdminAdd( string server, string user );
+	virtual bool AdminRemove( string server, string user );
+	virtual vector<string> AdminList( string server );
+	virtual uint32_t BanCount( string server );
+	virtual CDBBan *BanCheck( string server, string user, string ip );
+	virtual bool BanAdd( string server, string user, string ip, string gamename, string admin, string reason );
+	virtual bool BanRemove( string server, string user );
+	virtual bool BanRemove( string user );
+	virtual vector<CDBBan *> BanList( string server );
+	virtual uint32_t GameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
+	virtual uint32_t GamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
+	virtual uint32_t GamePlayerCount( string name );
+	virtual CDBGamePlayerSummary *GamePlayerSummaryCheck( string name );
+	virtual uint32_t DotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec );
+	virtual uint32_t DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
+	virtual uint32_t DotAPlayerCount( string name );
+	virtual CDBDotAPlayerSummary *DotAPlayerSummaryCheck( string name );
+	virtual string FromCheck( uint32_t ip );
+	virtual bool FromAdd( uint32_t ip1, uint32_t ip2, string country );
 
 	// threaded database functions
+	// note: these are not actually implemented with threads at the moment, they WILL block until the query is complete
+	// todotodo: implement threads here
 
-        virtual CCallableFromAdd *ThreadedFromAdd( uint32_t ip1, uint32_t ip2, string country );
-        virtual CCallableFromCheck *ThreadedFromCheck( uint32_t ip1 );
 	virtual CCallableAdminCount *ThreadedAdminCount( string server );
 	virtual CCallableAdminCheck *ThreadedAdminCheck( string server, string user );
-	virtual CCallableAdminAdd *ThreadedAdminAdd( string server, string user );       
+	virtual CCallableAdminAdd *ThreadedAdminAdd( string server, string user );
 	virtual CCallableAdminRemove *ThreadedAdminRemove( string server, string user );
 	virtual CCallableAdminList *ThreadedAdminList( string server );
 	virtual CCallableBanCount *ThreadedBanCount( string server );
@@ -227,227 +256,6 @@ public:
 	virtual CCallableDotAGameAdd *ThreadedDotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec );
 	virtual CCallableDotAPlayerAdd *ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
 	virtual CCallableDotAPlayerSummaryCheck *ThreadedDotAPlayerSummaryCheck( string name );
-
-        virtual void *GetIdleConnection( );
-};
-
-
-//
-// MySQL Callables
-//
-
-class CSQLiteCallable : virtual public CBaseCallable
-{
-protected:
-	void *m_Connection;
-        string m_File;
-        
-public:
-	CSQLiteCallable( void *nConnection, string nFile ) : CBaseCallable( ), m_Connection( nConnection ), m_File( nFile ) { }
-	virtual ~CSQLiteCallable( ) { }
-
-	virtual void *GetConnection( )	{ return m_Connection; }
-
-	virtual void Init( );
-	virtual void Close( );
-};
-
-class CSQLiteCallableAdminCount : public CCallableAdminCount, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableAdminCount( string nServer, void *nConnection, string nFile ) : CBaseCallable( ), CCallableAdminCount( nServer ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableAdminCount( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableAdminCheck : public CCallableAdminCheck, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableAdminCheck( string nServer, string nUser, void *nConnection, string nFile ) : CBaseCallable( ), CCallableAdminCheck( nServer, nUser ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableAdminCheck( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableAdminAdd : public CCallableAdminAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableAdminAdd( string nServer, string nUser, void *nConnection, string nFile ) : CBaseCallable( ), CCallableAdminAdd( nServer, nUser ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableAdminAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableFromAdd : public CCallableFromAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableFromAdd( uint32_t nIP1, uint32_t nIP2, string nCountry, void *nConnection, string nFile ) : CBaseCallable( ), CCallableFromAdd( nIP1, nIP2, nCountry ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableFromAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableFromCheck : public CCallableFromCheck, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableFromCheck( uint32_t nIP, void *nConnection, string nFile ) : CBaseCallable( ), CCallableFromCheck( nIP ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableFromCheck( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableAdminRemove : public CCallableAdminRemove, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableAdminRemove( string nServer, string nUser, void *nConnection, string nFile ) : CBaseCallable( ), CCallableAdminRemove( nServer, nUser ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableAdminRemove( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableAdminList : public CCallableAdminList, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableAdminList( string nServer, void *nConnection, string nFile ) : CBaseCallable( ), CCallableAdminList( nServer ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableAdminList( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableBanCount : public CCallableBanCount, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableBanCount( string nServer, void *nConnection, string nFile ) : CBaseCallable( ), CCallableBanCount( nServer ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableBanCount( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableBanCheck : public CCallableBanCheck, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableBanCheck( string nServer, string nUser, string nIP, void *nConnection, string nFile ) : CBaseCallable( ), CCallableBanCheck( nServer, nUser, nIP ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableBanCheck( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableBanAdd : public CCallableBanAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableBanAdd( string nServer, string nUser, string nIP, string nGameName, string nAdmin, string nReason, void *nConnection, string nFile ) : CBaseCallable( ), CCallableBanAdd( nServer, nUser, nIP, nGameName, nAdmin, nReason ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableBanAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableBanRemove : public CCallableBanRemove, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableBanRemove( string nServer, string nUser, void *nConnection, string nFile ) : CBaseCallable( ), CCallableBanRemove( nServer, nUser ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableBanRemove( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableBanList : public CCallableBanList, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableBanList( string nServer, void *nConnection, string nFile ) : CBaseCallable( ), CCallableBanList( nServer ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableBanList( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableGameAdd : public CCallableGameAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableGameAdd( string nServer, string nMap, string nGameName, string nOwnerName, uint32_t nDuration, uint32_t nGameState, string nCreatorName, string nCreatorServer, void *nConnection, string nFile ) : CBaseCallable( ), CCallableGameAdd( nServer, nMap, nGameName, nOwnerName, nDuration, nGameState, nCreatorName, nCreatorServer ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableGameAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableGamePlayerAdd : public CCallableGamePlayerAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableGamePlayerAdd( uint32_t nGameID, string nName, string nIP, uint32_t nSpoofed, string nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, string nLeftReason, uint32_t nTeam, uint32_t nColour, void *nConnection, string nFile ) : CBaseCallable( ), CCallableGamePlayerAdd( nGameID, nName, nIP, nSpoofed, nSpoofedRealm, nReserved, nLoadingTime, nLeft, nLeftReason, nTeam, nColour ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableGamePlayerAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableGamePlayerSummaryCheck : public CCallableGamePlayerSummaryCheck, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableGamePlayerSummaryCheck( string nName, void *nConnection, string nFile ) : CBaseCallable( ), CCallableGamePlayerSummaryCheck( nName ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableGamePlayerSummaryCheck( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableDotAGameAdd : public CCallableDotAGameAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableDotAGameAdd( uint32_t nGameID, uint32_t nWinner, uint32_t nMin, uint32_t nSec, void *nConnection, string nFile ) : CBaseCallable( ), CCallableDotAGameAdd( nGameID, nWinner, nMin, nSec ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableDotAGameAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableDotAPlayerAdd : public CCallableDotAPlayerAdd, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableDotAPlayerAdd( uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, string nItem1, string nItem2, string nItem3, string nItem4, string nItem5, string nItem6, string nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills, void *nConnection, string nFile ) : CBaseCallable( ), CCallableDotAPlayerAdd( nGameID, nColour, nKills, nDeaths, nCreepKills, nCreepDenies, nAssists, nGold, nNeutralKills, nItem1, nItem2, nItem3, nItem4, nItem5, nItem6, nHero, nNewColour, nTowerKills, nRaxKills, nCourierKills ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableDotAPlayerAdd( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
-};
-
-class CSQLiteCallableDotAPlayerSummaryCheck : public CCallableDotAPlayerSummaryCheck, public CSQLiteCallable
-{
-public:
-	CSQLiteCallableDotAPlayerSummaryCheck( string nName, void *nConnection, string nFile ) : CBaseCallable( ), CCallableDotAPlayerSummaryCheck( nName ), CSQLiteCallable( nConnection, nFile ) { }
-	virtual ~CSQLiteCallableDotAPlayerSummaryCheck( ) { }
-
-	virtual void operator( )( );
-	virtual void Init( ) { CSQLiteCallable :: Init( ); }
-	virtual void Close( ) { CSQLiteCallable :: Close( ); }
 };
 
 #endif

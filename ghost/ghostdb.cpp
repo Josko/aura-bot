@@ -177,16 +177,6 @@ CCallableAdminAdd *CGHostDB :: ThreadedAdminAdd( string server, string user )
 	return NULL;
 }
 
-CCallableFromAdd *CGHostDB :: ThreadedFromAdd( uint32_t ip1, uint32_t ip2, string country )
-{
-	return NULL;
-}
-
-CCallableFromCheck *CGHostDB :: ThreadedFromCheck( uint32_t ip )
-{
-	return NULL;
-}
-
 CCallableAdminRemove *CGHostDB :: ThreadedAdminRemove( string server, string user )
 {
 	return NULL;
@@ -283,16 +273,6 @@ CCallableAdminCheck :: ~CCallableAdminCheck( )
 }
 
 CCallableAdminAdd :: ~CCallableAdminAdd( )
-{
-
-}
-
-CCallableFromAdd :: ~CCallableFromAdd( )
-{
-
-}
-
-CCallableFromCheck :: ~CCallableFromCheck( )
 {
 
 }

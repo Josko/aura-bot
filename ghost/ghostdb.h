@@ -42,8 +42,6 @@ class CCallableGamePlayerSummaryCheck;
 class CCallableDotAGameAdd;
 class CCallableDotAPlayerAdd;
 class CCallableDotAPlayerSummaryCheck;
-class CCallableFromAdd;
-class CCallableFromCheck;
 class CDBBan;
 class CDBGame;
 class CDBGamePlayer;
@@ -96,8 +94,6 @@ public:
 	// threaded database functions
 
 	virtual void CreateThread( CBaseCallable *callable );
-        virtual CCallableFromAdd *ThreadedFromAdd( uint32_t ip1, uint32_t ip2, string country );
-        virtual CCallableFromCheck *ThreadedFromCheck( uint32_t ip );
 	virtual CCallableAdminCount *ThreadedAdminCount( string server );
 	virtual CCallableAdminCheck *ThreadedAdminCheck( string server, string user );
 	virtual CCallableAdminAdd *ThreadedAdminAdd( string server, string user );
@@ -210,40 +206,6 @@ public:
 	virtual string GetUser( )				{ return m_User; }
 	virtual bool GetResult( )				{ return m_Result; }
 	virtual void SetResult( bool nResult )	{ m_Result = nResult; }
-};
-
-class CCallableFromAdd : virtual public CBaseCallable
-{
-protected:
-	uint32_t m_IP1;
-	uint32_t m_IP2;
-        string m_Country;
-	bool m_Result;
-
-public:
-	CCallableFromAdd( uint32_t nIP1, uint32_t nIP2, string nCountry) : CBaseCallable( ), m_IP1( nIP1 ), m_IP2( nIP2 ), m_Country( nCountry ), m_Result( false ) { }
-	virtual ~CCallableFromAdd( );
-
-	virtual uint32_t GetIP1( )				{ return m_IP1; }
-	virtual uint32_t GetIP2( )				{ return m_IP2; }
-        virtual string GetCountry( )                            { return m_Country; }
-	virtual bool GetResult( )				{ return m_Result; }
-	virtual void SetResult( bool nResult )                  { m_Result = nResult; }
-};
-
-class CCallableFromCheck : virtual public CBaseCallable
-{
-protected:
-	uint32_t m_IP;
-	string m_Result;
-
-public:
-	CCallableFromCheck( uint32_t nIP ) : CBaseCallable( ), m_IP( nIP ), m_Result( "??" ) { }
-	virtual ~CCallableFromCheck( );
-
-	virtual uint32_t GetIP( )				{ return m_IP; }
-	virtual string GetResult( )				{ return m_Result; }
-	virtual void SetResult( bool nResult )                  { m_Result = nResult; }
 };
 
 class CCallableAdminRemove : virtual public CBaseCallable

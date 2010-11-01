@@ -22,7 +22,7 @@ public:
 	bool m_WaitingToConnect;
 	bool m_OriginalNick;
 	uint32_t m_LastConnectionAttemptTime;
-
+	
 	CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals );
 	~CIRC( );
 
@@ -41,12 +41,12 @@ class CTCPClient;
 class CDCC
 {
 public:
-	CIRC *m_IRC;
 	CTCPClient *m_Socket;
+	string m_Nickname;
+	CIRC *m_IRC;	
 	string m_IP;
 	uint16_t m_Port;
-	string m_Nickname;
-
+	
 	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, string nNickname );
 	~CDCC( );
 
