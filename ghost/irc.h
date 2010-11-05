@@ -1,3 +1,6 @@
+
+#define LF '\x0A'
+
 class CGHost;
 class CTCPClient;
 class CDCC;
@@ -31,7 +34,7 @@ public:
 	inline void ExtractPackets( );
 	void SendIRC( const string &message );
 	void SendDCC( const string &message );
-	void PrivMsg( const string &message, const string &target );
+	void SendMessage( const string &message, const string &target );
 };
 
 class CGHost;

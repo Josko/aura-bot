@@ -5,9 +5,6 @@
 #include "bnetprotocol.h"
 #include "bnet.h"
 
-#define LF '\x0A'
-
-
 //////////////
 //// CIRC ////
 //////////////
@@ -207,8 +204,8 @@ inline void CIRC :: ExtractPackets( )
 								off += (*i)->m_Nickname + " ";
 						}
 
-						PrivMsg( "ON: " + on, Target );
-						PrivMsg( "OFF: " + off, Target );
+						SendMessage( "ON: " + on, Target );
+						SendMessage( "OFF: " + off, Target );
 						return;
 					}
 					else if( Command == "send" && !Payload.empty( ) && Root )
@@ -238,7 +235,7 @@ inline void CIRC :: ExtractPackets( )
 							for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 							{
 								(*i)->Deactivate( );
-								PrivMsg( "[BNET: " + (*i)->GetServerAlias( ) + "] deactivated.", Target );
+								SendMessage( "[BNET: " + (*i)->GetServerAlias( ) + "] deactivated.", Target );
 							}
 						}
 						else
@@ -248,7 +245,7 @@ inline void CIRC :: ExtractPackets( )
 								if( (*i)->GetServerAlias( ) == Payload )
 								{
 									(*i)->Deactivate( );
-									PrivMsg( "[BNET: " + (*i)->GetServerAlias( ) + "] deactivated.", Target );
+									SendMessage( "[BNET: " + (*i)->GetServerAlias( ) + "] deactivated.", Target );
 									return;
 								}
 							}
@@ -263,7 +260,7 @@ inline void CIRC :: ExtractPackets( )
 							for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 							{
 								(*i)->Activate( );
-								PrivMsg( "[BNET: " + (*i)->GetServerAlias( ) + "] activated.", Target );
+								SendMessage( "[BNET: " + (*i)->GetServerAlias( ) + "] activated.", Target );
 							}
 						}
 						else
@@ -273,7 +270,7 @@ inline void CIRC :: ExtractPackets( )
 								if( (*i)->GetServerAlias( ) == Payload )
 								{
 									(*i)->Activate( );
-									PrivMsg( "[BNET: " + (*i)->GetServerAlias( ) + "] activated.", Target );
+									SendMessage( "[BNET: " + (*i)->GetServerAlias( ) + "] activated.", Target );
 									return;
 								}
 							}
@@ -358,7 +355,7 @@ inline void CIRC :: ExtractPackets( )
 
 			if( m_Server.find( "quakenet.org" ) != string :: npos && !m_Password.empty( ) )
 			{
-				PrivMsg( "AUTH " + m_Username + " " + m_Password, "Q@CServe.quakenet.org" );
+				SendMessage( "AUTH " + m_Username + " " + m_Password, "Q@CServe.quakenet.org" );
 				SendIRC( "MODE " + m_Nickname + " +x" );
 			}
 
@@ -406,7 +403,7 @@ void CIRC :: SendDCC( const string &message )
 			(*i)->m_Socket->PutBytes( message + '\n' );
 }
 
-void CIRC :: PrivMsg( const string &message, const string &target )
+void CIRC :: SendMessage( const string &message, const string &target )
 {
 	if( m_Socket->GetConnected( ) )
 	{

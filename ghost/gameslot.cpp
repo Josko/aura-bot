@@ -39,13 +39,9 @@ CGameSlot :: CGameSlot( BYTEARRAY &n ) : m_PID( 0 ), m_DownloadStatus( 255 ), m_
 
 		if( n.size( ) >= 8 )
 			m_ComputerType = n[7];
-		else
-			m_ComputerType = SLOTCOMP_NORMAL;
 
 		if( n.size( ) >= 9 )
 			m_Handicap = n[8];
-		else
-			m_Handicap = 100;
 	}
 }
 

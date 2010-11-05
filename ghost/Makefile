@@ -2,7 +2,7 @@
 SYSTEM = $(shell uname)
 C++ = g++
 CC = gcc
-DFLAGS = -Wall -DSQLITE_THREADSAFE=0
+DFLAGS = -Wall -DSQLITE_THREADSAFE=0 -m64
 OFLAGS = -O3
 LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lboost_date_time-mt -lboost_thread-mt -lboost_system-mt -lboost_filesystem-mt
 CFLAGS =
@@ -24,10 +24,6 @@ LFLAGS += -lresolv -lsocket -lnsl
 endif
 
 CFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/
-
-ifeq ($(SYSTEM),Darwin)
-CFLAGS += -I../mysql/include/
-endif
 
 OBJS = bncsutilinterface.o bnet.o bnetprotocol.o commandpacket.o config.o crc32.o csvparser.o game.o game_base.o gameplayer.o gameprotocol.o gameslot.o ghost.o ghostdb.o ghostdbsqlite.o gpsprotocol.o language.o map.o sha1.o socket.o stats.o statsdota.o util.o irc.o
 COBJS = sqlite3.o

@@ -188,7 +188,7 @@ void CONSOLE_Print3( string message )
 	{
 		if( gGHost->m_IRC )
 		{
-			gGHost->m_IRC->PrivMsg( message, string( ) );
+			gGHost->m_IRC->SendMessage( message, string( ) );
 			gGHost->m_IRC->SendDCC( message );
 		}
 	}
@@ -328,7 +328,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.60" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.61" )
 {
 	vector<string> channels;
 	vector<string> locals;
