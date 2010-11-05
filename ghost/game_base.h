@@ -105,7 +105,6 @@ protected:
 	bool m_GameLoaded;								// if the game has loaded or not
 	bool m_LoadInGame;								// if the load-in-game feature is enabled or not
 	bool m_Lagging;									// if the lag screen is active or not
-	bool m_DotA;
 
 public:
 	CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer );

@@ -45,11 +45,6 @@ CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned
 	m_Socket = new CTCPServer( );
 	m_Protocol = new CGameProtocol( m_GHost );
 	m_Map = new CMap( *nMap );
-	
-	if( m_Map->GetMapType( ) == "dota" )
-		m_DotA = true;
-	else
-		m_DotA = false;
 
 	// wait time of 1 minute  = 0 empty actions required
 	// wait time of 2 minutes = 1 empty action required
@@ -1789,17 +1784,7 @@ void CBaseGame :: EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlaye
 			{
 				if( ExtraFlags[0] == 1 )
 				{
-					if( m_DotA )
-					{
-						unsigned char SID = GetSIDFromPID( player->GetPID( ) );
-						
-						if( !m_Slots[SID].GetTeam( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Sentinel] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
-						else
-							CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Scourge] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
-					}
-					else
-						CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Allies] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+					CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Allies] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
 				}
 				else if( ExtraFlags[0] == 0 )
 				{
