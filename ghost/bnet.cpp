@@ -2095,7 +2095,7 @@ void CBNET :: QueueChatCommand( const string &chatCommand, const string &user, b
 	
 	if( irc )
 	{
-		m_GHost->m_IRC->SendMessage( chatCommand, string( ) );
+		m_GHost->m_IRC->SendMessageIRC( chatCommand, string( ) );
 		return;
 	}
 	

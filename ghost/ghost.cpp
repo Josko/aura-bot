@@ -188,7 +188,7 @@ void CONSOLE_Print3( string message )
 	{
 		if( gGHost->m_IRC )
 		{
-			gGHost->m_IRC->SendMessage( message, string( ) );
+			gGHost->m_IRC->SendMessageIRC( message, string( ) );
 			gGHost->m_IRC->SendDCC( message );
 		}
 	}

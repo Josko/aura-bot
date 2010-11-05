@@ -34,7 +34,7 @@ public:
 	inline void ExtractPackets( );
 	void SendIRC( const string &message );
 	void SendDCC( const string &message );
-	void SendMessage( const string &message, const string &target );
+	void SendMessageIRC( const string &message, const string &target );
 };
 
 class CGHost;
