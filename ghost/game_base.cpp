@@ -171,16 +171,14 @@ string CBaseGame :: GetPlayers( )
 {
 	string Players;
 	
-	for( unsigned int i = 1; i <= m_Players.size( ); ++i )
+	for( unsigned int i = 0; i < m_Players.size( ); ++i )
 	{
-		if( !m_Players[i]->GetLeftMessageSent( ) )
-		{
-			if( i != m_Players.size( ) )			
-				Players += m_Players[i]->GetName( ) + ", ";			
-			else
-				Players += m_Players[i]->GetName( );
-		}			
-	}	
+		if( !m_Players[i]->GetLeftMessageSent( ) )					
+			Players += m_Players[i]->GetName( ) + ", ";
+	}
+
+        if( Players.size( ) > 2 )
+            Players = Players.substr( 0, Players.size( ) - 2 );
 		
 	return Players;
 }
