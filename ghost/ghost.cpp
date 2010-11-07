@@ -57,11 +57,6 @@
  #include <mach/mach_time.h>
 #endif
 
-/*
-string gLogFile = "ghost.log";
-ofstream *gLog = NULL;
-*/
-
 CGHost *gGHost = NULL;
 
 uint32_t GetTime( )
@@ -126,21 +121,7 @@ void SignalCatcher( int s )
 
 void CONSOLE_Print( string message )
 {
-	cout << message << endl;
-
-	/* logging
-
-	if( gLog && !gLog->fail( ) )
-	{
-		time_t Now = time( NULL );
-		string Time = asctime( localtime( &Now ) );
-
-		// erase the newline
-
-		Time.erase( Time.size( ) - 1 );
-		*gLog << "[" << Time << "] " << message << endl;
-		gLog->flush( );
-	} */
+	cout << message << endl;	
 
 	if( gGHost )
 		if( gGHost->m_IRC && gGHost->m_IRC->m_DCC.size( ) )
@@ -150,39 +131,12 @@ void CONSOLE_Print( string message )
 void CONSOLE_Print2( string message )
 {
 	cout << message << endl;
-
-	/* logging
-
-	if( gLog && !gLog->fail( ) )
-	{
-		time_t Now = time( NULL );
-		string Time = asctime( localtime( &Now ) );
-
-		// erase the newline
-
-		Time.erase( Time.size( ) - 1 );
-		*gLog << "[" << Time << "] " << message << endl;
-		gLog->flush( );
-	} */
+	
 }
 
 void CONSOLE_Print3( string message )
 {
-	cout << message << endl;
-
-	/* logging
-
-	if( gLog && !gLog->fail( ) )
-	{
-		time_t Now = time( NULL );
-		string Time = asctime( localtime( &Now ) );
-
-		// erase the newline
-
-		Time.erase( Time.size( ) - 1 );
-		*gLog << "[" << Time << "] " << message << endl;
-		gLog->flush( );
-	} */
+	cout << message << endl;	
 
 	if( gGHost )
 	{
@@ -211,13 +165,6 @@ int main( )
 	// gLog->open( gLogFile.c_str( ), ios :: app );
 
 	CONSOLE_Print( "[GHOST] starting up" );
-
-	/*
-	if( gLog->fail( ) )
-		CONSOLE_Print( "[GHOST] unable to open [" + gLogFile + "] for appending, logging is disabled" );
-	else
-		CONSOLE_Print( "[GHOST]logging is enabled and [" + gLogFile + "] is now locked" );
-	*/
 
 	// signal( SIGABRT, SignalCatcher );
 	signal( SIGINT, SignalCatcher );
@@ -311,15 +258,6 @@ int main( )
 
 	timeEndPeriod( TimerResolution );
 #endif
-
-	/*
-	if( gLog )
-	{
-		if( !gLog->fail( ) )
-			gLog->close( );
-
-		delete gLog;
-	} */
 
 	return 0;
 }
