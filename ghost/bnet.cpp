@@ -452,9 +452,9 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = GetTime( );
 		}
                 
-		// spam game every 3.5 seconds
+		// spam game every 3.8 seconds
 		
-		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3500 ) )
+		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3800 ) )
 		{
 			if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
 			{
@@ -1343,8 +1343,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 									MapCFG.Set( "map_path", "Maps\\Download\\" + File );
 									MapCFG.Set( "map_localpath", File );
 
-									if( File.find( "DotA" ) )
-										MapCFG.Set( "map_type", "dota" );
+									if( File.find( "DotA" ) != string :: npos )
+										MapCFG.Set( "map_type", "dota" );								
 
 									m_GHost->m_Map->Load( &MapCFG, File );
 								}
