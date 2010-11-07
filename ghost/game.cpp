@@ -86,8 +86,12 @@ CGame :: ~CGame( )
 
 			// store the stats in the database
 
-			if( m_Stats && m_DBGamePlayers.size( ) >= 4 )
+			if( m_Stats && m_DBGamePlayers.size( ) > 3 )
+			{				
 				m_Stats->Save( m_GHost, m_GHost->m_DB, m_CallableGameAdd->GetResult( ) );
+			}
+			else
+				CONSOLE_Print( "[GAME: " + m_GameName + "] discarding DotA stats due to too few players (" +  UTIL_ToString( m_DBGamePlayers.size( ) ) + " > 3 )" );
 		}
 		else
 			CONSOLE_Print( "[GAME: " + m_GameName + "] unable to save player/stats data to database" );

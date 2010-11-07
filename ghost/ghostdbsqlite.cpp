@@ -146,132 +146,61 @@ CGHostDBSQLite :: CGHostDBSQLite( CConfig *CFG ) : CGHostDB( CFG )
 	if( SchemaNumber.empty( ) )
 	{
 		// couldn't find the schema number
-		// unfortunately the very first schema didn't have a config table
-		// so we might actually be looking at schema version 1 rather than an empty database
-		// try to confirm this by looking for the admins table
+		// MAEK NEW TABLEZ
 
-		CONSOLE_Print( "[SQLITE3] couldn't find schema number, looking for admins table" );
-		bool AdminTable = false;
-		m_DB->Prepare( "SELECT * FROM sqlite_master WHERE type=\"table\" AND name=\"admins\"", (void **)&Statement );
+		CONSOLE_Print( "[SQLITE3] couldn't find schema number, create tables" );
+		
+		// assume the database is empty
+		// note to self: update the SchemaNumber and the database structure when making a new schema
+
+		CONSOLE_Print( "[SQLITE3] assuming database is empty" );
+		SchemaNumber = "1";
+
+		if( m_DB->Exec( "CREATE TABLE admins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating admins table - " + m_DB->GetError( ) );
+
+		if( m_DB->Exec( "CREATE TABLE bans ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, name TEXT NOT NULL, ip TEXT, date TEXT NOT NULL, gamename TEXT, admin TEXT NOT NULL, reason TEXT )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating bans table - " + m_DB->GetError( ) );
+
+		if( m_DB->Exec( "CREATE TABLE games ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, map TEXT NOT NULL, datetime TEXT NOT NULL, gamename TEXT NOT NULL, ownername TEXT NOT NULL, duration INTEGER NOT NULL, gamestate INTEGER NOT NULL DEFAULT 0, creatorname TEXT NOT NULL DEFAULT \"\", creatorserver TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating games table - " + m_DB->GetError( ) );
+
+		if( m_DB->Exec( "CREATE TABLE gameplayers ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, name TEXT NOT NULL, ip TEXT NOT NULL, spoofed INTEGER NOT NULL, reserved INTEGER NOT NULL, loadingtime INTEGER NOT NULL, left INTEGER NOT NULL, leftreason TEXT NOT NULL, team INTEGER NOT NULL, colour INTEGER NOT NULL, spoofedrealm TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating gameplayers table - " + m_DB->GetError( ) );
+
+		if( m_DB->Exec( "CREATE TABLE dotagames ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, winner INTEGER NOT NULL, min INTEGER NOT NULL DEFAULT 0, sec INTEGER NOT NULL DEFAULT 0 )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating dotagames table - " + m_DB->GetError( ) );
+
+		if( m_DB->Exec( "CREATE TABLE dotaplayers ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, colour INTEGER NOT NULL, kills INTEGER NOT NULL, deaths INTEGER NOT NULL, creepkills INTEGER NOT NULL, creepdenies INTEGER NOT NULL, assists INTEGER NOT NULL, gold INTEGER NOT NULL, neutralkills INTEGER NOT NULL, item1 TEXT NOT NULL, item2 TEXT NOT NULL, item3 TEXT NOT NULL, item4 TEXT NOT NULL, item5 TEXT NOT NULL, item6 TEXT NOT NULL, hero TEXT NOT NULL DEFAULT \"\", newcolour NOT NULL DEFAULT 0, towerkills NOT NULL DEFAULT 0, raxkills NOT NULL DEFAULT 0, courierkills NOT NULL DEFAULT 0 )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating dotaplayers table - " + m_DB->GetError( ) );
+
+		if( m_DB->Exec( "CREATE TABLE config ( name TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating config table - " + m_DB->GetError( ) );
+
+		m_DB->Prepare( "INSERT INTO config VALUES ( \"schema_number\", ? )", (void **)&Statement );
 
 		if( Statement )
 		{
+			sqlite3_bind_text( Statement, 1, SchemaNumber.c_str( ), -1, SQLITE_TRANSIENT );
 			int RC = m_DB->Step( Statement );
 
-			// we're just checking to see if the query returned a row, we don't need to check the row data itself
-
-			if( RC == SQLITE_ROW )
-				AdminTable = true;
-			else if( RC == SQLITE_ERROR )
-				CONSOLE_Print( "[SQLITE3] error looking for admins table - " + m_DB->GetError( ) );
+			if( RC == SQLITE_ERROR )
+				CONSOLE_Print( "[SQLITE3] error inserting schema number [" + SchemaNumber + "] - " + m_DB->GetError( ) );
 
 			m_DB->Finalize( Statement );
 		}
 		else
-			CONSOLE_Print( "[SQLITE3] prepare error looking for admins table - " + m_DB->GetError( ) );
+			CONSOLE_Print( "[SQLITE3] prepare error inserting schema number [" + SchemaNumber + "] - " + m_DB->GetError( ) );
 
-		if( AdminTable )
-		{
-			// the admins table exists, assume we're looking at schema version 1
+		if( m_DB->Exec( "CREATE INDEX idx_gameid ON gameplayers ( gameid )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating idx_gameid index on gameplayers table - " + m_DB->GetError( ) );
 
-			CONSOLE_Print( "[SQLITE3] found admins table, assuming schema number [1]" );
-			SchemaNumber = "1";
-		}
-		else
-		{
-			// the admins table doesn't exist, assume the database is empty
-			// note to self: update the SchemaNumber and the database structure when making a new schema
-
-			CONSOLE_Print( "[SQLITE3] couldn't find admins table, assuming database is empty" );
-			SchemaNumber = "8";
-
-			if( m_DB->Exec( "CREATE TABLE admins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating admins table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE TABLE bans ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, name TEXT NOT NULL, ip TEXT, date TEXT NOT NULL, gamename TEXT, admin TEXT NOT NULL, reason TEXT )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating bans table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE TABLE games ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, map TEXT NOT NULL, datetime TEXT NOT NULL, gamename TEXT NOT NULL, ownername TEXT NOT NULL, duration INTEGER NOT NULL, gamestate INTEGER NOT NULL DEFAULT 0, creatorname TEXT NOT NULL DEFAULT \"\", creatorserver TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating games table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE TABLE gameplayers ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, name TEXT NOT NULL, ip TEXT NOT NULL, spoofed INTEGER NOT NULL, reserved INTEGER NOT NULL, loadingtime INTEGER NOT NULL, left INTEGER NOT NULL, leftreason TEXT NOT NULL, team INTEGER NOT NULL, colour INTEGER NOT NULL, spoofedrealm TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating gameplayers table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE TABLE dotagames ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, winner INTEGER NOT NULL, min INTEGER NOT NULL DEFAULT 0, sec INTEGER NOT NULL DEFAULT 0 )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating dotagames table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE TABLE dotaplayers ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, colour INTEGER NOT NULL, kills INTEGER NOT NULL, deaths INTEGER NOT NULL, creepkills INTEGER NOT NULL, creepdenies INTEGER NOT NULL, assists INTEGER NOT NULL, gold INTEGER NOT NULL, neutralkills INTEGER NOT NULL, item1 TEXT NOT NULL, item2 TEXT NOT NULL, item3 TEXT NOT NULL, item4 TEXT NOT NULL, item5 TEXT NOT NULL, item6 TEXT NOT NULL, hero TEXT NOT NULL DEFAULT \"\", newcolour NOT NULL DEFAULT 0, towerkills NOT NULL DEFAULT 0, raxkills NOT NULL DEFAULT 0, courierkills NOT NULL DEFAULT 0 )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating dotaplayers table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE TABLE config ( name TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating config table - " + m_DB->GetError( ) );
-
-			m_DB->Prepare( "INSERT INTO config VALUES ( \"schema_number\", ? )", (void **)&Statement );
-
-			if( Statement )
-			{
-				sqlite3_bind_text( Statement, 1, SchemaNumber.c_str( ), -1, SQLITE_TRANSIENT );
-				int RC = m_DB->Step( Statement );
-
-				if( RC == SQLITE_ERROR )
-					CONSOLE_Print( "[SQLITE3] error inserting schema number [" + SchemaNumber + "] - " + m_DB->GetError( ) );
-
-				m_DB->Finalize( Statement );
-			}
-			else
-				CONSOLE_Print( "[SQLITE3] prepare error inserting schema number [" + SchemaNumber + "] - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE INDEX idx_gameid ON gameplayers ( gameid )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating idx_gameid index on gameplayers table - " + m_DB->GetError( ) );
-
-			if( m_DB->Exec( "CREATE INDEX idx_gameid_colour ON dotaplayers ( gameid, colour )" ) != SQLITE_OK )
-				CONSOLE_Print( "[SQLITE3] error creating idx_gameid_colour index on dotaplayers table - " + m_DB->GetError( ) );
-		}
+		if( m_DB->Exec( "CREATE INDEX idx_gameid_colour ON dotaplayers ( gameid, colour )" ) != SQLITE_OK )
+			CONSOLE_Print( "[SQLITE3] error creating idx_gameid_colour index on dotaplayers table - " + m_DB->GetError( ) );
+		
 	}
 	else
-		CONSOLE_Print( "[SQLITE3] found schema number [" + SchemaNumber + "]" );
-
-	if( SchemaNumber == "1" )
-	{
-		Upgrade1_2( );
-		SchemaNumber = "2";
-	}
-
-	if( SchemaNumber == "2" )
-	{
-		Upgrade2_3( );
-		SchemaNumber = "3";
-	}
-
-	if( SchemaNumber == "3" )
-	{
-		Upgrade3_4( );
-		SchemaNumber = "4";
-	}
-
-	if( SchemaNumber == "4" )
-	{
-		Upgrade4_5( );
-		SchemaNumber = "5";
-	}
-
-	if( SchemaNumber == "5" )
-	{
-		Upgrade5_6( );
-		SchemaNumber = "6";
-	}
-
-	if( SchemaNumber == "6" )
-	{
-		Upgrade6_7( );
-		SchemaNumber = "7";
-	}
-
-	if( SchemaNumber == "7" )
-	{
-		Upgrade7_8( );
-		SchemaNumber = "8";
-	}
+		CONSOLE_Print( "[SQLITE3] found schema number [" + SchemaNumber + "]" );	
 
 	if( m_DB->Exec( "CREATE TEMPORARY TABLE iptocountry ( ip1 INTEGER NOT NULL, ip2 INTEGER NOT NULL, country TEXT NOT NULL, PRIMARY KEY ( ip1, ip2 ) )" ) != SQLITE_OK )
 		CONSOLE_Print( "[SQLITE3] error creating temporary iptocountry table - " + m_DB->GetError( ) );
@@ -298,230 +227,6 @@ CGHostDBSQLite :: ~CGHostDBSQLite( )
 
 	CONSOLE_Print( "[SQLITE3] closing database [" + m_File + "]" );
 	delete m_DB;
-}
-
-void CGHostDBSQLite :: Upgrade1_2( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v1 to v2 started" );
-
-	// add new column to table dotaplayers
-	//  + hero TEXT NOT NULL DEFAULT ""
-
-	if( m_DB->Exec( "ALTER TABLE dotaplayers ADD hero TEXT NOT NULL DEFAULT \"\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column hero to table dotaplayers - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column hero to table dotaplayers" );
-
-	// add new columns to table dotagames
-	//  + min INTEGER NOT NULL DEFAULT 0
-	//  + sec INTEGER NOT NULL DEFAULT 0
-
-	if( m_DB->Exec( "ALTER TABLE dotagames ADD min INTEGER NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column min to table dotagames - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column min to table dotagames" );
-
-	if( m_DB->Exec( "ALTER TABLE dotagames ADD sec INTEGER NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column sec to table dotagames - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column sec to table dotagames" );
-
-	// add new table config
-
-	if( m_DB->Exec( "CREATE TABLE config ( name TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error creating config table - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] created config table" );
-
-	sqlite3_stmt *Statement;
-	m_DB->Prepare( "INSERT INTO config VALUES ( \"schema_number\", \"2\" )", (void **)&Statement );
-
-	if( Statement )
-	{
-		int RC = m_DB->Step( Statement );
-
-		if( RC == SQLITE_DONE )
-			CONSOLE_Print( "[SQLITE3] inserted schema number [2]" );
-		else if( RC == SQLITE_ERROR )
-			CONSOLE_Print( "[SQLITE3] error inserting schema number [2] - " + m_DB->GetError( ) );
-
-		m_DB->Finalize( Statement );
-	}
-	else
-		CONSOLE_Print( "[SQLITE3] prepare error inserting schema number [2] - " + m_DB->GetError( ) );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v1 to v2 finished" );
-}
-
-void CGHostDBSQLite :: Upgrade2_3( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v2 to v3 started" );
-
-	// add new column to table admins
-	//  + server TEXT NOT NULL DEFAULT ""
-
-	if( m_DB->Exec( "ALTER TABLE admins ADD server TEXT NOT NULL DEFAULT \"\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column server to table admins - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column server to table admins" );
-
-	// add new column to table games
-	//  + gamestate INTEGER NOT NULL DEFAULT 0
-
-	if( m_DB->Exec( "ALTER TABLE games ADD gamestate INTEGER NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column gamestate to table games - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column gamestate to table games" );
-
-	// add new column to table gameplayers
-	//  + spoofedrealm TEXT NOT NULL DEFAULT ""
-
-	if( m_DB->Exec( "ALTER TABLE gameplayers ADD spoofedrealm TEXT NOT NULL DEFAULT \"\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column spoofedrealm to table gameplayers - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column spoofedrealm to table gameplayers" );
-
-	// update schema number
-
-	if( m_DB->Exec( "UPDATE config SET value=\"3\" where name=\"schema_number\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error updating schema number [3] - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] updated schema number [3]" );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v2 to v3 finished" );
-}
-
-void CGHostDBSQLite :: Upgrade3_4( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v3 to v4 started" );
-
-	// add new columns to table games
-	//  + creatorname TEXT NOT NULL DEFAULT ""
-	//  + creatorserver TEXT NOT NULL DEFAULT ""
-
-	if( m_DB->Exec( "ALTER TABLE games ADD creatorname TEXT NOT NULL DEFAULT \"\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column creatorname to table games - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column creatorname to table games" );
-
-	if( m_DB->Exec( "ALTER TABLE games ADD creatorserver TEXT NOT NULL DEFAULT \"\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column creatorserver to table games - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column creatorserver to table games" );
-
-	// update schema number
-
-	if( m_DB->Exec( "UPDATE config SET value=\"4\" where name=\"schema_number\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error updating schema number [4] - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] updated schema number [4]" );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v3 to v4 finished" );
-}
-
-void CGHostDBSQLite :: Upgrade4_5( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v4 to v5 started" );
-
-	// add new column to table dotaplayers
-	//  + newcolour NOT NULL DEFAULT 0
-
-	if( m_DB->Exec( "ALTER TABLE dotaplayers ADD newcolour NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column newcolour to table dotaplayers - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column newcolour to table dotaplayers" );
-
-	// set newcolour = colour on all existing dotaplayers rows
-
-	if( m_DB->Exec( "UPDATE dotaplayers SET newcolour=colour WHERE newcolour=0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error setting newcolour = colour on all existing dotaplayers rows - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] set newcolour = colour on all existing dotaplayers rows" );
-
-	// update schema number
-
-	if( m_DB->Exec( "UPDATE config SET value=\"5\" where name=\"schema_number\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error updating schema number [5] - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] updated schema number [5]" );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v4 to v5 finished" );
-}
-
-void CGHostDBSQLite :: Upgrade5_6( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v5 to v6 started" );
-
-	// add new columns to table dotaplayers
-	//  + towerkills NOT NULL DEFAULT 0
-	//  + raxkills NOT NULL DEFAULT 0
-	//  + courierkills NOT NULL DEFAULT 0
-
-	if( m_DB->Exec( "ALTER TABLE dotaplayers ADD towerkills NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column towerkills to table dotaplayers - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column towerkills to table dotaplayers" );
-
-	if( m_DB->Exec( "ALTER TABLE dotaplayers ADD raxkills NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column raxkills to table dotaplayers - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column raxkills to table dotaplayers" );
-
-	if( m_DB->Exec( "ALTER TABLE dotaplayers ADD courierkills NOT NULL DEFAULT 0" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error adding new column courierkills to table dotaplayers - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new column courierkills to table dotaplayers" );
-
-	// update schema number
-
-	if( m_DB->Exec( "UPDATE config SET value=\"6\" where name=\"schema_number\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error updating schema number [6] - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] updated schema number [6]" );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v5 to v6 finished" );
-}
-
-void CGHostDBSQLite :: Upgrade6_7( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v6 to v7 started" );
-
-	// add new index to table gameplayers
-
-	if( m_DB->Exec( "CREATE INDEX idx_gameid ON gameplayers ( gameid )" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error creating idx_gameid index on gameplayers table - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new index idx_gameid to table gameplayers" );
-
-	// add new index to table dotaplayers
-
-	if( m_DB->Exec( "CREATE INDEX idx_gameid_colour ON dotaplayers ( gameid, colour )" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error creating idx_gameid_colour index on dotaplayers table - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] added new index idx_gameid_colour to table dotaplayers" );
-
-	// update schema number
-
-	if( m_DB->Exec( "UPDATE config SET value=\"7\" where name=\"schema_number\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error updating schema number [7] - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] updated schema number [7]" );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v6 to v7 finished" );
-}
-
-void CGHostDBSQLite :: Upgrade7_8( )
-{
-	CONSOLE_Print( "[SQLITE3] schema upgrade v7 to v8 started" );
-
-	// update schema number
-
-	if( m_DB->Exec( "UPDATE config SET value=\"8\" where name=\"schema_number\"" ) != SQLITE_OK )
-		CONSOLE_Print( "[SQLITE3] error updating schema number [8] - " + m_DB->GetError( ) );
-	else
-		CONSOLE_Print( "[SQLITE3] updated schema number [8]" );
-
-	CONSOLE_Print( "[SQLITE3] schema upgrade v7 to v8 finished" );
 }
 
 bool CGHostDBSQLite :: Begin( )

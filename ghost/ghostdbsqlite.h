@@ -203,14 +203,6 @@ public:
 	CGHostDBSQLite( CConfig *CFG );
 	virtual ~CGHostDBSQLite( );
 
-	virtual void Upgrade1_2( );
-	virtual void Upgrade2_3( );
-	virtual void Upgrade3_4( );
-	virtual void Upgrade4_5( );
-	virtual void Upgrade5_6( );
-	virtual void Upgrade6_7( );
-	virtual void Upgrade7_8( );
-
 	virtual bool Begin( );
 	virtual bool Commit( );
 	virtual uint32_t AdminCount( string server );
