@@ -347,7 +347,7 @@ inline void CIRC :: ExtractPackets( )
 		}
 		else if( Parts.size( ) >= 2 && Parts[0] == "NOTICE" )
 		{
-			CONSOLE_Print2( "[IRC: " + m_Server + "] " + (*i) );
+			CONSOLE_Print( "[IRC: " + m_Server + "] " + (*i) );
 		}
 		else if( Parts.size( ) >= 2 && Parts[1] == "221" )
 		{
@@ -370,7 +370,7 @@ inline void CIRC :: ExtractPackets( )
 		{
 			// we don't actually check if we joined all of the channels
 
-			CONSOLE_Print2( "[IRC: " + m_Server + "] joined at least one channel successfully" );
+			CONSOLE_Print( "[IRC: " + m_Server + "] joined at least one channel successfully" );
 		}
 		else if( Parts.size( ) >= 4 && Parts[1] == "KICK" && Parts[3] == m_Nickname )
 		{
