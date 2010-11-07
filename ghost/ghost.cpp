@@ -357,6 +357,7 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.62" )
 	}
 
 	m_IRC = new CIRC( this, CFG->GetString( "irc_server", string( ) ), CFG->GetString( "irc_nickname", string( ) ), CFG->GetString( "irc_username", string( ) ), CFG->GetString( "irc_password", string( ) ), channels, CFG->GetInt( "irc_port", 6667 ), CFG->GetString( "irc_commandtrigger", "!" ), locals );
+	
         m_UDPSocket = new CUDPSocket( );
 	m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
 	m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
