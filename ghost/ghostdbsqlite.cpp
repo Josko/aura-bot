@@ -29,7 +29,7 @@
 // CQSLITE3 (wrapper class)
 //
 
-CSQLITE3 :: CSQLITE3( string filename )
+CSQLITE3 :: CSQLITE3( const string & filename )
 {
 	m_Ready = true;
 
@@ -47,7 +47,7 @@ string CSQLITE3 :: GetError( )
 	return sqlite3_errmsg( (sqlite3 *)m_DB );
 }
 
-int CSQLITE3 :: Prepare( string query, void **Statement )
+int CSQLITE3 :: Prepare( const string & query, void **Statement )
 {
 	return sqlite3_prepare_v2( (sqlite3 *)m_DB, query.c_str( ), -1, (sqlite3_stmt **)Statement, NULL );
 }
@@ -84,7 +84,7 @@ int CSQLITE3 :: Reset( void *Statement )
 	return sqlite3_reset( (sqlite3_stmt *)Statement );
 }
 
-int CSQLITE3 :: Exec( string query )
+int CSQLITE3 :: Exec( const string & query )
 {
 	return sqlite3_exec( (sqlite3 *)m_DB, query.c_str( ), NULL, NULL, NULL );
 }
@@ -110,7 +110,7 @@ CGHostDBSQLite :: CGHostDBSQLite( CConfig *CFG ) : CGHostDB( CFG )
 		// setting m_HasError to true indicates there's been a critical error and we want GHost to shutdown
 		// this is okay here because we're in the constructor so we're not dropping any games or players
 
-		CONSOLE_Print( string( "[SQLITE3] error opening database [" + m_File + "] - " ) + m_DB->GetError( ) );
+		CONSOLE_Print( "[SQLITE3] error opening database [" + m_File + "] - " + m_DB->GetError( ) );
 		m_HasError = true;
 		m_Error = "error opening database";
 		return;
@@ -239,7 +239,7 @@ bool CGHostDBSQLite :: Commit( )
 	return m_DB->Exec( "COMMIT TRANSACTION" ) == SQLITE_OK;
 }
 
-uint32_t CGHostDBSQLite :: AdminCount( string server )
+uint32_t CGHostDBSQLite :: AdminCount( const string & server )
 {
 	uint32_t Count = 0;
 	sqlite3_stmt *Statement;
@@ -263,7 +263,7 @@ uint32_t CGHostDBSQLite :: AdminCount( string server )
 	return Count;
 }
 
-bool CGHostDBSQLite :: AdminCheck( string server, string user )
+bool CGHostDBSQLite :: AdminCheck( const string & server, string & user )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool IsAdmin = false;
@@ -293,7 +293,7 @@ bool CGHostDBSQLite :: AdminCheck( string server, string user )
 	return IsAdmin;
 }
 
-bool CGHostDBSQLite :: AdminAdd( string server, string user )
+bool CGHostDBSQLite :: AdminAdd( const string & server, string &user )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool Success = false;
@@ -319,7 +319,7 @@ bool CGHostDBSQLite :: AdminAdd( string server, string user )
 	return Success;
 }
 
-bool CGHostDBSQLite :: AdminRemove( string server, string user )
+bool CGHostDBSQLite :: AdminRemove( const string & server, string & user )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool Success = false;
@@ -345,7 +345,7 @@ bool CGHostDBSQLite :: AdminRemove( string server, string user )
 	return Success;
 }
 
-vector<string> CGHostDBSQLite :: AdminList( string server )
+vector<string> CGHostDBSQLite :: AdminList( const string & server )
 {
 	vector<string> AdminList;
 	sqlite3_stmt *Statement;
@@ -377,7 +377,7 @@ vector<string> CGHostDBSQLite :: AdminList( string server )
 	return AdminList;
 }
 
-uint32_t CGHostDBSQLite :: BanCount( string server )
+uint32_t CGHostDBSQLite :: BanCount( const string & server )
 {
 	uint32_t Count = 0;
 	sqlite3_stmt *Statement;
@@ -401,7 +401,7 @@ uint32_t CGHostDBSQLite :: BanCount( string server )
 	return Count;
 }
 
-CDBBan *CGHostDBSQLite :: BanCheck( string server, string user, string ip )
+CDBBan *CGHostDBSQLite :: BanCheck( const string & server, string & user, const string & ip )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	CDBBan *Ban = NULL;
@@ -444,7 +444,7 @@ CDBBan *CGHostDBSQLite :: BanCheck( string server, string user, string ip )
 	return Ban;
 }
 
-bool CGHostDBSQLite :: BanAdd( string server, string user, string ip, string gamename, string admin, string reason )
+bool CGHostDBSQLite :: BanAdd( const string & server, string & user, const string & ip, const string & gamename, const string & admin, const string & reason )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool Success = false;
@@ -475,7 +475,7 @@ bool CGHostDBSQLite :: BanAdd( string server, string user, string ip, string gam
 	return Success;
 }
 
-bool CGHostDBSQLite :: BanRemove( string server, string user )
+bool CGHostDBSQLite :: BanRemove( const string & server, string & user )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool Success = false;
@@ -501,7 +501,7 @@ bool CGHostDBSQLite :: BanRemove( string server, string user )
 	return Success;
 }
 
-bool CGHostDBSQLite :: BanRemove( string user )
+bool CGHostDBSQLite :: BanRemove( string & user )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool Success = false;
@@ -526,7 +526,7 @@ bool CGHostDBSQLite :: BanRemove( string user )
 	return Success;
 }
 
-vector<CDBBan *> CGHostDBSQLite :: BanList( string server )
+vector<CDBBan *> CGHostDBSQLite :: BanList( const string & server )
 {
 	vector<CDBBan *> BanList;
 	sqlite3_stmt *Statement;
@@ -558,7 +558,7 @@ vector<CDBBan *> CGHostDBSQLite :: BanList( string server )
 	return BanList;
 }
 
-uint32_t CGHostDBSQLite :: GameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
+uint32_t CGHostDBSQLite :: GameAdd( const string & server, const string & map, const string & gamename, const string & ownername, uint32_t duration, uint32_t gamestate, const string & creatorname, const string & creatorserver )
 {
 	uint32_t RowID = 0;
 	sqlite3_stmt *Statement;
@@ -590,7 +590,7 @@ uint32_t CGHostDBSQLite :: GameAdd( string server, string map, string gamename, 
 	return RowID;
 }
 
-uint32_t CGHostDBSQLite :: GamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
+uint32_t CGHostDBSQLite :: GamePlayerAdd( uint32_t gameid, string & name, const string & ip, uint32_t spoofed, const string & spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, const string & leftreason, uint32_t team, uint32_t colour )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	uint32_t RowID = 0;
@@ -626,7 +626,7 @@ uint32_t CGHostDBSQLite :: GamePlayerAdd( uint32_t gameid, string name, string i
 	return RowID;
 }
 
-uint32_t CGHostDBSQLite :: GamePlayerCount( string name )
+uint32_t CGHostDBSQLite :: GamePlayerCount( string & name )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	uint32_t Count = 0;
@@ -651,7 +651,7 @@ uint32_t CGHostDBSQLite :: GamePlayerCount( string name )
 	return Count;
 }
 
-CDBGamePlayerSummary *CGHostDBSQLite :: GamePlayerSummaryCheck( string name )
+CDBGamePlayerSummary *CGHostDBSQLite :: GamePlayerSummaryCheck( string & name )
 {
 	if( GamePlayerCount( name ) == 0 )
 		return NULL;
@@ -735,7 +735,7 @@ uint32_t CGHostDBSQLite :: DotAGameAdd( uint32_t gameid, uint32_t winner, uint32
 	return RowID;
 }
 
-uint32_t CGHostDBSQLite :: DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
+uint32_t CGHostDBSQLite :: DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string & item1, const string & item2, const string & item3, const string & item4, const string & item5, const string & item6, const string & hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
 {
 	uint32_t RowID = 0;
 	sqlite3_stmt *Statement;
@@ -779,7 +779,7 @@ uint32_t CGHostDBSQLite :: DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint
 	return RowID;
 }
 
-uint32_t CGHostDBSQLite :: DotAPlayerCount( string name )
+uint32_t CGHostDBSQLite :: DotAPlayerCount( string & name )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	uint32_t Count = 0;
@@ -804,7 +804,7 @@ uint32_t CGHostDBSQLite :: DotAPlayerCount( string name )
 	return Count;
 }
 
-CDBDotAPlayerSummary *CGHostDBSQLite :: DotAPlayerSummaryCheck( string name )
+CDBDotAPlayerSummary *CGHostDBSQLite :: DotAPlayerSummaryCheck( string & name )
 {
 	if( DotAPlayerCount( name ) == 0 )
 		return NULL;
@@ -932,7 +932,7 @@ string CGHostDBSQLite :: FromCheck( uint32_t ip )
 	return From;
 }
 
-bool CGHostDBSQLite :: FromAdd( uint32_t ip1, uint32_t ip2, string country )
+bool CGHostDBSQLite :: FromAdd( uint32_t ip1, uint32_t ip2, const string & country )
 {
 	// a big thank you to tjado for help with the iptocountry feature
 
@@ -964,7 +964,7 @@ bool CGHostDBSQLite :: FromAdd( uint32_t ip1, uint32_t ip2, string country )
 	return Success;
 }
 
-CCallableAdminCount *CGHostDBSQLite :: ThreadedAdminCount( string server )
+CCallableAdminCount *CGHostDBSQLite :: ThreadedAdminCount( const string & server )
 {
 	CCallableAdminCount *Callable = new CCallableAdminCount( server );
 	Callable->SetResult( AdminCount( server ) );
@@ -972,7 +972,7 @@ CCallableAdminCount *CGHostDBSQLite :: ThreadedAdminCount( string server )
 	return Callable;
 }
 
-CCallableAdminCheck *CGHostDBSQLite :: ThreadedAdminCheck( string server, string user )
+CCallableAdminCheck *CGHostDBSQLite :: ThreadedAdminCheck( const string & server, string & user )
 {
 	CCallableAdminCheck *Callable = new CCallableAdminCheck( server, user );
 	Callable->SetResult( AdminCheck( server, user ) );
@@ -980,7 +980,7 @@ CCallableAdminCheck *CGHostDBSQLite :: ThreadedAdminCheck( string server, string
 	return Callable;
 }
 
-CCallableAdminAdd *CGHostDBSQLite :: ThreadedAdminAdd( string server, string user )
+CCallableAdminAdd *CGHostDBSQLite :: ThreadedAdminAdd( const string & server, string & user )
 {
 	CCallableAdminAdd *Callable = new CCallableAdminAdd( server, user );
 	Callable->SetResult( AdminAdd( server, user ) );
@@ -988,7 +988,7 @@ CCallableAdminAdd *CGHostDBSQLite :: ThreadedAdminAdd( string server, string use
 	return Callable;
 }
 
-CCallableAdminRemove *CGHostDBSQLite :: ThreadedAdminRemove( string server, string user )
+CCallableAdminRemove *CGHostDBSQLite :: ThreadedAdminRemove( const string & server, string & user )
 {
 	CCallableAdminRemove *Callable = new CCallableAdminRemove( server, user );
 	Callable->SetResult( AdminRemove( server, user ) );
@@ -996,7 +996,7 @@ CCallableAdminRemove *CGHostDBSQLite :: ThreadedAdminRemove( string server, stri
 	return Callable;
 }
 
-CCallableAdminList *CGHostDBSQLite :: ThreadedAdminList( string server )
+CCallableAdminList *CGHostDBSQLite :: ThreadedAdminList( const string & server )
 {
 	CCallableAdminList *Callable = new CCallableAdminList( server );
 	Callable->SetResult( AdminList( server ) );
@@ -1004,7 +1004,7 @@ CCallableAdminList *CGHostDBSQLite :: ThreadedAdminList( string server )
 	return Callable;
 }
 
-CCallableBanCount *CGHostDBSQLite :: ThreadedBanCount( string server )
+CCallableBanCount *CGHostDBSQLite :: ThreadedBanCount( const string & server )
 {
 	CCallableBanCount *Callable = new CCallableBanCount( server );
 	Callable->SetResult( BanCount( server ) );
@@ -1012,7 +1012,7 @@ CCallableBanCount *CGHostDBSQLite :: ThreadedBanCount( string server )
 	return Callable;
 }
 
-CCallableBanCheck *CGHostDBSQLite :: ThreadedBanCheck( string server, string user, string ip )
+CCallableBanCheck *CGHostDBSQLite :: ThreadedBanCheck( const string & server, string & user, const string & ip )
 {
 	CCallableBanCheck *Callable = new CCallableBanCheck( server, user, ip );
 	Callable->SetResult( BanCheck( server, user, ip ) );
@@ -1020,7 +1020,7 @@ CCallableBanCheck *CGHostDBSQLite :: ThreadedBanCheck( string server, string use
 	return Callable;
 }
 
-CCallableBanAdd *CGHostDBSQLite :: ThreadedBanAdd( string server, string user, string ip, string gamename, string admin, string reason )
+CCallableBanAdd *CGHostDBSQLite :: ThreadedBanAdd( const string & server, string & user, const string & ip, const string & gamename, const string & admin, const string & reason )
 {
 	CCallableBanAdd *Callable = new CCallableBanAdd( server, user, ip, gamename, admin, reason );
 	Callable->SetResult( BanAdd( server, user, ip, gamename, admin, reason ) );
@@ -1028,7 +1028,7 @@ CCallableBanAdd *CGHostDBSQLite :: ThreadedBanAdd( string server, string user, s
 	return Callable;
 }
 
-CCallableBanRemove *CGHostDBSQLite :: ThreadedBanRemove( string server, string user )
+CCallableBanRemove *CGHostDBSQLite :: ThreadedBanRemove( const string & server, string & user )
 {
 	CCallableBanRemove *Callable = new CCallableBanRemove( server, user );
 	Callable->SetResult( BanRemove( server, user ) );
@@ -1036,7 +1036,7 @@ CCallableBanRemove *CGHostDBSQLite :: ThreadedBanRemove( string server, string u
 	return Callable;
 }
 
-CCallableBanRemove *CGHostDBSQLite :: ThreadedBanRemove( string user )
+CCallableBanRemove *CGHostDBSQLite :: ThreadedBanRemove( string & user )
 {
 	CCallableBanRemove *Callable = new CCallableBanRemove( string( ), user );
 	Callable->SetResult( BanRemove( user ) );
@@ -1044,7 +1044,7 @@ CCallableBanRemove *CGHostDBSQLite :: ThreadedBanRemove( string user )
 	return Callable;
 }
 
-CCallableBanList *CGHostDBSQLite :: ThreadedBanList( string server )
+CCallableBanList *CGHostDBSQLite :: ThreadedBanList( const string & server )
 {
 	CCallableBanList *Callable = new CCallableBanList( server );
 	Callable->SetResult( BanList( server ) );
@@ -1052,7 +1052,7 @@ CCallableBanList *CGHostDBSQLite :: ThreadedBanList( string server )
 	return Callable;
 }
 
-CCallableGameAdd *CGHostDBSQLite :: ThreadedGameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
+CCallableGameAdd *CGHostDBSQLite :: ThreadedGameAdd( const string & server, const string & map, const string & gamename, const string & ownername, uint32_t duration, uint32_t gamestate, const string & creatorname, const string & creatorserver )
 {
 	CCallableGameAdd *Callable = new CCallableGameAdd( server, map, gamename, ownername, duration, gamestate, creatorname, creatorserver );
 	Callable->SetResult( GameAdd( server, map, gamename, ownername, duration, gamestate, creatorname, creatorserver ) );
@@ -1060,7 +1060,7 @@ CCallableGameAdd *CGHostDBSQLite :: ThreadedGameAdd( string server, string map, 
 	return Callable;
 }
 
-CCallableGamePlayerAdd *CGHostDBSQLite :: ThreadedGamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
+CCallableGamePlayerAdd *CGHostDBSQLite :: ThreadedGamePlayerAdd( uint32_t gameid, string & name, const string & ip, uint32_t spoofed, const string & spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, const string & leftreason, uint32_t team, uint32_t colour )
 {
 	CCallableGamePlayerAdd *Callable = new CCallableGamePlayerAdd( gameid, name, ip, spoofed, spoofedrealm, reserved, loadingtime, left, leftreason, team, colour );
 	Callable->SetResult( GamePlayerAdd( gameid, name, ip, spoofed, spoofedrealm, reserved, loadingtime, left, leftreason, team, colour ) );
@@ -1068,7 +1068,7 @@ CCallableGamePlayerAdd *CGHostDBSQLite :: ThreadedGamePlayerAdd( uint32_t gameid
 	return Callable;
 }
 
-CCallableGamePlayerSummaryCheck *CGHostDBSQLite :: ThreadedGamePlayerSummaryCheck( string name )
+CCallableGamePlayerSummaryCheck *CGHostDBSQLite :: ThreadedGamePlayerSummaryCheck( string & name )
 {
 	CCallableGamePlayerSummaryCheck *Callable = new CCallableGamePlayerSummaryCheck( name );
 	Callable->SetResult( GamePlayerSummaryCheck( name ) );
@@ -1084,7 +1084,7 @@ CCallableDotAGameAdd *CGHostDBSQLite :: ThreadedDotAGameAdd( uint32_t gameid, ui
 	return Callable;
 }
 
-CCallableDotAPlayerAdd *CGHostDBSQLite :: ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
+CCallableDotAPlayerAdd *CGHostDBSQLite :: ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string & item1, const string & item2, const string & item3, const string & item4, const string & item5, const string & item6, const string & hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
 {
 	CCallableDotAPlayerAdd *Callable = new CCallableDotAPlayerAdd( gameid, colour, kills, deaths, creepkills, creepdenies, assists, gold, neutralkills, item1, item2, item3, item4, item5, item6, hero, newcolour, towerkills, raxkills, courierkills );
 	Callable->SetResult( DotAPlayerAdd( gameid, colour, kills, deaths, creepkills, creepdenies, assists, gold, neutralkills, item1, item2, item3, item4, item5, item6, hero, newcolour, towerkills, raxkills, courierkills ) );
@@ -1092,7 +1092,7 @@ CCallableDotAPlayerAdd *CGHostDBSQLite :: ThreadedDotAPlayerAdd( uint32_t gameid
 	return Callable;
 }
 
-CCallableDotAPlayerSummaryCheck *CGHostDBSQLite :: ThreadedDotAPlayerSummaryCheck( string name )
+CCallableDotAPlayerSummaryCheck *CGHostDBSQLite :: ThreadedDotAPlayerSummaryCheck( string & name )
 {
 	CCallableDotAPlayerSummaryCheck *Callable = new CCallableDotAPlayerSummaryCheck( name );
 	Callable->SetResult( DotAPlayerSummaryCheck( name ) );

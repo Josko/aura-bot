@@ -61,7 +61,29 @@ CGHost *gGHost = NULL;
 
 uint32_t GetTime( )
 {
-	return GetTicks( ) / 1000;
+	#ifdef WIN32
+	// don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
+	// don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
+	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
+
+	return timeGetTime( );
+#elif __APPLE__
+	uint64_t current = mach_absolute_time( );
+	static mach_timebase_info_data_t info = { 0, 0 };
+	// get timebase info
+	if( info.denom == 0 )
+		mach_timebase_info( &info );
+	uint64_t elapsednano = current * ( info.numer / info.denom );
+	// convert ns to ms
+	return elapsednano / 1e6;
+#else
+	uint32_t ticks;
+	struct timespec t;
+	clock_gettime( CLOCK_MONOTONIC, &t );
+	ticks = t.tv_sec * 1000;
+	ticks += t.tv_nsec / 1000000;
+	return ticks / 1000;
+#endif
 }
 
 uint32_t GetTicks( )
@@ -266,7 +288,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.7" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.71" )
 {
 	vector<string> channels;
 	vector<string> locals;
