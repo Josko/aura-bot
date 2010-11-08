@@ -266,7 +266,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.62" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.7" )
 {
 	vector<string> channels;
 	vector<string> locals;
