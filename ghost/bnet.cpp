@@ -456,7 +456,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		
 		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3800 ) )
 		{
-			if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
+			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
 			{
 				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
 				m_LastSpamTicks = GetTicks( );
