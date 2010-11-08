@@ -37,7 +37,7 @@
 // CBaseGame
 //
 
-CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer ) 
+CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) 
 
 
 : m_GHost( nGHost ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nGHost->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nGHost->m_HostCounter++ ), m_Latency( nGHost->m_Latency ), m_SyncLimit( nGHost->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_RefreshRehosted( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_LoadInGame( nMap->GetMapLoadInGame( ) ), m_Lagging( false )
@@ -798,7 +798,7 @@ void CBaseGame :: SendAll( BYTEARRAY data )
 		(*i)->Send( data );
 }
 
-void CBaseGame :: SendChat( unsigned char fromPID, CGamePlayer *player, string message )
+void CBaseGame :: SendChat( unsigned char fromPID, CGamePlayer *player, const string &message )
 {
 	// send a private message to one player - it'll be marked [Private] in Warcraft 3
 
@@ -807,9 +807,9 @@ void CBaseGame :: SendChat( unsigned char fromPID, CGamePlayer *player, string m
 		if( !m_GameLoading && !m_GameLoaded )
 		{
 			if( message.size( ) > 254 )
-				message = message.substr( 0, 254 );
-
-			Send( player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, UTIL_CreateByteArray( player->GetPID( ) ), 16, BYTEARRAY( ), message ) );
+				Send( player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, UTIL_CreateByteArray( player->GetPID( ) ), 16, BYTEARRAY( ), message.substr( 0, 254 ) ) );
+			else
+				Send( player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, UTIL_CreateByteArray( player->GetPID( ) ), 16, BYTEARRAY( ), message ) );
 		}
 		else
 		{
@@ -823,29 +823,29 @@ void CBaseGame :: SendChat( unsigned char fromPID, CGamePlayer *player, string m
 				ExtraFlags[0] = 3 + m_Slots[SID].GetColour( );
 
 			if( message.size( ) > 127 )
-				message = message.substr( 0, 127 );
-
-			Send( player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, UTIL_CreateByteArray( player->GetPID( ) ), 32, UTIL_CreateByteArray( ExtraFlags, 4 ), message ) );
+				Send( player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, UTIL_CreateByteArray( player->GetPID( ) ), 32, UTIL_CreateByteArray( ExtraFlags, 4 ), message.substr( 0, 127 ) ) );
+			else
+				Send( player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, UTIL_CreateByteArray( player->GetPID( ) ), 32, UTIL_CreateByteArray( ExtraFlags, 4 ), message ) );
 		}
 	}
 }
 
-void CBaseGame :: SendChat( unsigned char fromPID, unsigned char toPID, string message )
+void CBaseGame :: SendChat( unsigned char fromPID, unsigned char toPID, const string &message )
 {
 	SendChat( fromPID, GetPlayerFromPID( toPID ), message );
 }
 
-void CBaseGame :: SendChat( CGamePlayer *player, string message )
+void CBaseGame :: SendChat( CGamePlayer *player, const string &message )
 {
 	SendChat( GetHostPID( ), player, message );
 }
 
-void CBaseGame :: SendChat( unsigned char toPID, string message )
+void CBaseGame :: SendChat( unsigned char toPID, const string &message )
 {
 	SendChat( GetHostPID( ), toPID, message );
 }
 
-void CBaseGame :: SendAllChat( unsigned char fromPID, string message )
+void CBaseGame :: SendAllChat( unsigned char fromPID, const string &message )
 {
 	// send a public message to all players - it'll be marked [All] in Warcraft 3
 
@@ -856,21 +856,21 @@ void CBaseGame :: SendAllChat( unsigned char fromPID, string message )
 		if( !m_GameLoading && !m_GameLoaded )
 		{
 			if( message.size( ) > 254 )
-				message = message.substr( 0, 254 );
-
-			SendAll( m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, GetPIDs( ), 16, BYTEARRAY( ), message ) );
+				SendAll( m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, GetPIDs( ), 16, BYTEARRAY( ), message.substr( 0, 254 ) ) );
+			else
+				SendAll( m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, GetPIDs( ), 16, BYTEARRAY( ), message ) );
 		}
 		else
 		{
 			if( message.size( ) > 127 )
-				message = message.substr( 0, 127 );
-
-			SendAll( m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, GetPIDs( ), 32, UTIL_CreateByteArray( (uint32_t)0, false ), message ) );
+				SendAll( m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, GetPIDs( ), 32, UTIL_CreateByteArray( (uint32_t)0, false ), message.substr( 0, 127 ) ) );
+			else
+				SendAll( m_Protocol->SEND_W3GS_CHAT_FROM_HOST( fromPID, GetPIDs( ), 32, UTIL_CreateByteArray( (uint32_t)0, false ), message ) );
 		}
 	}
 }
 
-void CBaseGame :: SendAllChat( string message )
+void CBaseGame :: SendAllChat( const string &message )
 {
 	SendAllChat( GetHostPID( ), message );
 }
@@ -1857,7 +1857,7 @@ void CBaseGame :: EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlaye
 	}
 }
 
-bool CBaseGame :: EventPlayerBotCommand( CGamePlayer *player, string command, string payload )
+bool CBaseGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload )
 {
 	return true;
 }
@@ -2119,7 +2119,7 @@ void CBaseGame :: EventPlayerPongToHost( CGamePlayer *player, uint32_t pong )
 	}
 }
 
-void CBaseGame :: EventGameRefreshed( string server )
+void CBaseGame :: EventGameRefreshed( const string &server )
 {
 	if( m_RefreshRehosted )
 	{
@@ -2866,7 +2866,7 @@ void CBaseGame :: ShuffleSlots( )
 	SendAllSlotInfo( );
 }
 
-void CBaseGame :: AddToSpoofed( string server, string name, bool sendMessage )
+void CBaseGame :: AddToSpoofed( string server, const string &name, bool sendMessage )
 {
 	CGamePlayer *Player = GetPlayerFromName( name, true );
 

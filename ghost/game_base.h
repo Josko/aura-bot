@@ -107,7 +107,7 @@ protected:
 	bool m_Lagging;									// if the lag screen is active or not
 
 public:
-	CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string nGameName, string nOwnerName, string nCreatorName, string nCreatorServer );
+	CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
 	virtual ~CBaseGame( );
 
 	virtual uint16_t GetHostPort( )					{ return m_HostPort; }
@@ -153,12 +153,12 @@ public:
 
 	// functions to send packets to players
 
-	virtual void SendChat( unsigned char fromPID, CGamePlayer *player, string message );
-	virtual void SendChat( unsigned char fromPID, unsigned char toPID, string message );
-	virtual void SendChat( CGamePlayer *player, string message );
-	virtual void SendChat( unsigned char toPID, string message );
-	virtual void SendAllChat( unsigned char fromPID, string message );
-	virtual void SendAllChat( string message );
+	virtual void SendChat( unsigned char fromPID, CGamePlayer *player, const string &message );
+	virtual void SendChat( unsigned char fromPID, unsigned char toPID, const string &message );
+	virtual void SendChat( CGamePlayer *player, const string &message );
+	virtual void SendChat( unsigned char toPID, const string &message );
+	virtual void SendAllChat( unsigned char fromPID, const string &message );
+	virtual void SendAllChat( const string &message );
 	virtual void SendAllSlotInfo( );
 	virtual void SendVirtualHostPlayerInfo( CGamePlayer *player );
 	virtual void SendFakePlayerInfo( CGamePlayer *player );
@@ -179,7 +179,7 @@ public:
 	virtual void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
 	virtual void EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum );
 	virtual void EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *chatPlayer );
-	virtual bool EventPlayerBotCommand( CGamePlayer *player, string command, string payload );
+	virtual bool EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload );
 	virtual void EventPlayerChangeTeam( CGamePlayer *player, unsigned char team );
 	virtual void EventPlayerChangeColour( CGamePlayer *player, unsigned char colour );
 	virtual void EventPlayerChangeRace( CGamePlayer *player, unsigned char race );
@@ -190,7 +190,7 @@ public:
 
 	// these events are called outside of any iterations
 
-	virtual void EventGameRefreshed( string server );
+	virtual void EventGameRefreshed( const string &server );
 	virtual void EventGameStarted( );
 	virtual void EventGameLoaded( );
 
@@ -217,7 +217,7 @@ public:
 	virtual void OpenAllSlots( );
 	virtual void CloseAllSlots( );
 	virtual void ShuffleSlots( );
-	virtual void AddToSpoofed( string server, string name, bool sendMessage );
+	virtual void AddToSpoofed( string server, const string &name, bool sendMessage );
 	virtual void AddToReserved( string name );
 	virtual bool IsOwner( string name );
 	virtual bool IsReserved( string name );
