@@ -65,8 +65,8 @@ uint32_t GetTicks( );		// milliseconds
 
 // output
 
-void CONSOLE_Print( string message ); // CONSOLE and DCC
-void CONSOLE_Print2( string message ); // CONSOLE
-void CONSOLE_Print3( string message ); // CONSOLE and DCC and IRC
+void CONSOLE_Print( const string &message ); // CONSOLE and DCC
+void CONSOLE_Print2( const string &message ); // CONSOLE
+void CONSOLE_Print3( const string &message ); // CONSOLE and DCC and IRC
 
 #endif

@@ -729,20 +729,19 @@ void CUDPServer :: RecvFrom( fd_set *fd, struct sockaddr_in *sin, string *messag
 #else
 		int c = recvfrom( m_Socket, buffer, 1024, 0, (struct sockaddr *)sin, (socklen_t *)&AddrLen );
 #endif
+		if( c > 0 )
+		{
+			// success!
 
-		if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+			*message = string( buffer, c );
+		}
+		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
 			// receive error
 
 			m_HasError = true;
 			m_Error = GetLastError( );
 			CONSOLE_Print( "[UDPSERVER] error (recvfrom) - " + GetErrorString( ) );
-		}
-		else if( c > 0 )
-		{
-			// success!
-
-			*message = string( buffer, c );
 		}
 	}
 }

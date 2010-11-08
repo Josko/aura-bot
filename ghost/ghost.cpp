@@ -119,7 +119,7 @@ void SignalCatcher( int s )
 		exit( 1 );
 }
 
-void CONSOLE_Print( string message )
+void CONSOLE_Print( const string &message )
 {
 	cout << message << endl;	
 
@@ -128,13 +128,13 @@ void CONSOLE_Print( string message )
 			gGHost->m_IRC->SendDCC( message );
 }
 
-void CONSOLE_Print2( string message )
+void CONSOLE_Print2( const string &message )
 {
 	cout << message << endl;
 	
 }
 
-void CONSOLE_Print3( string message )
+void CONSOLE_Print3( const string &message )
 {
 	cout << message << endl;	
 
