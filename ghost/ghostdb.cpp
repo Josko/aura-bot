@@ -52,7 +52,7 @@ bool CGHostDB :: Commit( )
 	return true;
 }
 
-uint32_t CGHostDB :: AdminCount( string server )
+uint32_t CGHostDB :: AdminCount( const string &server )
 {
 	return 0;
 }
@@ -162,7 +162,7 @@ void CGHostDB :: CreateThread( CBaseCallable *callable )
 	callable->SetReady( true );
 }
 
-CCallableAdminCount *CGHostDB :: ThreadedAdminCount( string server )
+CCallableAdminCount *CGHostDB :: ThreadedAdminCount( const string &server )
 {
 	return NULL;
 }

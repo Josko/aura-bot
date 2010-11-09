@@ -69,7 +69,7 @@ public:
 
 	virtual bool Begin( );
 	virtual bool Commit( );
-	virtual uint32_t AdminCount( string server );
+	virtual uint32_t AdminCount( const string &server );
 	virtual bool AdminCheck( string server, string user );
 	virtual bool AdminAdd( string server, string user );
 	virtual bool AdminRemove( string server, string user );
@@ -94,7 +94,7 @@ public:
 	// threaded database functions
 
 	virtual void CreateThread( CBaseCallable *callable );
-	virtual CCallableAdminCount *ThreadedAdminCount( string server );
+	virtual CCallableAdminCount *ThreadedAdminCount( const string &server );
 	virtual CCallableAdminCheck *ThreadedAdminCheck( string server, string user );
 	virtual CCallableAdminAdd *ThreadedAdminAdd( string server, string user );
 	virtual CCallableAdminRemove *ThreadedAdminRemove( string server, string user );
@@ -166,7 +166,7 @@ protected:
 	uint32_t m_Result;
 
 public:
-	CCallableAdminCount( string nServer ) : CBaseCallable( ), m_Server( nServer ), m_Result( 0 ) { }
+	CCallableAdminCount( const string &nServer ) : CBaseCallable( ), m_Server( nServer ), m_Result( 0 ) { }
 	virtual ~CCallableAdminCount( );
 
 	virtual string GetServer( )					{ return m_Server; }
