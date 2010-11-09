@@ -152,7 +152,7 @@ public:
 
 	// functions to send packets to battle.net
 
-	void SendJoinChannel( string channel );
+	void SendJoinChannel( const string &channel );
 	void SendGetFriendsList( );
 	void SendGetClanList( );
 	void QueueEnterChat( );

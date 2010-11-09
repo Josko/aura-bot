@@ -33,7 +33,7 @@ private:
 	BYTEARRAY m_Data;
 
 public:
-	CCommandPacket( unsigned char nPacketType, int nID, BYTEARRAY nData );
+	CCommandPacket( unsigned char nPacketType, int nID, const BYTEARRAY &nData );
 	~CCommandPacket( );
 
 	unsigned char GetPacketType( )	{ return m_PacketType; }

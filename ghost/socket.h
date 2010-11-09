@@ -146,8 +146,8 @@ public:
 	virtual void Reset( );
 	virtual bool GetConnected( )				{ return m_Connected; }
 	virtual string *GetBytes( )					{ return &m_RecvBuffer; }
-	virtual void PutBytes( string bytes );
-	virtual void PutBytes( BYTEARRAY bytes );
+	virtual void PutBytes( const string &bytes );
+	virtual void PutBytes( const BYTEARRAY &bytes );
 	virtual void ClearRecvBuffer( )				{ m_RecvBuffer.clear( ); }
 	virtual void ClearSendBuffer( )				{ m_SendBuffer.clear( ); }
 	virtual uint32_t GetLastRecv( )				{ return m_LastRecv; }
@@ -174,7 +174,7 @@ public:
 	virtual void Reset( );
 	virtual void Disconnect( );
 	virtual bool GetConnecting( )												{ return m_Connecting; }
-	virtual void Connect( string localaddress, string address, uint16_t port );
+	virtual void Connect( const string &localaddress, const string &address, uint16_t port );
 	virtual bool CheckConnect( );
 };
 
@@ -188,7 +188,7 @@ public:
 	CTCPServer( );
 	virtual ~CTCPServer( );
 
-	virtual bool Listen( string address, uint16_t port );
+	virtual bool Listen( const string &address, uint16_t port );
 	virtual CTCPSocket *Accept( fd_set *fd );
 };
 
@@ -204,10 +204,10 @@ public:
 	CUDPSocket( );
 	virtual ~CUDPSocket( );
 
-	virtual bool SendTo( struct sockaddr_in sin, BYTEARRAY message );
-	virtual bool SendTo( string address, uint16_t port, BYTEARRAY message );
-	virtual bool Broadcast( uint16_t port, BYTEARRAY message );
-	virtual void SetBroadcastTarget( string subnet );
+	virtual bool SendTo( struct sockaddr_in sin, const BYTEARRAY &message );
+	virtual bool SendTo( const string &address, uint16_t port, const BYTEARRAY &message );
+	virtual bool Broadcast( uint16_t port, const BYTEARRAY &message );
+	virtual void SetBroadcastTarget( const string &subnet );
 	virtual void SetDontRoute( bool dontRoute );
 };
 
@@ -222,7 +222,7 @@ public:
 	virtual ~CUDPServer( );
 
 	virtual bool Bind( struct sockaddr_in sin );
-	virtual bool Bind( string address, uint16_t port );
+	virtual bool Bind( const string &address, uint16_t port );
 	virtual void RecvFrom( fd_set *fd, struct sockaddr_in *sin, string *message );
 };
 

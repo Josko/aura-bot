@@ -202,7 +202,7 @@ unsigned char CMap :: GetMapLayoutStyle( )
 	return 3;
 }
 
-void CMap :: Load( CConfig *CFG, string nCFGFile )
+void CMap :: Load( CConfig *CFG, const string &nCFGFile )
 {
 	m_Valid = true;
 	m_CFGFile = nCFGFile;

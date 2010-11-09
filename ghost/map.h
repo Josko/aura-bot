@@ -127,17 +127,17 @@ public:
 	CMap( CGHost *nGHost, CConfig *CFG, string nCFGFile );
 	~CMap( );
 
-	bool GetValid( )						{ return m_Valid; }
+	bool GetValid( )					{ return m_Valid; }
 	string GetCFGFile( )					{ return m_CFGFile; }
 	string GetMapPath( )					{ return m_MapPath; }
 	BYTEARRAY GetMapSize( )					{ return m_MapSize; }
 	BYTEARRAY GetMapInfo( )					{ return m_MapInfo; }
 	BYTEARRAY GetMapCRC( )					{ return m_MapCRC; }
 	BYTEARRAY GetMapSHA1( )					{ return m_MapSHA1; }
-	unsigned char GetMapSpeed( )			{ return m_MapSpeed; }
-	unsigned char GetMapVisibility( )		{ return m_MapVisibility; }
-	unsigned char GetMapObservers( )		{ return m_MapObservers; }
-	unsigned char GetMapFlags( )			{ return m_MapFlags; }
+	unsigned char GetMapSpeed( )				{ return m_MapSpeed; }
+	unsigned char GetMapVisibility( )			{ return m_MapVisibility; }
+	unsigned char GetMapObservers( )			{ return m_MapObservers; }
+	unsigned char GetMapFlags( )				{ return m_MapFlags; }
 	BYTEARRAY GetMapGameFlags( );
 	uint32_t GetMapGameType( );
 	uint32_t GetMapOptions( )				{ return m_MapOptions; }
@@ -149,11 +149,11 @@ public:
 	string GetMapLocalPath( )				{ return m_MapLocalPath; }
 	bool GetMapLoadInGame( )				{ return m_MapLoadInGame; }
 	string *GetMapData( )					{ return &m_MapData; }
-	uint32_t GetMapNumPlayers( )			{ return m_MapNumPlayers; }
+	uint32_t GetMapNumPlayers( )				{ return m_MapNumPlayers; }
 	uint32_t GetMapNumTeams( )				{ return m_MapNumTeams; }
-	vector<CGameSlot> GetSlots( )			{ return m_Slots; }
+	vector<CGameSlot> GetSlots( )				{ return m_Slots; }
 
-	void Load( CConfig *CFG, string nCFGFile );
+	void Load( CConfig *CFG, const string &nCFGFile );
 	void CheckValid( );
 	uint32_t XORRotateLeft( unsigned char *data, uint32_t length );
 };

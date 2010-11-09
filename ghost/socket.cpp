@@ -205,12 +205,12 @@ void CTCPSocket :: Reset( )
 
 }
 
-void CTCPSocket :: PutBytes( string bytes )
+void CTCPSocket :: PutBytes( const string &bytes )
 {
 	m_SendBuffer += bytes;
 }
 
-void CTCPSocket :: PutBytes( BYTEARRAY bytes )
+void CTCPSocket :: PutBytes( const BYTEARRAY &bytes )
 {
 	m_SendBuffer += string( bytes.begin( ), bytes.end( ) );
 }
@@ -327,7 +327,7 @@ void CTCPClient :: Disconnect( )
 	m_Connecting = false;
 }
 
-void CTCPClient :: Connect( string localaddress, string address, uint16_t port )
+void CTCPClient :: Connect( const string &localaddress, const string &address, uint16_t port )
 {
 	if( m_Socket == INVALID_SOCKET || m_HasError || m_Connecting || m_Connected )
 		return;
@@ -448,7 +448,7 @@ CTCPServer :: ~CTCPServer( )
 
 }
 
-bool CTCPServer :: Listen( string address, uint16_t port )
+bool CTCPServer :: Listen( const string &address, uint16_t port )
 {
 	if( m_Socket == INVALID_SOCKET || m_HasError )
 		return false;
@@ -540,7 +540,7 @@ CUDPSocket :: ~CUDPSocket( )
 
 }
 
-bool CUDPSocket :: SendTo( struct sockaddr_in sin, BYTEARRAY message )
+bool CUDPSocket :: SendTo( struct sockaddr_in sin, const BYTEARRAY &message )
 {
 	if( m_Socket == INVALID_SOCKET || m_HasError )
 		return false;
@@ -553,7 +553,7 @@ bool CUDPSocket :: SendTo( struct sockaddr_in sin, BYTEARRAY message )
 	return true;
 }
 
-bool CUDPSocket :: SendTo( string address, uint16_t port, BYTEARRAY message )
+bool CUDPSocket :: SendTo( const string &address, uint16_t port, const BYTEARRAY &message )
 {
 	if( m_Socket == INVALID_SOCKET || m_HasError )
 		return false;
@@ -581,7 +581,7 @@ bool CUDPSocket :: SendTo( string address, uint16_t port, BYTEARRAY message )
 	return SendTo( sin, message );
 }
 
-bool CUDPSocket :: Broadcast( uint16_t port, BYTEARRAY message )
+bool CUDPSocket :: Broadcast( uint16_t port, const BYTEARRAY &message )
 {
 	if( m_Socket == INVALID_SOCKET || m_HasError )
 		return false;
@@ -602,7 +602,7 @@ bool CUDPSocket :: Broadcast( uint16_t port, BYTEARRAY message )
 	return true;
 }
 
-void CUDPSocket :: SetBroadcastTarget( string subnet )
+void CUDPSocket :: SetBroadcastTarget( const string &subnet )
 {
 	if( subnet.empty( ) )
 	{
@@ -690,7 +690,7 @@ bool CUDPServer :: Bind( struct sockaddr_in sin )
 	return true;
 }
 
-bool CUDPServer :: Bind( string address, uint16_t port )
+bool CUDPServer :: Bind( const string &address, uint16_t port )
 {
 	if( m_Socket == INVALID_SOCKET || m_HasError )
 		return false;

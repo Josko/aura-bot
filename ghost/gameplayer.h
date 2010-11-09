@@ -55,14 +55,14 @@ public:
 	virtual CTCPSocket *GetSocket( )				{ return m_Socket; }
 	virtual BYTEARRAY GetExternalIP( );
 	virtual string GetExternalIPString( );
-	virtual queue<CCommandPacket *> GetPackets( )	{ return m_Packets; }
-	virtual bool GetDeleteMe( )						{ return m_DeleteMe; }
-	virtual bool GetError( )						{ return m_Error; }
+	virtual queue<CCommandPacket *> GetPackets( )			{ return m_Packets; }
+	virtual bool GetDeleteMe( )					{ return m_DeleteMe; }
+	virtual bool GetError( )					{ return m_Error; }
 	virtual string GetErrorString( )				{ return m_ErrorString; }
-	virtual CIncomingJoinPlayer *GetJoinPlayer( )	{ return m_IncomingJoinPlayer; }
+	virtual CIncomingJoinPlayer *GetJoinPlayer( )			{ return m_IncomingJoinPlayer; }
 
-	virtual void SetSocket( CTCPSocket *nSocket )	{ m_Socket = nSocket; }
-	virtual void SetDeleteMe( bool nDeleteMe )		{ m_DeleteMe = nDeleteMe; }
+	virtual void SetSocket( CTCPSocket *nSocket )			{ m_Socket = nSocket; }
+	virtual void SetDeleteMe( bool nDeleteMe )			{ m_DeleteMe = nDeleteMe; }
 
 	// processing functions
 
@@ -126,8 +126,8 @@ private:
 	uint32_t m_LastGProxyAckTime;
 
 public:
-	CGamePlayer( CGameProtocol *nProtocol, CBaseGame *nGame, CTCPSocket *nSocket, unsigned char nPID, string nJoinedRealm, string nName, BYTEARRAY nInternalIP, bool nReserved );
-	CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, string nJoinedRealm, string nName, BYTEARRAY nInternalIP, bool nReserved );
+	CGamePlayer( CGameProtocol *nProtocol, CBaseGame *nGame, CTCPSocket *nSocket, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
+	CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
 	virtual ~CGamePlayer( );
 
 	unsigned char GetPID( )						{ return m_PID; }
@@ -170,8 +170,8 @@ public:
 	bool GetGProxyDisconnectNoticeSent( )		{ return m_GProxyDisconnectNoticeSent; }
 	uint32_t GetGProxyReconnectKey( )			{ return m_GProxyReconnectKey; }
 
-	void SetLeftReason( string nLeftReason )										{ m_LeftReason = nLeftReason; }
-	void SetSpoofedRealm( string nSpoofedRealm )									{ m_SpoofedRealm = nSpoofedRealm; }
+	void SetLeftReason( const string &nLeftReason )										{ m_LeftReason = nLeftReason; }
+	void SetSpoofedRealm( const string &nSpoofedRealm )									{ m_SpoofedRealm = nSpoofedRealm; }
 	void SetLeftCode( uint32_t nLeftCode )											{ m_LeftCode = nLeftCode; }
 	void SetSyncCounter( uint32_t nSyncCounter )									{ m_SyncCounter = nSyncCounter; }
 	void SetLastMapPartSent( uint32_t nLastMapPartSent )							{ m_LastMapPartSent = nLastMapPartSent; }
@@ -199,7 +199,7 @@ public:
 	string GetNameTerminated( );
 	uint32_t GetPing( bool LCPing );
 
-	void AddLoadInGameData( BYTEARRAY nLoadInGameData )								{ m_LoadInGameData.push( nLoadInGameData ); }
+	void AddLoadInGameData( const BYTEARRAY &nLoadInGameData )								{ m_LoadInGameData.push( nLoadInGameData ); }
 
 	// processing functions
 
