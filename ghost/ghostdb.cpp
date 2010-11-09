@@ -57,42 +57,42 @@ uint32_t CGHostDB :: AdminCount( const string &server )
 	return 0;
 }
 
-bool CGHostDB :: AdminCheck( string server, string user )
+bool CGHostDB :: AdminCheck( const string &server, string user )
 {
 	return false;
 }
 
-bool CGHostDB :: AdminAdd( string server, string user )
+bool CGHostDB :: AdminAdd( const string &server, string user )
 {
 	return false;
 }
 
-bool CGHostDB :: AdminRemove( string server, string user )
+bool CGHostDB :: AdminRemove( const string &server, string user )
 {
 	return false;
 }
 
-vector<string> CGHostDB :: AdminList( string server )
+vector<string> CGHostDB :: AdminList( const string &server )
 {
 	return vector<string>( );
 }
 
-uint32_t CGHostDB :: BanCount( string server )
+uint32_t CGHostDB :: BanCount( const string &server )
 {
 	return 0;
 }
 
-CDBBan *CGHostDB :: BanCheck( string server, string user, string ip )
+CDBBan *CGHostDB :: BanCheck( const string &server, string user, const string &ip )
 {
 	return NULL;
 }
 
-bool CGHostDB :: BanAdd( string server, string user, string ip, string gamename, string admin, string reason )
+bool CGHostDB :: BanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason )
 {
 	return false;
 }
 
-bool CGHostDB :: BanRemove( string server, string user )
+bool CGHostDB :: BanRemove( const string &server, string user )
 {
 	return false;
 }
@@ -102,17 +102,17 @@ bool CGHostDB :: BanRemove( string user )
 	return false;
 }
 
-vector<CDBBan *> CGHostDB :: BanList( string server )
+vector<CDBBan *> CGHostDB :: BanList( const string &server )
 {
 	return vector<CDBBan *>( );
 }
 
-uint32_t CGHostDB :: GameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
+uint32_t CGHostDB :: GameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
 {
 	return 0;
 }
 
-uint32_t CGHostDB :: GamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
+uint32_t CGHostDB :: GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
 {
 	return 0;
 }
@@ -132,7 +132,7 @@ uint32_t CGHostDB :: DotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min
 	return 0;
 }
 
-uint32_t CGHostDB :: DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
+uint32_t CGHostDB :: DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
 {
 	return 0;
 }
@@ -152,7 +152,7 @@ string CGHostDB :: FromCheck( uint32_t ip )
 	return "??";
 }
 
-bool CGHostDB :: FromAdd( uint32_t ip1, uint32_t ip2, string country )
+bool CGHostDB :: FromAdd( uint32_t ip1, uint32_t ip2, const string &country )
 {
 	return false;
 }
@@ -167,42 +167,42 @@ CCallableAdminCount *CGHostDB :: ThreadedAdminCount( const string &server )
 	return NULL;
 }
 
-CCallableAdminCheck *CGHostDB :: ThreadedAdminCheck( string server, string user )
+CCallableAdminCheck *CGHostDB :: ThreadedAdminCheck( const string &server, string user )
 {
 	return NULL;
 }
 
-CCallableAdminAdd *CGHostDB :: ThreadedAdminAdd( string server, string user )
+CCallableAdminAdd *CGHostDB :: ThreadedAdminAdd( const string &server, string user )
 {
 	return NULL;
 }
 
-CCallableAdminRemove *CGHostDB :: ThreadedAdminRemove( string server, string user )
+CCallableAdminRemove *CGHostDB :: ThreadedAdminRemove( const string &server, string user )
 {
 	return NULL;
 }
 
-CCallableAdminList *CGHostDB :: ThreadedAdminList( string server )
+CCallableAdminList *CGHostDB :: ThreadedAdminList( const string &server )
 {
 	return NULL;
 }
 
-CCallableBanCount *CGHostDB :: ThreadedBanCount( string server )
+CCallableBanCount *CGHostDB :: ThreadedBanCount( const string &server )
 {
 	return NULL;
 }
 
-CCallableBanCheck *CGHostDB :: ThreadedBanCheck( string server, string user, string ip )
+CCallableBanCheck *CGHostDB :: ThreadedBanCheck( const string &server, string user, const string &ip )
 {
 	return NULL;
 }
 
-CCallableBanAdd *CGHostDB :: ThreadedBanAdd( string server, string user, string ip, string gamename, string admin, string reason )
+CCallableBanAdd *CGHostDB :: ThreadedBanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason )
 {
 	return NULL;
 }
 
-CCallableBanRemove *CGHostDB :: ThreadedBanRemove( string server, string user )
+CCallableBanRemove *CGHostDB :: ThreadedBanRemove( const string &server, string user )
 {
 	return NULL;
 }
@@ -212,17 +212,17 @@ CCallableBanRemove *CGHostDB :: ThreadedBanRemove( string user )
 	return NULL;
 }
 
-CCallableBanList *CGHostDB :: ThreadedBanList( string server )
+CCallableBanList *CGHostDB :: ThreadedBanList( const string &server )
 {
 	return NULL;
 }
 
-CCallableGameAdd *CGHostDB :: ThreadedGameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
+CCallableGameAdd *CGHostDB :: ThreadedGameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
 {
 	return NULL;
 }
 
-CCallableGamePlayerAdd *CGHostDB :: ThreadedGamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
+CCallableGamePlayerAdd *CGHostDB :: ThreadedGamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
 {
 	return NULL;
 }
@@ -237,7 +237,7 @@ CCallableDotAGameAdd *CGHostDB :: ThreadedDotAGameAdd( uint32_t gameid, uint32_t
 	return NULL;
 }
 
-CCallableDotAPlayerAdd *CGHostDB :: ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
+CCallableDotAPlayerAdd *CGHostDB :: ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
 {
 	return NULL;
 }
@@ -346,7 +346,7 @@ CCallableDotAPlayerSummaryCheck :: ~CCallableDotAPlayerSummaryCheck( )
 // CDBBan
 //
 
-CDBBan :: CDBBan( string nServer, string nName, string nIP, string nDate, string nGameName, string nAdmin, string nReason ) : m_Server( nServer ), m_Name( nName ), m_IP( nIP ), m_Date( nDate ), m_GameName( nGameName ), m_Admin( nAdmin ), m_Reason( nReason )
+CDBBan :: CDBBan( const string &nServer, const string &nName, const string &nIP, const string &nDate, const string &nGameName, const string &nAdmin, const string &nReason ) : m_Server( nServer ), m_Name( nName ), m_IP( nIP ), m_Date( nDate ), m_GameName( nGameName ), m_Admin( nAdmin ), m_Reason( nReason )
 {
 
 }
@@ -360,7 +360,7 @@ CDBBan :: ~CDBBan( )
 // CDBGame
 //
 
-CDBGame :: CDBGame( uint32_t nID, string nServer, string nMap, string nDateTime, string nGameName, string nOwnerName, uint32_t nDuration ) : m_ID( nID ), m_Server( nServer ), m_Map( nMap ), m_DateTime( nDateTime ), m_GameName( nGameName ), m_OwnerName( nOwnerName ), m_Duration( nDuration )
+CDBGame :: CDBGame( uint32_t nID, const string &nServer, const string &nMap, const string &nDateTime, const string &nGameName, const string &nOwnerName, uint32_t nDuration ) : m_ID( nID ), m_Server( nServer ), m_Map( nMap ), m_DateTime( nDateTime ), m_GameName( nGameName ), m_OwnerName( nOwnerName ), m_Duration( nDuration )
 {
 
 }
@@ -374,7 +374,7 @@ CDBGame :: ~CDBGame( )
 // CDBGamePlayer
 //
 
-CDBGamePlayer :: CDBGamePlayer( uint32_t nID, uint32_t nGameID, string nName, string nIP, uint32_t nSpoofed, string nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, string nLeftReason, uint32_t nTeam, uint32_t nColour ) : m_ID( nID ), m_GameID( nGameID ), m_Name( nName ), m_IP( nIP ), m_Spoofed( nSpoofed ), m_SpoofedRealm( nSpoofedRealm ), m_Reserved( nReserved ), m_LoadingTime( nLoadingTime ), m_Left( nLeft ), m_LeftReason( nLeftReason ), m_Team( nTeam ),m_Colour( nColour )
+CDBGamePlayer :: CDBGamePlayer( uint32_t nID, uint32_t nGameID, const string &nName, string nIP, uint32_t nSpoofed, const string &nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, const string &nLeftReason, uint32_t nTeam, uint32_t nColour ) : m_ID( nID ), m_GameID( nGameID ), m_Name( nName ), m_IP( nIP ), m_Spoofed( nSpoofed ), m_SpoofedRealm( nSpoofedRealm ), m_Reserved( nReserved ), m_LoadingTime( nLoadingTime ), m_Left( nLeft ), m_LeftReason( nLeftReason ), m_Team( nTeam ),m_Colour( nColour )
 {
 
 }
@@ -388,7 +388,7 @@ CDBGamePlayer :: ~CDBGamePlayer( )
 // CDBGamePlayerSummary
 //
 
-CDBGamePlayerSummary :: CDBGamePlayerSummary( string nServer, string nName, string nFirstGameDateTime, string nLastGameDateTime, uint32_t nTotalGames, uint32_t nMinLoadingTime, uint32_t nAvgLoadingTime, uint32_t nMaxLoadingTime, uint32_t nMinLeftPercent, uint32_t nAvgLeftPercent, uint32_t nMaxLeftPercent, uint32_t nMinDuration, uint32_t nAvgDuration, uint32_t nMaxDuration ) : m_Server( nServer ), m_Name( nName ), m_FirstGameDateTime( nFirstGameDateTime ), m_LastGameDateTime( nLastGameDateTime ), m_TotalGames( nTotalGames ), m_MinLoadingTime( nMinLoadingTime ), m_AvgLoadingTime( nAvgLoadingTime ), m_MaxLoadingTime( nMaxLoadingTime ), m_MinLeftPercent( nMinLeftPercent ), m_AvgLeftPercent( nAvgLeftPercent ), m_MaxLeftPercent( nMaxLeftPercent ), m_MinDuration( nMinDuration ), m_AvgDuration( nAvgDuration ), m_MaxDuration( nMaxDuration )
+CDBGamePlayerSummary :: CDBGamePlayerSummary( const string &nServer, const string &nName, const string &nFirstGameDateTime, const string &nLastGameDateTime, uint32_t nTotalGames, uint32_t nMinLoadingTime, uint32_t nAvgLoadingTime, uint32_t nMaxLoadingTime, uint32_t nMinLeftPercent, uint32_t nAvgLeftPercent, uint32_t nMaxLeftPercent, uint32_t nMinDuration, uint32_t nAvgDuration, uint32_t nMaxDuration ) : m_Server( nServer ), m_Name( nName ), m_FirstGameDateTime( nFirstGameDateTime ), m_LastGameDateTime( nLastGameDateTime ), m_TotalGames( nTotalGames ), m_MinLoadingTime( nMinLoadingTime ), m_AvgLoadingTime( nAvgLoadingTime ), m_MaxLoadingTime( nMaxLoadingTime ), m_MinLeftPercent( nMinLeftPercent ), m_AvgLeftPercent( nAvgLeftPercent ), m_MaxLeftPercent( nMaxLeftPercent ), m_MinDuration( nMinDuration ), m_AvgDuration( nAvgDuration ), m_MaxDuration( nMaxDuration )
 {
 
 }
@@ -421,7 +421,7 @@ CDBDotAPlayer :: CDBDotAPlayer( ) : m_ID( 0 ), m_GameID( 0 ), m_Colour( 0 ), m_K
 
 }
 
-CDBDotAPlayer :: CDBDotAPlayer( uint32_t nID, uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, string nItem1, string nItem2, string nItem3, string nItem4, string nItem5, string nItem6, string nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills ) : \
+CDBDotAPlayer :: CDBDotAPlayer( uint32_t nID, uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, const string &nItem1, const string &nItem2, const string &nItem3, const string &nItem4, const string &nItem5, const string &nItem6, const string &nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills ) : \
 	m_ID( nID ), m_GameID( nGameID ), m_Colour( nColour ), m_Kills( nKills ), m_Deaths( nDeaths ), m_CreepKills( nCreepKills ), m_CreepDenies( nCreepDenies ), m_Assists( nAssists ), m_Gold( nGold ), \
 	m_NeutralKills( nNeutralKills ), m_Hero( nHero ), m_NewColour( nNewColour ), m_TowerKills( nTowerKills ), m_RaxKills( nRaxKills ), m_CourierKills( nCourierKills )
 {
@@ -457,7 +457,7 @@ void CDBDotAPlayer :: SetItem( unsigned int i, string item )
 // CDBDotAPlayerSummary
 //
 
-CDBDotAPlayerSummary :: CDBDotAPlayerSummary( string nServer, string nName, uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills ) : m_Server( nServer ), m_Name( nName ), m_TotalGames( nTotalGames ), m_TotalWins( nTotalWins ), m_TotalLosses( nTotalLosses ), m_TotalKills( nTotalKills ), m_TotalDeaths( nTotalDeaths ), m_TotalCreepKills( nTotalCreepKills ), m_TotalCreepDenies( nTotalCreepDenies ), m_TotalAssists( nTotalAssists ), m_TotalNeutralKills( nTotalNeutralKills ), m_TotalTowerKills( nTotalTowerKills ), m_TotalRaxKills( nTotalRaxKills ), m_TotalCourierKills( nTotalCourierKills )
+CDBDotAPlayerSummary :: CDBDotAPlayerSummary( const string &nServer, const string &nName, uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills ) : m_Server( nServer ), m_Name( nName ), m_TotalGames( nTotalGames ), m_TotalWins( nTotalWins ), m_TotalLosses( nTotalLosses ), m_TotalKills( nTotalKills ), m_TotalDeaths( nTotalDeaths ), m_TotalCreepKills( nTotalCreepKills ), m_TotalCreepDenies( nTotalCreepDenies ), m_TotalAssists( nTotalAssists ), m_TotalNeutralKills( nTotalNeutralKills ), m_TotalTowerKills( nTotalTowerKills ), m_TotalRaxKills( nTotalRaxKills ), m_TotalCourierKills( nTotalCourierKills )
 {
 
 }

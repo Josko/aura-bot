@@ -206,47 +206,47 @@ public:
 	virtual bool Begin( );
 	virtual bool Commit( );
 	virtual uint32_t AdminCount( const string &server );
-	virtual bool AdminCheck( string server, string user );
-	virtual bool AdminAdd( string server, string user );
-	virtual bool AdminRemove( string server, string user );
-	virtual vector<string> AdminList( string server );
-	virtual uint32_t BanCount( string server );
-	virtual CDBBan *BanCheck( string server, string user, string ip );
-	virtual bool BanAdd( string server, string user, string ip, string gamename, string admin, string reason );
-	virtual bool BanRemove( string server, string user );
+	virtual bool AdminCheck( const string &server, string user );
+	virtual bool AdminAdd( const string &server, string user );
+	virtual bool AdminRemove( const string &server, string user );
+	virtual vector<string> AdminList( const string &server );
+	virtual uint32_t BanCount( const string &server );
+	virtual CDBBan *BanCheck( const string &server, string user, const string &ip );
+	virtual bool BanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason );
+	virtual bool BanRemove( const string &server, string user );
 	virtual bool BanRemove( string user );
-	virtual vector<CDBBan *> BanList( string server );
-	virtual uint32_t GameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
-	virtual uint32_t GamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
+	virtual vector<CDBBan *> BanList( const string &server );
+	virtual uint32_t GameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
+	virtual uint32_t GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
 	virtual uint32_t GamePlayerCount( string name );
 	virtual CDBGamePlayerSummary *GamePlayerSummaryCheck( string name );
 	virtual uint32_t DotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec );
-	virtual uint32_t DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
+	virtual uint32_t DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
 	virtual uint32_t DotAPlayerCount( string name );
 	virtual CDBDotAPlayerSummary *DotAPlayerSummaryCheck( string name );
 	virtual string FromCheck( uint32_t ip );
-	virtual bool FromAdd( uint32_t ip1, uint32_t ip2, string country );
+	virtual bool FromAdd( uint32_t ip1, uint32_t ip2, const string &country );
 
 	// threaded database functions
 	// note: these are not actually implemented with threads at the moment, they WILL block until the query is complete
 	// todotodo: implement threads here
 
 	virtual CCallableAdminCount *ThreadedAdminCount( const string &server );
-	virtual CCallableAdminCheck *ThreadedAdminCheck( string server, string user );
-	virtual CCallableAdminAdd *ThreadedAdminAdd( string server, string user );
-	virtual CCallableAdminRemove *ThreadedAdminRemove( string server, string user );
-	virtual CCallableAdminList *ThreadedAdminList( string server );
-	virtual CCallableBanCount *ThreadedBanCount( string server );
-	virtual CCallableBanCheck *ThreadedBanCheck( string server, string user, string ip );
-	virtual CCallableBanAdd *ThreadedBanAdd( string server, string user, string ip, string gamename, string admin, string reason );
-	virtual CCallableBanRemove *ThreadedBanRemove( string server, string user );
+	virtual CCallableAdminCheck *ThreadedAdminCheck( const string &server, string user );
+	virtual CCallableAdminAdd *ThreadedAdminAdd( const string &server, string user );
+	virtual CCallableAdminRemove *ThreadedAdminRemove( const string &server, string user );
+	virtual CCallableAdminList *ThreadedAdminList( const string &server );
+	virtual CCallableBanCount *ThreadedBanCount( const string &server );
+	virtual CCallableBanCheck *ThreadedBanCheck( const string &server, string user, const string &ip );
+	virtual CCallableBanAdd *ThreadedBanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason );
+	virtual CCallableBanRemove *ThreadedBanRemove( const string &server, string user );
 	virtual CCallableBanRemove *ThreadedBanRemove( string user );
-	virtual CCallableBanList *ThreadedBanList( string server );
-	virtual CCallableGameAdd *ThreadedGameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
-	virtual CCallableGamePlayerAdd *ThreadedGamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
+	virtual CCallableBanList *ThreadedBanList( const string &server );
+	virtual CCallableGameAdd *ThreadedGameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
+	virtual CCallableGamePlayerAdd *ThreadedGamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
 	virtual CCallableGamePlayerSummaryCheck *ThreadedGamePlayerSummaryCheck( string name );
 	virtual CCallableDotAGameAdd *ThreadedDotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec );
-	virtual CCallableDotAPlayerAdd *ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
+	virtual CCallableDotAPlayerAdd *ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
 	virtual CCallableDotAPlayerSummaryCheck *ThreadedDotAPlayerSummaryCheck( string name );
 };
 

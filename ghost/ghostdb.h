@@ -70,46 +70,46 @@ public:
 	virtual bool Begin( );
 	virtual bool Commit( );
 	virtual uint32_t AdminCount( const string &server );
-	virtual bool AdminCheck( string server, string user );
-	virtual bool AdminAdd( string server, string user );
-	virtual bool AdminRemove( string server, string user );
-	virtual vector<string> AdminList( string server );
-	virtual uint32_t BanCount( string server );
-	virtual CDBBan *BanCheck( string server, string user, string ip );
-	virtual bool BanAdd( string server, string user, string ip, string gamename, string admin, string reason );
-	virtual bool BanRemove( string server, string user );
+	virtual bool AdminCheck( const string &server, string user );
+	virtual bool AdminAdd( const string &server, string user );
+	virtual bool AdminRemove( const string &server, string user );
+	virtual vector<string> AdminList( const string &server );
+	virtual uint32_t BanCount( const string &server );
+	virtual CDBBan *BanCheck( const string &server, string user, const string &ip );
+	virtual bool BanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason );
+	virtual bool BanRemove( const string &server, string user );
 	virtual bool BanRemove( string user );
-	virtual vector<CDBBan *> BanList( string server );
-	virtual uint32_t GameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
-	virtual uint32_t GamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
+	virtual vector<CDBBan *> BanList( const string &server );
+	virtual uint32_t GameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
+	virtual uint32_t GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
 	virtual uint32_t GamePlayerCount( string name );
 	virtual CDBGamePlayerSummary *GamePlayerSummaryCheck( string name );
 	virtual uint32_t DotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec );
-	virtual uint32_t DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
+	virtual uint32_t DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
 	virtual uint32_t DotAPlayerCount( string name );
 	virtual CDBDotAPlayerSummary *DotAPlayerSummaryCheck( string name );
 	virtual string FromCheck( uint32_t ip );
-	virtual bool FromAdd( uint32_t ip1, uint32_t ip2, string country );
+	virtual bool FromAdd( uint32_t ip1, uint32_t ip2, const string &country );
 
 	// threaded database functions
 
 	virtual void CreateThread( CBaseCallable *callable );
 	virtual CCallableAdminCount *ThreadedAdminCount( const string &server );
-	virtual CCallableAdminCheck *ThreadedAdminCheck( string server, string user );
-	virtual CCallableAdminAdd *ThreadedAdminAdd( string server, string user );
-	virtual CCallableAdminRemove *ThreadedAdminRemove( string server, string user );
-	virtual CCallableAdminList *ThreadedAdminList( string server );
-	virtual CCallableBanCount *ThreadedBanCount( string server );
-	virtual CCallableBanCheck *ThreadedBanCheck( string server, string user, string ip );
-	virtual CCallableBanAdd *ThreadedBanAdd( string server, string user, string ip, string gamename, string admin, string reason );
-	virtual CCallableBanRemove *ThreadedBanRemove( string server, string user );
+	virtual CCallableAdminCheck *ThreadedAdminCheck( const string &server, string user );
+	virtual CCallableAdminAdd *ThreadedAdminAdd( const string &server, string user );
+	virtual CCallableAdminRemove *ThreadedAdminRemove( const string &server, string user );
+	virtual CCallableAdminList *ThreadedAdminList( const string &server );
+	virtual CCallableBanCount *ThreadedBanCount( const string &server );
+	virtual CCallableBanCheck *ThreadedBanCheck( const string &server, string user, const string &ip );
+	virtual CCallableBanAdd *ThreadedBanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason );
+	virtual CCallableBanRemove *ThreadedBanRemove( const string &server, string user );
 	virtual CCallableBanRemove *ThreadedBanRemove( string user );
-	virtual CCallableBanList *ThreadedBanList( string server );
-	virtual CCallableGameAdd *ThreadedGameAdd( string server, string map, string gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
-	virtual CCallableGamePlayerAdd *ThreadedGamePlayerAdd( uint32_t gameid, string name, string ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
+	virtual CCallableBanList *ThreadedBanList( const string &server );
+	virtual CCallableGameAdd *ThreadedGameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver );
+	virtual CCallableGamePlayerAdd *ThreadedGamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour );
 	virtual CCallableGamePlayerSummaryCheck *ThreadedGamePlayerSummaryCheck( string name );
 	virtual CCallableDotAGameAdd *ThreadedDotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec );
-	virtual CCallableDotAPlayerAdd *ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, string item1, string item2, string item3, string item4, string item5, string item6, string hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
+	virtual CCallableDotAPlayerAdd *ThreadedDotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
 	virtual CCallableDotAPlayerSummaryCheck *ThreadedDotAPlayerSummaryCheck( string name );
 };
 
@@ -470,7 +470,7 @@ private:
 	string m_Reason;
 
 public:
-	CDBBan( string nServer, string nName, string nIP, string nDate, string nGameName, string nAdmin, string nReason );
+	CDBBan( const string &nServer, const string &nName, const string &nIP, const string &nDate, const string &nGameName, const string &nAdmin, const string &nReason );
 	~CDBBan( );
 
 	string GetServer( )		{ return m_Server; }
@@ -498,7 +498,7 @@ private:
 	uint32_t m_Duration;
 
 public:
-	CDBGame( uint32_t nID, string nServer, string nMap, string nDateTime, string nGameName, string nOwnerName, uint32_t nDuration );
+	CDBGame( uint32_t nID, const string &nServer, const string &nMap, const string &nDateTime, const string &nGameName, const string &nOwnerName, uint32_t nDuration );
 	~CDBGame( );
 
 	uint32_t GetID( )		{ return m_ID; }
@@ -533,7 +533,7 @@ private:
 	uint32_t m_Colour;
 
 public:
-	CDBGamePlayer( uint32_t nID, uint32_t nGameID, string nName, string nIP, uint32_t nSpoofed, string nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, string nLeftReason, uint32_t nTeam, uint32_t nColour );
+	CDBGamePlayer( uint32_t nID, uint32_t nGameID, const string &nName, string nIP, uint32_t nSpoofed, const string &nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, const string &nLeftReason, uint32_t nTeam, uint32_t nColour );
 	~CDBGamePlayer( );
 
 	uint32_t GetID( )			{ return m_ID; }
@@ -577,7 +577,7 @@ private:
 	uint32_t m_MaxDuration;			// maximum game duration in seconds
 
 public:
-	CDBGamePlayerSummary( string nServer, string nName, string nFirstGameDateTime, string nLastGameDateTime, uint32_t nTotalGames, uint32_t nMinLoadingTime, uint32_t nAvgLoadingTime, uint32_t nMaxLoadingTime, uint32_t nMinLeftPercent, uint32_t nAvgLeftPercent, uint32_t nMaxLeftPercent, uint32_t nMinDuration, uint32_t nAvgDuration, uint32_t nMaxDuration );
+	CDBGamePlayerSummary( const string &nServer, const string &nName, const string &nFirstGameDateTime, const string &nLastGameDateTime, uint32_t nTotalGames, uint32_t nMinLoadingTime, uint32_t nAvgLoadingTime, uint32_t nMaxLoadingTime, uint32_t nMinLeftPercent, uint32_t nAvgLeftPercent, uint32_t nMaxLeftPercent, uint32_t nMinDuration, uint32_t nAvgDuration, uint32_t nMaxDuration );
 	~CDBGamePlayerSummary( );
 
 	string GetServer( )					{ return m_Server; }
@@ -646,7 +646,7 @@ private:
 
 public:
 	CDBDotAPlayer( );
-	CDBDotAPlayer( uint32_t nID, uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, string nItem1, string nItem2, string nItem3, string nItem4, string nItem5, string nItem6, string nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills );
+	CDBDotAPlayer( uint32_t nID, uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, const string &nItem1, const string &nItem2, const string &nItem3, const string &nItem4, const string &nItem5, const string &nItem6, const string &nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills );
 	~CDBDotAPlayer( );
 
 	uint32_t GetID( )			{ return m_ID; }
@@ -705,7 +705,7 @@ private:
 	uint32_t m_TotalCourierKills;	// total number of courier kills
 
 public:
-	CDBDotAPlayerSummary( string nServer, string nName, uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills );
+	CDBDotAPlayerSummary( const string &nServer, const string &nName, uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills );
 	~CDBDotAPlayerSummary( );
 
 	string GetServer( )					{ return m_Server; }
