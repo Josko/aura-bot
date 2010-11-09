@@ -558,7 +558,7 @@ vector<CDBBan *> CGHostDBSQLite :: BanList( const string &server )
 	return BanList;
 }
 
-uint32_t CGHostDBSQLite :: GameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
+uint32_t CGHostDBSQLite :: GameAdd( const string &server, const string &map, const string &gamename, const string &ownername, uint32_t duration, uint32_t gamestate, const string &creatorname, const string &creatorserver )
 {
 	uint32_t RowID = 0;
 	sqlite3_stmt *Statement;
@@ -590,7 +590,7 @@ uint32_t CGHostDBSQLite :: GameAdd( const string &server, string map, const stri
 	return RowID;
 }
 
-uint32_t CGHostDBSQLite :: GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, string spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, string leftreason, uint32_t team, uint32_t colour )
+uint32_t CGHostDBSQLite :: GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, const string &spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, const string &leftreason, uint32_t team, uint32_t colour )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	uint32_t RowID = 0;
@@ -1052,7 +1052,7 @@ CCallableBanList *CGHostDBSQLite :: ThreadedBanList( const string &server )
 	return Callable;
 }
 
-CCallableGameAdd *CGHostDBSQLite :: ThreadedGameAdd( const string &server, string map, const string &gamename, string ownername, uint32_t duration, uint32_t gamestate, string creatorname, string creatorserver )
+CCallableGameAdd *CGHostDBSQLite :: ThreadedGameAdd( const string &server, const string &map, const string &gamename, const string &ownername, uint32_t duration, uint32_t gamestate, const string &creatorname, const string &creatorserver )
 {
 	CCallableGameAdd *Callable = new CCallableGameAdd( server, map, gamename, ownername, duration, gamestate, creatorname, creatorserver );
 	Callable->SetResult( GameAdd( server, map, gamename, ownername, duration, gamestate, creatorname, creatorserver ) );
