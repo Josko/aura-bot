@@ -146,10 +146,10 @@ public:
 
 	// generic functions to send packets to players
 
-	virtual void Send( CGamePlayer *player, BYTEARRAY data );
-	virtual void Send( unsigned char PID, BYTEARRAY data );
-	virtual void Send( BYTEARRAY PIDs, BYTEARRAY data );
-	virtual void SendAll( BYTEARRAY data );
+	virtual void Send( CGamePlayer *player, const BYTEARRAY &data );
+	virtual void Send( unsigned char PID, const BYTEARRAY &data );
+	virtual void Send( const BYTEARRAY &PIDs, const BYTEARRAY &data );
+	virtual void SendAll( const BYTEARRAY &data );
 
 	// functions to send packets to players
 

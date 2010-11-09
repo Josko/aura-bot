@@ -947,7 +947,7 @@ inline BYTEARRAY CGameProtocol :: EncodeSlotInfo( vector<CGameSlot> &slots, uint
 // CIncomingJoinPlayer
 //
 
-CIncomingJoinPlayer :: CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, string nName, BYTEARRAY &nInternalIP ) : m_HostCounter( nHostCounter ), m_EntryKey( nEntryKey ), m_Name( nName ), m_InternalIP( nInternalIP )
+CIncomingJoinPlayer :: CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, const string &nName, BYTEARRAY &nInternalIP ) : m_HostCounter( nHostCounter ), m_EntryKey( nEntryKey ), m_Name( nName ), m_InternalIP( nInternalIP )
 {
 
 }
@@ -975,12 +975,12 @@ CIncomingAction :: ~CIncomingAction( )
 // CIncomingChatPlayer
 //
 
-CIncomingChatPlayer :: CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, string nMessage ) : m_Type( CTH_MESSAGE ), m_FromPID( nFromPID ), m_ToPIDs( nToPIDs ), m_Flag( nFlag ), m_Message( nMessage )
+CIncomingChatPlayer :: CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage ) : m_Type( CTH_MESSAGE ), m_FromPID( nFromPID ), m_ToPIDs( nToPIDs ), m_Flag( nFlag ), m_Message( nMessage )
 {
 
 }
 
-CIncomingChatPlayer :: CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, string nMessage, BYTEARRAY &nExtraFlags ) : m_Type( CTH_MESSAGE ), m_FromPID( nFromPID ), m_ToPIDs( nToPIDs ), m_Flag( nFlag ), m_Message( nMessage ), m_ExtraFlags( nExtraFlags )
+CIncomingChatPlayer :: CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage, BYTEARRAY &nExtraFlags ) : m_Type( CTH_MESSAGE ), m_FromPID( nFromPID ), m_ToPIDs( nToPIDs ), m_Flag( nFlag ), m_Message( nMessage ), m_ExtraFlags( nExtraFlags )
 {
 
 }

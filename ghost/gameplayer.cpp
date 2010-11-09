@@ -527,7 +527,7 @@ void CGamePlayer :: ProcessPackets( )
 	}
 }
 
-void CGamePlayer :: Send( BYTEARRAY data )
+void CGamePlayer :: Send( const BYTEARRAY &data )
 {
 	// must start counting packet total from beginning of connection
 	// but we can avoid buffering packets until we know the client is using GProxy++ since that'll be determined before the game starts

@@ -163,7 +163,7 @@ private:
 	BYTEARRAY m_InternalIP;
 
 public:
-	CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, string nName, BYTEARRAY &nInternalIP );
+	CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, const string &nName, BYTEARRAY &nInternalIP );
 	~CIncomingJoinPlayer( );
 
 	uint32_t GetHostCounter( )	{ return m_HostCounter; }
@@ -220,8 +220,8 @@ private:
 	BYTEARRAY m_ExtraFlags;
 
 public:
-	CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, string nMessage );
-	CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, string nMessage, BYTEARRAY &nExtraFlags );
+	CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage );
+	CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage, BYTEARRAY &nExtraFlags );
 	CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, unsigned char nByte );
 	~CIncomingChatPlayer( );
 

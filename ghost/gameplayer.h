@@ -209,7 +209,7 @@ public:
 
 	// other functions
 
-	virtual void Send( BYTEARRAY data );
+	virtual void Send( const BYTEARRAY &data );
 	virtual void EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket );
 };
 

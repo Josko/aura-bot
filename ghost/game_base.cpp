@@ -775,24 +775,24 @@ void CBaseGame :: UpdatePost( void *send_fd )
 	}
 }
 
-void CBaseGame :: Send( CGamePlayer *player, BYTEARRAY data )
+void CBaseGame :: Send( CGamePlayer *player, const BYTEARRAY &data )
 {
 	if( player )
 		player->Send( data );
 }
 
-void CBaseGame :: Send( unsigned char PID, BYTEARRAY data )
+void CBaseGame :: Send( unsigned char PID, const BYTEARRAY &data )
 {
 	Send( GetPlayerFromPID( PID ), data );
 }
 
-void CBaseGame :: Send( BYTEARRAY PIDs, BYTEARRAY data )
+void CBaseGame :: Send( const BYTEARRAY &PIDs, const BYTEARRAY &data )
 {
 	for( unsigned int i = 0; i < PIDs.size( ); ++i )
 		Send( PIDs[i], data );
 }
 
-void CBaseGame :: SendAll( BYTEARRAY data )
+void CBaseGame :: SendAll( const BYTEARRAY &data )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		(*i)->Send( data );
