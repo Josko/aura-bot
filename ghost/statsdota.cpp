@@ -108,13 +108,13 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 								CGamePlayer *Victim = m_Game->GetPlayerFromColour( VictimColour );
 
 								if( Killer && Victim )
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] killed player [" + Victim->GetName( ) + "]" );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] killed player [" + Victim->GetName( ) + "]" );
 								else if( Victim )
 								{
 									if( ValueInt == 0 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Sentinel killed player [" + Victim->GetName( ) + "]" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Sentinel killed player [" + Victim->GetName( ) + "]" );
 									else if( ValueInt == 6 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Scourge killed player [" + Victim->GetName( ) + "]" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Scourge killed player [" + Victim->GetName( ) + "]" );
 								}
 							}
 							else if( KeyString.size( ) >= 8 && KeyString.substr( 0, 7 ) == "Courier" )
@@ -135,13 +135,13 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 								CGamePlayer *Victim = m_Game->GetPlayerFromColour( VictimColour );
 
 								if( Killer && Victim )
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] killed a courier owned by player [" + Victim->GetName( ) + "]" );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] killed a courier owned by player [" + Victim->GetName( ) + "]" );
 								else if( Victim )
 								{
 									if( ValueInt == 0 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Sentinel killed a courier owned by player [" + Victim->GetName( ) + "]" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Sentinel killed a courier owned by player [" + Victim->GetName( ) + "]" );
 									else if( ValueInt == 6 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Scourge killed a courier owned by player [" + Victim->GetName( ) + "]" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Scourge killed a courier owned by player [" + Victim->GetName( ) + "]" );
 								}
 							}
 							else if( KeyString.size( ) >= 8 && KeyString.substr( 0, 5 ) == "Tower" )
@@ -180,13 +180,13 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 									SideString = "unknown";
 
 								if( Killer )
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] destroyed a level [" + Level + "] " + AllianceString + " tower (" + SideString + ")" );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] destroyed a level [" + Level + "] " + AllianceString + " tower (" + SideString + ")" );
 								else
 								{
 									if( ValueInt == 0 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Sentinel destroyed a level [" + Level + "] " + AllianceString + " tower (" + SideString + ")" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Sentinel destroyed a level [" + Level + "] " + AllianceString + " tower (" + SideString + ")" );
 									else if( ValueInt == 6 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Scourge destroyed a level [" + Level + "] " + AllianceString + " tower (" + SideString + ")" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Scourge destroyed a level [" + Level + "] " + AllianceString + " tower (" + SideString + ")" );
 								}
 							}
 							else if( KeyString.size( ) >= 6 && KeyString.substr( 0, 3 ) == "Rax" )
@@ -233,26 +233,26 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 									TypeString = "unknown";
 
 								if( Killer )
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] destroyed a " + TypeString + " " + AllianceString + " rax (" + SideString + ")" );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] player [" + Killer->GetName( ) + "] destroyed a " + TypeString + " " + AllianceString + " rax (" + SideString + ")" );
 								else
 								{
 									if( ValueInt == 0 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Sentinel destroyed a " + TypeString + " " + AllianceString + " rax (" + SideString + ")" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Sentinel destroyed a " + TypeString + " " + AllianceString + " rax (" + SideString + ")" );
 									else if( ValueInt == 6 )
-										CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Scourge destroyed a " + TypeString + " " + AllianceString + " rax (" + SideString + ")" );
+										CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Scourge destroyed a " + TypeString + " " + AllianceString + " rax (" + SideString + ")" );
 								}
 							}
 							else if( KeyString.size( ) >= 6 && KeyString.substr( 0, 6 ) == "Throne" )
 							{
 								// the frozen throne got hurt
 
-								CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the Frozen Throne is now at " + UTIL_ToString( ValueInt ) + "% HP" );
+								CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the Frozen Throne is now at " + UTIL_ToString( ValueInt ) + "% HP" );
 							}
 							else if( KeyString.size( ) >= 4 && KeyString.substr( 0, 4 ) == "Tree" )
 							{
 								// the world tree got hurt
 
-								CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] the World Tree is now at " + UTIL_ToString( ValueInt ) + "% HP" );
+								CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] the World Tree is now at " + UTIL_ToString( ValueInt ) + "% HP" );
 							}
 							else if( KeyString.size( ) >= 2 && KeyString.substr( 0, 2 ) == "CK" )
 							{
@@ -271,11 +271,11 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 								m_Winner = ValueInt;
 
 								if( m_Winner == 1 )
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] detected winner: Sentinel" );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: Sentinel" );
 								else if( m_Winner == 2 )
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] detected winner: Scourge" );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: Scourge" );
 								else
-									CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] detected winner: " + UTIL_ToString( ValueInt ) );
+									CONSOLE_Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: " + UTIL_ToString( ValueInt ) );
 							}
 							else if( KeyString == "m" )
 								m_Min = ValueInt;
@@ -397,7 +397,6 @@ void CStatsDOTA :: Save( CGHost *GHost, CGHostDB *DB, uint32_t GameID )
 				if( !( ( Colour >= 1 && Colour <= 5 ) || ( Colour >= 7 && Colour <= 11 ) ) )
 				{
 					CONSOLE_Print( "[STATSDOTA: " + m_Game->GetGameName( ) + "] discarding player data, invalid colour found" );
-					CONSOLE_Print( "h4x0rz88: colour uint " + UTIL_ToString( m_Players[i]->GetColour( ) ) + "" );
 					DB->Commit( );
 					return;
 				}

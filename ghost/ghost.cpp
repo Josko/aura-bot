@@ -158,8 +158,8 @@ void CONSOLE_Print2( const string &message )
 
 void CONSOLE_Print3( const string &message )
 {
-	cout << message << endl;	
-
+	cout << message << endl;
+	
 	if( gGHost )
 	{
 		if( gGHost->m_IRC )
@@ -168,6 +168,13 @@ void CONSOLE_Print3( const string &message )
 			gGHost->m_IRC->SendDCC( message );
 		}
 	}
+}
+
+void IRC_Print( const string &message )
+{
+	if( gGHost )
+		if( gGHost->m_IRC )
+			gGHost->m_IRC->SendMessageIRC( message, string( ) );
 }
 
 //
@@ -288,7 +295,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.74" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.75" )
 {
 	vector<string> channels;
 	vector<string> locals;

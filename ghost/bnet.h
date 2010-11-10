@@ -116,6 +116,8 @@ private:
 	bool m_PublicCommands;							// whether to allow public commands or not
 	string m_SpamChannel;
 	bool m_Deactivated;
+	
+	bool m_IRC;
 
 public:
 	CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, bool nPublicCommands, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, uint32_t nHostCounterID );
