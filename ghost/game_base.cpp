@@ -908,11 +908,9 @@ void CBaseGame :: SendFakePlayerInfo( CGamePlayer *player )
 	IP.push_back( 0 );
 	IP.push_back( 0 );
 
-	srand( GetTicks( ) );
-
 	for( vector<unsigned char> :: iterator i = m_FakePlayers.begin( ); i != m_FakePlayers.end( ); ++i )
 	{
-		Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( *i, "Fake[" + UTIL_ToString( *i) + "]", IP, IP ) );
+		Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( *i, "Fake[" + UTIL_ToString( *i ) + "]", IP, IP ) );
 	}	
 }
 

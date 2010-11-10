@@ -56,7 +56,7 @@ string CLanguage :: UserIsAlreadyAnAdmin( const string &server, const string &us
 
 string CLanguage :: AddedUserToAdminDatabase( const string &server, const string &user )
 {
-	string Out = m_CFG->GetString( "lang_0003", "lang_0003" );
+	string Out = m_CFG->GetString( "lang_0003", "Added user [$USER$] to the admin database on server [$SERVER$]." );
 	UTIL_Replace( Out, "$SERVER$", server );
 	UTIL_Replace( Out, "$USER$", user );
 	return Out;

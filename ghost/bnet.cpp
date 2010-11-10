@@ -513,11 +513,11 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		uint32_t WaitTicks = 0;
 
 		if( m_LastOutPacketSize < 10 )
-			WaitTicks = 1000;
+			WaitTicks = 1150;
 		else if( m_LastOutPacketSize < 100 )
-			WaitTicks = 3000;
+			WaitTicks = 3150;
 		else
-			WaitTicks = 4000;
+			WaitTicks = 4150;
 
 		if( !m_OutPackets.empty( ) && GetTicks( ) - m_LastOutPacketTicks >= WaitTicks )
 		{
@@ -538,9 +538,9 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = GetTime( );
 		}
                 
-		// spam game every 3.8 seconds
+		// spam game every 4.1 seconds
 		
-		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 3800 ) )
+		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 4100 ) )
 		{
 			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
 			{
