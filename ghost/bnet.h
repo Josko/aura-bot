@@ -175,7 +175,7 @@ public:
 	CDBBan *IsBannedName( string name );
 	CDBBan *IsBannedIP( const string &ip );
 	void AddAdmin( string name );
-	void AddBan( string name, string ip, string gamename, string admin, string reason );
+	void AddBan( string name, const string &ip, const string &gamename, const string &admin, const string &reason );
 	void RemoveAdmin( string name );
 	void RemoveBan( string name );
 	void HoldFriends( CBaseGame *game );

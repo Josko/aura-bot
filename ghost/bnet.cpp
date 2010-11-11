@@ -2348,7 +2348,7 @@ void CBNET :: AddAdmin( string name )
 	m_Admins.push_back( name );
 }
 
-void CBNET :: AddBan( string name, string ip, string gamename, string admin, string reason )
+void CBNET :: AddBan( string name, const string &ip, const string &gamename, const string &admin, const string &reason )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 	m_Bans.push_back( new CDBBan( m_Server, name, ip, "N/A", gamename, admin, reason ) );
