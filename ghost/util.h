@@ -29,8 +29,8 @@ BYTEARRAY UTIL_CreateByteArray( uint16_t i, bool reverse );
 BYTEARRAY UTIL_CreateByteArray( uint32_t i, bool reverse );
 uint16_t UTIL_ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsigned int start = 0 );
 uint32_t UTIL_ByteArrayToUInt32( const BYTEARRAY &b, bool reverse, unsigned int start = 0 );
-string UTIL_ByteArrayToDecString( BYTEARRAY b );
-string UTIL_ByteArrayToHexString( BYTEARRAY b );
+string UTIL_ByteArrayToDecString( const BYTEARRAY &b );
+string UTIL_ByteArrayToHexString( const BYTEARRAY &b );
 void UTIL_AppendByteArray( BYTEARRAY &b, const BYTEARRAY &append );
 void UTIL_AppendByteArrayFast( BYTEARRAY &b, BYTEARRAY &append );
 void UTIL_AppendByteArray( BYTEARRAY &b, unsigned char *a, int size );
@@ -79,7 +79,7 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data );
 
 bool UTIL_IsLanIP( BYTEARRAY &ip );
 bool UTIL_IsLocalIP( BYTEARRAY &ip, vector<BYTEARRAY> &localIPs );
-void UTIL_Replace( string &Text, string Key, string Value );
+void UTIL_Replace( string &Text, const string &Key, const string &Value );
 vector<string> UTIL_Tokenize( const string &s, char delim );
 
 // math

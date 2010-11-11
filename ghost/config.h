@@ -34,11 +34,11 @@ public:
 	CConfig( );
 	~CConfig( );
 
-	void Read( string file );
-	bool Exists( string key );
-	int GetInt( string key, int x );
-	string GetString( string key, string x );
-	void Set( string key, string x );
+	void Read( const string &file );
+	bool Exists( const string &key );
+	int GetInt( const string &key, int x );
+	string GetString( const string &key, const string &x );
+	void Set( const string &key, const string &x );
 };
 
 #endif

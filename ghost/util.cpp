@@ -90,27 +90,27 @@ uint32_t UTIL_ByteArrayToUInt32( const BYTEARRAY& b, bool reverse, unsigned int 
 	return (uint32_t)( temp[3] << 24 | temp[2] << 16 | temp[1] << 8 | temp[0] );
 }
 
-string UTIL_ByteArrayToDecString( BYTEARRAY b )
+string UTIL_ByteArrayToDecString( const BYTEARRAY &b )
 {
 	if( b.empty( ) )
 		return string( );
 
 	string result = UTIL_ToString( b[0] );
 
-	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); ++i )
+	for( BYTEARRAY :: const_iterator i = b.begin( ) + 1; i != b.end( ); ++i )
 		result += " " + UTIL_ToString( *i );
 
 	return result;
 }
 
-string UTIL_ByteArrayToHexString( BYTEARRAY b )
+string UTIL_ByteArrayToHexString( const BYTEARRAY &b )
 {
 	if( b.empty( ) )
 		return string( );
 
 	string result = UTIL_ToHexString( b[0] );
 
-	for( BYTEARRAY :: iterator i = b.begin( ) + 1; i != b.end( ); ++i )
+	for( BYTEARRAY :: const_iterator i = b.begin( ) + 1; i != b.end( ); ++i )
 	{
 		if( *i < 16 )
 			result += " 0" + UTIL_ToHexString( *i );
@@ -612,7 +612,7 @@ bool UTIL_IsLocalIP( BYTEARRAY &ip, vector<BYTEARRAY> &localIPs )
 	return false;
 }
 
-void UTIL_Replace( string &Text, string Key, string Value )
+void UTIL_Replace( string &Text, const string &Key, const string &Value )
 {
 	// don't allow any infinite loops
 

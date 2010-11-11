@@ -36,9 +36,9 @@ public:
 	CCommandPacket( unsigned char nPacketType, int nID, const BYTEARRAY &nData );
 	~CCommandPacket( );
 
-	unsigned char GetPacketType( )	{ return m_PacketType; }
+	unsigned char GetPacketType( )			{ return m_PacketType; }
 	int GetID( )					{ return m_ID; }
-	BYTEARRAY GetData( )			{ return m_Data; }
+	BYTEARRAY GetData( )				{ return m_Data; }
 };
 
 #endif

@@ -47,7 +47,7 @@ string CSQLITE3 :: GetError( )
 	return sqlite3_errmsg( (sqlite3 *)m_DB );
 }
 
-int CSQLITE3 :: Prepare( string query, void **Statement )
+int CSQLITE3 :: Prepare( const string &query, void **Statement )
 {
 	return sqlite3_prepare_v2( (sqlite3 *)m_DB, query.c_str( ), -1, (sqlite3_stmt **)Statement, NULL );
 }
@@ -84,7 +84,7 @@ int CSQLITE3 :: Reset( void *Statement )
 	return sqlite3_reset( (sqlite3_stmt *)Statement );
 }
 
-int CSQLITE3 :: Exec( string query )
+int CSQLITE3 :: Exec( const string &query )
 {
 	return sqlite3_exec( (sqlite3 *)m_DB, query.c_str( ), NULL, NULL, NULL );
 }

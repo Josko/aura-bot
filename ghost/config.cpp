@@ -37,7 +37,7 @@ CConfig :: ~CConfig( )
 
 }
 
-void CConfig :: Read( string file )
+void CConfig :: Read( const string &file )
 {
 	ifstream in;
 	in.open( file.c_str( ) );
@@ -81,12 +81,12 @@ void CConfig :: Read( string file )
 	}
 }
 
-bool CConfig :: Exists( string key )
+bool CConfig :: Exists( const string &key )
 {
 	return m_CFG.find( key ) != m_CFG.end( );
 }
 
-int CConfig :: GetInt( string key, int x )
+int CConfig :: GetInt( const string &key, int x )
 {
 	if( m_CFG.find( key ) == m_CFG.end( ) )
 		return x;
@@ -94,7 +94,7 @@ int CConfig :: GetInt( string key, int x )
 		return atoi( m_CFG[key].c_str( ) );
 }
 
-string CConfig :: GetString( string key, string x )
+string CConfig :: GetString( const string &key, const string &x )
 {
 	if( m_CFG.find( key ) == m_CFG.end( ) )
 		return x;
@@ -102,7 +102,7 @@ string CConfig :: GetString( string key, string x )
 		return m_CFG[key];
 }
 
-void CConfig :: Set( string key, string x )
+void CConfig :: Set( const string &key, const string &x )
 {
 	m_CFG[key] = x;
 }

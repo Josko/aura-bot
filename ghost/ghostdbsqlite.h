@@ -170,14 +170,14 @@ public:
 	~CSQLITE3( );
 
 	bool GetReady( )			{ return m_Ready; }
-	vector<string> *GetRow( )	{ return &m_Row; }
+	vector<string> *GetRow( )		{ return &m_Row; }
 	string GetError( );
 
-	int Prepare( string query, void **Statement );
+	int Prepare( const string &query, void **Statement );
 	int Step( void *Statement );
 	int Finalize( void *Statement );
 	int Reset( void *Statement );
-	int Exec( string query );
+	int Exec( const string &query );
 	uint32_t LastRowID( );
 };
 
