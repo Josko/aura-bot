@@ -465,7 +465,7 @@ void CDCC :: Update( void *fd, void *send_fd )
 	}
 }
 
-void CDCC :: Connect( string IP, uint16_t Port )
+void CDCC :: Connect( const string &IP, uint16_t Port )
 {
 	m_Socket->Reset( );
 	m_IP = IP;

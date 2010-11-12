@@ -1144,7 +1144,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			// !OPEN (open slot)
 			//
 
-			else if( Command == "open" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			else if( ( Command == "open" || Command == "o" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
 				// open as many slots as specified, e.g. "5 10" opens slots 5 and 10
 

@@ -55,6 +55,6 @@ public:
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
 	void Update( void *fd, void *send_fd );
-	void Connect( string IP, uint16_t Port );
+	void Connect( const string &IP, uint16_t Port );
 };
 
