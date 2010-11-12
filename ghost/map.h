@@ -124,7 +124,7 @@ private:
 
 public:
 	CMap( CGHost *nGHost );
-	CMap( CGHost *nGHost, CConfig *CFG, string nCFGFile );
+	CMap( CGHost *nGHost, CConfig *CFG, const string &nCFGFile );
 	~CMap( );
 
 	bool GetValid( )					{ return m_Valid; }

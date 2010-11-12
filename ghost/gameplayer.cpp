@@ -168,7 +168,7 @@ void CPotentialPlayer :: ProcessPackets( )
 	}
 }
 
-void CPotentialPlayer :: Send( BYTEARRAY data )
+void CPotentialPlayer :: Send( const BYTEARRAY &data )
 {
 	if( m_Socket )
 		m_Socket->PutBytes( data );
@@ -490,17 +490,7 @@ void CGamePlayer :: ProcessPackets( )
 					m_GProxy = true;
 					m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
 					CONSOLE_Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
-				}
-				else
-				{
-					// todotodo: send notice that we're not permitting reconnects
-					// note: GProxy++ should never send a GPS_INIT message if bot_reconnect = 0 because we don't advertise the game with invalid map dimensions
-					// but it would be nice to cover this case anyway
-				}
-			}
-			else if( Packet->GetID( ) == CGPSProtocol :: GPS_RECONNECT )
-			{
-				// this is handled in ghost.cpp
+				}				
 			}
 			else if( Packet->GetID( ) == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
 			{
@@ -514,7 +504,7 @@ void CGamePlayer :: ProcessPackets( )
 					if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
 						PacketsToUnqueue = m_GProxyBuffer.size( );
 
-					while( PacketsToUnqueue > 0 )
+					while( PacketsToUnqueue )
 					{
 						m_GProxyBuffer.pop( );
 						--PacketsToUnqueue;
@@ -556,7 +546,7 @@ void CGamePlayer :: EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPa
 		if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
 			PacketsToUnqueue = m_GProxyBuffer.size( );
 
-		while( PacketsToUnqueue > 0 )
+		while( PacketsToUnqueue )
 		{
 			m_GProxyBuffer.pop( );
 			--PacketsToUnqueue;

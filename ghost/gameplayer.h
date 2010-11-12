@@ -72,7 +72,7 @@ public:
 
 	// other functions
 
-	virtual void Send( BYTEARRAY data );
+	virtual void Send( const BYTEARRAY &data );
 };
 
 //
