@@ -289,23 +289,23 @@ bool CGamePlayer :: Update( void *fd )
 	// in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
 
 	if( m_Error )
-	{
-		m_Socket->Reset( );
-		m_Game->EventPlayerDisconnectPlayerError( this );		
+	{		
+		m_Game->EventPlayerDisconnectPlayerError( this );
+		m_Socket->Reset( );		
 		return Deleting;
 	}
 
 	if( m_Socket )
 	{
 		if( m_Socket->HasError( ) )
-		{
-			m_Socket->Reset( );
-			m_Game->EventPlayerDisconnectSocketError( this );			
+		{			
+			m_Game->EventPlayerDisconnectSocketError( this );
+			m_Socket->Reset( );		
 		}
 		else if( !m_Socket->GetConnected( ) )
-		{
-			m_Socket->Reset( );
-			m_Game->EventPlayerDisconnectConnectionClosed( this );			
+		{			
+			m_Game->EventPlayerDisconnectConnectionClosed( this );
+			m_Socket->Reset( );	
 		}
 	}
 
