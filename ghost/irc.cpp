@@ -94,7 +94,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 			m_Socket->DoSend( (fd_set *)send_fd );
 			return m_Exiting;
 		}
-		else if( GetTime( ) - m_LastConnectionAttemptTime >= 15 )
+		else if( GetTime( ) - m_LastConnectionAttemptTime > 15 )
 		{
 			// the connection attempt timed out (15 seconds)
 
@@ -106,7 +106,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		}
 	}
 
-	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( GetTime( ) - m_LastConnectionAttemptTime >= 30 ) )
+	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( GetTime( ) - m_LastConnectionAttemptTime > 30 ) )
 	{
 		// attempt to connect to irc
 

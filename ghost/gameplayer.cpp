@@ -290,8 +290,8 @@ bool CGamePlayer :: Update( void *fd )
 
 	if( m_Error )
 	{
-		m_Game->EventPlayerDisconnectPlayerError( this );
 		m_Socket->Reset( );
+		m_Game->EventPlayerDisconnectPlayerError( this );		
 		return Deleting;
 	}
 
@@ -299,13 +299,13 @@ bool CGamePlayer :: Update( void *fd )
 	{
 		if( m_Socket->HasError( ) )
 		{
-			m_Game->EventPlayerDisconnectSocketError( this );
 			m_Socket->Reset( );
+			m_Game->EventPlayerDisconnectSocketError( this );			
 		}
 		else if( !m_Socket->GetConnected( ) )
 		{
-			m_Game->EventPlayerDisconnectConnectionClosed( this );
 			m_Socket->Reset( );
+			m_Game->EventPlayerDisconnectConnectionClosed( this );			
 		}
 	}
 

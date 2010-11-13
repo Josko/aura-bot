@@ -39,7 +39,7 @@ private:
 	BYTEARRAY m_PvPGNPasswordHash;	// set in HELP_PvPGNPasswordHash
 
 public:
-	CBNCSUtilInterface( string userName, string userPassword );
+	CBNCSUtilInterface( const string &userName, const string &userPassword );
 	~CBNCSUtilInterface( );
 
 	BYTEARRAY GetEXEVersion( )								{ return m_EXEVersion; }
@@ -54,15 +54,15 @@ public:
 	void SetEXEVersion( BYTEARRAY &nEXEVersion )			{ m_EXEVersion = nEXEVersion; }
 	void SetEXEVersionHash( BYTEARRAY &nEXEVersionHash )	{ m_EXEVersionHash = nEXEVersionHash; }
 
-	void Reset( string userName, string userPassword );
+	void Reset( string &userName, string &userPassword );
 
-	bool HELP_SID_AUTH_CHECK( string war3Path, string keyROC, string keyTFT, string valueStringFormula, string mpqFileName, BYTEARRAY clientToken, BYTEARRAY serverToken );
+	bool HELP_SID_AUTH_CHECK( string &war3Path, string &keyROC, string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken );
 	bool HELP_SID_AUTH_ACCOUNTLOGON( );
-	bool HELP_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY salt, BYTEARRAY serverKey );
-	bool HELP_PvPGNPasswordHash( string userPassword );
+	bool HELP_SID_AUTH_ACCOUNTLOGONPROOF( const BYTEARRAY &salt, const BYTEARRAY &serverKey );
+	bool HELP_PvPGNPasswordHash( string &userPassword );
 
 private:
-	BYTEARRAY CreateKeyInfo( string key, uint32_t clientToken, uint32_t serverToken );
+	BYTEARRAY CreateKeyInfo( string &key, uint32_t clientToken, uint32_t serverToken );
 };
 
 #endif

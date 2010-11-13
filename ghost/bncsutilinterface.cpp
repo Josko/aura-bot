@@ -28,7 +28,7 @@
 // CBNCSUtilInterface
 //
 
-CBNCSUtilInterface :: CBNCSUtilInterface( string userName, string userPassword )
+CBNCSUtilInterface :: CBNCSUtilInterface( const string &userName, const string &userPassword )
 {
 	// m_nls = (void *)nls_init( userName.c_str( ), userPassword.c_str( ) );
 	m_NLS = new NLS( userName, userPassword );
@@ -40,7 +40,7 @@ CBNCSUtilInterface :: ~CBNCSUtilInterface( )
 	delete (NLS *)m_NLS;
 }
 
-void CBNCSUtilInterface :: Reset( string userName, string userPassword )
+void CBNCSUtilInterface :: Reset( string &userName, string &userPassword )
 {
 	// nls_free( (nls_t *)m_nls );
 	// m_nls = (void *)nls_init( userName.c_str( ), userPassword.c_str( ) );
@@ -48,7 +48,7 @@ void CBNCSUtilInterface :: Reset( string userName, string userPassword )
 	m_NLS = new NLS( userName, userPassword );
 }
 
-bool CBNCSUtilInterface :: HELP_SID_AUTH_CHECK( string war3Path, string keyROC, string keyTFT, string valueStringFormula, string mpqFileName, BYTEARRAY clientToken, BYTEARRAY serverToken )
+bool CBNCSUtilInterface :: HELP_SID_AUTH_CHECK( string &war3Path, string &keyROC, string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken )
 {
 	// set m_EXEVersion, m_EXEVersionHash, m_EXEInfo, m_InfoROC, m_InfoTFT
 
@@ -115,7 +115,7 @@ bool CBNCSUtilInterface :: HELP_SID_AUTH_ACCOUNTLOGON( )
 	return true;
 }
 
-bool CBNCSUtilInterface :: HELP_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY salt, BYTEARRAY serverKey )
+bool CBNCSUtilInterface :: HELP_SID_AUTH_ACCOUNTLOGONPROOF( const BYTEARRAY &salt, const BYTEARRAY &serverKey )
 {
 	// set m_M1
 
@@ -126,7 +126,7 @@ bool CBNCSUtilInterface :: HELP_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY salt, BYTE
 	return true;
 }
 
-bool CBNCSUtilInterface :: HELP_PvPGNPasswordHash( string userPassword )
+bool CBNCSUtilInterface :: HELP_PvPGNPasswordHash( string &userPassword )
 {
 	// set m_PvPGNPasswordHash
 
@@ -136,7 +136,7 @@ bool CBNCSUtilInterface :: HELP_PvPGNPasswordHash( string userPassword )
 	return true;
 }
 
-BYTEARRAY CBNCSUtilInterface :: CreateKeyInfo( string key, uint32_t clientToken, uint32_t serverToken )
+BYTEARRAY CBNCSUtilInterface :: CreateKeyInfo( string &key, uint32_t clientToken, uint32_t serverToken )
 {
 	unsigned char Zeros[] = { 0, 0, 0, 0 };
 	BYTEARRAY KeyInfo;

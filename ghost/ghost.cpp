@@ -295,7 +295,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.76" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.77" )
 {
 	vector<string> channels;
 	vector<string> locals;
@@ -414,7 +414,7 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.76" )
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
 	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
 	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6114 );
-	m_DefaultMap = CFG->GetString( "bot_defaultmap", "map" );
+	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
 	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
 	SetConfigs( CFG );
 
