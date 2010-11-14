@@ -538,11 +538,11 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = GetTime( );
 		}
                 
-		// spam game every 4.1 seconds
+		// spam game every 4.25 seconds
 		
-		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 4100 ) )
+		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 4250 ) )
 		{
-			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
+			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 			{
 				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
 				m_LastSpamTicks = GetTicks( );

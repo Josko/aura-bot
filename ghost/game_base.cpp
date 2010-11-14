@@ -910,7 +910,7 @@ void CBaseGame :: SendFakePlayerInfo( CGamePlayer *player )
 
 	for( vector<unsigned char> :: iterator i = m_FakePlayers.begin( ); i != m_FakePlayers.end( ); ++i )
 	{
-		Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( *i, "Fake[" + UTIL_ToString( *i ) + "]", IP, IP ) );
+		Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( *i, "Troll[" + UTIL_ToString( *i ) + "]", IP, IP ) );
 	}	
 }
 
@@ -3092,7 +3092,7 @@ void CBaseGame :: CreateFakePlayer( )
 		IP.push_back( 0 );
 
 		
-		SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( FakePlayerPID, "Fake[" + UTIL_ToString( FakePlayerPID ) + "]", IP, IP ) );
+		SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( FakePlayerPID, "Troll[" + UTIL_ToString( FakePlayerPID ) + "]", IP, IP ) );
 		m_Slots[SID] = CGameSlot( FakePlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam( ), m_Slots[SID].GetColour( ), m_Slots[SID].GetRace( ) );
 		m_FakePlayers.push_back( FakePlayerPID );
 		SendAllSlotInfo( );

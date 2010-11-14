@@ -482,17 +482,8 @@ void CGamePlayer :: ProcessPackets( )
 		else if( Packet->GetPacketType( ) == GPS_HEADER_CONSTANT )
 		{
 			BYTEARRAY Data = Packet->GetData( );
-
-			if( Packet->GetID( ) == CGPSProtocol :: GPS_INIT )
-			{
-				if( m_Game->m_GHost->m_Reconnect )
-				{
-					m_GProxy = true;
-					m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
-					CONSOLE_Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
-				}				
-			}
-			else if( Packet->GetID( ) == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
+			
+			if( Packet->GetID( ) == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
 			{
 				uint32_t LastPacket = UTIL_ByteArrayToUInt32( Data, false, 4 );
 				uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
@@ -504,13 +495,22 @@ void CGamePlayer :: ProcessPackets( )
 					if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
 						PacketsToUnqueue = m_GProxyBuffer.size( );
 
-					while( PacketsToUnqueue )
+					while( PacketsToUnqueue > 0 )
 					{
 						m_GProxyBuffer.pop( );
 						--PacketsToUnqueue;
 					}
 				}
-			}
+			}				
+			else if( Packet->GetID( ) == CGPSProtocol :: GPS_INIT )
+			{
+				if( m_Game->m_GHost->m_Reconnect )
+				{
+					m_GProxy = true;
+					m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
+					CONSOLE_Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
+				}				
+			} 
 		}
 
 		delete Packet;
@@ -546,7 +546,7 @@ void CGamePlayer :: EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPa
 		if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
 			PacketsToUnqueue = m_GProxyBuffer.size( );
 
-		while( PacketsToUnqueue )
+		while( PacketsToUnqueue > 0 )
 		{
 			m_GProxyBuffer.pop( );
 			--PacketsToUnqueue;
