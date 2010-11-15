@@ -310,19 +310,14 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	if( !m_RefreshError && !m_CountDownStarted && m_GameState == GAME_PUBLIC && GetSlotsOpen( ) > 0 && GetTime( ) - m_LastRefreshTime >= 3 )
 	{
-		// send a game refresh packet to each battle.net connection
-
-		bool Refreshed = false;
+		// send a game refresh packet to each battle.net connection		
 
 		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 		{
 			// don't queue a game refresh message if the queue contains more than 1 packet because they're very low priority
 
-			if( (*i)->GetOutPacketsQueued( ) <= 1 )
-			{
+			if( (*i)->GetOutPacketsQueued( ) < 2 )
 				(*i)->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
-				Refreshed = true;
-			}
 		}
 
 		m_LastRefreshTime = GetTime( );
@@ -654,15 +649,16 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 			// check if everyone has stopped lagging
 
-			bool Lagging = false;
+			m_Lagging = false;
 
 			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 			{
 				if( (*i)->GetLagging( ) )
-					Lagging = true;
+				{
+					m_Lagging = true;
+					break;
+				}
 			}
-
-			m_Lagging = Lagging;
 
 			// reset m_LastActionSentTicks because we want the game to stop running while the lag screen is up
 
@@ -1190,11 +1186,11 @@ void CBaseGame :: EventPlayerDisconnectConnectionClosed( CGamePlayer *player )
 
 void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer )
 {
-	// check if the new player's name is empty or too long
+	// check the new player's name
 
 	if( joinPlayer->GetName( ).empty( ) || joinPlayer->GetName( ).size( ) > 15 || joinPlayer->GetName( ) == m_VirtualHostName || GetPlayerFromName( joinPlayer->GetName( ), false ) || joinPlayer->GetName( ).find( " " ) != string :: npos || joinPlayer->GetName( ).find( "|" ) != string :: npos  )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] invalid name (taken, invalid chars, spoofer, too long...)" );
+		CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] invalid name (taken, invalid char, spoofer, too long)" );
 		potential->Send( m_Protocol->SEND_W3GS_REJECTJOIN( REJECTJOIN_FULL ) );
 		potential->SetDeleteMe( true );
 		return;
@@ -3116,9 +3112,7 @@ inline bool CBaseGame :: IsAdmin( string name )
 	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 	{
 		if( (*i)->IsAdmin( name ) || (*i)->IsRootAdmin( name ) )
-		{
 			return true;
-		}
 	}
 
 	return false;
