@@ -89,7 +89,7 @@ bool CPotentialPlayer :: Update( void *fd )
 	return m_DeleteMe || m_Error || m_Socket->HasError( ) || !m_Socket->GetConnected( );
 }
 
-void CPotentialPlayer :: ExtractPackets( )
+inline void CPotentialPlayer :: ExtractPackets( )
 {
 	if( !m_Socket )
 		return;
@@ -136,7 +136,7 @@ void CPotentialPlayer :: ExtractPackets( )
 	}
 }
 
-void CPotentialPlayer :: ProcessPackets( )
+inline void CPotentialPlayer :: ProcessPackets( )
 {
 	if( !m_Socket )
 		return;
@@ -148,20 +148,26 @@ void CPotentialPlayer :: ProcessPackets( )
 		CCommandPacket *Packet = m_Packets.front( );
 		m_Packets.pop( );
 
-		if( Packet->GetPacketType( ) == W3GS_HEADER_CONSTANT && Packet->GetID( ) == CGameProtocol :: W3GS_REQJOIN )
+		if( Packet->GetPacketType( ) == W3GS_HEADER_CONSTANT )
 		{
-			delete m_IncomingJoinPlayer;
-			m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( Packet->GetData( ) );
+			// the only packet we care about as a potential player is W3GS_REQJOIN, ignore everything else
 
-			if( m_IncomingJoinPlayer )
-				m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
+			switch( Packet->GetID( ) )
+			{
+			case CGameProtocol :: W3GS_REQJOIN:
+				delete m_IncomingJoinPlayer;
+				m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( Packet->GetData( ) );
 
-			// don't continue looping because there may be more packets waiting and this parent class doesn't handle them
-			// EventPlayerJoined creates the new player, NULLs the socket, and sets the delete flag on this object so it'll be deleted shortly
-			// any unprocessed packets will be copied to the new CGamePlayer in the constructor or discarded if we get deleted because the game is full
+				if( m_IncomingJoinPlayer )
+					m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
 
-			delete Packet;
-			return;
+				// don't continue looping because there may be more packets waiting and this parent class doesn't handle them
+				// EventPlayerJoined creates the new player, NULLs the socket, and sets the delete flag on this object so it'll be deleted shortly
+				// any unprocessed packets will be copied to the new CGamePlayer in the constructor or discarded if we get deleted because the game is full
+
+				delete Packet;
+				return;
+			}
 		}
 
 		delete Packet;
@@ -238,19 +244,19 @@ bool CGamePlayer :: Update( void *fd )
 	{
 		// todotodo: we could get kicked from battle.net for sending a command with invalid characters, do some basic checking
 
-		for( vector<CBNET *> :: iterator i = m_Game->m_GHost->m_BNETs.begin( ); i != m_Game->m_GHost->m_BNETs.end( ); ++i )
+                for( vector<CBNET *> :: iterator i = m_Game->m_GHost->m_BNETs.begin( ); i != m_Game->m_GHost->m_BNETs.end( ); ++i )
 		{
 			if( (*i)->GetServer( ) == m_JoinedRealm )
 			{
-				if( (*i)->GetPasswordHashType( ) == "pvpgn" )
-					(*i)->QueueChatCommand( "/whois " + m_Name );
-				else
+				if( m_Game->GetGameState( ) == GAME_PUBLIC )
 				{
-					if( m_Game->GetGameState( ) == GAME_PUBLIC )
-						(*i)->QueueChatCommand( "/whois " + m_Name );
+					if( (*i)->GetPasswordHashType( ) == "pvpgn" )
+						(*i)->QueueChatCommand( "/whereis " + m_Name );
 					else
-						(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
+						(*i)->QueueChatCommand( "/whois " + m_Name );
 				}
+				else if( m_Game->GetGameState( ) == GAME_PRIVATE )
+					(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
 			}
 		}
 
@@ -287,32 +293,32 @@ bool CGamePlayer :: Update( void *fd )
 
 	// try to find out why we're requesting deletion
 	// in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
-
+	
 	if( m_Error )
-	{		
+	{
 		m_Game->EventPlayerDisconnectPlayerError( this );
-		m_Socket->Reset( );		
+		m_Socket->Reset( );
 		return Deleting;
 	}
 
 	if( m_Socket )
 	{
 		if( m_Socket->HasError( ) )
-		{			
+		{
 			m_Game->EventPlayerDisconnectSocketError( this );
-			m_Socket->Reset( );		
+			m_Socket->Reset( );
 		}
 		else if( !m_Socket->GetConnected( ) )
-		{			
+		{
 			m_Game->EventPlayerDisconnectConnectionClosed( this );
-			m_Socket->Reset( );	
+			m_Socket->Reset( );
 		}
 	}
 
 	return Deleting;
 }
 
-void CGamePlayer :: ExtractPackets( )
+inline void CGamePlayer :: ExtractPackets( )
 {
 	if( !m_Socket )
 		return;
@@ -339,7 +345,7 @@ void CGamePlayer :: ExtractPackets( )
 					m_Packets.push( new CCommandPacket( Bytes[0], Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
 
 					if( Bytes[0] == W3GS_HEADER_CONSTANT )
-						++m_TotalPacketsReceived;
+                                                ++m_TotalPacketsReceived;
 
 					*RecvBuffer = RecvBuffer->substr( Length );
 					Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
@@ -363,7 +369,7 @@ void CGamePlayer :: ExtractPackets( )
 	}
 }
 
-void CGamePlayer :: ProcessPackets( )
+inline void CGamePlayer :: ProcessPackets( )
 {
 	if( !m_Socket )
 		return;
@@ -397,7 +403,7 @@ void CGamePlayer :: ProcessPackets( )
 						m_FinishedLoading = true;
 						m_FinishedLoadingTicks = GetTicks( );
 						m_Game->EventPlayerLoaded( this );
-					}
+					}					
 				}
 
 				break;
@@ -415,7 +421,7 @@ void CGamePlayer :: ProcessPackets( )
 			case CGameProtocol :: W3GS_OUTGOING_KEEPALIVE:
 				CheckSum = m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( Packet->GetData( ) );
 				m_CheckSums.push( CheckSum );
-				++m_SyncCounter;
+                                ++m_SyncCounter;
 				m_Game->EventPlayerKeepAlive( this, CheckSum );
 				break;
 
@@ -498,10 +504,10 @@ void CGamePlayer :: ProcessPackets( )
 					while( PacketsToUnqueue > 0 )
 					{
 						m_GProxyBuffer.pop( );
-						--PacketsToUnqueue;
+                                                --PacketsToUnqueue;
 					}
 				}
-			}				
+			}
 			else if( Packet->GetID( ) == CGPSProtocol :: GPS_INIT )
 			{
 				if( m_Game->m_GHost->m_Reconnect )
@@ -510,7 +516,7 @@ void CGamePlayer :: ProcessPackets( )
 					m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
 					CONSOLE_Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
 				}				
-			} 
+			}
 		}
 
 		delete Packet;
@@ -549,7 +555,7 @@ void CGamePlayer :: EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPa
 		while( PacketsToUnqueue > 0 )
 		{
 			m_GProxyBuffer.pop( );
-			--PacketsToUnqueue;
+                        --PacketsToUnqueue;
 		}
 	}
 

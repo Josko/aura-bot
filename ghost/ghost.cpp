@@ -190,9 +190,6 @@ int main( )
 	CConfig CFG;
 	CFG.Read( "default.cfg" );
 
-	// gLog = new ofstream( );
-	// gLog->open( gLogFile.c_str( ), ios :: app );
-
 	CONSOLE_Print( "[GHOST] starting up" );
 
 	// signal( SIGABRT, SignalCatcher );
@@ -336,9 +333,6 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.77" )
 	m_CurrentGame = NULL;
 	CONSOLE_Print( "[GHOST] opening primary database" );
 	m_DB = new CGHostDBSQLite( CFG );
-
-	CONSOLE_Print( "[GHOST] opening secondary (local) database" );
-	m_DBLocal = new CGHostDBSQLite( CFG );
 
 	// get a list of local IP addresses
 	// this list is used elsewhere to determine if a player connecting to the bot is local or not
@@ -537,7 +531,6 @@ CGHost :: ~CGHost( )
 		delete *i;
 
 	delete m_DB;
-	delete m_DBLocal;
 
 	// warning: we don't delete any entries of m_Callables here because we can't be guaranteed that the associated threads have terminated
 	// this is fine if the program is currently exiting because the OS will clean up after us
@@ -558,12 +551,6 @@ bool CGHost :: Update( long usecBlock )
 	if( m_DB->HasError( ) )
 	{
 		CONSOLE_Print( "[GHOST] database error - " + m_DB->GetError( ) );
-		return true;
-	}
-
-	if( m_DBLocal->HasError( ) )
-	{
-		CONSOLE_Print( "[GHOST] local database error - " + m_DBLocal->GetError( ) );
 		return true;
 	}
 
@@ -1084,15 +1071,12 @@ void CGHost :: LoadIPToCountryData( )
 		// we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
 		// todotodo: handle begin/commit failures a bit more gracefully
 
-		if( !m_DBLocal->Begin( ) )
-			CONSOLE_Print( "[GHOST] warning - failed to begin local database transaction, iptocountry data not loaded" );
+		if( !m_DB->Begin( ) )
+			CONSOLE_Print( "[GHOST] warning - failed to begin database transaction, iptocountry data not loaded" );
 		else
 		{
 			unsigned char Percent = 0;
-			string Line;
-			string IP1;
-			string IP2;
-			string Country;
+			string Line, IP1, IP2, Country;
 			CSVParser parser;
 
 			// get length of file for the progress meter
@@ -1112,7 +1096,7 @@ void CGHost :: LoadIPToCountryData( )
 				parser >> IP1;
 				parser >> IP2;
 				parser >> Country;
-				m_DBLocal->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
+				m_DB->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
 
 				// it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
 				// so let's print a progress meter just to keep the user from getting worried
@@ -1126,8 +1110,8 @@ void CGHost :: LoadIPToCountryData( )
 				}
 			}
 
-			if( !m_DBLocal->Commit( ) )
-				CONSOLE_Print( "[GHOST] warning - failed to commit local database transaction, iptocountry data not loaded" );
+			if( !m_DB->Commit( ) )
+				CONSOLE_Print( "[GHOST] warning - failed to commit database transaction, iptocountry data not loaded" );
 			else
 				CONSOLE_Print( "[GHOST] finished loading [ip-to-country.csv]" );
 		}

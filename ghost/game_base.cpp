@@ -185,7 +185,7 @@ string CBaseGame :: GetPlayers( )
 
 unsigned int CBaseGame :: SetFD( void *fd, void *send_fd, int *nfds )
 {
-	int NumFDs = 0;
+	unsigned int NumFDs = 0;
 
 	if( m_Socket )
 	{
@@ -306,9 +306,9 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		m_LastPingTime = GetTime( );
 	}
 
-	// refresh every 4 seconds
+	// refresh every 3 seconds
 
-	if( !m_RefreshError && !m_CountDownStarted && m_GameState == GAME_PUBLIC && GetSlotsOpen( ) > 0 && GetTime( ) - m_LastRefreshTime >= 4 )
+	if( !m_RefreshError && !m_CountDownStarted && m_GameState == GAME_PUBLIC && GetSlotsOpen( ) > 0 && GetTime( ) - m_LastRefreshTime >= 3 )
 	{
 		// send a game refresh packet to each battle.net connection
 
@@ -431,7 +431,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 		if( GetTime( ) - m_LastReservedSeen >= m_GHost->m_LobbyTimeLimit * 60 )
 		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit hit)" );
+			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit)" );
 			return true;
 		}
 	}
@@ -743,9 +743,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 		if( NewSocket )
 		{
-			if( m_GHost->m_TCPNoDelay )
-				NewSocket->SetNoDelay( );
-
+			NewSocket->SetNoDelay( );
 			m_Potentials.push_back( new CPotentialPlayer( m_Protocol, this, NewSocket ) );
 		}
 
@@ -941,12 +939,7 @@ void CBaseGame :: SendAllActions( )
 			}
 		}
 	}
-
-	// Warcraft III doesn't seem to respond to empty actions
-
-	/* if( UsingGProxy )
-		m_SyncCounter += m_GProxyEmptyActions; */
-
+	
 	++m_SyncCounter;
 
 	// we aren't allowed to send more than 1460 bytes in a single packet but it's possible we might have more than that many bytes waiting in the queue
@@ -999,9 +992,7 @@ void CBaseGame :: SendAllActions( )
 		}
 	}
 	else
-	{
 		SendAll( m_Protocol->SEND_W3GS_INCOMING_ACTION( m_Actions, m_Latency ) );
-	}
 
 	uint32_t ActualSendInterval = GetTicks( ) - m_LastActionSentTicks;
 	uint32_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;

@@ -57,7 +57,6 @@ public:
 	CBaseGame *m_CurrentGame;				// this game is still in the lobby state
 	vector<CBaseGame *> m_Games;			// these games are in progress
 	CGHostDB *m_DB;							// database
-	CGHostDB *m_DBLocal;					// local database (for temporary data)
 	vector<CBaseCallable *> m_Callables;	// vector of orphaned callables waiting to die
 	vector<BYTEARRAY> m_LocalAddresses;		// vector of local IP addresses
 	CLanguage *m_Language;					// language

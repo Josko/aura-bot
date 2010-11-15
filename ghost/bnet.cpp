@@ -1825,14 +1825,14 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						m_SpamChannel = "allstars";
 						CONSOLE_Print3( "Allstars spam is off." );					
 					}
-					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) == 4 )
+					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 					{
 						m_Spam = true;
 						QueueChatCommand( "/j allstars" );
 						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
 					}
 					else
-						QueueChatCommand( "No current game or it's public or game name isn't 4 letters long.", User, Whisper, m_IRC );
+						QueueChatCommand( "Cannot be executed.", User, Whisper, m_IRC );
 				}
 
 				//
