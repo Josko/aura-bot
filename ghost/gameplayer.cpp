@@ -148,26 +148,22 @@ inline void CPotentialPlayer :: ProcessPackets( )
 		CCommandPacket *Packet = m_Packets.front( );
 		m_Packets.pop( );
 
-		if( Packet->GetPacketType( ) == W3GS_HEADER_CONSTANT )
+		if( Packet->GetPacketType( ) == W3GS_HEADER_CONSTANT && Packet->GetID( ) == CGameProtocol :: W3GS_REQJOIN )
 		{
 			// the only packet we care about as a potential player is W3GS_REQJOIN, ignore everything else
+			
+			delete m_IncomingJoinPlayer;
+			m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( Packet->GetData( ) );
 
-			switch( Packet->GetID( ) )
-			{
-			case CGameProtocol :: W3GS_REQJOIN:
-				delete m_IncomingJoinPlayer;
-				m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( Packet->GetData( ) );
+			if( m_IncomingJoinPlayer )
+				m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
 
-				if( m_IncomingJoinPlayer )
-					m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
+			// don't continue looping because there may be more packets waiting and this parent class doesn't handle them
+			// EventPlayerJoined creates the new player, NULLs the socket, and sets the delete flag on this object so it'll be deleted shortly
+			// any unprocessed packets will be copied to the new CGamePlayer in the constructor or discarded if we get deleted because the game is full
 
-				// don't continue looping because there may be more packets waiting and this parent class doesn't handle them
-				// EventPlayerJoined creates the new player, NULLs the socket, and sets the delete flag on this object so it'll be deleted shortly
-				// any unprocessed packets will be copied to the new CGamePlayer in the constructor or discarded if we get deleted because the game is full
-
-				delete Packet;
-				return;
-			}
+			delete Packet;
+			return;
 		}
 
 		delete Packet;
@@ -248,12 +244,9 @@ bool CGamePlayer :: Update( void *fd )
 		{
 			if( (*i)->GetServer( ) == m_JoinedRealm )
 			{
-				if( m_Game->GetGameState( ) == GAME_PUBLIC )
+				if( m_Game->GetGameState( ) == GAME_PUBLIC || (*i)->GetPasswordHashType( ) == "pvpgn" )
 				{
-					if( (*i)->GetPasswordHashType( ) == "pvpgn" )
-						(*i)->QueueChatCommand( "/whereis " + m_Name );
-					else
-						(*i)->QueueChatCommand( "/whois " + m_Name );
+					(*i)->QueueChatCommand( "/whois " + m_Name );
 				}
 				else if( m_Game->GetGameState( ) == GAME_PRIVATE )
 					(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true, false );

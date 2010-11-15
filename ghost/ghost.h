@@ -58,7 +58,7 @@ public:
 	vector<CBaseGame *> m_Games;			// these games are in progress
 	CGHostDB *m_DB;							// database
 	vector<CBaseCallable *> m_Callables;	// vector of orphaned callables waiting to die
-	vector<BYTEARRAY> m_LocalAddresses;		// vector of local IP addresses
+	// vector<BYTEARRAY> m_LocalAddresses;		// vector of local IP addresses
 	CLanguage *m_Language;					// language
 	CMap *m_Map;							// the currently loaded map
 	bool m_Exiting;							// set to true to force ghost to shutdown next update (used by SignalCatcher)
@@ -91,8 +91,7 @@ public:
 	uint32_t m_SyncLimit;					// config value: the maximum number of packets a player can fall out of sync before starting the lag screen (by default)
 	uint32_t m_VoteKickPercentage;			// config value: percentage of players required to vote yes for a votekick to pass
 	string m_DefaultMap;					// config value: default map (map.cfg)
-	unsigned char m_LANWar3Version;			// config value: LAN warcraft 3 version
-	bool m_TCPNoDelay;						// config value: use Nagle's algorithm or not
+	unsigned char m_LANWar3Version;			// config value: LAN warcraft 3 version						// config value: use Nagle's algorithm or not
 
 	CGHost( CConfig *CFG );
 	~CGHost( );

@@ -45,8 +45,8 @@
 #include <stormlib/StormLib.h>
 
 #ifdef WIN32
- #include <ws2tcpip.h>	
- #include <windows.h>
+ #include <ws2tcpip.h>
+ #include <Windows.h>
  #include <winsock.h>
  #include <process.h>
 #else
@@ -292,10 +292,9 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.77" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
 {
-	vector<string> channels;
-	vector<string> locals;
+	vector<string> channels, locals;
 
 	for( int i = 0; i < 10; ++i )
 	{
@@ -334,77 +333,12 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.77" )
 	CONSOLE_Print( "[GHOST] opening primary database" );
 	m_DB = new CGHostDBSQLite( CFG );
 
-	// get a list of local IP addresses
-	// this list is used elsewhere to determine if a player connecting to the bot is local or not
-
-	CONSOLE_Print( "[GHOST] attempting to find local IP addresses" );
-
-#ifdef WIN32
-	// use a more reliable Windows specific method since the portable method doesn't always work properly on Windows
-	// code stolen from: http://tangentsoft.net/wskfaq/examples/getifaces.html
-
-	SOCKET sd = WSASocket( AF_INET, SOCK_DGRAM, 0, 0, 0, 0 );
-
-	if( sd == SOCKET_ERROR )
-		CONSOLE_Print( "[GHOST] error finding local IP addresses - failed to create socket (error code " + UTIL_ToString( WSAGetLastError( ) ) + ")" );
-	else
-	{
-		INTERFACE_INFO InterfaceList[20];
-		unsigned long nBytesReturned;
-
-		if( WSAIoctl( sd, SIO_GET_INTERFACE_LIST, 0, 0, &InterfaceList, sizeof(InterfaceList), &nBytesReturned, 0, 0 ) == SOCKET_ERROR )
-			CONSOLE_Print( "[GHOST] error finding local IP addresses - WSAIoctl failed (error code " + UTIL_ToString( WSAGetLastError( ) ) + ")" );
-		else
-		{
-			int nNumInterfaces = nBytesReturned / sizeof(INTERFACE_INFO);
-
-			for( int i = 0; i < nNumInterfaces; ++i )
-			{
-				sockaddr_in *pAddress;
-				pAddress = (sockaddr_in *)&(InterfaceList[i].iiAddress);
-				CONSOLE_Print( "[GHOST] local IP address #" + UTIL_ToString( i + 1 ) + " is [" + string( inet_ntoa( pAddress->sin_addr ) ) + "]" );
-				m_LocalAddresses.push_back( UTIL_CreateByteArray( (uint32_t)pAddress->sin_addr.s_addr, false ) );
-			}
-		}
-
-		closesocket( sd );
-	}
-#else
-	// use a portable method
-
-	char HostName[255];
-
-	if( gethostname( HostName, 255 ) == SOCKET_ERROR )
-		CONSOLE_Print( "[GHOST] error finding local IP addresses - failed to get local hostname" );
-	else
-	{
-		CONSOLE_Print( "[GHOST] local hostname is [" + string( HostName ) + "]" );
-		struct hostent *HostEnt = gethostbyname( HostName );
-
-		if( !HostEnt )
-			CONSOLE_Print( "[GHOST] error finding local IP addresses - gethostbyname failed" );
-		else
-		{
-			for( int i = 0; HostEnt->h_addr_list[i] != NULL; ++i )
-			{
-				struct in_addr Address;
-				memcpy( &Address, HostEnt->h_addr_list[i], sizeof(struct in_addr) );
-				CONSOLE_Print( "[GHOST] local IP address #" + UTIL_ToString( i + 1 ) + " is [" + string( inet_ntoa( Address ) ) + "]" );
-				m_LocalAddresses.push_back( UTIL_CreateByteArray( (uint32_t)Address.s_addr, false ) );
-			}
-		}
-	}
-#endif
-
 	m_Language = NULL;
 	m_Exiting = false;
 	m_ExitingNice = false;
 	m_Enabled = true;
 	m_HostCounter = 1;
 	m_AllGamesFinished = false;
-
-	CONSOLE_Print( "[GHOST] acting as Warcraft III: The Frozen Throne" );
-
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
 	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
 	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6114 );
@@ -502,12 +436,10 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.77" )
 
 	LoadIPToCountryData( );
 
-	// create the admin game
-
 	if( m_BNETs.empty( ) )
 		CONSOLE_Print( "[GHOST] warning - no battle.net connections found" );
 
-	CONSOLE_Print( "[GHOST] Aura++ Version " + m_Version + " (with over 9000 speed)" );
+	CONSOLE_Print( "[GHOST] Aura++ Version " + m_Version + " (with over 9000 ECONNRESETs)" );
 }
 
 CGHost :: ~CGHost( )
@@ -725,10 +657,8 @@ bool CGHost :: Update( long usecBlock )
 
 		MILLISLEEP( 100 );
 	}
-
-	bool AdminExit = false;
-	bool BNETExit = false;
-	bool IRCExit = false;
+	
+	bool BNETExit = false, IRCExit = false;
 
 	// update current game
 
@@ -896,7 +826,7 @@ bool CGHost :: Update( long usecBlock )
 		++i;
 	}
 
-	return m_Exiting || AdminExit || BNETExit || IRCExit;
+	return m_Exiting || BNETExit || IRCExit;
 }
 
 void CGHost :: EventBNETGameRefreshFailed( CBNET *bnet )
@@ -952,7 +882,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
 	m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
 	m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
-	m_MaxGames = CFG->GetInt( "bot_maxgames", 5 );
+	m_MaxGames = CFG->GetInt( "bot_maxgames", 10 );
 	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
 	m_CommandTrigger = BotCommandTrigger[0];
 	
@@ -982,8 +912,6 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	{
 		m_VoteKickPercentage = 100;
 	}
-
-	m_TCPNoDelay = CFG->GetInt( "tcp_nodelay", 1 ) == 0 ? false : true;
 }
 
 void CGHost :: ExtractScripts( )
