@@ -57,8 +57,7 @@ public:
 	CBaseGame *m_CurrentGame;				// this game is still in the lobby state
 	vector<CBaseGame *> m_Games;			// these games are in progress
 	CGHostDB *m_DB;							// database
-	vector<CBaseCallable *> m_Callables;	// vector of orphaned callables waiting to die
-	// vector<BYTEARRAY> m_LocalAddresses;		// vector of local IP addresses
+	vector<CBaseCallable *> m_Callables;	// vector of orphaned callables waiting to die	
 	CLanguage *m_Language;					// language
 	CMap *m_Map;							// the currently loaded map
 	bool m_Exiting;							// set to true to force ghost to shutdown next update (used by SignalCatcher)
@@ -110,7 +109,7 @@ public:
 	void ReloadConfigs( );
 	void SetConfigs( CConfig *CFG );
 	void ExtractScripts( );
-	void LoadIPToCountryData( );
+	inline void LoadIPToCountryData( );
 	void CreateGame( CMap *map, unsigned char gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper );
 
 	void Restart( bool force );

@@ -141,7 +141,7 @@ inline void CPotentialPlayer :: ProcessPackets( )
 	if( !m_Socket )
 		return;
 
-	// process all the received packets in the m_Packets queue
+	// the only packet we care about as a potential player is W3GS_REQJOIN, ignore everything else
 
 	while( !m_Packets.empty( ) )
 	{
@@ -149,9 +149,7 @@ inline void CPotentialPlayer :: ProcessPackets( )
 		m_Packets.pop( );
 
 		if( Packet->GetPacketType( ) == W3GS_HEADER_CONSTANT && Packet->GetID( ) == CGameProtocol :: W3GS_REQJOIN )
-		{
-			// the only packet we care about as a potential player is W3GS_REQJOIN, ignore everything else
-			
+		{			
 			delete m_IncomingJoinPlayer;
 			m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( Packet->GetData( ) );
 
@@ -261,7 +259,7 @@ bool CGamePlayer :: Update( void *fd )
 	// this works because in the lobby we send pings every 5 seconds and expect a response to each one
 	// and in the game the Warcraft 3 client sends keepalives frequently (at least once per second it looks like)
 
-	if( m_Socket && GetTime( ) - m_Socket->GetLastRecv( ) >= 30 )
+	if( m_Socket && GetTime( ) - m_Socket->GetLastRecv( ) >= 35 )
 		m_Game->EventPlayerDisconnectTimedOut( this );
 
 	// GProxy++ acks
@@ -370,8 +368,7 @@ inline void CGamePlayer :: ProcessPackets( )
 	CIncomingAction *Action = NULL;
 	CIncomingChatPlayer *ChatPlayer = NULL;
 	CIncomingMapSize *MapSize = NULL;
-	uint32_t CheckSum = 0;
-	uint32_t Pong = 0;
+	uint32_t CheckSum = 0, Pong = 0;
 
 	// process all the received packets in the m_Packets queue
 

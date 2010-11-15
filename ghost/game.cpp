@@ -341,9 +341,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 	// todotodo: don't be lazy
 
-	string User = player->GetName( );
-	string Command = command;
-	string Payload = payload;
+	string User = player->GetName( ), Command = command, Payload = payload;
 
 	bool AdminCheck = false;
 

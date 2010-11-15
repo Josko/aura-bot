@@ -68,8 +68,7 @@ string CSocket :: GetErrorString( )
 		return "NO ERROR";
 
 	switch( m_Error )
-	{
-		case ECONNRESET: return "ECONNRESET";
+	{	
 		case EWOULDBLOCK: return "EWOULDBLOCK";
 		case EINPROGRESS: return "EINPROGRESS";
 		case EALREADY: return "EALREADY";
@@ -105,6 +104,7 @@ string CSocket :: GetErrorString( )
 		case EDQUOT: return "EDQUOT";
 		case ESTALE: return "ESTALE";
 		case EREMOTE: return "EREMOTE";
+		case ECONNRESET: return "ECONNRESET";
 	}
 
 	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
@@ -294,11 +294,7 @@ void CTCPSocket :: Disconnect( )
 void CTCPSocket :: SetNoDelay( )
 {
 	int OptVal = 1;
-#ifdef WIN32
-	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char*)&OptVal, sizeof( OptVal ) );
-#else
-	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, &OptVal, sizeof( OptVal ) );
-#endif
+	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
 }
 
 //

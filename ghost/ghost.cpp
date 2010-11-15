@@ -984,7 +984,7 @@ void CGHost :: ExtractScripts( )
 		CONSOLE_Print( "[GHOST] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
 }
 
-void CGHost :: LoadIPToCountryData( )
+inline void CGHost :: LoadIPToCountryData( )
 {
 	ifstream in;
 	in.open( "ip-to-country.csv" );
