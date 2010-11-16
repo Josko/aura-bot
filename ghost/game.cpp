@@ -1272,7 +1272,6 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					m_GameName = Payload;
 					m_HostCounter = m_GHost->m_HostCounter++;
 					m_RefreshError = false;
-					m_RefreshRehosted = true;
 
 					for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					{
@@ -1314,7 +1313,6 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					m_GameName = Payload;
 					m_HostCounter = m_GHost->m_HostCounter++;
 					m_RefreshError = false;
-					m_RefreshRehosted = true;
 
 					for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					{
@@ -1354,7 +1352,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				string message = "Status: ";
 
-		    	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+		    		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					message += (*i)->GetServer( ) + ( (*i)->GetLoggedIn( ) ? " [Online], " : " [Offline], " );
 
 				message += m_GHost->m_IRC->m_Server + ( !m_GHost->m_IRC->m_WaitingToConnect ? " [Online]" : " [Offline]" );
@@ -1721,8 +1719,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 	else if( Command == "yes" && !m_KickVotePlayer.empty( ) && player->GetName( ) != m_KickVotePlayer && !player->GetKickVote( ) )
 	{
 		player->SetKickVote( true );
-		uint32_t VotesNeeded = (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float)m_GHost->m_VoteKickPercentage / 100 );
-		uint32_t Votes = 0;
+		uint32_t Votes = 0, VotesNeeded = (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float)m_GHost->m_VoteKickPercentage / 100 );
 
 		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{

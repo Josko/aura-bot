@@ -40,7 +40,7 @@
 CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) 
 
 
-: m_GHost( nGHost ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nGHost->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nGHost->m_HostCounter++ ), m_Latency( nGHost->m_Latency ), m_SyncLimit( nGHost->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_RefreshRehosted( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_LoadInGame( nMap->GetMapLoadInGame( ) ), m_Lagging( false )
+: m_GHost( nGHost ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nGHost->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nGHost->m_HostCounter++ ), m_Latency( nGHost->m_Latency ), m_SyncLimit( nGHost->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_LoadInGame( nMap->GetMapLoadInGame( ) ), m_Lagging( false )
 {
 	m_Socket = new CTCPServer( );
 	m_Protocol = new CGameProtocol( m_GHost );
@@ -337,7 +337,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		m_LastDownloadCounterResetTicks = GetTicks( );
 	}
 
-	if( !m_GameLoading && !m_GameLoaded && GetTicks( ) - m_LastDownloadTicks >= 80 )
+	if( !m_GameLoading && !m_GameLoaded && GetTicks( ) - m_LastDownloadTicks >= 100 )
 	{
 		uint32_t Downloaders = 0;
 
@@ -463,7 +463,10 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 				{
 					if( (*i)->GetGProxy( ) )
+					{
 						UsingGProxy = true;
+						break;
+					}
 				}
 
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
@@ -517,13 +520,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 						(*i)->AddLoadInGameData( m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
 					}
 				}
-
-				// Warcraft III doesn't seem to respond to empty actions
-
-				/* if( UsingGProxy )
-					m_SyncCounter += m_GProxyEmptyActions;
-
-				m_SyncCounter++; */
+				
 				m_LastLagScreenResetTime = GetTime( );
 			}
 		}
@@ -580,7 +577,10 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 			{
 				if( (*i)->GetGProxy( ) )
+				{
 					UsingGProxy = true;
+					break;
+				}
 			}
 
 			uint32_t WaitTime = 60;
@@ -699,21 +699,15 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	if( m_GameOverTime != 0 && GetTime( ) - m_GameOverTime >= 60 )
 	{
-		bool AlreadyStopped = true;
 
 		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( !(*i)->GetDeleteMe( ) )
 			{
-				AlreadyStopped = false;
+				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (gameover timer finished)" );
+				StopPlayers( "was disconnected (gameover timer finished)" );
 				break;
 			}
-		}
-
-		if( !AlreadyStopped )
-		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (gameover timer finished)" );
-			StopPlayers( "was disconnected (gameover timer finished)" );
 		}
 	}
 
@@ -915,7 +909,10 @@ void CBaseGame :: SendAllActions( )
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 	{
 		if( (*i)->GetGProxy( ) )
+		{
 			UsingGProxy = true;
+			break;
+		}
 	}
 
 	m_GameTicks += m_Latency;
@@ -2103,19 +2100,11 @@ void CBaseGame :: EventPlayerPongToHost( CGamePlayer *player, uint32_t pong )
 		OpenSlot( GetSIDFromPID( player->GetPID( ) ), false );
 	}
 }
-
+/*
 void CBaseGame :: EventGameRefreshed( const string &server )
 {
-	if( m_RefreshRehosted )
-	{
-		// we're not actually guaranteed this refresh was for the rehosted game and not the previous one
-		// but since we unqueue game refreshes when rehosting, the only way this can happen is due to network delay
-		// it's a risk we're willing to take but can result in a false positive here
 
-		SendAllChat( m_GHost->m_Language->RehostWasSuccessful( ) );
-		m_RefreshRehosted = false;
-	}
-}
+}*/
 
 void CBaseGame :: EventGameStarted( )
 {

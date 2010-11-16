@@ -46,7 +46,6 @@
 
 #ifdef WIN32
  #include <ws2tcpip.h>
- #include <Windows.h>
  #include <winsock.h>
  #include <process.h>
 #else
@@ -332,8 +331,8 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
 	m_CurrentGame = NULL;
 	CONSOLE_Print( "[GHOST] opening primary database" );
 	m_DB = new CGHostDBSQLite( CFG );
-
 	m_Language = NULL;
+	
 	m_Exiting = false;
 	m_ExitingNice = false;
 	m_Enabled = true;
@@ -369,11 +368,7 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
 
 		if( Locale == "system" )
 		{
-#ifdef WIN32
-			LocaleID = GetUserDefaultLangID( );
-#else
 			LocaleID = 1033;
-#endif
 		}
 		else
 			LocaleID = UTIL_ToUInt32( Locale );
@@ -386,8 +381,7 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
 
 		if( BNETCommandTrigger.empty( ) )
 			BNETCommandTrigger = "!";
-
-		bool PublicCommands = CFG->GetInt( Prefix + "publiccommands", 1 ) == 0 ? false : true;
+		
 		unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 24 );
 		BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
 		BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
@@ -401,14 +395,10 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
 
 		if( Locale == "system" )
 		{
-#ifdef WIN32
 			CONSOLE_Print( "[GHOST] using system locale of " + UTIL_ToString( LocaleID ) );
-#else
-			CONSOLE_Print( "[GHOST] unable to get system locale, using default locale of 1033" );
-#endif
 		}
 
-		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], PublicCommands, War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength, i ) );
+		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength, i ) );
 	}
 
 	if( m_BNETs.empty( ) )
@@ -422,11 +412,8 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
 
 	// load the default maps (note: make sure to run ExtractScripts first)
 
-	if( m_DefaultMap.size( ) < 4 || m_DefaultMap.substr( m_DefaultMap.size( ) - 4 ) != ".cfg" )
-	{
-		m_DefaultMap += ".cfg";
-		CONSOLE_Print( "[GHOST] adding \".cfg\" to default map -> new default is [" + m_DefaultMap + "]" );
-	}
+	if( m_DefaultMap.size( ) < 4 || m_DefaultMap.substr( m_DefaultMap.size( ) - 4 ) != ".cfg" )	
+		m_DefaultMap += ".cfg";		
 
 	CConfig MapCFG;
 	MapCFG.Read( m_MapCFGPath + m_DefaultMap );
@@ -476,7 +463,7 @@ CGHost :: ~CGHost( )
 	delete m_IRC;
 }
 
-bool CGHost :: Update( long usecBlock )
+bool CGHost :: Update( unsigned long usecBlock )
 {
 	// todotodo: do we really want to shutdown if there's a database error? is there any way to recover from this?
 
@@ -901,12 +888,12 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_MaxDownloaders = CFG->GetInt( "bot_maxdownloaders", 3 );
 	m_MaxDownloadSpeed = CFG->GetInt( "bot_maxdownloadspeed", 100 );
 	m_LCPings = CFG->GetInt( "bot_lcpings", 1 ) == 0 ? false : true;
-	m_AutoKickPing = CFG->GetInt( "bot_autokickping", 400 );
+	m_AutoKickPing = CFG->GetInt( "bot_autokickping", 300 );
 	m_BanMethod = CFG->GetInt( "bot_banmethod", 1 );
 	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 10 );
 	m_Latency = CFG->GetInt( "bot_latency", 100 );
 	m_SyncLimit = CFG->GetInt( "bot_synclimit", 50 );
-	m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 100 );
+	m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );
 
 	if( m_VoteKickPercentage > 100 )
 	{
