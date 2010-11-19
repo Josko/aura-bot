@@ -291,7 +291,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.78" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.79" )
 {
 	vector<string> channels, locals;
 
@@ -889,8 +889,11 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	m_MaxDownloadSpeed = CFG->GetInt( "bot_maxdownloadspeed", 100 );
 	m_LCPings = CFG->GetInt( "bot_lcpings", 1 ) == 0 ? false : true;
 	m_AutoKickPing = CFG->GetInt( "bot_autokickping", 300 );
-	m_BanMethod = CFG->GetInt( "bot_banmethod", 1 );
-	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 10 );
+	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );
+	
+	if( m_LobbyTimeLimit < 0 )
+		m_LobbyTimeLimit = 2;
+	
 	m_Latency = CFG->GetInt( "bot_latency", 100 );
 	m_SyncLimit = CFG->GetInt( "bot_synclimit", 50 );
 	m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );

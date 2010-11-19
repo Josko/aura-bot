@@ -30,7 +30,6 @@
 #include "gameprotocol.h"
 #include "game_base.h"
 
-#include <string.h>
 #include <time.h>
 
 //
@@ -40,7 +39,7 @@
 CBaseGame :: CBaseGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) 
 
 
-: m_GHost( nGHost ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nGHost->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nGHost->m_HostCounter++ ), m_Latency( nGHost->m_Latency ), m_SyncLimit( nGHost->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_LoadInGame( nMap->GetMapLoadInGame( ) ), m_Lagging( false )
+: m_GHost( nGHost ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nGHost->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nGHost->m_HostCounter++ ), m_Latency( nGHost->m_Latency ), m_SyncLimit( nGHost->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_Lagging( false )
 {
 	m_Socket = new CTCPServer( );
 	m_Protocol = new CGameProtocol( m_GHost );
@@ -245,6 +244,173 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		else
 			++i;
 	}
+	
+	// check if the game is loaded
+
+	if( m_GameLoading )
+	{
+		bool FinishedLoading = true;
+
+		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+		{
+			FinishedLoading = (*i)->GetFinishedLoading( );
+
+			if( !FinishedLoading )
+				break;
+		}
+
+		if( FinishedLoading )
+		{			
+			m_LastActionSentTicks = GetTicks( );
+			m_GameLoading = false;
+			m_GameLoaded = true;
+			EventGameLoaded( );
+		}		
+	}
+
+	// keep track of the largest sync counter (the number of keepalive packets received by each player)
+	// if anyone falls behind by more than m_SyncLimit keepalives we start the lag screen
+
+	if( m_GameLoaded )
+	{
+		// check if anyone has started lagging
+		// we consider a player to have started lagging if they're more than m_SyncLimit keepalives behind
+
+		if( !m_Lagging )
+		{
+			string LaggingString;
+
+			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( m_SyncCounter - (*i)->GetSyncCounter( ) > m_SyncLimit )
+				{
+					(*i)->SetLagging( true );
+					(*i)->SetStartedLaggingTicks( GetTicks( ) );
+					m_Lagging = true;
+					m_StartedLaggingTime = GetTime( );
+
+					if( LaggingString.empty( ) )
+						LaggingString = (*i)->GetName( );
+					else
+						LaggingString += ", " + (*i)->GetName( );
+				}
+			}
+
+			if( m_Lagging )
+			{
+				// start the lag screen
+
+				CONSOLE_Print( "[GAME: " + m_GameName + "] started lagging on [" + LaggingString + "]" );
+				SendAll( m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
+
+				// reset everyone's drop vote
+
+				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+					(*i)->SetDropVote( false );
+
+				m_LastLagScreenResetTime = GetTime( );
+			}
+		}
+
+		if( m_Lagging )
+		{
+			bool UsingGProxy = false;
+
+			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( (*i)->GetGProxy( ) )
+				{
+					UsingGProxy = true;
+					break;
+				}
+			}
+
+			uint32_t WaitTime = 60;
+
+			if( UsingGProxy )
+				WaitTime = ( m_GProxyEmptyActions + 1 ) * 60;
+
+			if( GetTime( ) - m_StartedLaggingTime >= WaitTime )
+				StopLaggers( m_GHost->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( WaitTime ) ) );
+
+			// we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
+			// one (easy) solution is to simply drop all the laggers if they lag for more than 60 seconds
+			// another solution is to reset the lag screen the same way we reset it when using load-in-game
+			// this is required in order to give GProxy++ clients more time to reconnect
+
+			if( GetTime( ) - m_LastLagScreenResetTime >= 60 )
+			{
+				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+				{
+					// stop the lag screen
+
+					for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
+					{
+						if( (*j)->GetLagging( ) )
+							Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( *j ) );
+					}
+
+					// send an empty update
+					// this resets the lag screen timer
+
+					if( UsingGProxy && !(*i)->GetGProxy( ) )
+					{
+						// we must send additional empty actions to non-GProxy++ players
+						// GProxy++ will insert these itself so we don't need to send them to GProxy++ players
+						// empty actions are used to extend the time a player can use when reconnecting
+
+						for( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
+							Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
+					}
+
+					Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
+
+					// start the lag screen
+
+					Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
+				}
+
+				m_LastLagScreenResetTime = GetTime( );
+			}
+
+			// check if anyone has stopped lagging normally
+			// we consider a player to have stopped lagging if they're less than half m_SyncLimit keepalives behind
+
+			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( (*i)->GetLagging( ) && m_SyncCounter - (*i)->GetSyncCounter( ) < m_SyncLimit / 2 )
+				{
+					// stop the lag screen for this player
+
+					CONSOLE_Print( "[GAME: " + m_GameName + "] stopped lagging on [" + (*i)->GetName( ) + "]" );
+					SendAll( m_Protocol->SEND_W3GS_STOP_LAG( *i ) );
+					(*i)->SetLagging( false );
+					(*i)->SetStartedLaggingTicks( 0 );
+				}
+			}
+
+			// check if everyone has stopped lagging
+
+			m_Lagging = false;
+
+			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( (*i)->GetLagging( ) )
+				{
+					m_Lagging = true;
+					break;
+				}
+			}
+
+			// reset m_LastActionSentTicks because we want the game to stop running while the lag screen is up
+
+			m_LastActionSentTicks = GetTicks( );
+
+			// keep track of the last lag screen time so we can avoid timing out players
+
+			m_LastLagScreenTime = GetTime( );
+		}
+	}
 
 	// create the virtual host player
 
@@ -412,14 +578,17 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	// check if the lobby is "abandoned" and needs to be closed since it will never start
 
-	if( !m_GameLoading && !m_GameLoaded && m_GHost->m_LobbyTimeLimit > 0 )
+	if( !m_GameLoading && !m_GameLoaded )
 	{
 		// check if there's a player with reserved status in the game
 
 		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( (*i)->GetReserved( ) )
+			{
 				m_LastReservedSeen = GetTime( );
+				break;
+			}
 		}
 
 		// check if we've hit the time limit
@@ -429,246 +598,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit)" );
 			return true;
 		}
-	}
-
-	// check if the game is loaded
-
-	if( m_GameLoading )
-	{
-		bool FinishedLoading = true;
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			FinishedLoading = (*i)->GetFinishedLoading( );
-
-			if( !FinishedLoading )
-				break;
-		}
-
-		if( FinishedLoading )
-		{			
-			m_LastActionSentTicks = GetTicks( );
-			m_GameLoading = false;
-			m_GameLoaded = true;
-			EventGameLoaded( );
-		}
-		else
-		{
-			// reset the "lag" screen (the load-in-game screen) every 30 seconds
-
-			if( m_LoadInGame && GetTime( ) - m_LastLagScreenResetTime >= 30 )
-			{
-				bool UsingGProxy = false;
-
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-				{
-					if( (*i)->GetGProxy( ) )
-					{
-						UsingGProxy = true;
-						break;
-					}
-				}
-
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-				{
-					if( (*i)->GetFinishedLoading( ) )
-					{
-						// stop the lag screen
-
-						for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
-						{
-							if( !(*j)->GetFinishedLoading( ) )
-								Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( *j, true ) );
-						}
-
-						// send an empty update
-						// this resets the lag screen timer but creates a rather annoying problem
-						// in order to prevent a desync we must make sure every player receives the exact same "desyncable game data" (updates and player leaves) in the exact same order
-						// unfortunately we cannot send updates to players who are still loading the map, so we buffer the updates to those players (see the else clause a few lines down for the code)
-						// in addition to this we must ensure any player leave messages are sent in the exact same position relative to these updates so those must be buffered too
-
-						if( UsingGProxy && !(*i)->GetGProxy( ) )
-						{
-							// we must send empty actions to non-GProxy++ players
-							// GProxy++ will insert these itself so we don't need to send them to GProxy++ players
-							// empty actions are used to extend the time a player can use when reconnecting
-
-							for( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
-								Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-						}
-
-						Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-
-						// start the lag screen
-
-						Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players, true ) );
-					}
-					else
-					{
-						// buffer the empty update since the player is still loading the map
-
-						if( UsingGProxy && !(*i)->GetGProxy( ) )
-						{
-							// we must send empty actions to non-GProxy++ players
-							// GProxy++ will insert these itself so we don't need to send them to GProxy++ players
-							// empty actions are used to extend the time a player can use when reconnecting
-
-							for( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
-								(*i)->AddLoadInGameData( m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-						}
-
-						(*i)->AddLoadInGameData( m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-					}
-				}
-				
-				m_LastLagScreenResetTime = GetTime( );
-			}
-		}
-	}
-
-	// keep track of the largest sync counter (the number of keepalive packets received by each player)
-	// if anyone falls behind by more than m_SyncLimit keepalives we start the lag screen
-
-	if( m_GameLoaded )
-	{
-		// check if anyone has started lagging
-		// we consider a player to have started lagging if they're more than m_SyncLimit keepalives behind
-
-		if( !m_Lagging )
-		{
-			string LaggingString;
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( m_SyncCounter - (*i)->GetSyncCounter( ) > m_SyncLimit )
-				{
-					(*i)->SetLagging( true );
-					(*i)->SetStartedLaggingTicks( GetTicks( ) );
-					m_Lagging = true;
-					m_StartedLaggingTime = GetTime( );
-
-					if( LaggingString.empty( ) )
-						LaggingString = (*i)->GetName( );
-					else
-						LaggingString += ", " + (*i)->GetName( );
-				}
-			}
-
-			if( m_Lagging )
-			{
-				// start the lag screen
-
-				CONSOLE_Print( "[GAME: " + m_GameName + "] started lagging on [" + LaggingString + "]" );
-				SendAll( m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
-
-				// reset everyone's drop vote
-
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-					(*i)->SetDropVote( false );
-
-				m_LastLagScreenResetTime = GetTime( );
-			}
-		}
-
-		if( m_Lagging )
-		{
-			bool UsingGProxy = false;
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( (*i)->GetGProxy( ) )
-				{
-					UsingGProxy = true;
-					break;
-				}
-			}
-
-			uint32_t WaitTime = 60;
-
-			if( UsingGProxy )
-				WaitTime = ( m_GProxyEmptyActions + 1 ) * 60;
-
-			if( GetTime( ) - m_StartedLaggingTime >= WaitTime )
-				StopLaggers( m_GHost->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( WaitTime ) ) );
-
-			// we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
-			// one (easy) solution is to simply drop all the laggers if they lag for more than 60 seconds
-			// another solution is to reset the lag screen the same way we reset it when using load-in-game
-			// this is required in order to give GProxy++ clients more time to reconnect
-
-			if( GetTime( ) - m_LastLagScreenResetTime >= 60 )
-			{
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-				{
-					// stop the lag screen
-
-					for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
-					{
-						if( (*j)->GetLagging( ) )
-							Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( *j ) );
-					}
-
-					// send an empty update
-					// this resets the lag screen timer
-
-					if( UsingGProxy && !(*i)->GetGProxy( ) )
-					{
-						// we must send additional empty actions to non-GProxy++ players
-						// GProxy++ will insert these itself so we don't need to send them to GProxy++ players
-						// empty actions are used to extend the time a player can use when reconnecting
-
-						for( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
-							Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-					}
-
-					Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-
-					// start the lag screen
-
-					Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
-				}
-
-				m_LastLagScreenResetTime = GetTime( );
-			}
-
-			// check if anyone has stopped lagging normally
-			// we consider a player to have stopped lagging if they're less than half m_SyncLimit keepalives behind
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( (*i)->GetLagging( ) && m_SyncCounter - (*i)->GetSyncCounter( ) < m_SyncLimit / 2 )
-				{
-					// stop the lag screen for this player
-
-					CONSOLE_Print( "[GAME: " + m_GameName + "] stopped lagging on [" + (*i)->GetName( ) + "]" );
-					SendAll( m_Protocol->SEND_W3GS_STOP_LAG( *i ) );
-					(*i)->SetLagging( false );
-					(*i)->SetStartedLaggingTicks( 0 );
-				}
-			}
-
-			// check if everyone has stopped lagging
-
-			m_Lagging = false;
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( (*i)->GetLagging( ) )
-				{
-					m_Lagging = true;
-					break;
-				}
-			}
-
-			// reset m_LastActionSentTicks because we want the game to stop running while the lag screen is up
-
-			m_LastActionSentTicks = GetTicks( );
-
-			// keep track of the last lag screen time so we can avoid timing out players
-
-			m_LastLagScreenTime = GetTime( );
-		}
-	}
+	}	
 
 	// send actions every m_Latency milliseconds
 	// actions are at the heart of every Warcraft 3 game but luckily we don't need to know their contents to relay them
@@ -1022,31 +952,9 @@ void CBaseGame :: EventPlayerDeleted( CGamePlayer *player )
 		SendAll( m_Protocol->SEND_W3GS_STOP_LAG( player ) );
 
 
-	if( m_LoadInGame && m_GameLoading )
-	{
-		// we must buffer player leave messages when using "load in game" to prevent desyncs
-		// this ensures the player leave messages are correctly interleaved with the empty updates sent to each player
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			if( (*i)->GetFinishedLoading( ) )
-			{
-				if( !player->GetFinishedLoading( ) )
-					Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( player ) );
-
-				Send( *i, m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( player->GetPID( ), player->GetLeftCode( ) ) );
-			}
-			else
-				(*i)->AddLoadInGameData( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( player->GetPID( ), player->GetLeftCode( ) ) );
-		}
-	}
-	else
-	{
-		// tell everyone about the player leaving
-
-		SendAll( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( player->GetPID( ), player->GetLeftCode( ) ) );
-	}
-
+	// tell everyone about the player leaving
+	
+	SendAll( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( player->GetPID( ), player->GetLeftCode( ) ) );
 
 	// abort the countdown if there was one in progress
 
@@ -1219,68 +1127,35 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 	// this is because if bot_banmethod is 0 and we announce the ban here it's possible for the player to be rejected later because the game is full
 	// this would allow the player to spam the chat by attempting to join the game multiple times in a row
 
-	if( m_GHost->m_BanMethod != 0 )
+	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 	{
-		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+		if( (*i)->GetServer( ) == JoinedRealm )
 		{
-			if( (*i)->GetServer( ) == JoinedRealm )
-			{
-				CDBBan *Ban = (*i)->IsBannedName( joinPlayer->GetName( ) );
-
-				if( Ban )
-				{
-					if( m_GHost->m_BanMethod == 1 || m_GHost->m_BanMethod == 3 )
-					{
-						CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is trying to join the game but is banned by name" );
-
-						if( m_IgnoredNames.find( joinPlayer->GetName( ) ) == m_IgnoredNames.end( ) )
-						{
-							SendAllChat( m_GHost->m_Language->TryingToJoinTheGameButBannedByName( joinPlayer->GetName( ) ) );
-							SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( Ban->GetServer( ), Ban->GetName( ), Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
-							m_IgnoredNames.insert( joinPlayer->GetName( ) );
-						}
-
-						// let banned players "join" the game with an arbitrary PID then immediately close the connection
-						// this causes them to be kicked back to the chat channel on battle.net
-
-						vector<CGameSlot> Slots = m_Map->GetSlots( );
-						potential->Send( m_Protocol->SEND_W3GS_SLOTINFOJOIN( 1, potential->GetSocket( )->GetPort( ), potential->GetExternalIP( ), Slots, 0, m_Map->GetMapLayoutStyle( ), m_Map->GetMapNumPlayers( ) ) );
-						potential->SetDeleteMe( true );
-						return;
-					}
-
-					break;
-				}
-			}
-
-			CDBBan *Ban = (*i)->IsBannedIP( potential->GetExternalIPString( ) );
+			CDBBan *Ban = (*i)->IsBannedName( joinPlayer->GetName( ) );
 
 			if( Ban )
 			{
-				if( m_GHost->m_BanMethod == 2 || m_GHost->m_BanMethod == 3 )
+				CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is banned" );
+
+				if( m_IgnoredNames.find( joinPlayer->GetName( ) ) == m_IgnoredNames.end( ) )
 				{
-					CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is trying to join the game but is banned by IP address" );
-
-					if( m_IgnoredNames.find( joinPlayer->GetName( ) ) == m_IgnoredNames.end( ) )
-					{
-						SendAllChat( m_GHost->m_Language->TryingToJoinTheGameButBannedByIP( joinPlayer->GetName( ), potential->GetExternalIPString( ), Ban->GetName( ) ) );
-						SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( Ban->GetServer( ), Ban->GetName( ), Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
-						m_IgnoredNames.insert( joinPlayer->GetName( ) );
-					}
-
-					// let banned players "join" the game with an arbitrary PID then immediately close the connection
-					// this causes them to be kicked back to the chat channel on battle.net
-
-					vector<CGameSlot> Slots = m_Map->GetSlots( );
-					potential->Send( m_Protocol->SEND_W3GS_SLOTINFOJOIN( 1, potential->GetSocket( )->GetPort( ), potential->GetExternalIP( ), Slots, 0, m_Map->GetMapLayoutStyle( ), m_Map->GetMapNumPlayers( ) ) );
-					potential->SetDeleteMe( true );
-					return;
+					SendAllChat( m_GHost->m_Language->TryingToJoinTheGameButBannedByName( joinPlayer->GetName( ) ) );
+					SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( Ban->GetServer( ), Ban->GetName( ), Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
+					m_IgnoredNames.insert( joinPlayer->GetName( ) );
 				}
 
-				break;
+				// let banned players "join" the game with an arbitrary PID then immediately close the connection
+				// this causes them to be kicked back to the chat channel on battle.net
+
+				vector<CGameSlot> Slots = m_Map->GetSlots( );
+				potential->Send( m_Protocol->SEND_W3GS_SLOTINFOJOIN( 1, potential->GetSocket( )->GetPort( ), potential->GetExternalIP( ), Slots, 0, m_Map->GetMapLayoutStyle( ), m_Map->GetMapNumPlayers( ) ) );
+				potential->SetDeleteMe( true );
+				
+				return;
 			}
-		}
+		}	
 	}
+
 
 	// check if the player is an admin or root admin on any connected realm for determining reserved status
 	// we can't just use the spoof checked realm like in EventPlayerBotCommand because the player hasn't spoof checked yet
@@ -1358,39 +1233,6 @@ void CBaseGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinP
 		potential->Send( m_Protocol->SEND_W3GS_REJECTJOIN( REJECTJOIN_FULL ) );
 		potential->SetDeleteMe( true );
 		return;
-	}
-
-	// check if the new player's name is banned but only if bot_banmethod is 0
-	// this is because if bot_banmethod is 0 we need to wait to announce the ban until now because they could have been rejected because the game was full
-	// this would have allowed the player to spam the chat by attempting to join the game multiple times in a row
-
-	if( m_GHost->m_BanMethod == 0 )
-	{
-		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == JoinedRealm )
-			{
-				CDBBan *Ban = (*i)->IsBannedName( joinPlayer->GetName( ) );
-
-				if( Ban )
-				{
-					CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is using a banned name" );
-					SendAllChat( m_GHost->m_Language->HasBannedName( joinPlayer->GetName( ) ) );
-					SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( Ban->GetServer( ), Ban->GetName( ), Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
-					break;
-				}
-			}
-
-			CDBBan *Ban = (*i)->IsBannedIP( potential->GetExternalIPString( ) );
-
-			if( Ban )
-			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is using a banned IP address" );
-				SendAllChat( m_GHost->m_Language->HasBannedIP( joinPlayer->GetName( ), potential->GetExternalIPString( ), Ban->GetName( ) ) );
-				SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( Ban->GetServer( ), Ban->GetName( ), Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
-				break;
-			}
-		}
 	}
 
 	// we have a slot for the new player
@@ -1536,56 +1378,8 @@ void CBaseGame :: EventPlayerLoaded( CGamePlayer *player )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float)( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
 
-	if( m_LoadInGame )
-	{
-		// send any buffered data to the player now
-		// see the Update function for more information about why we do this
-		// this includes player loaded messages, game updates, and player leave messages
-
-		queue<BYTEARRAY> *LoadInGameData = player->GetLoadInGameData( );
-
-		while( !LoadInGameData->empty( ) )
-		{
-			Send( player, LoadInGameData->front( ) );
-			LoadInGameData->pop( );
-		}
-
-		// start the lag screen for the new player
-
-		bool FinishedLoading = true;
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			FinishedLoading = (*i)->GetFinishedLoading( );
-
-			if( !FinishedLoading )
-				break;
-		}
-
-		if( !FinishedLoading )
-			Send( player, m_Protocol->SEND_W3GS_START_LAG( m_Players, true ) );
-
-		// remove the new player from previously loaded players' lag screens
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			if( *i != player && (*i)->GetFinishedLoading( ) )
-				Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( player ) );
-		}
-
-		// send a chat message to previously loaded players
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			if( *i != player && (*i)->GetFinishedLoading( ) )
-				SendChat( *i, m_GHost->m_Language->PlayerFinishedLoading( player->GetName( ) ) );
-		}
-
-		if( !FinishedLoading )
-			SendChat( player, m_GHost->m_Language->PleaseWaitPlayersStillLoading( ) );
-	}
-	else
-		SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( player->GetPID( ) ) );
+	
+	SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( player->GetPID( ) ) );
 }
 
 void CBaseGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
@@ -2100,11 +1894,6 @@ void CBaseGame :: EventPlayerPongToHost( CGamePlayer *player, uint32_t pong )
 		OpenSlot( GetSIDFromPID( player->GetPID( ) ), false );
 	}
 }
-/*
-void CBaseGame :: EventGameRefreshed( const string &server )
-{
-
-}*/
 
 void CBaseGame :: EventGameStarted( )
 {
@@ -2217,20 +2006,7 @@ void CBaseGame :: EventGameStarted( )
 	// delete the map data
 
 	delete m_Map;
-	m_Map = NULL;
-
-	if( m_LoadInGame )
-	{
-		// buffer all the player loaded messages
-		// this ensures that every player receives the same set of player loaded messages in the same order, even if someone leaves during loading
-		// if someone leaves during loading we buffer the leave message to ensure it gets sent in the correct position but the player loaded message wouldn't get sent if we didn't buffer it now
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
-				(*j)->AddLoadInGameData( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( (*i)->GetPID( ) ) );
-		}
-	}
+	m_Map = NULL;	
 
 	// move the game to the games in progress vector
 
@@ -2996,7 +2772,7 @@ void CBaseGame :: StartCountDown( bool force )
 	}
 }
 
-void CBaseGame :: StopPlayers( string reason )
+void CBaseGame :: StopPlayers( const string &reason )
 {
 	// disconnect every player and set their left reason to the passed string
 	// we use this function when we want the code in the Update function to run before the destructor (e.g. saving players to the database)
@@ -3011,7 +2787,7 @@ void CBaseGame :: StopPlayers( string reason )
 	}
 }
 
-void CBaseGame :: StopLaggers( string reason )
+void CBaseGame :: StopLaggers( const string &reason )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 	{

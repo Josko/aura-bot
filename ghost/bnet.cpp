@@ -1164,7 +1164,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !DOWNLOADS
 				//
 
-				else if( Command == "downloads" && !Payload.empty( ) )
+				else if( ( Command == "downloads" || Command == "dls" ) && !Payload.empty( ) )
 				{
 					uint32_t Downloads = UTIL_ToUInt32( Payload );
 
@@ -2322,19 +2322,6 @@ CDBBan *CBNET :: IsBannedName( string name )
 	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); ++i )
 	{
 		if( (*i)->GetName( ) == name )
-			return *i;
-	}
-
-	return NULL;
-}
-
-CDBBan *CBNET :: IsBannedIP( const string &ip )
-{
-	// todotodo: optimize this - maybe use a map?
-
-	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); ++i )
-	{
-		if( (*i)->GetIP( ) == ip )
 			return *i;
 	}
 
