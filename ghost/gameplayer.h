@@ -104,7 +104,6 @@ private:
 	uint32_t m_StatsSentTime;				// GetTime when we sent this player's stats to the chat (to prevent players from spamming !stats)
 	uint32_t m_StatsDotASentTime;				// GetTime when we sent this player's dota stats to the chat (to prevent players from spamming !statsdota)
 	uint32_t m_LastGProxyWaitNoticeSentTime;
-	queue<BYTEARRAY> m_LoadInGameData;			// queued data to be sent when the player finishes loading when using "load in game"
 	bool m_LoggedIn;					// if the player has logged in or not (used with CAdminGame only)
 	bool m_Spoofed;						// if the player has spoof checked or not
 	bool m_Reserved;					// if the player is reserved (VIP) or not
@@ -151,7 +150,6 @@ public:
 	uint32_t GetStatsSentTime( )					{ return m_StatsSentTime; }
 	uint32_t GetStatsDotASentTime( )				{ return m_StatsDotASentTime; }
 	uint32_t GetLastGProxyWaitNoticeSentTime( )			{ return m_LastGProxyWaitNoticeSentTime; }
-	queue<BYTEARRAY> *GetLoadInGameData( )				{ return &m_LoadInGameData; }
 	bool GetLoggedIn( )						{ return m_LoggedIn; }
 	bool GetSpoofed( )						{ return m_Spoofed; }
 	bool GetReserved( )						{ return m_Reserved; }
@@ -198,8 +196,6 @@ public:
 
 	string GetNameTerminated( );
 	uint32_t GetPing( bool LCPing );
-
-	void AddLoadInGameData( const BYTEARRAY &nLoadInGameData )				{ m_LoadInGameData.push( nLoadInGameData ); }
 
 	// processing functions
 

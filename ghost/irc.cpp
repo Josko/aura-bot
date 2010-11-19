@@ -43,6 +43,8 @@ unsigned int CIRC :: SetFD( void *fd, void *send_fd, int *nfds )
 
 bool CIRC :: Update( void *fd, void *send_fd )
 {
+	uint32_t Time = GetTime( );
+	
 	if( m_Socket->HasError( ) )
 	{
 		// the socket has an error
@@ -50,7 +52,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		CONSOLE_Print( "[IRC: " + m_Server + "] disconnected due to socket error,  waiting 30 seconds to reconnect" );
 		m_Socket->Reset( );
 		m_WaitingToConnect = true;
-		m_LastConnectionAttemptTime = GetTime( );
+		m_LastConnectionAttemptTime = Time;
 		return m_Exiting;
 	}
 
@@ -61,7 +63,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		CONSOLE_Print( "[IRC: " + m_Server + "] disconnected, waiting 30 seconds to reconnect" );
 		m_Socket->Reset( );
 		m_WaitingToConnect = true;
-		m_LastConnectionAttemptTime = GetTime( );
+		m_LastConnectionAttemptTime = Time;
 		return m_Exiting;
 	}
 
@@ -94,19 +96,19 @@ bool CIRC :: Update( void *fd, void *send_fd )
 			m_Socket->DoSend( (fd_set *)send_fd );
 			return m_Exiting;
 		}
-		else if( GetTime( ) - m_LastConnectionAttemptTime > 15 )
+		else if( Time - m_LastConnectionAttemptTime > 15 )
 		{
 			// the connection attempt timed out (15 seconds)
 
 			CONSOLE_Print( "[IRC: " + m_Server + "] connect timed out, waiting 30 seconds to reconnect" );
 			m_Socket->Reset( );
-			m_LastConnectionAttemptTime = GetTime( );
+			m_LastConnectionAttemptTime = Time;
 			m_WaitingToConnect = true;
 			return m_Exiting;
 		}
 	}
 
-	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( GetTime( ) - m_LastConnectionAttemptTime > 30 ) )
+	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( Time - m_LastConnectionAttemptTime > 30 ) )
 	{
 		// attempt to connect to irc
 
@@ -131,7 +133,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		}
 
 		m_WaitingToConnect = false;
-		m_LastConnectionAttemptTime = GetTime( );
+		m_LastConnectionAttemptTime = Time;
 	}
 
 	return m_Exiting;
