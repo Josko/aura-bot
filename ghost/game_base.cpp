@@ -411,20 +411,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			m_LastLagScreenTime = GetTime( );
 		}
 	}
-
-	// create the virtual host player
-
-	if( !m_GameLoading && !m_GameLoaded && GetNumPlayers( ) < 12 )
-		CreateVirtualHost( );
-
-	// unlock the game
-
-	if( m_Locked && !GetPlayerFromName( m_OwnerName, false ) )
-	{
-		SendAllChat( m_GHost->m_Language->GameUnlocked( ) );
-		m_Locked = false;
-	}
-
+	
 	// ping every 5 seconds
 	// changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
 	// changed this to ping during the game as well
@@ -471,6 +458,26 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 		m_LastPingTime = GetTime( );
 	}
+	
+	// send actions every m_Latency milliseconds
+	// actions are at the heart of every Warcraft 3 game but luckily we don't need to know their contents to relay them
+	// we queue player actions in EventPlayerAction then just resend them in batches to all players here
+
+	if( m_GameLoaded && !m_Lagging && GetTicks( ) - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
+		SendAllActions( );
+
+	// create the virtual host player
+
+	if( !m_GameLoading && !m_GameLoaded && GetNumPlayers( ) < 12 )
+		CreateVirtualHost( );
+
+	// unlock the game
+
+	if( m_Locked && !GetPlayerFromName( m_OwnerName, false ) )
+	{
+		SendAllChat( m_GHost->m_Language->GameUnlocked( ) );
+		m_Locked = false;
+	}	
 
 	// refresh every 3 seconds
 
@@ -599,13 +606,6 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			return true;
 		}
 	}	
-
-	// send actions every m_Latency milliseconds
-	// actions are at the heart of every Warcraft 3 game but luckily we don't need to know their contents to relay them
-	// we queue player actions in EventPlayerAction then just resend them in batches to all players here
-
-	if( m_GameLoaded && !m_Lagging && GetTicks( ) - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
-		SendAllActions( );
 
 	// expire the votekick
 
@@ -2616,7 +2616,7 @@ void CBaseGame :: ShuffleSlots( )
 	SendAllSlotInfo( );
 }
 
-void CBaseGame :: AddToSpoofed( string server, const string &name, bool sendMessage )
+void CBaseGame :: AddToSpoofed( const string &server, const string &name, bool sendMessage )
 {
 	CGamePlayer *Player = GetPlayerFromName( name, true );
 

@@ -212,7 +212,7 @@ public:
 	virtual void OpenAllSlots( );
 	virtual void CloseAllSlots( );
 	virtual void ShuffleSlots( );
-	virtual void AddToSpoofed( string server, const string &name, bool sendMessage );
+	virtual void AddToSpoofed( const string &server, const string &name, bool sendMessage );
 	virtual void AddToReserved( string name );
 	virtual bool IsOwner( string name );
 	virtual bool IsReserved( string name );
