@@ -215,6 +215,7 @@ unsigned int CBaseGame :: SetFD( void *fd, void *send_fd, int *nfds )
 
 bool CBaseGame :: Update( void *fd, void *send_fd )
 {
+	uint32_t Time = GetTime( ), Ticks = GetTicks( );
 	// update players
 
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); )
@@ -285,9 +286,9 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 				if( m_SyncCounter - (*i)->GetSyncCounter( ) > m_SyncLimit )
 				{
 					(*i)->SetLagging( true );
-					(*i)->SetStartedLaggingTicks( GetTicks( ) );
+					(*i)->SetStartedLaggingTicks( Ticks );
 					m_Lagging = true;
-					m_StartedLaggingTime = GetTime( );
+					m_StartedLaggingTime = Time;
 
 					if( LaggingString.empty( ) )
 						LaggingString = (*i)->GetName( );
@@ -308,7 +309,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 					(*i)->SetDropVote( false );
 
-				m_LastLagScreenResetTime = GetTime( );
+				m_LastLagScreenResetTime = Time;
 			}
 		}
 
@@ -330,7 +331,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			if( UsingGProxy )
 				WaitTime = ( m_GProxyEmptyActions + 1 ) * 60;
 
-			if( GetTime( ) - m_StartedLaggingTime >= WaitTime )
+			if( Time - m_StartedLaggingTime >= WaitTime )
 				StopLaggers( m_GHost->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( WaitTime ) ) );
 
 			// we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
@@ -338,7 +339,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			// another solution is to reset the lag screen the same way we reset it when using load-in-game
 			// this is required in order to give GProxy++ clients more time to reconnect
 
-			if( GetTime( ) - m_LastLagScreenResetTime >= 60 )
+			if( Time - m_LastLagScreenResetTime >= 60 )
 			{
 				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 				{
@@ -370,7 +371,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 					Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
 				}
 
-				m_LastLagScreenResetTime = GetTime( );
+				m_LastLagScreenResetTime = Time;
 			}
 
 			// check if anyone has stopped lagging normally
@@ -404,11 +405,11 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 			// reset m_LastActionSentTicks because we want the game to stop running while the lag screen is up
 
-			m_LastActionSentTicks = GetTicks( );
+			m_LastActionSentTicks = Ticks;
 
 			// keep track of the last lag screen time so we can avoid timing out players
 
-			m_LastLagScreenTime = GetTime( );
+			m_LastLagScreenTime = Time;
 		}
 	}
 	
@@ -416,7 +417,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 	// changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
 	// changed this to ping during the game as well
 
-	if( GetTime( ) - m_LastPingTime >= 5 )
+	if( Time - m_LastPingTime >= 5 )
 	{
 		// note: we must send pings to players who are downloading the map because Warcraft III disconnects from the lobby if it doesn't receive a ping every ~90 seconds
 		// so if the player takes longer than 90 seconds to download the map they would be disconnected unless we keep sending pings
@@ -456,7 +457,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
 		}
 
-		m_LastPingTime = GetTime( );
+		m_LastPingTime = Time;
 	}
 	
 	// send actions every m_Latency milliseconds
@@ -481,7 +482,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	// refresh every 3 seconds
 
-	if( !m_RefreshError && !m_CountDownStarted && m_GameState == GAME_PUBLIC && GetSlotsOpen( ) > 0 && GetTime( ) - m_LastRefreshTime >= 3 )
+	if( !m_RefreshError && !m_CountDownStarted && m_GameState == GAME_PUBLIC && GetSlotsOpen( ) > 0 && Time - m_LastRefreshTime >= 3 )
 	{
 		// send a game refresh packet to each battle.net connection		
 
@@ -493,12 +494,12 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 				(*i)->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
 		}
 
-		m_LastRefreshTime = GetTime( );
+		m_LastRefreshTime = Time;
 	}
 
 	// send more map data
 
-	if( !m_GameLoading && !m_GameLoaded && GetTicks( ) - m_LastDownloadCounterResetTicks >= 1000 )
+	if( !m_GameLoading && !m_GameLoaded && Ticks - m_LastDownloadCounterResetTicks >= 1000 )
 	{
 		// hackhack: another timer hijack is in progress here
 		// since the download counter is reset once per second it's a great place to update the slot info if necessary
@@ -507,10 +508,10 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			SendAllSlotInfo( );
 
 		m_DownloadCounter = 0;
-		m_LastDownloadCounterResetTicks = GetTicks( );
+		m_LastDownloadCounterResetTicks = Ticks;
 	}
 
-	if( !m_GameLoading && !m_GameLoaded && GetTicks( ) - m_LastDownloadTicks >= 100 )
+	if( !m_GameLoading && !m_GameLoaded && Ticks - m_LastDownloadTicks >= 100 )
 	{
 		uint32_t Downloaders = 0;
 
@@ -562,12 +563,12 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			}
 		}
 
-		m_LastDownloadTicks = GetTicks( );
+		m_LastDownloadTicks = Ticks;
 	}
 
 	// countdown every 500 ms
 
-	if( m_CountDownStarted && GetTicks( ) - m_LastCountDownTicks >= 500 )
+	if( m_CountDownStarted && Ticks - m_LastCountDownTicks >= 500 )
 	{
 		if( m_CountDownCounter > 0 )
 		{
@@ -580,7 +581,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		else if( !m_GameLoading && !m_GameLoaded )
 			EventGameStarted( );
 
-		m_LastCountDownTicks = GetTicks( );
+		m_LastCountDownTicks = Ticks;
 	}
 
 	// check if the lobby is "abandoned" and needs to be closed since it will never start
@@ -593,14 +594,14 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		{
 			if( (*i)->GetReserved( ) )
 			{
-				m_LastReservedSeen = GetTime( );
+				m_LastReservedSeen = Time;
 				break;
 			}
 		}
 
 		// check if we've hit the time limit
 
-		if( GetTime( ) - m_LastReservedSeen >= m_GHost->m_LobbyTimeLimit * 60 )
+		if( Time - m_LastReservedSeen >= m_GHost->m_LobbyTimeLimit * 60 )
 		{
 			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit)" );
 			return true;
@@ -609,7 +610,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	// expire the votekick
 
-	if( !m_KickVotePlayer.empty( ) && GetTime( ) - m_StartedKickVoteTime >= 60 )
+	if( !m_KickVotePlayer.empty( ) && Time - m_StartedKickVoteTime >= 60 )
 	{
 		CONSOLE_Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] expired" );
 		SendAllChat( m_GHost->m_Language->VoteKickExpired( m_KickVotePlayer ) );
@@ -622,12 +623,12 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 	if( m_Players.size( ) == 1 && m_FakePlayers.size( ) == 0 && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
 	{
 		CONSOLE_Print( "[GAME: " + m_GameName + "] gameover timer started (one player left)" );
-		m_GameOverTime = GetTime( );
+		m_GameOverTime = Time;
 	}
 
 	// finish the gameover timer
 
-	if( m_GameOverTime != 0 && GetTime( ) - m_GameOverTime >= 60 )
+	if( m_GameOverTime != 0 && Time - m_GameOverTime >= 60 )
 	{
 
 		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )

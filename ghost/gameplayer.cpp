@@ -231,22 +231,24 @@ uint32_t CGamePlayer :: GetPing( bool LCPing )
 
 bool CGamePlayer :: Update( void *fd )
 {
+	uint32_t Time = GetTime( );
+	
 	// check for socket timeouts
 	// if we don't receive anything from a player for 30 seconds we can assume they've dropped
 	// this works because in the lobby we send pings every 5 seconds and expect a response to each one
 	// and in the game the Warcraft 3 client sends keepalives frequently (at least once per second it looks like)
 
-	if( m_Socket && GetTime( ) - m_Socket->GetLastRecv( ) >= 35 )
+	if( m_Socket && Time - m_Socket->GetLastRecv( ) >= 35 )
 		m_Game->EventPlayerDisconnectTimedOut( this );
 
 	// GProxy++ acks
 
-	if( m_GProxy && GetTime( ) - m_LastGProxyAckTime >= 10 )
+	if( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
 	{
 		if( m_Socket )
 			m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
 
-		m_LastGProxyAckTime = GetTime( );
+		m_LastGProxyAckTime = Time;
 	}
 
 	// base class update
@@ -262,7 +264,7 @@ bool CGamePlayer :: Update( void *fd )
 	// wait 4 seconds after joining before sending the /whois or /w
 	// if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
 
-	if( m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty( ) && GetTime( ) - m_JoinTime >= 4 )
+	if( m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty( ) && Time - m_JoinTime >= 4 )
 	{
 		// todotodo: we could get kicked from battle.net for sending a command with invalid characters, do some basic checking
 

@@ -150,6 +150,8 @@ bool CBNET :: Update( void *fd, void *send_fd )
 {
 	if( m_Deactivated )
 		return m_Exiting;
+		
+	uint32_t Ticks = GetTicks( ), Time = GetTime( );
 
 	//
 	// update callables
@@ -428,7 +430,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 	// refresh the admin list every 5 minutes
 
-	if( !m_CallableAdminList && GetTime( ) - m_LastAdminRefreshTime >= 300 )
+	if( !m_CallableAdminList && Time - m_LastAdminRefreshTime >= 300 )
 		m_CallableAdminList = m_GHost->m_DB->ThreadedAdminList( m_Server );
 
 	if( m_CallableAdminList && m_CallableAdminList->GetReady( ) )
@@ -438,12 +440,12 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		m_GHost->m_DB->RecoverCallable( m_CallableAdminList );
 		delete m_CallableAdminList;
 		m_CallableAdminList = NULL;
-		m_LastAdminRefreshTime = GetTime( );
+		m_LastAdminRefreshTime = Time;
 	}
 
 	// refresh the ban list every 60 minutes
 
-	if( !m_CallableBanList && GetTime( ) - m_LastBanRefreshTime >= 3600 )
+	if( !m_CallableBanList && Time - m_LastBanRefreshTime >= 3600 )
 		m_CallableBanList = m_GHost->m_DB->ThreadedBanList( m_Server );
 
 	if( m_CallableBanList && m_CallableBanList->GetReady( ) )
@@ -457,7 +459,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		m_GHost->m_DB->RecoverCallable( m_CallableBanList );
 		delete m_CallableBanList;
 		m_CallableBanList = NULL;
-		m_LastBanRefreshTime = GetTime( );
+		m_LastBanRefreshTime = Time;
 	}
 
 	// we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
@@ -470,13 +472,13 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
 
-		if( m_Socket->GetError( ) == ECONNRESET && GetTime( ) - m_LastConnectionAttemptTime <= 15 )
+		if( m_Socket->GetError( ) == ECONNRESET && Time - m_LastConnectionAttemptTime <= 15 )
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] warning - you are probably temporarily IP banned from battle.net" );
 
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
 		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
 		m_Socket->Reset( );
-		m_LastDisconnectedTime = GetTime( );
+		m_LastDisconnectedTime = Time;
 		m_LoggedIn = false;
 		m_InChat = false;
 		m_WaitingToConnect = true;
@@ -491,7 +493,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
 		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
 		m_Socket->Reset( );
-		m_LastDisconnectedTime = GetTime( );
+		m_LastDisconnectedTime = Time;
 		m_LoggedIn = false;
 		m_InChat = false;
 		m_WaitingToConnect = true;
@@ -518,7 +520,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		else
 			WaitTicks = 4150;
 
-		if( !m_OutPackets.empty( ) && GetTicks( ) - m_LastOutPacketTicks >= WaitTicks )
+		if( !m_OutPackets.empty( ) && Ticks - m_LastOutPacketTicks >= WaitTicks )
 		{
 			if( m_OutPackets.size( ) > 7 )
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] packet queue warning - there are " + UTIL_ToString( m_OutPackets.size( ) ) + " packets waiting to be sent" );
@@ -526,25 +528,25 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_Socket->PutBytes( m_OutPackets.front( ) );
 			m_LastOutPacketSize = m_OutPackets.front( ).size( );
 			m_OutPackets.pop( );
-			m_LastOutPacketTicks = GetTicks( );
+			m_LastOutPacketTicks = Ticks;
 		}
 
 		// send a null packet every 60 seconds to detect disconnects
 
-		if( GetTime( ) - m_LastNullTime >= 60 && GetTicks( ) - m_LastOutPacketTicks >= 60000 )
+		if( Time - m_LastNullTime >= 60 && Ticks - m_LastOutPacketTicks >= 60000 )
 		{
 			m_Socket->PutBytes( m_Protocol->SEND_SID_NULL( ) );
-			m_LastNullTime = GetTime( );
+			m_LastNullTime = Time;
 		}
                 
 		// spam game every 4.25 seconds
 		
-		if( m_Spam && ( GetTicks( ) - m_LastSpamTicks > 4250 ) )
+		if( m_Spam && ( Ticks - m_LastSpamTicks > 4250 ) )
 		{
 			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 			{
 				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
-				m_LastSpamTicks = GetTicks( );
+				m_LastSpamTicks = Ticks;
 			}
 			else
 				m_Spam = false;
@@ -566,28 +568,28 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_Socket->PutBytes( m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR( ) );
 			m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_INFO( m_War3Version, m_LocaleID, m_CountryAbbrev, m_Country ) );
 			m_Socket->DoSend( (fd_set *)send_fd );
-			m_LastNullTime = GetTime( );
-			m_LastOutPacketTicks = GetTicks( );
+			m_LastNullTime = Time;
+			m_LastOutPacketTicks = Ticks;
 
 			while( !m_OutPackets.empty( ) )
 				m_OutPackets.pop( );
 
 			return m_Exiting;
 		}
-		else if( GetTime( ) - m_LastConnectionAttemptTime >= 15 )
+		else if( Time - m_LastConnectionAttemptTime >= 15 )
 		{
 			// the connection attempt timed out (15 seconds)
 
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] connect timed out" );
 			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
 			m_Socket->Reset( );
-			m_LastDisconnectedTime = GetTime( );
+			m_LastDisconnectedTime = Time;
 			m_WaitingToConnect = true;
 			return m_Exiting;
 		}
 	}
 
-	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( m_FirstConnect || GetTime( ) - m_LastDisconnectedTime >= 90 ) )
+	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( m_FirstConnect || Time - m_LastDisconnectedTime >= 90 ) )
 	{
 		// attempt to connect to battle.net
 
@@ -616,7 +618,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		}
 
 		m_WaitingToConnect = false;
-		m_LastConnectionAttemptTime = GetTime( );
+		m_LastConnectionAttemptTime = Time;
 	}
 
 	return m_Exiting;
