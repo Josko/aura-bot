@@ -648,25 +648,7 @@ bool CGHost :: Update( unsigned long usecBlock )
 	bool BNETExit = false, IRCExit = false;
 
 	// update current game
-
-	if( m_CurrentGame )
-	{
-		if( m_CurrentGame->Update( &fd, &send_fd ) )
-		{
-			CONSOLE_Print3( "[GHOST] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
-			delete m_CurrentGame;
-			m_CurrentGame = NULL;
-
-			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-			{
-				(*i)->QueueGameUncreate( );
-				(*i)->QueueEnterChat( );
-			}
-		}
-		else if( m_CurrentGame )
-			m_CurrentGame->UpdatePost( &send_fd );
-	}
-
+	
 	// update running games
 
 	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); )
@@ -684,6 +666,24 @@ bool CGHost :: Update( unsigned long usecBlock )
 			++i;
 		}
 	}
+
+	if( m_CurrentGame )
+	{
+		if( m_CurrentGame->Update( &fd, &send_fd ) )
+		{
+			CONSOLE_Print3( "[GHOST] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
+			delete m_CurrentGame;
+			m_CurrentGame = NULL;
+
+			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+			{
+				(*i)->QueueGameUncreate( );
+				(*i)->QueueEnterChat( );
+			}
+		}
+		else if( m_CurrentGame )
+			m_CurrentGame->UpdatePost( &send_fd );
+	}	
 
 	// update battle.net connections
 
