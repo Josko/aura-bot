@@ -55,7 +55,7 @@ CIncomingJoinPlayer *CGameProtocol :: RECEIVE_W3GS_REQJOIN( BYTEARRAY data )
 	// 1 byte					-> ???
 	// 2 bytes					-> Listen Port
 	// 4 bytes					-> Peer Key
-	// null terminated string	-> Name
+	// null terminated string			-> Name
 	// 4 bytes					-> ???
 	// 2 bytes					-> InternalPort (???)
 	// 4 bytes					-> InternalIP
@@ -154,7 +154,7 @@ CIncomingChatPlayer *CGameProtocol :: RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data 
 	// 1 byte					-> FromPID
 	// 1 byte					-> Flag
 	// if( Flag == 16 )
-	//		null term string	-> Message
+	//		null term string		-> Message
 	// elseif( Flag == 17 )
 	//		1 byte				-> Team
 	// elseif( Flag == 18 )
@@ -165,7 +165,7 @@ CIncomingChatPlayer *CGameProtocol :: RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data 
 	//		1 byte				-> Handicap
 	// elseif( Flag == 32 )
 	//		4 bytes				-> ExtraFlags
-	//		null term string	-> Message
+	//		null term string		-> Message
 
 	if( ValidateLength( data ) )
 	{
@@ -357,7 +357,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_REJECTJOIN( uint32_t reason )
 
 BYTEARRAY CGameProtocol :: SEND_W3GS_PLAYERINFO( unsigned char PID, string name, BYTEARRAY externalIP, BYTEARRAY internalIP )
 {
-	unsigned char PlayerJoinCounter[]	= { 2, 0, 0, 0 };
+	unsigned char PlayerJoinCounter[]		= { 2, 0, 0, 0 };
 	unsigned char Zeros[]				= { 0, 0, 0, 0 };
 
 	BYTEARRAY packet;

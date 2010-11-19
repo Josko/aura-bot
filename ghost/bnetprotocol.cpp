@@ -60,7 +60,7 @@ CIncomingGameHost *CBNETProtocol :: RECEIVE_SID_GETADVLISTEX( BYTEARRAY data )
 	//		10 bytes			-> ???
 	//		2 bytes				-> Port
 	//		4 bytes				-> IP
-	//		null term string	-> GameName
+	//		null term string		-> GameName
 	//		2 bytes				-> ???
 	//		8 bytes				-> HostCounter
 

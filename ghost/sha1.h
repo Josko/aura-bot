@@ -80,7 +80,6 @@ public:
 
 	// Finalize hash and report
 	void Final();
-	void ReportHash(char *szReport, unsigned char uReportType = REPORT_HEX);
 	void GetHash(unsigned char *uDest);
 
 private:
