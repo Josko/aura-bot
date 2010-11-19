@@ -471,7 +471,8 @@ void CDCC :: Connect( const string &IP, uint16_t Port )
 	m_IP = IP;
 	m_Port = Port;
 	
-	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );	
-			
+	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
+		
+	m_Socket->SetKeepAlive( );		
 	m_Socket->Connect( string( ), m_IP, m_Port );
 }

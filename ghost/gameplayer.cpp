@@ -231,29 +231,6 @@ uint32_t CGamePlayer :: GetPing( bool LCPing )
 
 bool CGamePlayer :: Update( void *fd )
 {
-	// wait 4 seconds after joining before sending the /whois or /w
-	// if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
-
-	if( m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty( ) && GetTime( ) - m_JoinTime >= 4 )
-	{
-		// todotodo: we could get kicked from battle.net for sending a command with invalid characters, do some basic checking
-
-                for( vector<CBNET *> :: iterator i = m_Game->m_GHost->m_BNETs.begin( ); i != m_Game->m_GHost->m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == m_JoinedRealm )
-			{
-				if( m_Game->GetGameState( ) == GAME_PUBLIC || (*i)->GetPasswordHashType( ) == "pvpgn" )
-				{
-					(*i)->QueueChatCommand( "/whois " + m_Name );
-				}
-				else if( m_Game->GetGameState( ) == GAME_PRIVATE )
-					(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
-			}
-		}
-
-		m_WhoisSent = true;
-	}
-
 	// check for socket timeouts
 	// if we don't receive anything from a player for 30 seconds we can assume they've dropped
 	// this works because in the lobby we send pings every 5 seconds and expect a response to each one
@@ -281,6 +258,29 @@ bool CGamePlayer :: Update( void *fd )
 		Deleting = m_DeleteMe || m_Error;
 	else
 		Deleting = m_DeleteMe || m_Error || m_Socket->HasError( ) || !m_Socket->GetConnected( );
+		
+	// wait 4 seconds after joining before sending the /whois or /w
+	// if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
+
+	if( m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty( ) && GetTime( ) - m_JoinTime >= 4 )
+	{
+		// todotodo: we could get kicked from battle.net for sending a command with invalid characters, do some basic checking
+
+                for( vector<CBNET *> :: iterator i = m_Game->m_GHost->m_BNETs.begin( ); i != m_Game->m_GHost->m_BNETs.end( ); ++i )
+		{
+			if( (*i)->GetServer( ) == m_JoinedRealm )
+			{
+				if( m_Game->GetGameState( ) == GAME_PUBLIC || (*i)->GetPasswordHashType( ) == "pvpgn" )
+				{
+					(*i)->QueueChatCommand( "/whois " + m_Name );
+				}
+				else if( m_Game->GetGameState( ) == GAME_PRIVATE )
+					(*i)->QueueChatCommand( m_Game->m_GHost->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
+			}
+		}
+
+		m_WhoisSent = true;
+	}
 
 	// try to find out why we're requesting deletion
 	// in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
