@@ -30,30 +30,16 @@ class CDBGame;
 class CDBGamePlayer;
 class CStats;
 class CIRC;
-class CCallableBanCheck;
-class CCallableBanAdd;
-class CCallableGameAdd;
-class CCallableGamePlayerSummaryCheck;
-class CCallableDotAPlayerSummaryCheck;
-
-typedef pair<string,CCallableBanCheck *> PairedBanCheck;
-typedef pair<string,CCallableBanAdd *> PairedBanAdd;
-typedef pair<string,CCallableGamePlayerSummaryCheck *> PairedGPSCheck;
-typedef pair<string,CCallableDotAPlayerSummaryCheck *> PairedDPSCheck;
 
 class CGame : public CBaseGame
 {
 protected:
 	CDBBan *m_DBBanLast;				// last ban for the !banlast command - this is a pointer to one of the items in m_DBBans
-	vector<CDBBan *> m_DBBans;	// vector of potential ban data for the database (see the Update function for more info, it's not as straightforward as you might think)
+	vector<CDBBan *> m_DBBans;			// vector of potential ban data for the database
 	CDBGame *m_DBGame;				// potential game data for the database
 	vector<CDBGamePlayer *> m_DBGamePlayers;	// vector of potential gameplayer data for the database
 	CStats *m_Stats;				// class to keep track of game stats such as kills/deaths/assists in dota
-	CCallableGameAdd *m_CallableGameAdd;		// threaded database game addition in progress
-	vector<PairedBanCheck> m_PairedBanChecks;	// vector of paired threaded database ban checks in progress
-	vector<PairedBanAdd> m_PairedBanAdds;		// vector of paired threaded database ban adds in progress
-	vector<PairedGPSCheck> m_PairedGPSChecks;	// vector of paired threaded database game player summary checks in progress
-	vector<PairedDPSCheck> m_PairedDPSChecks;	// vector of paired threaded database DotA player summary checks in progress
+	uint32_t m_GameID;				// GameID stored in the database
 
 public:
 	CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );

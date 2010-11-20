@@ -63,7 +63,7 @@ public:
 // CGame
 //
 
-CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : CBaseGame( nGHost, nMap, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_Stats( NULL ), m_CallableGameAdd( NULL )
+CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : CBaseGame( nGHost, nMap, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_Stats( NULL ), m_GameID( 0 )
 {
 	m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
 
@@ -73,41 +73,22 @@ CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nG
 
 CGame :: ~CGame( )
 {
-	if( m_CallableGameAdd && m_CallableGameAdd->GetReady( ) )
+	CONSOLE_Print( "[GAME: " + m_GameName + "] saving player/stats data to database" );
+
+	// store the CDBGamePlayers in the database
+
+	if( m_GameID )
 	{
-		if( m_CallableGameAdd->GetResult( ) > 0 )
-		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] saving player/stats data to database" );
+		for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); i++ )
+			m_GHost->m_DB->GamePlayerAdd( m_GameID, (*i)->GetName( ), (*i)->GetIP( ), (*i)->GetSpoofed( ), (*i)->GetSpoofedRealm( ), (*i)->GetReserved( ), (*i)->GetLoadingTime( ), (*i)->GetLeft( ), (*i)->GetLeftReason( ), (*i)->GetTeam( ), (*i)->GetColour( ) );
 
-			// store the CDBGamePlayers in the database
+		// store the stats in the database
 
-			for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); ++i )
-				m_GHost->m_Callables.push_back( m_GHost->m_DB->ThreadedGamePlayerAdd( m_CallableGameAdd->GetResult( ), (*i)->GetName( ), (*i)->GetIP( ), (*i)->GetSpoofed( ), (*i)->GetSpoofedRealm( ), (*i)->GetReserved( ), (*i)->GetLoadingTime( ), (*i)->GetLeft( ), (*i)->GetLeftReason( ), (*i)->GetTeam( ), (*i)->GetColour( ) ) );
-
-			// store the stats in the database
-
-			if( m_Stats )
-				m_Stats->Save( m_GHost, m_GHost->m_DB, m_CallableGameAdd->GetResult( ) );			
-		}
-		else
-			CONSOLE_Print( "[GAME: " + m_GameName + "] unable to save player/stats data to database" );
-
-		m_GHost->m_DB->RecoverCallable( m_CallableGameAdd );
-		delete m_CallableGameAdd;
-		m_CallableGameAdd = NULL;
+		if( m_Stats )
+			m_Stats->Save( m_GHost, m_GHost->m_DB, m_GameID );
 	}
-
-	for( vector<PairedBanCheck> :: iterator i = m_PairedBanChecks.begin( ); i != m_PairedBanChecks.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
+	else
+		CONSOLE_Print( "[GAME: " + m_GameName + "] unable to save player/stats data to database" );
 
 	for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
 		delete *i;
@@ -118,167 +99,10 @@ CGame :: ~CGame( )
 		delete *i;
 
 	delete m_Stats;
-
-	// it's a "bad thing" if m_CallableGameAdd is non NULL here
-	// it means the game is being deleted after m_CallableGameAdd was created (the first step to saving the game data) but before the associated thread terminated
-	// rather than failing horribly we choose to allow the thread to complete in the orphaned callables list but step 2 will never be completed
-	// so this will create a game entry in the database without any gameplayers and/or DotA stats
-
-	if( m_CallableGameAdd )
-	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] game is being deleted before all game data was saved, game data has been lost" );
-		m_GHost->m_Callables.push_back( m_CallableGameAdd );
-	}
 }
 
 bool CGame :: Update( void *fd, void *send_fd )
 {
-	// update callables
-
-	for( vector<PairedBanCheck> :: iterator i = m_PairedBanChecks.begin( ); i != m_PairedBanChecks.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			CDBBan *Ban = i->second->GetResult( );
-
-			if( Ban )
-				SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( i->second->GetServer( ), i->second->GetUser( ), Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
-			else
-				SendAllChat( m_GHost->m_Language->UserIsNotBanned( i->second->GetServer( ), i->second->GetUser( ) ) );
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedBanChecks.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			if( i->second->GetResult( ) )
-			{
-				for( vector<CBNET *> :: iterator j = m_GHost->m_BNETs.begin( ); j != m_GHost->m_BNETs.end( ); ++j )
-				{
-					if( (*j)->GetServer( ) == i->second->GetServer( ) )
-						(*j)->AddBan( i->second->GetUser( ), i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ), i->second->GetReason( ) );
-				}
-
-				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( i->second->GetServer( ), i->second->GetUser( ), i->first ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedBanAdds.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			CDBGamePlayerSummary *GamePlayerSummary = i->second->GetResult( );
-
-			if( GamePlayerSummary )
-			{
-				if( i->first.empty( ) )
-					SendAllChat( m_GHost->m_Language->HasPlayedGamesWithThisBot( i->second->GetName( ), GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
-				else
-				{
-					CGamePlayer *Player = GetPlayerFromName( i->first, true );
-
-					if( Player )
-						SendChat( Player, m_GHost->m_Language->HasPlayedGamesWithThisBot( i->second->GetName( ), GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
-				}
-			}
-			else
-			{
-				if( i->first.empty( ) )
-					SendAllChat( m_GHost->m_Language->HasntPlayedGamesWithThisBot( i->second->GetName( ) ) );
-				else
-				{
-					CGamePlayer *Player = GetPlayerFromName( i->first, true );
-
-					if( Player )
-						SendChat( Player, m_GHost->m_Language->HasntPlayedGamesWithThisBot( i->second->GetName( ) ) );
-				}
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedGPSChecks.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			CDBDotAPlayerSummary *DotAPlayerSummary = i->second->GetResult( );
-
-			if( DotAPlayerSummary )
-			{
-				string Summary = m_GHost->m_Language->HasPlayedDotAGamesWithThisBot(	i->second->GetName( ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-													UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 )
-												    );
-
-				if( i->first.empty( ) )
-					SendAllChat( Summary );
-				else
-				{
-					CGamePlayer *Player = GetPlayerFromName( i->first, true );
-
-					if( Player )
-						SendChat( Player, Summary );
-				}
-			}
-			else
-			{
-				if( i->first.empty( ) )
-					SendAllChat( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( i->second->GetName( ) ) );
-				else
-				{
-					CGamePlayer *Player = GetPlayerFromName( i->first, true );
-
-					if( Player )
-						SendChat( Player, m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( i->second->GetName( ) ) );
-				}
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedDPSChecks.erase( i );
-		}
-		else
-			++i;
-	}
-
 	return CBaseGame :: Update( fd, send_fd );
 }
 
@@ -346,6 +170,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 		if( ( (*i)->GetServer( ) == player->GetSpoofedRealm( ) || player->GetJoinedRealm( ).empty( ) ) && (*i)->IsRootAdmin( User ) )
 		{
 			RootAdminCheck = true;
+			AdminCheck = true;
 			break;
 		}
 	}
@@ -443,7 +268,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					if( Matches == 0 )
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
-						m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason ) ) );
+						m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
@@ -455,7 +280,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					if( Matches == 0 )
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
-						m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason ) ) );
+						m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason );
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
@@ -466,7 +291,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			//
 
 			else if( ( Command == "banlast" || Command == "bl" ) && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
-				m_PairedBanAdds.push_back( PairedBanAdd( User, m_GHost->m_DB->ThreadedBanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload ) ) );
+				m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
 
 			//
 			// !CHECK
@@ -520,8 +345,19 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			else if( Command == "checkban" && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
 			{
-				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-					m_PairedBanChecks.push_back( PairedBanCheck( User, m_GHost->m_DB->ThreadedBanCheck( (*i)->GetServer( ), Payload, string( ) ) ) );
+				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+				{
+					CDBBan *Ban = m_GHost->m_DB->BanCheck( (*i)->GetServer( ), Payload, string( ) );
+
+					if( Ban )
+					{
+						SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( (*i)->GetServer( ), Payload, Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
+						delete Ban;
+						Ban = NULL;
+					}
+					else
+						SendAllChat( m_GHost->m_Language->UserIsNotBanned( (*i)->GetServer( ), Payload ) );
+				}					
 			}
 
 			//
@@ -1631,9 +1467,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			StatsUser = Payload;
 
 		if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
-			m_PairedGPSChecks.push_back( PairedGPSCheck( string( ), m_GHost->m_DB->ThreadedGamePlayerSummaryCheck( StatsUser ) ) );
+			m_GHost->m_DB->GamePlayerSummaryCheck( StatsUser );
 		else
-			m_PairedGPSChecks.push_back( PairedGPSCheck( User, m_GHost->m_DB->ThreadedGamePlayerSummaryCheck( StatsUser ) ) );
+			m_GHost->m_DB->GamePlayerSummaryCheck( StatsUser );
 
 		player->SetStatsSentTime( GetTime( ) );
 	}
@@ -1650,9 +1486,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			StatsUser = Payload;
 
 		if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
-			m_PairedDPSChecks.push_back( PairedDPSCheck( string( ), m_GHost->m_DB->ThreadedDotAPlayerSummaryCheck( StatsUser ) ) );
+			m_GHost->m_DB->DotAPlayerSummaryCheck( StatsUser );
 		else
-			m_PairedDPSChecks.push_back( PairedDPSCheck( User, m_GHost->m_DB->ThreadedDotAPlayerSummaryCheck( StatsUser ) ) );
+			m_GHost->m_DB->DotAPlayerSummaryCheck( StatsUser );
 
 		player->SetStatsDotASentTime( GetTime( ) );
 	}
@@ -1774,11 +1610,12 @@ void CGame :: EventGameStarted( )
 
 bool CGame :: IsGameDataSaved( )
 {
-	return m_CallableGameAdd && m_CallableGameAdd->GetReady( );
+	return true;
 }
 
 void CGame :: SaveGameData( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] saving game data to database" );
-	m_CallableGameAdd = m_GHost->m_DB->ThreadedGameAdd( m_GHost->m_BNETs.size( ) == 1 ? m_GHost->m_BNETs[0]->GetServer( ) : string( ), m_DBGame->GetMap( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
+	
+	m_GameID = m_GHost->m_DB->GameAdd( m_GHost->m_BNETs.size( ) == 1 ? m_GHost->m_BNETs[0]->GetServer( ) : string( ), m_DBGame->GetMap( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
 }

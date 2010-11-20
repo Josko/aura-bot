@@ -46,8 +46,6 @@ CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDK
 	m_Socket = new CTCPClient( );
 	m_Protocol = new CBNETProtocol( );
 	m_BNCSUtil = new CBNCSUtilInterface( nUserName, nUserPassword );
-	m_CallableAdminList = m_GHost->m_DB->ThreadedAdminList( nServer );
-	m_CallableBanList = m_GHost->m_DB->ThreadedBanList( nServer );
 
 	if( !nServerAlias.empty( ) )
 		m_ServerAlias = nServerAlias;
@@ -93,40 +91,8 @@ CBNET :: ~CBNET( )
 
 	for( vector<CIncomingClanList *> :: iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
 		delete *i;
-
-	for( vector<PairedAdminCount> :: iterator i = m_PairedAdminCounts.begin( ); i != m_PairedAdminCounts.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedAdminAdd> :: iterator i = m_PairedAdminAdds.begin( ); i != m_PairedAdminAdds.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedAdminRemove> :: iterator i = m_PairedAdminRemoves.begin( ); i != m_PairedAdminRemoves.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedBanCount> :: iterator i = m_PairedBanCounts.begin( ); i != m_PairedBanCounts.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedBanRemove> :: iterator i = m_PairedBanRemoves.begin( ); i != m_PairedBanRemoves.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); ++i )
-		m_GHost->m_Callables.push_back( i->second );
-
-	if( m_CallableAdminList )
-		m_GHost->m_Callables.push_back( m_CallableAdminList );
-
-	if( m_CallableBanList )
-		m_GHost->m_Callables.push_back( m_CallableBanList );
-
-	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); ++i )
-		delete *i;
 }
+	
 
 BYTEARRAY CBNET :: GetUniqueName( )
 {
@@ -152,315 +118,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		return m_Exiting;
 		
 	uint32_t Ticks = GetTicks( ), Time = GetTime( );
-
-	//
-	// update callables
-	//
-
-	for( vector<PairedAdminCount> :: iterator i = m_PairedAdminCounts.begin( ); i != m_PairedAdminCounts.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			uint32_t Count = i->second->GetResult( );
-
-			if( Count == 0 )
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ThereAreNoAdmins( m_Server ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ThereAreNoAdmins( m_Server ) );
-			}
-			else if( Count == 1 )
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ThereIsAdmin( m_Server ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ThereIsAdmin( m_Server ) );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedAdminCounts.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedAdminAdd> :: iterator i = m_PairedAdminAdds.begin( ); i != m_PairedAdminAdds.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			if( i->second->GetResult( ) )
-			{
-				AddAdmin( i->second->GetUser( ) );
-				
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->AddedUserToAdminDatabase( m_Server, i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->AddedUserToAdminDatabase( m_Server, i->second->GetUser( ) ) );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ErrorAddingUserToAdminDatabase( m_Server, i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ErrorAddingUserToAdminDatabase( m_Server, i->second->GetUser( ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedAdminAdds.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedAdminRemove> :: iterator i = m_PairedAdminRemoves.begin( ); i != m_PairedAdminRemoves.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			if( i->second->GetResult( ) )
-			{
-				RemoveAdmin( i->second->GetUser( ) );
-				
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->DeletedUserFromAdminDatabase( m_Server, i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->DeletedUserFromAdminDatabase( m_Server, i->second->GetUser( ) ) );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ErrorDeletingUserFromAdminDatabase( m_Server, i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ErrorDeletingUserFromAdminDatabase( m_Server, i->second->GetUser( ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedAdminRemoves.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedBanCount> :: iterator i = m_PairedBanCounts.begin( ); i != m_PairedBanCounts.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			uint32_t Count = i->second->GetResult( );
-
-			if( Count == 0 )
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ) );
-			}
-			else if( Count == 1 )
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ThereIsBannedUser( m_Server ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ThereIsBannedUser( m_Server ) );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedBanCounts.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedBanAdd> :: iterator i = m_PairedBanAdds.begin( ); i != m_PairedBanAdds.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			if( i->second->GetResult( ) )
-			{
-				AddBan( i->second->GetUser( ), i->second->GetIP( ), i->second->GetGameName( ), i->second->GetAdmin( ), i->second->GetReason( ) );
-				
-				if( !m_IRC )				
-					QueueChatCommand( m_GHost->m_Language->BannedUser( i->second->GetServer( ), i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->BannedUser( i->second->GetServer( ), i->second->GetUser( ) ) );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ErrorBanningUser( i->second->GetServer( ), i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ErrorBanningUser( i->second->GetServer( ), i->second->GetUser( ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedBanAdds.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedBanRemove> :: iterator i = m_PairedBanRemoves.begin( ); i != m_PairedBanRemoves.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			if( i->second->GetResult( ) )
-			{
-				RemoveBan( i->second->GetUser( ) );
-				
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->UnbannedUser( i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->UnbannedUser( i->second->GetUser( ) ) );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->ErrorUnbanningUser( i->second->GetUser( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->ErrorUnbanningUser( i->second->GetUser( ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedBanRemoves.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			CDBGamePlayerSummary *GamePlayerSummary = i->second->GetResult( );			
-
-			if( GamePlayerSummary )
-			{
-				string Response = m_GHost->m_Language->HasPlayedGamesWithThisBot( i->second->GetName( ), GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) );
-				
-				if( !m_IRC )
-					QueueChatCommand( Response, i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( Response );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->HasntPlayedGamesWithThisBot( i->second->GetName( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->HasntPlayedGamesWithThisBot( i->second->GetName( ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedGPSChecks.erase( i );
-		}
-		else
-			++i;
-	}
-
-	for( vector<PairedDPSCheck> :: iterator i = m_PairedDPSChecks.begin( ); i != m_PairedDPSChecks.end( ); )
-	{
-		if( i->second->GetReady( ) )
-		{
-			CDBDotAPlayerSummary *DotAPlayerSummary = i->second->GetResult( );
-
-			if( DotAPlayerSummary )
-			{
-				string Summary = m_GHost->m_Language->HasPlayedDotAGamesWithThisBot(	i->second->GetName( ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-                                                                                                        UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) );
-
-				if( !m_IRC )
-					QueueChatCommand( Summary, i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( Summary );
-			}
-			else
-			{
-				if( !m_IRC )
-					QueueChatCommand( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( i->second->GetName( ) ), i->first, !i->first.empty( ), false );
-				else
-					IRC_Print( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( i->second->GetName( ) ) );
-			}
-
-			m_GHost->m_DB->RecoverCallable( i->second );
-			delete i->second;
-			i = m_PairedDPSChecks.erase( i );
-		}
-		else
-			++i;
-	}
-
-	// refresh the admin list every 5 minutes
-
-	if( !m_CallableAdminList && Time - m_LastAdminRefreshTime >= 300 )
-		m_CallableAdminList = m_GHost->m_DB->ThreadedAdminList( m_Server );
-
-	if( m_CallableAdminList && m_CallableAdminList->GetReady( ) )
-	{
-		// CONSOLE_Print( "[BNET: " + m_ServerAlias + "] refreshed admin list (" + UTIL_ToString( m_Admins.size( ) ) + " -> " + UTIL_ToString( m_CallableAdminList->GetResult( ).size( ) ) + " admins)" );
-		m_Admins = m_CallableAdminList->GetResult( );
-		m_GHost->m_DB->RecoverCallable( m_CallableAdminList );
-		delete m_CallableAdminList;
-		m_CallableAdminList = NULL;
-		m_LastAdminRefreshTime = Time;
-	}
-
-	// refresh the ban list every 60 minutes
-
-	if( !m_CallableBanList && Time - m_LastBanRefreshTime >= 3600 )
-		m_CallableBanList = m_GHost->m_DB->ThreadedBanList( m_Server );
-
-	if( m_CallableBanList && m_CallableBanList->GetReady( ) )
-	{
-		// CONSOLE_Print( "[BNET: " + m_ServerAlias + "] refreshed ban list (" + UTIL_ToString( m_Bans.size( ) ) + " -> " + UTIL_ToString( m_CallableBanList->GetResult( ).size( ) ) + " bans)" );
-
-		for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); ++i )
-			delete *i;
-
-		m_Bans = m_CallableBanList->GetResult( );
-		m_GHost->m_DB->RecoverCallable( m_CallableBanList );
-		delete m_CallableBanList;
-		m_CallableBanList = NULL;
-		m_LastBanRefreshTime = Time;
-	}
 
 	// we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
 	// that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
@@ -984,8 +641,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					{
 						if( IsAdmin( Payload ) )
 							QueueChatCommand( m_GHost->m_Language->UserIsAlreadyAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+						else if( m_GHost->m_DB->AdminAdd( m_Server, Payload ) )						
+							QueueChatCommand( m_GHost->m_Language->AddedUserToAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
 						else
-							m_PairedAdminAdds.push_back( PairedAdminAdd( Whisper ? User : string( ), m_GHost->m_DB->ThreadedAdminAdd( m_Server, Payload ) ) );
+							QueueChatCommand( m_GHost->m_Language->ErrorAddingUserToAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
 					}
 					else
 						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
@@ -1018,8 +677,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 					if( IsBannedName( Victim ) )
 						QueueChatCommand( m_GHost->m_Language->UserIsAlreadyBanned( m_Server, Victim ), User, Whisper, m_IRC );
+					else if ( m_GHost->m_DB->BanAdd( m_Server, Victim, string( ), string( ), User, Reason ) )
+						QueueChatCommand( m_GHost->m_Language->BannedUser( m_Server, Victim ), User, Whisper, m_IRC );
 					else
-						m_PairedBanAdds.push_back( PairedBanAdd( Whisper ? User : string( ), m_GHost->m_DB->ThreadedBanAdd( m_Server, Victim, string( ), string( ), User, Reason ) ) );
+						QueueChatCommand( m_GHost->m_Language->ErrorBanningUser( m_Server, Victim ), User, Whisper, m_IRC );				
 				}
 
 				//
@@ -1110,7 +771,16 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				else if( Command == "countadmins" )
 				{
 					if( IsRootAdmin( User ) )
-						m_PairedAdminCounts.push_back( PairedAdminCount( Whisper ? User : string( ), m_GHost->m_DB->ThreadedAdminCount( m_Server ) ) );
+					{
+						uint32_t Count = m_GHost->m_DB->AdminCount( m_Server );
+
+                        			if( Count == 0 )
+                               				QueueChatCommand( m_GHost->m_Language->ThereAreNoAdmins( m_Server ), User, Whisper, m_IRC );
+                        			else if( Count == 1 )
+                                			QueueChatCommand( m_GHost->m_Language->ThereIsAdmin( m_Server ), User, Whisper, m_IRC );
+                        			else
+                                			QueueChatCommand( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+					}
 					else
 						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
 				}
@@ -1120,7 +790,16 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 
 				else if( Command == "countbans" )
-					m_PairedBanCounts.push_back( PairedBanCount( Whisper ? User : string( ), m_GHost->m_DB->ThreadedBanCount( m_Server ) ) );
+				{
+					uint32_t Count = m_GHost->m_DB->BanCount( m_Server );				 
+
+                        		if( Count == 0 )
+                               			QueueChatCommand( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ), User, Whisper, m_IRC );
+                        		else if( Count == 1 )
+                                		QueueChatCommand( m_GHost->m_Language->ThereIsBannedUser( m_Server ), User, Whisper, m_IRC );
+                        		else
+                                		QueueChatCommand( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+				}
 
 				//
 				// !DELADMIN
@@ -1132,8 +811,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					{
 						if( !IsAdmin( Payload ) )
 							QueueChatCommand( m_GHost->m_Language->UserIsNotAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+						else if(  m_GHost->m_DB->AdminRemove( m_Server, Payload ) )
+							QueueChatCommand( m_GHost->m_Language->DeletedUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
 						else
-							m_PairedAdminRemoves.push_back( PairedAdminRemove( Whisper ? User : string( ), m_GHost->m_DB->ThreadedAdminRemove( m_Server, Payload ) ) );
+							QueueChatCommand( m_GHost->m_Language->ErrorDeletingUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
 					}
 					else
 						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
@@ -1145,7 +826,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 
 				else if( ( Command == "delban" || Command == "unban" ) && !Payload.empty( ) )
-					m_PairedBanRemoves.push_back( PairedBanRemove( Whisper ? User : string( ), m_GHost->m_DB->ThreadedBanRemove( Payload ) ) );
+				{
+					if( m_GHost->m_DB->BanRemove( Payload ) )					
+						QueueChatCommand( m_GHost->m_Language->UnbannedUser( Payload ), User, Whisper, m_IRC );					
+					else
+						QueueChatCommand( m_GHost->m_Language->ErrorUnbanningUser( Payload ), User, Whisper, m_IRC );
+				}
 
 				//
 				// !DISABLE
@@ -1166,8 +852,20 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !DOWNLOADS
 				//
 
-				else if( ( Command == "downloads" || Command == "dls" ) && !Payload.empty( ) )
+				else if( ( Command == "downloads" || Command == "dls" ) )
 				{
+					if( Payload.empty( ) )
+					{
+						if( m_GHost->m_AllowDownloads == 0 )						
+							QueueChatCommand( m_GHost->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );					
+						else if( m_GHost->m_AllowDownloads == 1 )						
+							QueueChatCommand( m_GHost->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );					
+						else if( m_GHost->m_AllowDownloads == 2 )						
+							QueueChatCommand( m_GHost->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
+							
+						return;				
+					}
+				
 					uint32_t Downloads = UTIL_ToUInt32( Payload );
 
 					if( Downloads == 0 )
@@ -1947,10 +1645,17 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						StatsUser = Payload;
 
 					// check for potential abuse
-
+					
 					if( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
-						m_PairedGPSChecks.push_back( PairedGPSCheck( Whisper ? User : string( ), m_GHost->m_DB->ThreadedGamePlayerSummaryCheck( StatsUser ) ) );
-				}
+					{					
+					 	CDBGamePlayerSummary *GamePlayerSummary = m_GHost->m_DB->GamePlayerSummaryCheck( StatsUser );
+
+                        			if( GamePlayerSummary )
+                                			QueueChatCommand( m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ), User, Whisper, m_IRC );
+                       				else
+                                			QueueChatCommand( m_GHost->m_Language->HasntPlayedGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
+                                	}					
+                                }
 				
 				//
 				// !GETGAME
@@ -2007,7 +1712,41 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					// check for potential abuse
 
 					if( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
-						m_PairedDPSChecks.push_back( PairedDPSCheck( Whisper ? User : string( ), m_GHost->m_DB->ThreadedDotAPlayerSummaryCheck( StatsUser ) ) );
+					{					
+					 	CDBDotAPlayerSummary *DotAPlayerSummary = m_GHost->m_DB->DotAPlayerSummaryCheck( StatsUser );
+
+			                        if( DotAPlayerSummary )
+			                        {
+			                                string Summary = m_GHost->m_Language->HasPlayedDotAGamesWithThisBot(    
+			                                	StatsUser,
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ), 
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
+			                                	UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) 
+			                                	);
+			
+			                                	QueueChatCommand( Summary, User, Whisper, m_IRC );
+			                        }
+                        			else
+                                			QueueChatCommand( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
+                                	}
 				}
 
 				//
@@ -2279,11 +2018,8 @@ bool CBNET :: IsAdmin( string name )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 
-	for( vector<string> :: iterator i = m_Admins.begin( ); i != m_Admins.end( ); ++i )
-	{
-		if( *i == name )
-			return true;
-	}
+	if( m_GHost->m_DB->AdminCheck( m_Server, name ) )
+		return true;
 
 	return false;
 }
@@ -2317,53 +2053,10 @@ CDBBan *CBNET :: IsBannedName( string name )
 {
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 
-	// todotodo: optimize this - maybe use a map?
-
-	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); ++i )
-	{
-		if( (*i)->GetName( ) == name )
-			return *i;
-	}
-
+	if( CDBBan *Ban = m_GHost->m_DB->BanCheck( m_Server, name, string ( ) ) )
+		return Ban;
+		
 	return NULL;
-}
-
-void CBNET :: AddAdmin( string name )
-{
-	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
-	m_Admins.push_back( name );
-}
-
-void CBNET :: AddBan( string name, const string &ip, const string &gamename, const string &admin, const string &reason )
-{
-	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
-	m_Bans.push_back( new CDBBan( m_Server, name, ip, "N/A", gamename, admin, reason ) );
-}
-
-void CBNET :: RemoveAdmin( string name )
-{
-	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
-
-	for( vector<string> :: iterator i = m_Admins.begin( ); i != m_Admins.end( ); )
-	{
-		if( *i == name )
-			i = m_Admins.erase( i );
-		else
-			++i;
-	}
-}
-
-void CBNET :: RemoveBan( string name )
-{
-	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
-
-	for( vector<CDBBan *> :: iterator i = m_Bans.begin( ); i != m_Bans.end( ); )
-	{
-		if( (*i)->GetName( ) == name )
-			i = m_Bans.erase( i );
-		else
-			++i;
-	}
 }
 
 void CBNET :: HoldFriends( CBaseGame *game )

@@ -36,7 +36,6 @@ class CSHA1;
 class CBNET;
 class CBaseGame;
 class CGHostDB;
-class CBaseCallable;
 class CLanguage;
 class CMap;
 class CConfig;
@@ -56,8 +55,7 @@ public:
 	vector<CBNET *> m_BNETs;		// all our battle.net connections (there can be more than one)
 	CBaseGame *m_CurrentGame;		// this game is still in the lobby state
 	vector<CBaseGame *> m_Games;		// these games are in progress
-	CGHostDB *m_DB;				// database
-	vector<CBaseCallable *> m_Callables;	// vector of orphaned callables waiting to die	
+	CGHostDB *m_DB;				// database	
 	CLanguage *m_Language;			// language
 	CMap *m_Map;				// the currently loaded map
 	bool m_Exiting;				// set to true to force ghost to shutdown next update (used by SignalCatcher)

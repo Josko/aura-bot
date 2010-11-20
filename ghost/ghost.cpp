@@ -278,7 +278,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.80" ), m_HostCounter( 1 )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.81" ), m_HostCounter( 1 )
 {
 	vector<string> channels, locals;
 
@@ -430,14 +430,6 @@ CGHost :: ~CGHost( )
 		delete *i;
 
 	delete m_DB;
-
-	// warning: we don't delete any entries of m_Callables here because we can't be guaranteed that the associated threads have terminated
-	// this is fine if the program is currently exiting because the OS will clean up after us
-	// but if you try to recreate the CGHost object within a single session you will probably leak resources!
-
-	if( !m_Callables.empty( ) )
-		CONSOLE_Print( "[GHOST] warning - " + UTIL_ToString( m_Callables.size( ) ) + " orphaned callables were leaked (this is not an error)" );
-
 	delete m_Language;
 	delete m_Map;
 	delete m_IRC;
@@ -445,20 +437,6 @@ CGHost :: ~CGHost( )
 
 inline bool CGHost :: Update( unsigned long usecBlock )
 {
-	// update callables
-
-	for( vector<CBaseCallable *> :: iterator i = m_Callables.begin( ); i != m_Callables.end( ); )
-	{
-		if( (*i)->GetReady( ) )
-		{
-			m_DB->RecoverCallable( *i );
-			delete *i;
-			i = m_Callables.erase( i );
-		}
-		else
-			++i;
-	}
-
 	// create the GProxy++ reconnect listener
 
 	if( m_Reconnect )
@@ -543,11 +521,6 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 			usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
 	}
 
-	// always block for at least 1ms just in case something goes wrong
-	// this prevents the bot from sucking up all the available CPU if a game keeps asking for immediate updates
-	// it's a bit ridiculous to include this check since, in theory, the bot is programmed well enough to never make this mistake
-	// however, considering who programmed it, it's worthwhile to do it anyway
-
 	struct timeval tv;
 	tv.tv_sec = 0;
 	tv.tv_usec = usecBlock;
@@ -572,9 +545,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 		MILLISLEEP( 100 );
 	}
 	
-	bool BNETExit = false, IRCExit = false;
-
-	// update current game
+	bool BNETExit = false, IRCExit = false;	
 	
 	// update running games
 
@@ -593,6 +564,8 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 			++i;
 		}
 	}
+
+	// update current game
 
 	if( m_CurrentGame )
 	{

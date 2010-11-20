@@ -32,28 +32,9 @@ class CBNETProtocol;
 class CIncomingFriendList;
 class CIncomingClanList;
 class CIncomingChatEvent;
-class CCallableAdminCount;
-class CCallableAdminAdd;
-class CCallableAdminRemove;
-class CCallableAdminList;
-class CCallableBanCount;
-class CCallableBanAdd;
-class CCallableBanRemove;
-class CCallableBanList;
-class CCallableGamePlayerSummaryCheck;
-class CCallableDotAPlayerSummaryCheck;
 class CDBBan;
 class CIRC;
 class CDCC;
-
-typedef pair<string,CCallableAdminCount *> PairedAdminCount;
-typedef pair<string,CCallableAdminAdd *> PairedAdminAdd;
-typedef pair<string,CCallableAdminRemove *> PairedAdminRemove;
-typedef pair<string,CCallableBanCount *> PairedBanCount;
-typedef pair<string,CCallableBanAdd *> PairedBanAdd;
-typedef pair<string,CCallableBanRemove *> PairedBanRemove;
-typedef pair<string,CCallableGamePlayerSummaryCheck *> PairedGPSCheck;
-typedef pair<string,CCallableDotAPlayerSummaryCheck *> PairedDPSCheck;
 
 class CBNET
 {
@@ -68,18 +49,7 @@ private:
 	queue<BYTEARRAY> m_OutPackets;				// queue of outgoing packets to be sent (to prevent getting kicked for flooding)
 	vector<CIncomingFriendList *> m_Friends;		// vector of friends
 	vector<CIncomingClanList *> m_Clans;			// vector of clan members
-	vector<PairedAdminCount> m_PairedAdminCounts;		// vector of paired threaded database admin counts in progress
-	vector<PairedAdminAdd> m_PairedAdminAdds;		// vector of paired threaded database admin adds in progress
-	vector<PairedAdminRemove> m_PairedAdminRemoves;		// vector of paired threaded database admin removes in progress
-	vector<PairedBanCount> m_PairedBanCounts;		// vector of paired threaded database ban counts in progress
-	vector<PairedBanAdd> m_PairedBanAdds;			// vector of paired threaded database ban adds in progress
-	vector<PairedBanRemove> m_PairedBanRemoves;		// vector of paired threaded database ban removes in progress
-	vector<PairedGPSCheck> m_PairedGPSChecks;		// vector of paired threaded database game player summary checks in progress
-	vector<PairedDPSCheck> m_PairedDPSChecks;		// vector of paired threaded database DotA player summary checks in progress
-	CCallableAdminList *m_CallableAdminList;		// threaded database admin list in progress
-	CCallableBanList *m_CallableBanList;			// threaded database ban list in progress
-	vector<string> m_Admins;				// vector of cached admins
-	vector<CDBBan *> m_Bans;				// vector of cached bans
+	// vector<CDBBan *> m_Bans;				// vector of cached bans
 	bool m_Exiting;						// set to true and this class will be deleted next update
 	bool m_Spam;						// spam game in allstars
 	string m_Server;					// battle.net server to connect to
@@ -170,10 +140,6 @@ public:
 	bool IsAdmin( string name );
 	bool IsRootAdmin( string name );
 	CDBBan *IsBannedName( string name );
-	void AddAdmin( string name );
-	void AddBan( string name, const string &ip, const string &gamename, const string &admin, const string &reason );
-	void RemoveAdmin( string name );
-	void RemoveBan( string name );
 	void HoldFriends( CBaseGame *game );
 	void HoldClan( CBaseGame *game );
 };
