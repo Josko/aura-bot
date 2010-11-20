@@ -73,8 +73,6 @@ CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nG
 
 CGame :: ~CGame( )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] saving player/stats data to database" );
-
 	// store the CDBGamePlayers in the database
 
 	if( m_GameID )
@@ -1459,38 +1457,88 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 	// !STATS
 	//
 
-	else if( Command == "stats" && GetTime( ) - player->GetStatsSentTime( ) >= 5 )
+	else if( Command == "stats" )
 	{
 		string StatsUser = User;
 
 		if( !Payload.empty( ) )
 			StatsUser = Payload;
 
-		if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
-			m_GHost->m_DB->GamePlayerSummaryCheck( StatsUser );
-		else
-			m_GHost->m_DB->GamePlayerSummaryCheck( StatsUser );
-
-		player->SetStatsSentTime( GetTime( ) );
+		if( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
+		{					
+			CDBGamePlayerSummary *GamePlayerSummary = m_GHost->m_DB->GamePlayerSummaryCheck( StatsUser );
+			
+			if( GamePlayerSummary )
+			{
+                       		if( player->GetSpoofed( ) && ( m_GHost->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
+					SendAllChat( m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
+				else
+					SendChat( player, m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
+                               
+                       		delete GamePlayerSummary;
+				GamePlayerSummary = NULL;
+			}
+               	}
 	}
 
 	//
 	// !STATSDOTA
 	//
 
-	else if( Command == "statsdota" && GetTime( ) - player->GetStatsDotASentTime( ) >= 5 )
+	else if( Command == "statsdota" )
 	{
 		string StatsUser = User;
 
 		if( !Payload.empty( ) )
 			StatsUser = Payload;
 
-		if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
-			m_GHost->m_DB->DotAPlayerSummaryCheck( StatsUser );
-		else
-			m_GHost->m_DB->DotAPlayerSummaryCheck( StatsUser );
+		if( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
+		{					
+		 	CDBDotAPlayerSummary *DotAPlayerSummary = m_GHost->m_DB->DotAPlayerSummaryCheck( StatsUser );
 
-		player->SetStatsDotASentTime( GetTime( ) );
+                        if( DotAPlayerSummary )
+			{
+				string Summary = m_GHost->m_Language->HasPlayedDotAGamesWithThisBot(    
+			        StatsUser,
+			       	UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ), 
+			        UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
+			       	UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
+			        UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) 
+			     );			                 
+
+				if( player->GetSpoofed( ) && ( m_GHost->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
+					SendAllChat( Summary );
+				else
+					SendChat( player, Summary );
+	
+				delete DotAPlayerSummary;
+				DotAPlayerSummary = NULL;
+			}
+			else
+			{
+				if( player->GetSpoofed( ) && ( m_GHost->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
+					SendAllChat( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ) );
+				else
+					SendChat( player, m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ) );
+			}
+		}
 	}
 
 	//
@@ -1606,11 +1654,6 @@ void CGame :: EventGameStarted( )
 	{
 		m_DBBans.push_back( new CDBBan( (*i)->GetJoinedRealm( ), (*i)->GetName( ), (*i)->GetExternalIPString( ), string( ), string( ), string( ), string( ) ) );
 	}
-}
-
-bool CGame :: IsGameDataSaved( )
-{
-	return true;
 }
 
 void CGame :: SaveGameData( )

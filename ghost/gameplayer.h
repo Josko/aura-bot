@@ -101,8 +101,6 @@ private:
 	uint32_t m_FinishedDownloadingTime;			// GetTime when the player finished downloading the map
 	uint32_t m_FinishedLoadingTicks;			// GetTicks when the player finished loading the game
 	uint32_t m_StartedLaggingTicks;				// GetTicks when the player started lagging
-	uint32_t m_StatsSentTime;				// GetTime when we sent this player's stats to the chat (to prevent players from spamming !stats)
-	uint32_t m_StatsDotASentTime;				// GetTime when we sent this player's dota stats to the chat (to prevent players from spamming !statsdota)
 	uint32_t m_LastGProxyWaitNoticeSentTime;
 	bool m_LoggedIn;					// if the player has logged in or not (used with CAdminGame only)
 	bool m_Spoofed;						// if the player has spoof checked or not
@@ -147,8 +145,6 @@ public:
 	uint32_t GetFinishedDownloadingTime( )				{ return m_FinishedDownloadingTime; }
 	uint32_t GetFinishedLoadingTicks( )				{ return m_FinishedLoadingTicks; }
 	uint32_t GetStartedLaggingTicks( )				{ return m_StartedLaggingTicks; }
-	uint32_t GetStatsSentTime( )					{ return m_StatsSentTime; }
-	uint32_t GetStatsDotASentTime( )				{ return m_StatsDotASentTime; }
 	uint32_t GetLastGProxyWaitNoticeSentTime( )			{ return m_LastGProxyWaitNoticeSentTime; }
 	bool GetLoggedIn( )						{ return m_LoggedIn; }
 	bool GetSpoofed( )						{ return m_Spoofed; }
@@ -177,8 +173,6 @@ public:
 	void SetStartedDownloadingTicks( uint32_t nStartedDownloadingTicks )			{ m_StartedDownloadingTicks = nStartedDownloadingTicks; }
 	void SetFinishedDownloadingTime( uint32_t nFinishedDownloadingTime )			{ m_FinishedDownloadingTime = nFinishedDownloadingTime; }
 	void SetStartedLaggingTicks( uint32_t nStartedLaggingTicks )				{ m_StartedLaggingTicks = nStartedLaggingTicks; }
-	void SetStatsSentTime( uint32_t nStatsSentTime )					{ m_StatsSentTime = nStatsSentTime; }
-	void SetStatsDotASentTime( uint32_t nStatsDotASentTime )				{ m_StatsDotASentTime = nStatsDotASentTime; }
 	void SetLastGProxyWaitNoticeSentTime( uint32_t nLastGProxyWaitNoticeSentTime )		{ m_LastGProxyWaitNoticeSentTime = nLastGProxyWaitNoticeSentTime; }
 	void SetLoggedIn( bool nLoggedIn )							{ m_LoggedIn = nLoggedIn; }
 	void SetSpoofed( bool nSpoofed )							{ m_Spoofed = nSpoofed; }

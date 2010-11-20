@@ -1654,6 +1654,9 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
                                 			QueueChatCommand( m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ), User, Whisper, m_IRC );
                        				else
                                 			QueueChatCommand( m_GHost->m_Language->HasntPlayedGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
+                                			
+                                		delete GamePlayerSummary;
+						GamePlayerSummary = NULL;
                                 	}					
                                 }
 				
@@ -1743,6 +1746,9 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			                                	);
 			
 			                                	QueueChatCommand( Summary, User, Whisper, m_IRC );
+			                                	
+			                                	delete DotAPlayerSummary;
+			                                	DotAPlayerSummary = NULL;
 			                        }
                         			else
                                 			QueueChatCommand( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
