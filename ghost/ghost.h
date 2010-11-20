@@ -96,7 +96,7 @@ public:
 
 	// processing functions
 
-	bool Update( unsigned long usecBlock );
+	inline bool Update( unsigned long usecBlock );
 
 	// events
 

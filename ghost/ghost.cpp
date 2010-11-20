@@ -291,7 +291,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.79" )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_ExitingNice( false ), m_Enabled( true ), m_Version( "0.79" ), m_HostCounter( 1 ), m_AllGamesFinished( false )
 {
 	vector<string> channels, locals;
 
@@ -323,26 +323,19 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_Version( "0.79" )
         m_UDPSocket = new CUDPSocket( );
 	m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
 	m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
-	m_ReconnectSocket = NULL;
 	m_GPSProtocol = new CGPSProtocol( );
 	m_CRC = new CCRC32( );
 	m_CRC->Initialize( );
-	m_SHA = new CSHA1( );
-	m_CurrentGame = NULL;
-	CONSOLE_Print( "[GHOST] opening primary database" );
-	m_DB = new CGHostDBSQLite( CFG );
-	m_Language = NULL;
-	
-	m_Exiting = false;
-	m_ExitingNice = false;
-	m_Enabled = true;
-	m_HostCounter = 1;
-	m_AllGamesFinished = false;
+	m_SHA = new CSHA1( );	
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
 	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
 	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6114 );
 	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
 	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
+	
+	CONSOLE_Print( "[GHOST] opening primary database" );
+	m_DB = new CGHostDBSQLite( CFG );
+	
 	SetConfigs( CFG );
 
 	// load the battle.net connections
@@ -463,58 +456,8 @@ CGHost :: ~CGHost( )
 	delete m_IRC;
 }
 
-bool CGHost :: Update( unsigned long usecBlock )
+inline bool CGHost :: Update( unsigned long usecBlock )
 {
-	// todotodo: do we really want to shutdown if there's a database error? is there any way to recover from this?
-
-	if( m_DB->HasError( ) )
-	{
-		CONSOLE_Print( "[GHOST] database error - " + m_DB->GetError( ) );
-		return true;
-	}
-
-	// try to exit nicely if requested to do so
-
-	if( m_ExitingNice )
-	{
-		if( !m_BNETs.empty( ) )
-		{
-			CONSOLE_Print( "[GHOST] deleting all battle.net connections in preparation for exiting nicely" );
-
-			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-				delete *i;
-
-			m_BNETs.clear( );
-		}
-
-		if( m_CurrentGame )
-		{
-			CONSOLE_Print( "[GHOST] deleting current game in preparation for exiting nicely" );
-			delete m_CurrentGame;
-			m_CurrentGame = NULL;
-		}
-
-		if( m_Games.empty( ) )
-		{
-			if( !m_AllGamesFinished )
-			{
-				CONSOLE_Print( "[GHOST] all games finished, waiting 60 seconds for threads to finish" );
-				CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads in progress" );
-				m_AllGamesFinished = true;
-			}
-			else
-			{
-				if( m_Callables.empty( ) )
-				{
-					CONSOLE_Print( "[GHOST] all threads finished, exiting nicely" );
-					m_Exiting = true;
-				}
-				else 
-					CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads still in progress which will be terminated" );
-			}
-		}
-	}
-
 	// update callables
 
 	for( vector<CBaseCallable *> :: iterator i = m_Callables.begin( ); i != m_Callables.end( ); )
@@ -617,9 +560,6 @@ bool CGHost :: Update( unsigned long usecBlock )
 	// this prevents the bot from sucking up all the available CPU if a game keeps asking for immediate updates
 	// it's a bit ridiculous to include this check since, in theory, the bot is programmed well enough to never make this mistake
 	// however, considering who programmed it, it's worthwhile to do it anyway
-
-	if( usecBlock < 1000 )
-		usecBlock = 1000;
 
 	struct timeval tv;
 	tv.tv_sec = 0;
@@ -812,6 +752,48 @@ bool CGHost :: Update( unsigned long usecBlock )
 		(*i)->DoSend( &send_fd );
 		++i;
 	}
+	
+	// try to exit nicely if requested to do so
+
+	if( m_ExitingNice )
+	{
+		if( !m_BNETs.empty( ) )
+		{
+			CONSOLE_Print( "[GHOST] deleting all battle.net connections in preparation for exiting nicely" );
+
+			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+				delete *i;
+
+			m_BNETs.clear( );
+		}
+
+		if( m_CurrentGame )
+		{
+			CONSOLE_Print( "[GHOST] deleting current game in preparation for exiting nicely" );
+			delete m_CurrentGame;
+			m_CurrentGame = NULL;
+		}
+
+		if( m_Games.empty( ) )
+		{
+			if( !m_AllGamesFinished )
+			{
+				CONSOLE_Print( "[GHOST] all games finished, waiting 60 seconds for threads to finish" );
+				CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads in progress" );
+				m_AllGamesFinished = true;
+			}
+			else
+			{
+				if( m_Callables.empty( ) )
+				{
+					CONSOLE_Print( "[GHOST] all threads finished, exiting nicely" );
+					m_Exiting = true;
+				}
+				else 
+					CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads still in progress which will be terminated" );
+			}
+		}
+	}
 
 	return m_Exiting || BNETExit || IRCExit;
 }
@@ -820,11 +802,6 @@ void CGHost :: EventBNETGameRefreshFailed( CBNET *bnet )
 {
 	if( m_CurrentGame )
 	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			(*i)->QueueChatCommand( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
-		}
-
 		m_CurrentGame->SendAllChat( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
 		
 		CONSOLE_Print3( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name." );
