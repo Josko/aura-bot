@@ -266,7 +266,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					if( Matches == 0 )
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
+					{
 						m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
+					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
@@ -278,7 +280,10 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					if( Matches == 0 )
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
-						m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason );
+					{
+						if( m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason ) )
+						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
+					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
@@ -289,7 +294,10 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			//
 
 			else if( ( Command == "banlast" || Command == "bl" ) && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
-				m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
+			{
+				if( m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload ) )
+					SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), User ) );
+			}
 
 			//
 			// !CHECK
