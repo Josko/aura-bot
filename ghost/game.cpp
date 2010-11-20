@@ -338,19 +338,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 	// todotodo: don't be lazy
 
 	string User = player->GetName( ), Command = command, Payload = payload;
-
-	bool AdminCheck = false;
-
-	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-	{
-		if( ( (*i)->GetServer( ) == player->GetSpoofedRealm( ) || player->GetJoinedRealm( ).empty( ) ) && (*i)->IsAdmin( User ) )
-		{
-			AdminCheck = true;
-			break;
-		}
-	}
-
-	bool RootAdminCheck = false;
+	
+	bool AdminCheck = false, RootAdminCheck = false;
 
 	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 	{
@@ -360,6 +349,18 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			break;
 		}
 	}
+	
+	if( !RootAdminCheck )
+	{
+		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+		{
+			if( ( (*i)->GetServer( ) == player->GetSpoofedRealm( ) || player->GetJoinedRealm( ).empty( ) ) && (*i)->IsAdmin( User ) )
+			{
+				AdminCheck = true;
+				break;
+			}
+		}
+	}	
 
 	if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
 	{
@@ -1401,7 +1402,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 					uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-					m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", GetTime( ) - m_CreationTime, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
+					m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
 				}
 			}
 
