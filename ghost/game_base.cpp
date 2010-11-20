@@ -250,7 +250,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 	// actions are at the heart of every Warcraft 3 game but luckily we don't need to know their contents to relay them
 	// we queue player actions in EventPlayerAction then just resend them in batches to all players here
 
-	if( m_GameLoaded && !m_Lagging && GetTicks( ) - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
+	if( m_GameLoaded && !m_Lagging && Ticks - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
 		SendAllActions( );
 		
 	// ping every 5 seconds
@@ -524,7 +524,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 						// overwrite the "started download ticks" since this is the first time we've sent any map data to the player
 						// prior to this we've only determined if the player needs to download the map but it's possible we could have delayed sending any data due to download limits
 
-						(*i)->SetStartedDownloadingTicks( GetTicks( ) );
+						(*i)->SetStartedDownloadingTicks( Ticks );
 					}
 
 					// limit the download speed if we're sending too much data
@@ -559,7 +559,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 		if( FinishedLoading )
 		{			
-			m_LastActionSentTicks = GetTicks( );
+			m_LastActionSentTicks = Ticks;
 			m_GameLoading = false;
 			m_GameLoaded = true;
 			EventGameLoaded( );

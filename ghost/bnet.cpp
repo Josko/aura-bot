@@ -1237,10 +1237,8 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				else if( Command == "exit" || Command == "quit" )
 				{
 					if( IsRootAdmin( User ) )
-					{
-						if( Payload == "nice" )
-							m_GHost->m_ExitingNice = true;
-						else if( Payload == "force" )
+					{						
+						if( Payload == "force" )
 							m_Exiting = true;
 						else
 						{

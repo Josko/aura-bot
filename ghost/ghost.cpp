@@ -112,7 +112,7 @@ uint32_t GetTicks( )
 #endif
 }
 
-void SignalCatcher2( int s )
+void SignalCatcher( int s )
 {
 	CONSOLE_Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
 
@@ -123,19 +123,6 @@ void SignalCatcher2( int s )
 		else
 			gGHost->m_Exiting = true;
 	}
-	else
-		exit( 1 );
-}
-
-void SignalCatcher( int s )
-{
-	// signal( SIGABRT, SignalCatcher2 );
-	signal( SIGINT, SignalCatcher2 );
-
-	CONSOLE_Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting nicely" );
-
-	if( gGHost )
-		gGHost->m_ExitingNice = true;
 	else
 		exit( 1 );
 }
@@ -291,7 +278,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_ExitingNice( false ), m_Enabled( true ), m_Version( "0.79" ), m_HostCounter( 1 ), m_AllGamesFinished( false )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.80" ), m_HostCounter( 1 )
 {
 	vector<string> channels, locals;
 
@@ -751,49 +738,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 
 		(*i)->DoSend( &send_fd );
 		++i;
-	}
-	
-	// try to exit nicely if requested to do so
-
-	if( m_ExitingNice )
-	{
-		if( !m_BNETs.empty( ) )
-		{
-			CONSOLE_Print( "[GHOST] deleting all battle.net connections in preparation for exiting nicely" );
-
-			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-				delete *i;
-
-			m_BNETs.clear( );
-		}
-
-		if( m_CurrentGame )
-		{
-			CONSOLE_Print( "[GHOST] deleting current game in preparation for exiting nicely" );
-			delete m_CurrentGame;
-			m_CurrentGame = NULL;
-		}
-
-		if( m_Games.empty( ) )
-		{
-			if( !m_AllGamesFinished )
-			{
-				CONSOLE_Print( "[GHOST] all games finished, waiting 60 seconds for threads to finish" );
-				CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads in progress" );
-				m_AllGamesFinished = true;
-			}
-			else
-			{
-				if( m_Callables.empty( ) )
-				{
-					CONSOLE_Print( "[GHOST] all threads finished, exiting nicely" );
-					m_Exiting = true;
-				}
-				else 
-					CONSOLE_Print( "[GHOST] there are " + UTIL_ToString( m_Callables.size( ) ) + " threads still in progress which will be terminated" );
-			}
-		}
-	}
+	}		
 
 	return m_Exiting || BNETExit || IRCExit;
 }
