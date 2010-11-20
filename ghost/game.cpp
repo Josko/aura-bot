@@ -1656,6 +1656,11 @@ void CGame :: EventGameStarted( )
 	}
 }
 
+bool CGame :: IsGameDataSaved( )
+{
+	return m_GameID;
+}
+
 void CGame :: SaveGameData( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] saving game data to database" );

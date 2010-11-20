@@ -50,6 +50,7 @@ public:
 	virtual void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
 	virtual bool EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload );
 	virtual void EventGameStarted( );
+	virtual bool IsGameDataSaved( );
 	virtual void SaveGameData( );
 };
 
