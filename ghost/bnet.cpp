@@ -674,9 +674,16 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						if( Start != string :: npos )
 							Reason = Reason.substr( Start );
 					}
+					
+					CDBBan *Ban = IsBannedName( Victim );
 
-					if( IsBannedName( Victim ) )
+					if( Ban )
+					{
 						QueueChatCommand( m_GHost->m_Language->UserIsAlreadyBanned( m_Server, Victim ), User, Whisper, m_IRC );
+						
+						delete Ban;
+						Ban = NULL;
+					}
 					else if ( m_GHost->m_DB->BanAdd( m_Server, Victim, string( ), string( ), User, Reason ) )
 						QueueChatCommand( m_GHost->m_Language->BannedUser( m_Server, Victim ), User, Whisper, m_IRC );
 					else
@@ -1667,7 +1674,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !GETGAME
 				//
 
-				else if( Command == "getgame" && !Payload.empty( ) )
+				else if( ( Command == "getgame" || Command == "g" ) && !Payload.empty( ) )
 				{
 					uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
@@ -1681,7 +1688,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !GETGAMES
 				//
 
-				else if( Command == "getgames" )
+				else if( ( Command == "getgames" || Command == "g" ) && Payload.empty( ) )
 				{
 					if( m_GHost->m_CurrentGame )
 						QueueChatCommand( m_GHost->m_Language->GameIsInTheLobby( m_GHost->m_CurrentGame->GetDescription( ), UTIL_ToString( m_GHost->m_Games.size( ) ), UTIL_ToString( m_GHost->m_MaxGames ) ), User, Whisper, m_IRC );

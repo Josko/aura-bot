@@ -25,28 +25,28 @@
 // CGameProtocol
 //
 
-#define W3GS_HEADER_CONSTANT		247
+#define W3GS_HEADER_CONSTANT			247
 
-#define GAME_NONE					0		// this case isn't part of the protocol, it's for internal use only
-#define GAME_FULL					2
-#define GAME_PUBLIC					16
+#define GAME_NONE				0		// this case isn't part of the protocol, it's for internal use only
+#define GAME_FULL				2
+#define GAME_PUBLIC				16
 #define GAME_PRIVATE				17
 
 #define GAMETYPE_CUSTOM				1
 #define GAMETYPE_BLIZZARD			9
 
-#define PLAYERLEAVE_DISCONNECT		1
+#define PLAYERLEAVE_DISCONNECT			1
 #define PLAYERLEAVE_LOST			7
-#define PLAYERLEAVE_LOSTBUILDINGS	8
+#define PLAYERLEAVE_LOSTBUILDINGS		8
 #define PLAYERLEAVE_WON				9
 #define PLAYERLEAVE_DRAW			10
-#define PLAYERLEAVE_OBSERVER		11
+#define PLAYERLEAVE_OBSERVER			11
 #define PLAYERLEAVE_LOBBY			13
 #define PLAYERLEAVE_GPROXY			100
 
 #define REJECTJOIN_FULL				9
 #define REJECTJOIN_STARTED			10
-#define REJECTJOIN_WRONGPASSWORD	27
+#define REJECTJOIN_WRONGPASSWORD		27
 
 #include "gameslot.h"
 
@@ -66,21 +66,21 @@ public:
 		W3GS_SLOTINFOJOIN		= 4,	// 0x04
 		W3GS_REJECTJOIN			= 5,	// 0x05
 		W3GS_PLAYERINFO			= 6,	// 0x06
-		W3GS_PLAYERLEAVE_OTHERS	= 7,	// 0x07
-		W3GS_GAMELOADED_OTHERS	= 8,	// 0x08
+		W3GS_PLAYERLEAVE_OTHERS		= 7,	// 0x07
+		W3GS_GAMELOADED_OTHERS		= 8,	// 0x08
 		W3GS_SLOTINFO			= 9,	// 0x09
-		W3GS_COUNTDOWN_START	= 10,	// 0x0A
+		W3GS_COUNTDOWN_START		= 10,	// 0x0A
 		W3GS_COUNTDOWN_END		= 11,	// 0x0B
-		W3GS_INCOMING_ACTION	= 12,	// 0x0C
+		W3GS_INCOMING_ACTION		= 12,	// 0x0C
 		W3GS_CHAT_FROM_HOST		= 15,	// 0x0F
 		W3GS_START_LAG			= 16,	// 0x10
 		W3GS_STOP_LAG			= 17,	// 0x11
-		W3GS_HOST_KICK_PLAYER	= 28,	// 0x1C
+		W3GS_HOST_KICK_PLAYER		= 28,	// 0x1C
 		W3GS_REQJOIN			= 30,	// 0x1E
 		W3GS_LEAVEGAME			= 33,	// 0x21
-		W3GS_GAMELOADED_SELF	= 35,	// 0x23
-		W3GS_OUTGOING_ACTION	= 38,	// 0x26
-		W3GS_OUTGOING_KEEPALIVE	= 39,	// 0x27
+		W3GS_GAMELOADED_SELF		= 35,	// 0x23
+		W3GS_OUTGOING_ACTION		= 38,	// 0x26
+		W3GS_OUTGOING_KEEPALIVE		= 39,	// 0x27
 		W3GS_CHAT_TO_HOST		= 40,	// 0x28
 		W3GS_DROPREQ			= 41,	// 0x29
 		W3GS_SEARCHGAME			= 47,	// 0x2F (UDP/LAN)
@@ -89,7 +89,7 @@ public:
 		W3GS_REFRESHGAME		= 50,	// 0x32 (UDP/LAN)
 		W3GS_DECREATEGAME		= 51,	// 0x33 (UDP/LAN)
 		W3GS_CHAT_OTHERS		= 52,	// 0x34
-		W3GS_PING_FROM_OTHERS	= 53,	// 0x35
+		W3GS_PING_FROM_OTHERS		= 53,	// 0x35
 		W3GS_PONG_TO_OTHERS		= 54,	// 0x36
 		W3GS_MAPCHECK			= 61,	// 0x3D
 		W3GS_STARTDOWNLOAD		= 63,	// 0x3F
@@ -98,7 +98,7 @@ public:
 		W3GS_MAPPARTOK			= 68,	// 0x44
 		W3GS_MAPPARTNOTOK		= 69,	// 0x45 - just a guess, received this packet after forgetting to send a crc in W3GS_MAPPART (f7 45 0a 00 01 02 01 00 00 00)
 		W3GS_PONG_TO_HOST		= 70,	// 0x46
-		W3GS_INCOMING_ACTION2	= 72	// 0x48 - received this packet when there are too many actions to fit in W3GS_INCOMING_ACTION
+		W3GS_INCOMING_ACTION2		= 72	// 0x48 - received this packet when there are too many actions to fit in W3GS_INCOMING_ACTION
 	};
 
 	CGameProtocol( CGHost *nGHost );
@@ -131,8 +131,8 @@ public:
 	BYTEARRAY SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *> actions, uint16_t sendInterval );
 	BYTEARRAY SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> actions );
 	BYTEARRAY SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, string message );
-	BYTEARRAY SEND_W3GS_START_LAG( vector<CGamePlayer *> players, bool loadInGame = false );
-	BYTEARRAY SEND_W3GS_STOP_LAG( CGamePlayer *player, bool loadInGame = false );
+	BYTEARRAY SEND_W3GS_START_LAG( vector<CGamePlayer *> players );
+	BYTEARRAY SEND_W3GS_STOP_LAG( CGamePlayer *player );
 	BYTEARRAY SEND_W3GS_SEARCHGAME( unsigned char war3Version );
 	BYTEARRAY SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter );
 	BYTEARRAY SEND_W3GS_CREATEGAME( unsigned char war3Version );
@@ -168,7 +168,7 @@ public:
 
 	uint32_t GetHostCounter( )	{ return m_HostCounter; }
 	uint32_t GetEntryKey( )		{ return m_EntryKey; }
-	string GetName( )			{ return m_Name; }
+	string GetName( )		{ return m_Name; }
 	BYTEARRAY GetInternalIP( )	{ return m_InternalIP; }
 };
 
@@ -187,10 +187,10 @@ public:
 	CIncomingAction( unsigned char nPID, BYTEARRAY &nCRC, BYTEARRAY &nAction );
 	~CIncomingAction( );
 
-	unsigned char GetPID( )	{ return m_PID; }
+	unsigned char GetPID( )		{ return m_PID; }
 	BYTEARRAY GetCRC( )		{ return m_CRC; }
-	BYTEARRAY *GetAction( )	{ return &m_Action; }
-	uint32_t GetLength( )	{ return m_Action.size( ) + 3; }
+	BYTEARRAY *GetAction( )		{ return &m_Action; }
+	uint32_t GetLength( )		{ return m_Action.size( ) + 3; }
 };
 
 //
@@ -202,12 +202,12 @@ class CIncomingChatPlayer
 public:
 	enum ChatToHostType
 	{
-		CTH_MESSAGE			= 0,	// a chat message
+		CTH_MESSAGE		= 0,	// a chat message
 		CTH_MESSAGEEXTRA	= 1,	// a chat message with extra flags
 		CTH_TEAMCHANGE		= 2,	// a team change request
 		CTH_COLOURCHANGE	= 3,	// a colour change request
 		CTH_RACECHANGE		= 4,	// a race change request
-		CTH_HANDICAPCHANGE	= 5		// a handicap change request
+		CTH_HANDICAPCHANGE	= 5	// a handicap change request
 	};
 
 private:
@@ -244,7 +244,7 @@ public:
 	CIncomingMapSize( unsigned char nSizeFlag, uint32_t nMapSize );
 	~CIncomingMapSize( );
 
-	unsigned char GetSizeFlag( )	{ return m_SizeFlag; }
+	unsigned char GetSizeFlag( )		{ return m_SizeFlag; }
 	uint32_t GetMapSize( )			{ return m_MapSize; }
 };
 

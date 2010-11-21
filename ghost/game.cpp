@@ -63,12 +63,14 @@ public:
 // CGame
 //
 
-CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : CBaseGame( nGHost, nMap, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_Stats( NULL ), m_GameID( 0 )
+CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : CBaseGame( nGHost, nMap, nHostPort, nGameState, nGameName, nOwnerName, nCreatorName, nCreatorServer ), m_DBBanLast( NULL ), m_GameID( 0 )
 {
 	m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
 
 	if( m_Map->GetMapType( ) == "dota" )
-		m_Stats = new CStatsDOTA( this );	
+		m_Stats = new CStatsDOTA( this );
+	else
+		m_Stats = NULL;
 }
 
 CGame :: ~CGame( )
@@ -267,7 +269,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
 					{
-						m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
+						if( m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason ) )
+							SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetServer( ), LastMatch->GetName( ), User ) );
 					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
@@ -282,7 +285,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					else if( Matches == 1 )
 					{
 						if( m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason ) )
-						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
+							SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
 					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );

@@ -413,7 +413,7 @@ CDBBan *CGHostDBSQLite :: BanCheck( const string &server, string user, const str
 		else
 			m_DB->Prepare( "SELECT name, ip, date, gamename, admin, reason FROM bans WHERE (server=? AND name=?) OR ip=?", (void **)&BanCheckStmt );
 	}
-
+	
 	if( BanCheckStmt )
 	{
 		sqlite3_bind_text( (sqlite3_stmt *)BanCheckStmt, 1, server.c_str( ), -1, SQLITE_TRANSIENT );

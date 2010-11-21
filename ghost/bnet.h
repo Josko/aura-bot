@@ -62,7 +62,7 @@ private:
 	uint32_t m_LocaleID;					// see: http://msdn.microsoft.com/en-us/library/0h88fahh%28VS.85%29.aspx
 	string m_UserName;					// battle.net username
 	string m_UserPassword;					// battle.net password
-	string m_FirstChannel;				// the first chat channel to join upon entering chat (note: we hijack this to store the last channel when entering a game)
+	string m_FirstChannel;					// the first chat channel to join upon entering chat (note: store the last channel when entering a game)
 	string m_CurrentChannel;				// the current chat channel
 	string m_RootAdmin;					// the root admin
 	char m_CommandTrigger;					// the character prefix to identify commands

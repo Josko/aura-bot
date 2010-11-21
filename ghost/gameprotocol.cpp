@@ -549,52 +549,33 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTE
 	return packet;
 }
 
-BYTEARRAY CGameProtocol :: SEND_W3GS_START_LAG( vector<CGamePlayer *> players, bool loadInGame )
+BYTEARRAY CGameProtocol :: SEND_W3GS_START_LAG( vector<CGamePlayer *> players )
 {
 	BYTEARRAY packet;
 
 	unsigned char NumLaggers = 0;
 
 	for( vector<CGamePlayer *> :: iterator i = players.begin( ); i != players.end( ); ++i )
-	{
-		if( loadInGame )
-		{
-			if( !(*i)->GetFinishedLoading( ) )
-				++NumLaggers;
-		}
-		else
-		{
-			if( (*i)->GetLagging( ) )
-				++NumLaggers;
-		}
+	{		
+		if( (*i)->GetLagging( ) )
+			++NumLaggers;
 	}
 
 	if( NumLaggers > 0 )
 	{
 		packet.push_back( W3GS_HEADER_CONSTANT );	// W3GS header constant
-		packet.push_back( W3GS_START_LAG );			// W3GS_START_LAG
-		packet.push_back( 0 );						// packet length will be assigned later
-		packet.push_back( 0 );						// packet length will be assigned later
+		packet.push_back( W3GS_START_LAG );		// W3GS_START_LAG
+		packet.push_back( 0 );				// packet length will be assigned later
+		packet.push_back( 0 );				// packet length will be assigned later
 		packet.push_back( NumLaggers );
 
 		for( vector<CGamePlayer *> :: iterator i = players.begin( ); i != players.end( ); ++i )
-		{
-			if( loadInGame )
+		{			
+			if( (*i)->GetLagging( ) )
 			{
-				if( !(*i)->GetFinishedLoading( ) )
-				{
-					packet.push_back( (*i)->GetPID( ) );
-					UTIL_AppendByteArray( packet, (uint32_t)0, false );
-				}
-			}
-			else
-			{
-				if( (*i)->GetLagging( ) )
-				{
-					packet.push_back( (*i)->GetPID( ) );
-					UTIL_AppendByteArray( packet, GetTicks( ) - (*i)->GetStartedLaggingTicks( ), false );
-				}
-			}
+				packet.push_back( (*i)->GetPID( ) );
+				UTIL_AppendByteArray( packet, GetTicks( ) - (*i)->GetStartedLaggingTicks( ), false );
+			}			
 		}
 
 		AssignLength( packet );
@@ -607,7 +588,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_START_LAG( vector<CGamePlayer *> players, b
 	return packet;
 }
 
-BYTEARRAY CGameProtocol :: SEND_W3GS_STOP_LAG( CGamePlayer *player, bool loadInGame )
+BYTEARRAY CGameProtocol :: SEND_W3GS_STOP_LAG( CGamePlayer *player )
 {
 	BYTEARRAY packet;
 	packet.push_back( W3GS_HEADER_CONSTANT );	// W3GS header constant
@@ -616,10 +597,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_STOP_LAG( CGamePlayer *player, bool loadInG
 	packet.push_back( 0 );						// packet length will be assigned later
 	packet.push_back( player->GetPID( ) );
 
-	if( loadInGame )
-		UTIL_AppendByteArray( packet, (uint32_t)0, false );
-	else
-		UTIL_AppendByteArray( packet, GetTicks( ) - player->GetStartedLaggingTicks( ), false );
+	UTIL_AppendByteArray( packet, GetTicks( ) - player->GetStartedLaggingTicks( ), false );
 
 	AssignLength( packet );
 	// DEBUG_Print( "SENT W3GS_STOP_LAG" );
@@ -629,7 +607,7 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_STOP_LAG( CGamePlayer *player, bool loadInG
 
 BYTEARRAY CGameProtocol :: SEND_W3GS_SEARCHGAME( unsigned char war3Version )
 {
-	unsigned char ProductID_TFT[]	= {          80, 88, 51, 87 };	// "W3XP"
+	unsigned char ProductID_TFT[]		= {          80, 88, 51, 87 };	// "W3XP"
 	unsigned char Version[]			= { war3Version,  0,  0,  0 };
 	unsigned char Unknown[]			= {           0,  0,  0,  0 };
 
@@ -650,9 +628,9 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_SEARCHGAME( unsigned char war3Version )
 
 BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter )
 {
-	unsigned char ProductID_TFT[]	= {          80, 88, 51, 87 };	// "W3XP"
+	unsigned char ProductID_TFT[]		= {          80, 88, 51, 87 };	// "W3XP"
 	unsigned char Version[]			= { war3Version,  0,  0,  0 };
-	unsigned char Unknown1[]        = {           1,  2,  3,  4 };
+	unsigned char Unknown1[]        	= {           1,  2,  3,  4 };
 	unsigned char Unknown2[]		= {           1,  0,  0,  0 };
 
 	BYTEARRAY packet;
