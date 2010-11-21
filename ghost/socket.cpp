@@ -297,12 +297,6 @@ void CTCPSocket :: SetNoDelay( )
 	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
 }
 
-void CTCPSocket :: SetKeepAlive( )
-{
-	int OptVal = 1;
-	setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, (const char *)&OptVal, sizeof( int ) );	
-}
-
 //
 // CTCPClient
 //

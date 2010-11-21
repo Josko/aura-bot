@@ -156,7 +156,6 @@ public:
 	virtual void DoSend( fd_set *send_fd );
 	virtual void Disconnect( );
 	virtual void SetNoDelay( );
-	virtual void SetKeepAlive( );
 };
 
 //

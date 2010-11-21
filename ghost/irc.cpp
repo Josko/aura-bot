@@ -423,7 +423,7 @@ void CIRC :: SendMessageIRC( const string &message, const string &target )
 
 // Used for establishing a DCC Chat connection to other clients and sending large amounts of data
 
-CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, string nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ) 
+CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ) 
 {
 	m_Socket = new CTCPClient( );
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
@@ -474,7 +474,6 @@ void CDCC :: Connect( const string &IP, uint16_t Port )
 	m_Port = Port;
 	
 	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
-		
-	m_Socket->SetKeepAlive( );		
+			
 	m_Socket->Connect( string( ), m_IP, m_Port );
 }

@@ -50,7 +50,7 @@ public:
 	string m_IP;
 	uint16_t m_Port;
 	
-	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, string nNickname );
+	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname );
 	~CDCC( );
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
