@@ -269,8 +269,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
 					{
-						if( m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason ) )
-							SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetServer( ), LastMatch->GetName( ), User ) );
+						m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
+						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetServer( ), LastMatch->GetName( ), User ) );
 					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
@@ -284,8 +284,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
 					{
-						if( m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason ) )
-							SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
+						m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason );
+						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
 					}
 					else
 						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
@@ -298,8 +298,8 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			else if( ( Command == "banlast" || Command == "bl" ) && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
 			{
-				if( m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload ) )
-					SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), User ) );
+				m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
+				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), User ) );
 			}
 
 			//
@@ -776,7 +776,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			// !FPPAUSE
 			//
 
-			else if( Command == "fppause" && m_FakePlayers.size( ) && m_GameLoaded && m_FakePlayers.size( ) )
+			else if( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && m_FakePlayers.size( ) )
 			{
 				BYTEARRAY CRC;
 				BYTEARRAY Action;
@@ -788,7 +788,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			// !FPRESUME
 			//
 
-			else if( Command == "fpresume" && m_FakePlayers.size( ) && m_GameLoaded )
+			else if( ( Command == "fpresume" || Command == "fpr" ) && m_FakePlayers.size( ) && m_GameLoaded )
 			{
 				BYTEARRAY CRC;
 				BYTEARRAY Action;
@@ -1169,8 +1169,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						// the game creation message will be sent on the next refresh
 					}
 
-					m_CreationTime = GetTime( );
-					m_LastRefreshTime = GetTime( );
+					m_CreationTime = m_LastRefreshTime = GetTime( );
 				}
 				else
 					SendAllChat( m_GHost->m_Language->UnableToCreateGameNameTooLong( Payload ) );

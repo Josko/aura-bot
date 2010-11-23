@@ -55,10 +55,10 @@ CPotentialPlayer :: ~CPotentialPlayer( )
 
 BYTEARRAY CPotentialPlayer :: GetExternalIP( )
 {
-	unsigned char Zeros[] = { 0, 0, 0, 0 };
-
 	if( m_Socket )
 		return m_Socket->GetIP( );
+		
+	unsigned char Zeros[] = { 0, 0, 0, 0 };
 
 	return UTIL_CreateByteArray( Zeros, 4 );
 }

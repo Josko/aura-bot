@@ -213,6 +213,7 @@ unsigned int CBaseGame :: SetFD( void *fd, void *send_fd, int *nfds )
 bool CBaseGame :: Update( void *fd, void *send_fd )
 {
 	uint32_t Time = GetTime( ), Ticks = GetTicks( );
+	
 	// update players
 
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); )

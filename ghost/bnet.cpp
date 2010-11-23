@@ -1196,7 +1196,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 				// !DELETECFG
 				//
-				else if( Command == "deletecfg" && IsRootAdmin( User ) )
+				else if( Command == "deletecfg" && IsRootAdmin( User ) && !Payload.empty( ) )
 				{
 					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
 
@@ -1221,7 +1221,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 				// !DELETEMAP
 				//
-				else if( Command == "deletemap" && IsRootAdmin( User ) )
+				else if( Command == "deletemap" && IsRootAdmin( User ) && !Payload.empty( ) )
 				{
 					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
 
