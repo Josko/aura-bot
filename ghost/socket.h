@@ -211,19 +211,4 @@ public:
 	virtual void SetDontRoute( bool dontRoute );
 };
 
-//
-// CUDPServer
-//
-
-class CUDPServer : public CUDPSocket
-{
-public:
-	CUDPServer( );
-	virtual ~CUDPServer( );
-
-	virtual bool Bind( struct sockaddr_in sin );
-	virtual bool Bind( const string &address, uint16_t port );
-	virtual void RecvFrom( fd_set *fd, struct sockaddr_in *sin, string *message );
-};
-
 #endif

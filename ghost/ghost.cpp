@@ -132,7 +132,7 @@ void CONSOLE_Print( const string &message )
 	cout << message << endl;	
 
 	if( gGHost )
-		if( gGHost->m_IRC && gGHost->m_IRC->m_DCC.size( ) )
+		if( gGHost->m_IRC )
 			gGHost->m_IRC->SendDCC( message );
 }
 
@@ -176,7 +176,7 @@ int main( )
 	CConfig CFG;
 	CFG.Read( "default.cfg" );
 
-	CONSOLE_Print( "[GHOST] starting up" );
+	CONSOLE_Print( "[AURA] starting up" );
 
 	// signal( SIGABRT, SignalCatcher );
 	signal( SIGINT, SignalCatcher );
@@ -201,15 +201,15 @@ int main( )
 			break;
 		}
 		else if( i < 5 )
-			CONSOLE_Print( "[GHOST] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
+			CONSOLE_Print( "[AURA] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
 		else
 		{
-			CONSOLE_Print( "[GHOST] error setting Windows timer resolution" );
+			CONSOLE_Print( "[AURA] error setting Windows timer resolution" );
 			return 1;
 		}
 	}
 
-	CONSOLE_Print( "[GHOST] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
+	CONSOLE_Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
 #elif __APPLE__
 	// not sure how to get the resolution
 #else
@@ -218,26 +218,26 @@ int main( )
 	struct timespec Resolution;
 
 	if( clock_getres( CLOCK_MONOTONIC, &Resolution ) == -1 )
-		CONSOLE_Print( "[GHOST] error getting monotonic timer resolution" );
+		CONSOLE_Print( "[AURA] error getting monotonic timer resolution" );
 	else
-		CONSOLE_Print( "[GHOST] using monotonic timer with resolution " + UTIL_ToString( (double)( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
+		CONSOLE_Print( "[AURA] using monotonic timer with resolution " + UTIL_ToString( (double)( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
 #endif
 
 #ifdef WIN32
 	// initialize winsock
 
-	CONSOLE_Print( "[GHOST] starting winsock" );
+	CONSOLE_Print( "[AURA] starting winsock" );
 	WSADATA wsadata;
 
 	if( WSAStartup( MAKEWORD( 2, 2 ), &wsadata ) != 0 )
 	{
-		CONSOLE_Print( "[GHOST] error starting winsock" );
+		CONSOLE_Print( "[AURA] error starting winsock" );
 		return 1;
 	}
 
 	// increase process priority
 
-	CONSOLE_Print( "[GHOST] setting process priority to \"high\"" );
+	CONSOLE_Print( "[AURA] setting process priority to \"high\"" );
 	SetPriorityClass( GetCurrentProcess( ), HIGH_PRIORITY_CLASS );
 #endif
 
@@ -256,14 +256,14 @@ int main( )
 
 	// shutdown ghost
 
-	CONSOLE_Print( "[GHOST] shutting down" );
+	CONSOLE_Print( "[AURA] shutting down" );
 	delete gGHost;
 	gGHost = NULL;
 
 #ifdef WIN32
 	// shutdown winsock
 
-	CONSOLE_Print( "[GHOST] shutting down winsock" );
+	CONSOLE_Print( "[AURA] shutting down winsock" );
 	WSACleanup( );
 
 	// shutdown timer
@@ -278,7 +278,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.82" ), m_HostCounter( 1 )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.83" ), m_HostCounter( 1 )
 {
 	vector<string> channels, locals;
 
@@ -320,7 +320,7 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_C
 	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
 	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
 	
-	CONSOLE_Print( "[GHOST] opening primary database" );
+	CONSOLE_Print( "[AURA] opening primary database" );
 	m_DB = new CGHostDBSQLite( CFG );
 	
 	SetConfigs( CFG );
@@ -375,14 +375,14 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_C
 
 		if( Locale == "system" )
 		{
-			CONSOLE_Print( "[GHOST] using system locale of " + UTIL_ToString( LocaleID ) );
+			CONSOLE_Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
 		}
 
 		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength, i ) );
 	}
 
 	if( m_BNETs.empty( ) )
-		CONSOLE_Print( "[GHOST] warning - no battle.net connections found in config file" );
+		CONSOLE_Print( "[AURA] warning - no battle.net connections found in config file" );
 
 	// extract common.j and blizzard.j from War3Patch.mpq if we can
 	// these two files are necessary for calculating "map_crc" when loading maps so we make sure to do it before loading the default map
@@ -404,9 +404,9 @@ CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_C
 	LoadIPToCountryData( );
 
 	if( m_BNETs.empty( ) )
-		CONSOLE_Print( "[GHOST] warning - no battle.net connections found" );
+		CONSOLE_Print( "[AURA] warning - no battle.net connections found" );
 
-	CONSOLE_Print( "[GHOST] Aura++ Version " + m_Version + " (with over 9000 ECONNRESETs)" );
+	CONSOLE_Print( "[AURA] Aura++ Version " + m_Version + " (with over 9000 ECONNRESETs)" );
 }
 
 CGHost :: ~CGHost( )
@@ -446,10 +446,10 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 			m_ReconnectSocket = new CTCPServer( );
 
 			if( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
-				CONSOLE_Print( "[GHOST] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+				CONSOLE_Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
 			else
 			{
-				CONSOLE_Print( "[GHOST] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+				CONSOLE_Print( "[AURA] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
 				delete m_ReconnectSocket;
 				m_ReconnectSocket = NULL;
 				m_Reconnect = false;
@@ -457,7 +457,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 		}
 		else if( m_ReconnectSocket->HasError( ) )
 		{
-			CONSOLE_Print( "[GHOST] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
+			CONSOLE_Print( "[AURA] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
 			delete m_ReconnectSocket;
 			m_ReconnectSocket = NULL;
 			m_Reconnect = false;
@@ -553,7 +553,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 	{
 		if( (*i)->Update( &fd, &send_fd ) )
 		{
-			CONSOLE_Print3( "[GHOST] deleting game [" + (*i)->GetGameName( ) + "]" );
+			CONSOLE_Print3( "[AURA] deleting game [" + (*i)->GetGameName( ) + "]" );
 			EventGameDeleted( *i );
 			delete *i;
 			i = m_Games.erase( i );
@@ -571,7 +571,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 	{
 		if( m_CurrentGame->Update( &fd, &send_fd ) )
 		{
-			CONSOLE_Print3( "[GHOST] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
+			CONSOLE_Print3( "[AURA] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
 			delete m_CurrentGame;
 			m_CurrentGame = NULL;
 
@@ -775,7 +775,7 @@ void CGHost :: SetConfigs( CConfig *CFG )
 	if( m_VirtualHostName.size( ) > 15 )
 	{
 		m_VirtualHostName = "|cFF4080C0Aura";
-		CONSOLE_Print( "[GHOST] warning - bot_virtualhostname is longer than 15 characters, using default virtual host name" );
+		CONSOLE_Print( "[AURA] warning - bot_virtualhostname is longer than 15 characters, using default virtual host name" );
 	}
 
 	m_AutoLock = CFG->GetInt( "bot_autolock", 0 ) == 0 ? false : true;
@@ -806,7 +806,7 @@ void CGHost :: ExtractScripts( )
 
 	if( SFileOpenArchive( PatchMPQFileName.c_str( ), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ ) )
 	{
-		CONSOLE_Print( "[GHOST] loading MPQ file [" + PatchMPQFileName + "]" );
+		CONSOLE_Print( "[AURA] loading MPQ file [" + PatchMPQFileName + "]" );
 		HANDLE SubFile;
 
 		// common.j
@@ -822,11 +822,11 @@ void CGHost :: ExtractScripts( )
 
 				if( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
 				{
-					CONSOLE_Print( "[GHOST] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]" );
+					CONSOLE_Print( "[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]" );
 					UTIL_FileWrite( m_MapCFGPath + "common.j", (unsigned char *)SubFileData, BytesRead );
 				}
 				else
-					CONSOLE_Print( "[GHOST] warning - unable to extract Scripts\\common.j from MPQ file" );
+					CONSOLE_Print( "[AURA] warning - unable to extract Scripts\\common.j from MPQ file" );
 
 				delete [] SubFileData;
 			}
@@ -834,7 +834,7 @@ void CGHost :: ExtractScripts( )
 			SFileCloseFile( SubFile );
 		}
 		else
-			CONSOLE_Print( "[GHOST] couldn't find Scripts\\common.j in MPQ file" );
+			CONSOLE_Print( "[AURA] couldn't find Scripts\\common.j in MPQ file" );
 
 		// blizzard.j
 
@@ -849,11 +849,11 @@ void CGHost :: ExtractScripts( )
 
 				if( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
 				{
-					CONSOLE_Print( "[GHOST] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]" );
+					CONSOLE_Print( "[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]" );
 					UTIL_FileWrite( m_MapCFGPath + "blizzard.j", (unsigned char *)SubFileData, BytesRead );
 				}
 				else
-					CONSOLE_Print( "[GHOST] warning - unable to extract Scripts\\blizzard.j from MPQ file" );
+					CONSOLE_Print( "[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file" );
 
 				delete [] SubFileData;
 			}
@@ -861,12 +861,12 @@ void CGHost :: ExtractScripts( )
 			SFileCloseFile( SubFile );
 		}
 		else
-			CONSOLE_Print( "[GHOST] couldn't find Scripts\\blizzard.j in MPQ file" );
+			CONSOLE_Print( "[AURA] couldn't find Scripts\\blizzard.j in MPQ file" );
 
 		SFileCloseArchive( PatchMPQ );
 	}
 	else
-		CONSOLE_Print( "[GHOST] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
+		CONSOLE_Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
 }
 
 inline void CGHost :: LoadIPToCountryData( )
@@ -875,17 +875,17 @@ inline void CGHost :: LoadIPToCountryData( )
 	in.open( "ip-to-country.csv" );
 
 	if( in.fail( ) )
-		CONSOLE_Print( "[GHOST] warning - unable to read file [ip-to-country.csv], iptocountry data not loaded" );
+		CONSOLE_Print( "[AURA] warning - unable to read file [ip-to-country.csv], iptocountry data not loaded" );
 	else
 	{
-		CONSOLE_Print( "[GHOST] started loading [ip-to-country.csv]" );
+		CONSOLE_Print( "[AURA] started loading [ip-to-country.csv]" );
 
 		// the begin and commit statements are optimizations
 		// we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
 		// todotodo: handle begin/commit failures a bit more gracefully
 
 		if( !m_DB->Begin( ) )
-			CONSOLE_Print( "[GHOST] warning - failed to begin database transaction, iptocountry data not loaded" );
+			CONSOLE_Print( "[AURA] warning - failed to begin database transaction, iptocountry data not loaded" );
 		else
 		{
 			unsigned char Percent = 0;
@@ -919,14 +919,14 @@ inline void CGHost :: LoadIPToCountryData( )
 				if( NewPercent != Percent && NewPercent % 10 == 0 )
 				{
 					Percent = NewPercent;
-					CONSOLE_Print( "[GHOST] iptocountry data: " + UTIL_ToString( Percent ) + "% loaded" );
+					CONSOLE_Print( "[AURA] iptocountry data: " + UTIL_ToString( Percent ) + "% loaded" );
 				}
 			}
 
 			if( !m_DB->Commit( ) )
-				CONSOLE_Print( "[GHOST] warning - failed to commit database transaction, iptocountry data not loaded" );
+				CONSOLE_Print( "[AURA] warning - failed to commit database transaction, iptocountry data not loaded" );
 			else
-				CONSOLE_Print( "[GHOST] finished loading [ip-to-country.csv]" );
+				CONSOLE_Print( "[AURA] finished loading [ip-to-country.csv]" );
 		}
 
 		in.close( );
@@ -990,7 +990,7 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, string gameName, 
 		return;
 	}
 
-	CONSOLE_Print3( "[GHOST] creating game [" + gameName + "]" );
+	CONSOLE_Print3( "[AURA] creating game [" + gameName + "]" );
 
 	m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
 
@@ -1053,7 +1053,7 @@ void CGHost :: Restart ( bool force )
 #ifdef WIN32
 	// shutdown winsock
 
-	CONSOLE_Print( "[GHOST] shutting down winsock" );
+	CONSOLE_Print( "[AURA] shutting down winsock" );
 	WSACleanup( );
 
 	_spawnl( _P_OVERLAY, "ghost.exe", "ghost.exe", NULL );

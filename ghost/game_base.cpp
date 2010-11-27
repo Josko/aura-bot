@@ -292,7 +292,23 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 			uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-			m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
+			
+			/*
+			if( m_GHost->m_Reconnect )
+			{
+				// use an invalid map width/height to indicate reconnectable games
+
+				BYTEARRAY MapWidth;
+				MapWidth.push_back( 192 );
+				MapWidth.push_back( 7 );
+				BYTEARRAY MapHeight;
+				MapHeight.push_back( 192 );
+				MapHeight.push_back( 7 );
+			
+				m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), MapWidth, MapHeight, m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
+			}
+			else */
+				m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
 		}
 
 		m_LastPingTime = Time;
@@ -1806,7 +1822,7 @@ void CBaseGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *map
 	{
 		// the player doesn't have the map
 
-		if( Admin || m_GHost->m_AllowDownloads != 0 )
+		if( Admin || m_GHost->m_AllowDownloads )
 		{
 			string *MapData = m_Map->GetMapData( );
 
@@ -2808,11 +2824,13 @@ void CBaseGame :: CreateVirtualHost( )
 		return;
 
 	m_VirtualHostPID = GetNewPID( );
+	
 	BYTEARRAY IP;
 	IP.push_back( 0 );
 	IP.push_back( 0 );
 	IP.push_back( 0 );
 	IP.push_back( 0 );
+	
 	SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( m_VirtualHostPID, m_VirtualHostName, IP, IP ) );
 }
 
@@ -2844,7 +2862,6 @@ void CBaseGame :: CreateFakePlayer( )
 		IP.push_back( 0 );
 		IP.push_back( 0 );
 		IP.push_back( 0 );
-
 		
 		SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( FakePlayerPID, "Troll[" + UTIL_ToString( FakePlayerPID ) + "]", IP, IP ) );
 		m_Slots[SID] = CGameSlot( FakePlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam( ), m_Slots[SID].GetColour( ), m_Slots[SID].GetRace( ) );

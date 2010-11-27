@@ -191,8 +191,7 @@ void CTCPSocket :: Reset( )
 	m_Connected = false;
 	m_RecvBuffer.clear( );
 	m_SendBuffer.clear( );
-	m_LastRecv = GetTime( );
-	m_LastSend = GetTime( );
+	m_LastRecv = m_LastSend = GetTime( );
 
 	// make socket non blocking
 
@@ -634,110 +633,4 @@ void CUDPSocket :: SetDontRoute( bool dontRoute )
 	// belonging to the target address directly
 
 	setsockopt( m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *)&OptVal, sizeof( int ) );
-}
-
-//
-// CUDPServer
-//
-
-CUDPServer :: CUDPServer( ) : CUDPSocket( )
-{
-	// make socket non blocking
-
-#ifdef WIN32
-	int iMode = 1;
-	ioctlsocket( m_Socket, FIONBIO, (u_long FAR *)&iMode );
-#else
-	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
-#endif
-
-	// set the socket to reuse the address
-	// with UDP sockets this allows more than one program to listen on the same port
-
-	int optval = 1;
-
-#ifdef WIN32
-	setsockopt( m_Socket, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof( int ) );
-#else
-	setsockopt( m_Socket, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof( int ) );
-#endif
-}
-
-CUDPServer :: ~CUDPServer( )
-{
-
-}
-
-bool CUDPServer :: Bind( struct sockaddr_in sin )
-{
-	if( m_Socket == INVALID_SOCKET || m_HasError )
-		return false;
-
-	m_SIN = sin;
-
-	if( bind( m_Socket, (struct sockaddr *)&m_SIN, sizeof( m_SIN ) ) == SOCKET_ERROR )
-	{
-		m_HasError = true;
-		m_Error = GetLastError( );
-		CONSOLE_Print( "[UDPSERVER] error (bind) - " + GetErrorString( ) );
-		return false;
-	}
-
-	return true;
-}
-
-bool CUDPServer :: Bind( const string &address, uint16_t port )
-{
-	if( m_Socket == INVALID_SOCKET || m_HasError )
-		return false;
-
-	struct sockaddr_in sin;
-	sin.sin_family = AF_INET;
-
-	if( !address.empty( ) )
-	{
-		if( ( sin.sin_addr.s_addr = inet_addr( address.c_str( ) ) ) == INADDR_NONE )
-			sin.sin_addr.s_addr = INADDR_ANY;
-	}
-	else
-		sin.sin_addr.s_addr = INADDR_ANY;
-
-	sin.sin_port = htons( port );
-
-	return Bind( sin );
-}
-
-void CUDPServer :: RecvFrom( fd_set *fd, struct sockaddr_in *sin, string *message )
-{
-	if( m_Socket == INVALID_SOCKET || m_HasError || !sin || !message )
-		return;
-
-	int AddrLen = sizeof( *sin );
-
-	if( FD_ISSET( m_Socket, fd ) )
-	{
-		// data is waiting, receive it
-
-		char buffer[1024];
-
-#ifdef WIN32
-		int c = recvfrom( m_Socket, buffer, 1024, 0, (struct sockaddr *)sin, &AddrLen );
-#else
-		int c = recvfrom( m_Socket, buffer, 1024, 0, (struct sockaddr *)sin, (socklen_t *)&AddrLen );
-#endif
-		if( c > 0 )
-		{
-			// success!
-
-			*message = string( buffer, c );
-		}
-		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
-		{
-			// receive error
-
-			m_HasError = true;
-			m_Error = GetLastError( );
-			CONSOLE_Print( "[UDPSERVER] error (recvfrom) - " + GetErrorString( ) );
-		}
-	}
 }

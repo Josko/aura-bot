@@ -233,6 +233,11 @@ bool CGamePlayer :: Update( void *fd )
 {
 	uint32_t Time = GetTime( );
 	
+	// base class update
+
+	CPotentialPlayer :: Update( fd );
+	bool Deleting;
+	
 	// check for socket timeouts
 	// if we don't receive anything from a player for 30 seconds we can assume they've dropped
 	// this works because in the lobby we send pings every 5 seconds and expect a response to each one
@@ -249,12 +254,7 @@ bool CGamePlayer :: Update( void *fd )
 			m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
 
 		m_LastGProxyAckTime = Time;
-	}
-
-	// base class update
-
-	CPotentialPlayer :: Update( fd );
-	bool Deleting;
+	}	
 
 	if( m_GProxy && m_Game->GetGameLoaded( ) )
 		Deleting = m_DeleteMe || m_Error;

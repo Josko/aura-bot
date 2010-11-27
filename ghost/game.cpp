@@ -1246,6 +1246,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 					uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
+					
 					m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
 				}
 			}
@@ -1509,29 +1510,29 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
                         if( DotAPlayerSummary )
 			{
 				string Summary = m_GHost->m_Language->HasPlayedDotAGamesWithThisBot(    
-			        StatsUser,
-			       	UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ), 
-			        UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
-			       	UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-			        UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) 
-			     );			                 
+			        	StatsUser,
+			       		UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ), 
+			       		UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
+				       	UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
+				        UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
+			       		UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) 
+			     	);			                 
 
 				if( player->GetSpoofed( ) && ( m_GHost->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
 					SendAllChat( Summary );
