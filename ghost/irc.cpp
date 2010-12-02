@@ -410,10 +410,10 @@ void CIRC :: SendMessageIRC( const string &message, const string &target )
 	if( m_Socket->GetConnected( ) )
 	{
 		if( !target.empty( ) )
-			m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 320 ? message.substr( 0, 320 ) : message ) + LF );
+			m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
 		else
 			for( vector<string> :: iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
-				m_Socket->PutBytes( "PRIVMSG " + (*i) + " :" + ( message.size( ) > 320 ? message.substr( 0, 320 ) : message ) + LF );
+				m_Socket->PutBytes( "PRIVMSG " + (*i) + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
 	}
 }
 
