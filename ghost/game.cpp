@@ -1323,15 +1323,15 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				{
 					m_SyncLimit = UTIL_ToUInt32( Payload );
 
-					if( m_SyncLimit <= 50 )
+					if( m_SyncLimit <= 40 )
 					{
-						m_SyncLimit = 50;
-						SendAllChat( m_GHost->m_Language->SettingSyncLimitToMinimum( "50" ) );
+						m_SyncLimit = 40;
+						SendAllChat( m_GHost->m_Language->SettingSyncLimitToMinimum( "40" ) );
 					}
-					else if( m_SyncLimit >= 100 )
+					else if( m_SyncLimit >= 120 )
 					{
-						m_SyncLimit = 100;
-						SendAllChat( m_GHost->m_Language->SettingSyncLimitToMaximum( "100" ) );
+						m_SyncLimit = 120;
+						SendAllChat( m_GHost->m_Language->SettingSyncLimitToMaximum( "120" ) );
 					}
 					else
 						SendAllChat( m_GHost->m_Language->SettingSyncLimitTo( UTIL_ToString( m_SyncLimit ) ) );
@@ -1415,8 +1415,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				// extract the name and the message
 				// e.g. "Varlock hello there!" -> name: "Varlock", message: "hello there!"
 
-				string Name;
-				string Message;
+				string Name, Message;
 				string :: size_type MessageStart = Payload.find( " " );
 
 				if( MessageStart != string :: npos )
