@@ -120,41 +120,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 	// we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
 	// that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
 	// but it's not a big deal at all, maybe 100ms in the worst possible case (based on a 50ms blocking time)
-
-	if( m_Socket->HasError( ) )
-	{
-		// the socket has an error
-
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
-
-		if( m_Socket->GetError( ) == ECONNRESET && Time - m_LastConnectionAttemptTime <= 15 )
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] warning - you are probably temporarily IP banned from battle.net" );
-
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
-		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-		m_Socket->Reset( );
-		m_LastDisconnectedTime = Time;
-		m_LoggedIn = false;
-		m_InChat = false;
-		m_WaitingToConnect = true;
-		return m_Exiting;
-	}
-
-	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && !m_WaitingToConnect )
-	{
-		// the socket was disconnected
-
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net" );
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
-		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-		m_Socket->Reset( );
-		m_LastDisconnectedTime = Time;
-		m_LoggedIn = false;
-		m_InChat = false;
-		m_WaitingToConnect = true;
-		return m_Exiting;
-	}
-
+	
 	if( m_Socket->GetConnected( ) )
 	{
 		// the socket is connected and everything appears to be working properly
@@ -208,6 +174,40 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
+		return m_Exiting;
+	}
+
+	if( m_Socket->HasError( ) )
+	{
+		// the socket has an error
+
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
+
+		if( m_Socket->GetError( ) == ECONNRESET && Time - m_LastConnectionAttemptTime <= 15 )
+			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] warning - you are probably temporarily IP banned from battle.net" );
+
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
+		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
+		m_Socket->Reset( );
+		m_LastDisconnectedTime = Time;
+		m_LoggedIn = false;
+		m_InChat = false;
+		m_WaitingToConnect = true;
+		return m_Exiting;
+	}
+
+	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && !m_WaitingToConnect )
+	{
+		// the socket was disconnected
+
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net" );
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
+		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
+		m_Socket->Reset( );
+		m_LastDisconnectedTime = Time;
+		m_LoggedIn = false;
+		m_InChat = false;
+		m_WaitingToConnect = true;
 		return m_Exiting;
 	}
 

@@ -21,7 +21,7 @@ CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername
 }
 
 CIRC :: ~CIRC( )
-{
+{	
 	delete m_Socket;
 
 	for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
@@ -40,9 +40,7 @@ unsigned int CIRC :: SetFD( void *fd, void *send_fd, int *nfds )
 }
 
 bool CIRC :: Update( void *fd, void *send_fd )
-{
-	uint32_t Time = GetTime( );
-	
+{	
 	if( m_Socket->GetConnected( ) )
 	{
 		// the socket is connected and everything appears to be working properly
@@ -52,6 +50,8 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		m_Socket->DoSend( (fd_set *)send_fd );
 		return m_Exiting;
 	}
+	
+	uint32_t Time = GetTime( );
 	
 	if( m_Socket->HasError( ) )
 	{
@@ -211,11 +211,7 @@ inline void CIRC :: ExtractPackets( )
 					{
 						SendDCC( Payload );
 						return;
-					}
-                                        else if( Command == "quit" && Root )
-                                        {
-                                                SendIRC( "QUIT: Quit" );
-                                        }
+					}                                       
 					else if( Command == "irc" && Root )
 					{
 						m_Socket->Reset( );
@@ -422,9 +418,10 @@ void CIRC :: SendMessageIRC( const string &message, const string &target )
 
 CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ) 
 {
-	m_Socket = new CTCPClient( );
-	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
+	m_Socket = new CTCPClient( );	
 	m_Socket->Connect( string( ), nIP, nPort );
+	
+	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 }
 
 CDCC :: ~CDCC( )

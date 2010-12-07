@@ -74,13 +74,13 @@ uint32_t GetTime( )
 		mach_timebase_info( &info );
 	uint64_t elapsednano = current * ( info.numer / info.denom );
 	// convert ns to ms
-	return elapsednano / 1e6 / 1000;
+	return elapsednano / 1e9;
 #else
 	uint32_t ticks;
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
 	ticks = t.tv_sec * 1000;
-	ticks += t.tv_nsec / 1000000;
+	ticks += t.tv_nsec / 1e9;
 	return ticks / 1000;
 #endif
 }
