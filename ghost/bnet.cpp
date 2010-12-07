@@ -101,15 +101,13 @@ BYTEARRAY CBNET :: GetUniqueName( )
 
 unsigned int CBNET :: SetFD( void *fd, void *send_fd, int *nfds )
 {
-	unsigned int NumFDs = 0;
-
 	if( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
 	{
 		m_Socket->SetFD( (fd_set *)fd, (fd_set *)send_fd, nfds );
-		++NumFDs;
+		return 1;
 	}
 
-	return NumFDs;
+	return 0;
 }
 
 bool CBNET :: Update( void *fd, void *send_fd )

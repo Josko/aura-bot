@@ -30,20 +30,28 @@ CIRC :: ~CIRC( )
 
 unsigned int CIRC :: SetFD( void *fd, void *send_fd, int *nfds )
 {
-	unsigned int NumFDs = 0;
-
 	if( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
 	{
 		m_Socket->SetFD( (fd_set *)fd, (fd_set *)send_fd, nfds );
-		++NumFDs;
+		return 1;
 	}
 
-	return NumFDs;
+	return 0;
 }
 
 bool CIRC :: Update( void *fd, void *send_fd )
 {
 	uint32_t Time = GetTime( );
+	
+	if( m_Socket->GetConnected( ) )
+	{
+		// the socket is connected and everything appears to be working properly
+
+		m_Socket->DoRecv( (fd_set *)fd );
+		ExtractPackets( );
+		m_Socket->DoSend( (fd_set *)send_fd );
+		return m_Exiting;
+	}
 	
 	if( m_Socket->HasError( ) )
 	{
@@ -65,17 +73,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		m_WaitingToConnect = true;
 		m_LastConnectionAttemptTime = Time;
 		return m_Exiting;
-	}
-
-	if( m_Socket->GetConnected( ) )
-	{
-		// the socket is connected and everything appears to be working properly
-
-		m_Socket->DoRecv( (fd_set *)fd );
-		ExtractPackets( );
-		m_Socket->DoSend( (fd_set *)send_fd );
-		return m_Exiting;
-	}
+	}	
 
 	if( m_Socket->GetConnecting( ) )
 	{
@@ -195,8 +193,7 @@ inline void CIRC :: ExtractPackets( )
 					}
 					else if( Command == "dcclist" )
 					{
-						string on;
-						string off;
+						string on, off;
 
 						for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
 						{
@@ -437,33 +434,31 @@ CDCC :: ~CDCC( )
 
 unsigned int CDCC :: SetFD( void *fd, void *send_fd, int *nfds )
 {
-	unsigned int NumFDs = 0;
-
 	if( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
 	{
 		m_Socket->SetFD( (fd_set *)fd, (fd_set *)send_fd, nfds );
-		++NumFDs;
+		return 1;
 	}
 
-	return NumFDs;
+	return 0;
 }
 
 void CDCC :: Update( void *fd, void *send_fd )
 {
-	if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
+	if( m_Socket->GetConnected( ) )
 	{
-		m_Socket->PutBytes( "Welcome! :)\n" );
-		m_Socket->DoRecv( (fd_set *)fd );		
-		m_Socket->DoSend( (fd_set *)send_fd );		
-	}	
+		m_Socket->DoRecv( (fd_set *)fd );
+		m_Socket->DoSend( (fd_set *)send_fd );
+	}
 	else if( m_Socket->HasError( ) )
 	{
 		m_Socket->Reset( );
 	}
-	else if( m_Socket->GetConnected( ) )
+	else if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
 	{
-		m_Socket->DoRecv( (fd_set *)fd );
-		m_Socket->DoSend( (fd_set *)send_fd );
+		m_Socket->PutBytes( "Welcome! :)\n" );
+		m_Socket->DoRecv( (fd_set *)fd );		
+		m_Socket->DoSend( (fd_set *)send_fd );		
 	}
 }
 

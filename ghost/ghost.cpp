@@ -540,9 +540,9 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 	if( NumFDs == 0 )
 	{
 		// we don't have any sockets (i.e. we aren't connected to battle.net maybe due to a lost connection and there aren't any games running)
-		// select will return immediately and we'll chew up the CPU if we let it loop so just sleep for 100ms to kill some time
+		// select will return immediately and we'll chew up the CPU if we let it loop so just sleep for 200ms to kill some time
 
-		MILLISLEEP( 100 );
+		MILLISLEEP( 200 );
 	}
 	
 	bool BNETExit = false, IRCExit = false;	
