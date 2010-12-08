@@ -87,7 +87,7 @@ CSVParser & CSVParser::operator >> (double & nOut)
 CSVParser & CSVParser::operator >>(string & sOut)
 {
   bool bQuotes = false;
-  sOut.clear( );
+  sOut = string( );
   SkipSpaces();
 
   // Jump past first " if necessary

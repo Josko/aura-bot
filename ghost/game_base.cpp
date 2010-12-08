@@ -209,11 +209,10 @@ unsigned int CBaseGame :: SetFD( void *fd, void *send_fd, int *nfds )
 
 	return NumFDs;
 }
-
 bool CBaseGame :: Update( void *fd, void *send_fd )
 {
 	uint32_t Time = GetTime( ), Ticks = GetTicks( );
-	
+
 	// update players
 
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); )
@@ -225,7 +224,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			i = m_Players.erase( i );
 		}
 		else
-			++i;
+                        ++i;
 	}
 
 	for( vector<CPotentialPlayer *> :: iterator i = m_Potentials.begin( ); i != m_Potentials.end( ); )
@@ -241,16 +240,22 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			i = m_Potentials.erase( i );
 		}
 		else
-			++i;
+                        ++i;
 	}
-	
-	// send actions every m_Latency milliseconds
-	// actions are at the heart of every Warcraft 3 game but luckily we don't need to know their contents to relay them
-	// we queue player actions in EventPlayerAction then just resend them in batches to all players here
 
-	if( m_GameLoaded && !m_Lagging && Ticks - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
-		SendAllActions( );
-		
+	// create the virtual host player
+
+	if( !m_GameLoading && !m_GameLoaded && GetNumPlayers( ) < 12 )
+		CreateVirtualHost( );
+
+	// unlock the game
+
+	if( m_Locked && !GetPlayerFromName( m_OwnerName, false ) )
+	{
+		SendAllChat( m_GHost->m_Language->GameUnlocked( ) );
+		m_Locked = false;
+	}
+
 	// ping every 5 seconds
 	// changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
 	// changed this to ping during the game as well
@@ -288,201 +293,32 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 			// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
 			// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
 			
+			
 			// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
 			// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 			uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
 			
-			/*
-			if( m_GHost->m_Reconnect )
-			{
-				// use an invalid map width/height to indicate reconnectable games
-
-				BYTEARRAY MapWidth;
-				MapWidth.push_back( 192 );
-				MapWidth.push_back( 7 );
-				BYTEARRAY MapHeight;
-				MapHeight.push_back( 192 );
-				MapHeight.push_back( 7 );
-			
-				m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), MapWidth, MapHeight, m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
-			}
-			else */
-				m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
+			m_GHost->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );			
 		}
 
 		m_LastPingTime = Time;
-	}
-
-	// keep track of the largest sync counter (the number of keepalive packets received by each player)
-	// if anyone falls behind by more than m_SyncLimit keepalives we start the lag screen
-
-	if( m_GameLoaded )
-	{
-		// check if anyone has started lagging
-		// we consider a player to have started lagging if they're more than m_SyncLimit keepalives behind
-
-		if( !m_Lagging )
-		{
-			string LaggingString;
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( m_SyncCounter - (*i)->GetSyncCounter( ) > m_SyncLimit )
-				{
-					(*i)->SetLagging( true );
-					(*i)->SetStartedLaggingTicks( Ticks );
-					m_Lagging = true;
-					m_StartedLaggingTime = Time;
-
-					if( LaggingString.empty( ) )
-						LaggingString = (*i)->GetName( );
-					else
-						LaggingString += ", " + (*i)->GetName( );
-				}
-			}
-
-			if( m_Lagging )
-			{
-				// start the lag screen
-
-				CONSOLE_Print( "[GAME: " + m_GameName + "] started lagging on [" + LaggingString + "]" );
-				SendAll( m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
-
-				// reset everyone's drop vote
-
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-					(*i)->SetDropVote( false );
-
-				m_LastLagScreenResetTime = Time;
-			}
-		}
-
-		if( m_Lagging )
-		{
-			bool UsingGProxy = false;
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( (*i)->GetGProxy( ) )
-				{
-					UsingGProxy = true;
-					break;
-				}
-			}
-
-			uint32_t WaitTime = 60;
-
-			if( UsingGProxy )
-				WaitTime = ( m_GProxyEmptyActions + 1 ) * 60;
-
-			if( Time - m_StartedLaggingTime >= WaitTime )
-				StopLaggers( m_GHost->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( WaitTime ) ) );
-
-			// we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
-			// one (easy) solution is to simply drop all the laggers if they lag for more than 60 seconds
-			// another solution is to reset the lag screen the same way we reset it when using load-in-game
-			// this is required in order to give GProxy++ clients more time to reconnect
-
-			if( Time - m_LastLagScreenResetTime >= 60 )
-			{
-				for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-				{
-					// stop the lag screen
-
-					for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
-					{
-						if( (*j)->GetLagging( ) )
-							Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( *j ) );
-					}
-
-					// send an empty update
-					// this resets the lag screen timer
-
-					if( UsingGProxy && !(*i)->GetGProxy( ) )
-					{
-						// we must send additional empty actions to non-GProxy++ players
-						// GProxy++ will insert these itself so we don't need to send them to GProxy++ players
-						// empty actions are used to extend the time a player can use when reconnecting
-
-						for( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
-							Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-					}
-
-					Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-
-					// start the lag screen
-
-					Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
-				}
-
-				m_LastLagScreenResetTime = Time;
-			}
-
-			// check if anyone has stopped lagging normally
-			// we consider a player to have stopped lagging if they're less than half m_SyncLimit keepalives behind
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( (*i)->GetLagging( ) && m_SyncCounter - (*i)->GetSyncCounter( ) < m_SyncLimit / 2 )
-				{
-					// stop the lag screen for this player
-
-					CONSOLE_Print( "[GAME: " + m_GameName + "] stopped lagging on [" + (*i)->GetName( ) + "]" );
-					SendAll( m_Protocol->SEND_W3GS_STOP_LAG( *i ) );
-					(*i)->SetLagging( false );
-					(*i)->SetStartedLaggingTicks( 0 );
-				}
-			}
-
-			// check if everyone has stopped lagging
-
-			m_Lagging = false;
-
-			for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-			{
-				if( (*i)->GetLagging( ) )
-				{
-					m_Lagging = true;
-					break;
-				}
-			}
-
-			// reset m_LastActionSentTicks because we want the game to stop running while the lag screen is up
-
-			m_LastActionSentTicks = Ticks;
-
-			// keep track of the last lag screen time so we can avoid timing out players
-
-			m_LastLagScreenTime = Time;
-		}
-	}	
-
-	// create the virtual host player
-
-	if( !m_GameLoading && !m_GameLoaded && GetNumPlayers( ) < 12 )
-		CreateVirtualHost( );
-
-	// unlock the game
-
-	if( m_Locked && !GetPlayerFromName( m_OwnerName, false ) )
-	{
-		SendAllChat( m_GHost->m_Language->GameUnlocked( ) );
-		m_Locked = false;
 	}	
 
 	// refresh every 3 seconds
 
 	if( !m_RefreshError && !m_CountDownStarted && m_GameState == GAME_PUBLIC && GetSlotsOpen( ) > 0 && Time - m_LastRefreshTime >= 3 )
 	{
-		// send a game refresh packet to each battle.net connection		
+		// send a game refresh packet to each battle.net connection
 
-		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+                for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 		{
 			// don't queue a game refresh message if the queue contains more than 1 packet because they're very low priority
 
-			if( (*i)->GetOutPacketsQueued( ) < 2 )
+			if( (*i)->GetOutPacketsQueued( ) <= 1 )
+			{
 				(*i)->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
+			}
 		}
 
 		m_LastRefreshTime = Time;
@@ -506,7 +342,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 	{
 		uint32_t Downloaders = 0;
 
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( (*i)->GetDownloadStarted( ) && !(*i)->GetDownloadFinished( ) )
 			{
@@ -556,29 +392,6 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 		m_LastDownloadTicks = Ticks;
 	}
-	
-	// check if the game is loaded
-
-	if( m_GameLoading )
-	{
-		bool FinishedLoading = true;
-
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-		{
-			FinishedLoading = (*i)->GetFinishedLoading( );
-
-			if( !FinishedLoading )
-				break;
-		}
-
-		if( FinishedLoading )
-		{			
-			m_LastActionSentTicks = Ticks;
-			m_GameLoading = false;
-			m_GameLoaded = true;
-			EventGameLoaded( );
-		}		
-	}
 
 	// countdown every 500 ms
 
@@ -600,27 +413,197 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	// check if the lobby is "abandoned" and needs to be closed since it will never start
 
-	if( !m_GameLoading && !m_GameLoaded )
+	if( !m_GameLoading && !m_GameLoaded && m_GHost->m_LobbyTimeLimit > 0 )
 	{
 		// check if there's a player with reserved status in the game
 
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( (*i)->GetReserved( ) )
-			{
 				m_LastReservedSeen = Time;
-				break;
-			}
 		}
 
 		// check if we've hit the time limit
 
 		if( Time - m_LastReservedSeen >= m_GHost->m_LobbyTimeLimit * 60 )
 		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit)" );
+			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit hit)" );
 			return true;
 		}
-	}	
+	}
+
+	// check if the game is loaded
+
+	if( m_GameLoading )
+	{
+		bool FinishedLoading = true;
+
+                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+		{
+			FinishedLoading = (*i)->GetFinishedLoading( );
+
+			if( !FinishedLoading )
+				break;
+		}
+
+		if( FinishedLoading )
+		{
+			m_LastActionSentTicks = Ticks;
+			m_GameLoading = false;
+			m_GameLoaded = true;
+			EventGameLoaded( );
+		}
+	}
+
+	// keep track of the largest sync counter (the number of keepalive packets received by each player)
+	// if anyone falls behind by more than m_SyncLimit keepalives we start the lag screen
+
+	if( m_GameLoaded )
+	{
+		// check if anyone has started lagging
+		// we consider a player to have started lagging if they're more than m_SyncLimit keepalives behind
+
+		if( !m_Lagging )
+		{
+			string LaggingString;
+
+                        for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( m_SyncCounter - (*i)->GetSyncCounter( ) > m_SyncLimit )
+				{
+					(*i)->SetLagging( true );
+					(*i)->SetStartedLaggingTicks( Ticks );
+					m_Lagging = true;
+					m_StartedLaggingTime = Time;
+
+					if( LaggingString.empty( ) )
+						LaggingString = (*i)->GetName( );
+					else
+						LaggingString += ", " + (*i)->GetName( );
+				}
+			}
+
+			if( m_Lagging )
+			{
+				// start the lag screen
+
+				CONSOLE_Print( "[GAME: " + m_GameName + "] started lagging on [" + LaggingString + "]" );
+				SendAll( m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
+
+				// reset everyone's drop vote
+
+                                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+					(*i)->SetDropVote( false );
+
+				m_LastLagScreenResetTime = Time;
+			}
+		}
+
+		if( m_Lagging )
+		{
+			bool UsingGProxy = false;
+
+                        for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( (*i)->GetGProxy( ) )
+					UsingGProxy = true;
+			}
+
+			uint32_t WaitTime = 60;
+
+			if( UsingGProxy )
+				WaitTime = ( m_GProxyEmptyActions + 1 ) * 60;
+
+			if( Time - m_StartedLaggingTime >= WaitTime )
+				StopLaggers( m_GHost->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( WaitTime ) ) );
+
+			// we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
+			// one (easy) solution is to simply drop all the laggers if they lag for more than 60 seconds
+			// another solution is to reset the lag screen the same way we reset it when using load-in-game
+			// this is required in order to give GProxy++ clients more time to reconnect
+
+			if( Time - m_LastLagScreenResetTime >= 60 )
+			{
+                                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+				{
+					// stop the lag screen
+
+                                        for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
+					{
+						if( (*j)->GetLagging( ) )
+							Send( *i, m_Protocol->SEND_W3GS_STOP_LAG( *j ) );
+					}
+
+					// send an empty update
+					// this resets the lag screen timer
+
+					if( UsingGProxy && !(*i)->GetGProxy( ) )
+					{
+						// we must send additional empty actions to non-GProxy++ players
+						// GProxy++ will insert these itself so we don't need to send them to GProxy++ players
+						// empty actions are used to extend the time a player can use when reconnecting
+
+                                                for( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
+							Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
+					}
+
+					Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
+
+					// start the lag screen
+
+					Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
+				}				
+
+				// Warcraft III doesn't seem to respond to empty actions
+
+				
+				m_LastLagScreenResetTime = Time;
+			}
+
+			// check if anyone has stopped lagging normally
+			// we consider a player to have stopped lagging if they're less than half m_SyncLimit keepalives behind
+
+                        for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( (*i)->GetLagging( ) && m_SyncCounter - (*i)->GetSyncCounter( ) < m_SyncLimit / 2 )
+				{
+					// stop the lag screen for this player
+
+					CONSOLE_Print( "[GAME: " + m_GameName + "] stopped lagging on [" + (*i)->GetName( ) + "]" );
+					SendAll( m_Protocol->SEND_W3GS_STOP_LAG( *i ) );
+					(*i)->SetLagging( false );
+					(*i)->SetStartedLaggingTicks( 0 );
+				}
+			}
+
+			// check if everyone has stopped lagging
+
+			bool Lagging = false;
+
+                        for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+			{
+				if( (*i)->GetLagging( ) )
+					Lagging = true;
+			}
+
+			m_Lagging = Lagging;
+
+			// reset m_LastActionSentTicks because we want the game to stop running while the lag screen is up
+
+			m_LastActionSentTicks = Ticks;
+
+			// keep track of the last lag screen time so we can avoid timing out players
+
+			m_LastLagScreenTime = Time;
+		}
+	}
+
+	// send actions every m_Latency milliseconds
+	// actions are at the heart of every Warcraft 3 game but luckily we don't need to know their contents to relay them
+	// we queue player actions in EventPlayerAction then just resend them in batches to all players here
+
+	if( m_GameLoaded && !m_Lagging && Ticks - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
+		SendAllActions( );
 
 	// expire the votekick
 
@@ -644,15 +627,21 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 
 	if( m_GameOverTime != 0 && Time - m_GameOverTime >= 60 )
 	{
+		bool AlreadyStopped = true;
 
-		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+                for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( !(*i)->GetDeleteMe( ) )
 			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (gameover timer finished)" );
-				StopPlayers( "was disconnected (gameover timer finished)" );
+				AlreadyStopped = false;
 				break;
 			}
+		}
+
+		if( !AlreadyStopped )
+		{
+			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (gameover timer finished)" );
+			StopPlayers( "was disconnected (gameover timer finished)" );
 		}
 	}
 
@@ -679,7 +668,7 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		if( NewSocket )
 		{
 			NewSocket->SetNoDelay( );
-			m_Potentials.push_back( new CPotentialPlayer( m_Protocol, this, NewSocket ) );
+			m_Potentials.push_back( new CPotentialPlayer( m_Protocol, this, NewSocket ) );			
 		}
 
 		if( m_Socket->HasError( ) )
@@ -932,8 +921,9 @@ void CBaseGame :: SendAllActions( )
 	}
 	else
 		SendAll( m_Protocol->SEND_W3GS_INCOMING_ACTION( m_Actions, m_Latency ) );
-
-	uint32_t ActualSendInterval = GetTicks( ) - m_LastActionSentTicks;
+		
+	uint32_t Ticks = GetTicks( );
+	uint32_t ActualSendInterval = Ticks - m_LastActionSentTicks;
 	uint32_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
 	m_LastActionLateBy = ActualSendInterval - ExpectedSendInterval;
 
@@ -947,7 +937,7 @@ void CBaseGame :: SendAllActions( )
 		m_LastActionLateBy = m_Latency;
 	}
 
-	m_LastActionSentTicks = GetTicks( );
+	m_LastActionSentTicks = Ticks;
 }
 
 void CBaseGame :: EventPlayerDeleted( CGamePlayer *player )
