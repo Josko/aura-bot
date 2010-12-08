@@ -280,6 +280,7 @@ bool CGamePlayer :: Update( void *fd )
 	// base class update
 
 	CPotentialPlayer :: Update( fd );
+	
 	bool Deleting;
 
 	if( m_GProxy && m_Game->GetGameLoaded( ) )

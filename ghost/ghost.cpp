@@ -81,7 +81,7 @@ uint32_t GetTime( )
 	clock_gettime( CLOCK_MONOTONIC, &t );
 	ticks = t.tv_sec * 1000;
 	ticks += t.tv_nsec / 1e9;
-	return ticks / 1000;
+	return ticks;
 #endif
 }
 
