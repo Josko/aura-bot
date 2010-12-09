@@ -628,12 +628,247 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				/*****************
 				* ADMIN COMMANDS *
 				******************/
+				
+				//
+				// !MAP (load map file)
+				//
+
+				if( Command == "map" )
+				{
+					if( Payload.empty( ) )
+						QueueChatCommand( m_GHost->m_Language->CurrentlyLoadedMapCFGIs( m_GHost->m_Map->GetCFGFile( ) ), User, Whisper, m_IRC );
+					else
+					{
+						string FoundMaps;
+
+						try
+						{
+							// path MapPath(  );
+							string Pattern = Payload;
+							transform( Pattern.begin( ), Pattern.end( ), Pattern.begin( ), (int(*)(int))tolower );
+
+							if( !exists( m_GHost->m_MapPath ) )
+							{
+								CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist" );
+								QueueChatCommand( m_GHost->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
+							}
+							else
+							{
+								directory_iterator EndIterator;
+								path LastMatch;
+								uint32_t Matches = 0;
+
+								for( directory_iterator i( m_GHost->m_MapPath ); i != EndIterator; ++i )
+								{
+									string FileName = i->filename( );
+									string Stem = i->path( ).stem( );
+									transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
+									transform( Stem.begin( ), Stem.end( ), Stem.begin( ), (int(*)(int))tolower );
+
+									if( !is_directory( i->status( ) ) && FileName.find( Pattern ) != string :: npos )
+									{
+										LastMatch = i->path( );
+										++Matches;
+
+										if( FoundMaps.empty( ) )
+											FoundMaps = i->filename( );
+										else
+											FoundMaps += ", " + i->filename( );
+
+										// if the pattern matches the filename exactly, with or without extension, stop any further matching
+
+										if( FileName == Pattern || Stem == Pattern )
+										{
+											Matches = 1;
+											break;
+										}
+									}
+								}
+
+								if( Matches == 0 )
+									QueueChatCommand( m_GHost->m_Language->NoMapsFound( ), User, Whisper, m_IRC );
+								else if( Matches == 1 )
+								{
+									string File = LastMatch.filename( );
+									QueueChatCommand( m_GHost->m_Language->LoadingConfigFile( File ), User, Whisper, m_IRC );
+
+									// hackhack: create a config file in memory with the required information to load the map
+
+									CConfig MapCFG;
+									MapCFG.Set( "map_path", "Maps\\Download\\" + File );
+									MapCFG.Set( "map_localpath", File );
+
+									if( File.find( "DotA" ) != string :: npos )
+										MapCFG.Set( "map_type", "dota" );								
+
+									m_GHost->m_Map->Load( &MapCFG, File );
+								}
+								else
+									QueueChatCommand( m_GHost->m_Language->FoundMaps( FoundMaps ), User, Whisper, m_IRC );
+							}
+						}
+						catch( const exception &ex )
+						{
+							CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + ex.what( ) + "]" );
+							QueueChatCommand( m_GHost->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
+						}
+					}
+				}
+				
+				//
+				// !ONLINE
+				//
+				
+				else if( Command == "o" || Command == "online" )
+				{
+					QueueChatCommand( "/w Clan007 -o" );
+				}
+				
+				//
+				// !SPAM
+				//
+				
+				else if( Command == "spam" && m_Server == "europe.battle.net" )
+				{
+					if( m_Spam )
+					{
+						m_Spam = false;
+						QueueChatCommand( "/j " + m_FirstChannel );
+						m_SpamChannel = "allstars";
+						CONSOLE_Print3( "Allstars spam is off." );					
+					}
+					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
+					{
+						m_Spam = true;
+						QueueChatCommand( "/j allstars" );
+						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
+					}
+					else
+						QueueChatCommand( "Cannot be executed.", User, Whisper, m_IRC );
+				}
+
+				//
+				// !UNHOST
+				//
+
+				else if( Command == "unhost" || Command == "uh" )
+				{
+					if( m_GHost->m_CurrentGame )
+					{
+						if( m_GHost->m_CurrentGame->GetCountDownStarted( ) )
+							QueueChatCommand( m_GHost->m_Language->UnableToUnhostGameCountdownStarted( m_GHost->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
+
+						// if the game owner is still in the game only allow the root admin to unhost the game
+
+						else if( m_GHost->m_CurrentGame->GetPlayerFromName( m_GHost->m_CurrentGame->GetOwnerName( ), false ) && !IsRootAdmin( User ) )
+							QueueChatCommand( m_GHost->m_Language->CantUnhostGameOwnerIsPresent( m_GHost->m_CurrentGame->GetOwnerName( ) ), User, Whisper, m_IRC );
+						else
+						{
+							QueueChatCommand( m_GHost->m_Language->UnhostingGame( m_GHost->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
+							m_GHost->m_CurrentGame->SetExiting( true );
+						}
+					}
+					else
+						QueueChatCommand( m_GHost->m_Language->UnableToUnhostGameNoGameInLobby( ), User, Whisper, m_IRC );
+				}
+				
+				//
+				// !PUB (host public game)
+				//
+
+				else if( Command == "pub" && !Payload.empty( ) )
+					m_GHost->CreateGame( m_GHost->m_Map, GAME_PUBLIC, Payload, User, User, m_Server, Whisper );
+					
+				//
+				// !PRIV (host private game)
+				//
+
+				else if( Command == "priv" && !Payload.empty( ) )
+					m_GHost->CreateGame( m_GHost->m_Map, GAME_PRIVATE, Payload, User, User, m_Server, Whisper );
+					
+				//
+				// !LOAD (load config file)
+				//
+
+				else if( Command == "load" )
+				{
+					if( Payload.empty( ) )
+						QueueChatCommand( m_GHost->m_Language->CurrentlyLoadedMapCFGIs( m_GHost->m_Map->GetCFGFile( ) ), User, Whisper, m_IRC );
+					else
+					{
+						string FoundMapConfigs;
+
+						try
+						{
+							path MapCFGPath( m_GHost->m_MapCFGPath );
+							string Pattern = Payload;
+							transform( Pattern.begin( ), Pattern.end( ), Pattern.begin( ), (int(*)(int))tolower );
+
+							if( !exists( MapCFGPath ) )
+							{
+								CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist" );
+								QueueChatCommand( m_GHost->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
+							}
+							else
+							{
+								directory_iterator EndIterator;
+								path LastMatch;
+								uint32_t Matches = 0;
+
+								for( directory_iterator i( MapCFGPath ); i != EndIterator; ++i )
+								{
+									string FileName = i->filename( );
+									string Stem = i->path( ).stem( );
+									transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
+									transform( Stem.begin( ), Stem.end( ), Stem.begin( ), (int(*)(int))tolower );
+
+									if( !is_directory( i->status( ) ) && i->path( ).extension( ) == ".cfg" && FileName.find( Pattern ) != string :: npos )
+									{
+										LastMatch = i->path( );
+										++Matches;
+
+										if( FoundMapConfigs.empty( ) )
+											FoundMapConfigs = i->filename( );
+										else
+											FoundMapConfigs += ", " + i->filename( );
+
+										// if the pattern matches the filename exactly, with or without extension, stop any further matching
+
+										if( FileName == Pattern || Stem == Pattern )
+										{
+											Matches = 1;
+											break;
+										}
+									}
+								}
+
+								if( Matches == 0 )
+									QueueChatCommand( m_GHost->m_Language->NoMapConfigsFound( ), User, Whisper, m_IRC );
+								else if( Matches == 1 )
+								{
+									string File = LastMatch.filename( );
+									QueueChatCommand( m_GHost->m_Language->LoadingConfigFile( m_GHost->m_MapCFGPath + File ), User, Whisper, m_IRC );
+									CConfig MapCFG;
+									MapCFG.Read( LastMatch.string( ) );
+									m_GHost->m_Map->Load( &MapCFG, m_GHost->m_MapCFGPath + File );
+								}
+								else
+									QueueChatCommand( m_GHost->m_Language->FoundMapConfigs( FoundMapConfigs ), User, Whisper, m_IRC );
+							}
+						}
+						catch( const exception &ex )
+						{
+							CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + ex.what( ) + "]" );
+							QueueChatCommand( m_GHost->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
+						}
+					}
+				}
 
 				//
 				// !ADDADMIN
 				//
 
-				if( Command == "addadmin" && !Payload.empty( ) )
+				else if( Command == "addadmin" && !Payload.empty( ) )
 				{
 					if( IsRootAdmin( User ) )
 					{
@@ -658,8 +893,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					// extract the victim and the reason
 					// e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
 
-					string Victim;
-					string Reason;
+					string Victim, Reason;
 					stringstream SS;
 					SS << Payload;
 					SS >> Victim;
@@ -839,22 +1073,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						QueueChatCommand( m_GHost->m_Language->UnbannedUser( Payload ), User, Whisper, m_IRC );					
 					else
 						QueueChatCommand( m_GHost->m_Language->ErrorUnbanningUser( Payload ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !DISABLE
-				//
-
-				else if( Command == "disable" )
-				{
-					if( IsRootAdmin( User ) )
-					{
-						QueueChatCommand( m_GHost->m_Language->BotDisabled( ), User, Whisper, m_IRC );
-						m_GHost->m_Enabled = false;
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}
+				}				
 
 				//
 				// !DOWNLOADS
@@ -891,22 +1110,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						QueueChatCommand( m_GHost->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
 						m_GHost->m_AllowDownloads = 2;
 					}
-				}
-
-				//
-				// !ENABLE
-				//
-
-				else if( Command == "enable" )
-				{
-					if( IsRootAdmin( User ) )
-					{
-						QueueChatCommand( m_GHost->m_Language->BotEnabled( ), User, Whisper, m_IRC );
-						m_GHost->m_Enabled = true;
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}
+				}				
 
 				//
 				// !END
@@ -933,30 +1137,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					}
 					else
 						QueueChatCommand( m_GHost->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !EXIT
-				// !QUIT
-				//
-
-				else if( Command == "exit" || Command == "quit" )
-				{
-					if( IsRootAdmin( User ) )
-					{						
-						if( Payload == "force" )
-							m_Exiting = true;
-						else
-						{
-							if( m_GHost->m_CurrentGame || !m_GHost->m_Games.empty( ) )
-								QueueChatCommand( m_GHost->m_Language->AtLeastOneGameActiveUseForceToShutdown( ), User, Whisper, m_IRC );
-							else
-								m_Exiting = true;
-						}
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}									
+				}										
 
 				//
 				// !HOLD (hold a slot for someone)
@@ -985,175 +1166,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 							m_GHost->m_CurrentGame->AddToReserved( HoldName );
 						}
 					}
-				}
-
-				//
-				// !LOAD (load config file)
-				//
-
-				else if( Command == "load" )
-				{
-					if( Payload.empty( ) )
-						QueueChatCommand( m_GHost->m_Language->CurrentlyLoadedMapCFGIs( m_GHost->m_Map->GetCFGFile( ) ), User, Whisper, m_IRC );
-					else
-					{
-						string FoundMapConfigs;
-
-						try
-						{
-							path MapCFGPath( m_GHost->m_MapCFGPath );
-							string Pattern = Payload;
-							transform( Pattern.begin( ), Pattern.end( ), Pattern.begin( ), (int(*)(int))tolower );
-
-							if( !exists( MapCFGPath ) )
-							{
-								CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist" );
-								QueueChatCommand( m_GHost->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
-							}
-							else
-							{
-								directory_iterator EndIterator;
-								path LastMatch;
-								uint32_t Matches = 0;
-
-								for( directory_iterator i( MapCFGPath ); i != EndIterator; ++i )
-								{
-									string FileName = i->filename( );
-									string Stem = i->path( ).stem( );
-									transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
-									transform( Stem.begin( ), Stem.end( ), Stem.begin( ), (int(*)(int))tolower );
-
-									if( !is_directory( i->status( ) ) && i->path( ).extension( ) == ".cfg" && FileName.find( Pattern ) != string :: npos )
-									{
-										LastMatch = i->path( );
-										++Matches;
-
-										if( FoundMapConfigs.empty( ) )
-											FoundMapConfigs = i->filename( );
-										else
-											FoundMapConfigs += ", " + i->filename( );
-
-										// if the pattern matches the filename exactly, with or without extension, stop any further matching
-
-										if( FileName == Pattern || Stem == Pattern )
-										{
-											Matches = 1;
-											break;
-										}
-									}
-								}
-
-								if( Matches == 0 )
-									QueueChatCommand( m_GHost->m_Language->NoMapConfigsFound( ), User, Whisper, m_IRC );
-								else if( Matches == 1 )
-								{
-									string File = LastMatch.filename( );
-									QueueChatCommand( m_GHost->m_Language->LoadingConfigFile( m_GHost->m_MapCFGPath + File ), User, Whisper, m_IRC );
-									CConfig MapCFG;
-									MapCFG.Read( LastMatch.string( ) );
-									m_GHost->m_Map->Load( &MapCFG, m_GHost->m_MapCFGPath + File );
-								}
-								else
-									QueueChatCommand( m_GHost->m_Language->FoundMapConfigs( FoundMapConfigs ), User, Whisper, m_IRC );
-							}
-						}
-						catch( const exception &ex )
-						{
-							CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + ex.what( ) + "]" );
-							QueueChatCommand( m_GHost->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
-						}
-					}
-				}
-
-				//
-				// !MAP (load map file)
-				//
-
-				else if( Command == "map" )
-				{
-					if( Payload.empty( ) )
-						QueueChatCommand( m_GHost->m_Language->CurrentlyLoadedMapCFGIs( m_GHost->m_Map->GetCFGFile( ) ), User, Whisper, m_IRC );
-					else
-					{
-						string FoundMaps;
-
-						try
-						{
-							// path MapPath(  );
-							string Pattern = Payload;
-							transform( Pattern.begin( ), Pattern.end( ), Pattern.begin( ), (int(*)(int))tolower );
-
-							if( !exists( m_GHost->m_MapPath ) )
-							{
-								CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist" );
-								QueueChatCommand( m_GHost->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
-							}
-							else
-							{
-								directory_iterator EndIterator;
-								path LastMatch;
-								uint32_t Matches = 0;
-
-								for( directory_iterator i( m_GHost->m_MapPath ); i != EndIterator; ++i )
-								{
-									string FileName = i->filename( );
-									string Stem = i->path( ).stem( );
-									transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
-									transform( Stem.begin( ), Stem.end( ), Stem.begin( ), (int(*)(int))tolower );
-
-									if( !is_directory( i->status( ) ) && FileName.find( Pattern ) != string :: npos )
-									{
-										LastMatch = i->path( );
-										++Matches;
-
-										if( FoundMaps.empty( ) )
-											FoundMaps = i->filename( );
-										else
-											FoundMaps += ", " + i->filename( );
-
-										// if the pattern matches the filename exactly, with or without extension, stop any further matching
-
-										if( FileName == Pattern || Stem == Pattern )
-										{
-											Matches = 1;
-											break;
-										}
-									}
-								}
-
-								if( Matches == 0 )
-									QueueChatCommand( m_GHost->m_Language->NoMapsFound( ), User, Whisper, m_IRC );
-								else if( Matches == 1 )
-								{
-									string File = LastMatch.filename( );
-									QueueChatCommand( m_GHost->m_Language->LoadingConfigFile( File ), User, Whisper, m_IRC );
-
-									// hackhack: create a config file in memory with the required information to load the map
-
-									CConfig MapCFG;
-									MapCFG.Set( "map_path", "Maps\\Download\\" + File );
-									MapCFG.Set( "map_localpath", File );
-
-									if( File.find( "DotA" ) != string :: npos )
-										MapCFG.Set( "map_type", "dota" );								
-
-									m_GHost->m_Map->Load( &MapCFG, File );
-								}
-								else
-									QueueChatCommand( m_GHost->m_Language->FoundMaps( FoundMaps ), User, Whisper, m_IRC );
-							}
-						}
-						catch( const exception &ex )
-						{
-							CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + ex.what( ) + "]" );
-							QueueChatCommand( m_GHost->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
-						}
-					}
-				}
+				}				
 
 				//
 				// !COUNTMAPS
 				//
+				
 				else if( Command == "countmaps" || Command == "countmap" )
 				{
 					directory_iterator EndIterator;
@@ -1174,6 +1192,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 				// !COUNTCFG(s)
 				//
+				
 				else if( Command == "countcfg" || Command == "countcfgs" )
 				{
 					directory_iterator EndIterator;
@@ -1194,6 +1213,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 				// !DELETECFG
 				//
+				
 				else if( Command == "deletecfg" && IsRootAdmin( User ) && !Payload.empty( ) )
 				{
 					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
@@ -1219,6 +1239,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				//
 				// !DELETEMAP
 				//
+				
 				else if( Command == "deletemap" && IsRootAdmin( User ) && !Payload.empty( ) )
 				{
 					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
@@ -1282,14 +1303,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						m_GHost->m_CurrentGame->OpenAllSlots( );
 					else
 						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !PRIV (host private game)
-				//
-
-				else if( Command == "priv" && !Payload.empty( ) )
-					m_GHost->CreateGame( m_GHost->m_Map, GAME_PRIVATE, Payload, User, User, m_Server, Whisper );
+				}			
 
 				//
 				// !PRIVBY (host private game by other player)
@@ -1310,14 +1324,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						GameName = Payload.substr( GameNameStart + 1 );
 						m_GHost->CreateGame( m_GHost->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper );
 					}
-				}
-
-				//
-				// !PUB (host public game)
-				//
-
-				else if( Command == "pub" && !Payload.empty( ) )
-					m_GHost->CreateGame( m_GHost->m_Map, GAME_PUBLIC, Payload, User, User, m_Server, Whisper );
+				}				
 
 				//
 				// !PUBBY (host public game by other player)
@@ -1427,7 +1434,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 							m_GHost->m_CurrentGame->SendAllChat( Payload );
 
 						for( vector<CBaseGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); ++i )
-							(*i)->SendAllChat( "ADMIN(" + User + "): " + Payload );
+							(*i)->SendAllChat( "ADMIN (" + User + "): " + Payload );
 					}
 				}
 
@@ -1499,9 +1506,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					}
 					else
 						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}
-
-				
+				}				
 
 				//
 				// !RESTART
@@ -1517,53 +1522,6 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						QueueChatCommand( "Games in progress, use !restart force", User, Whisper, m_IRC );
 				}
 				
-				//
-				// !SPAM
-				//
-				
-				else if( Command == "spam" && m_Server == "europe.battle.net" )
-				{
-					if( m_Spam )
-					{
-						m_Spam = false;
-						QueueChatCommand( "/j " + m_FirstChannel );
-						m_SpamChannel = "allstars";
-						CONSOLE_Print3( "Allstars spam is off." );					
-					}
-					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
-					{
-						m_Spam = true;
-						QueueChatCommand( "/j allstars" );
-						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
-					}
-					else
-						QueueChatCommand( "Cannot be executed.", User, Whisper, m_IRC );
-				}
-
-				//
-				// !UNHOST
-				//
-
-				else if( Command == "unhost" || Command == "uh" )
-				{
-					if( m_GHost->m_CurrentGame )
-					{
-						if( m_GHost->m_CurrentGame->GetCountDownStarted( ) )
-							QueueChatCommand( m_GHost->m_Language->UnableToUnhostGameCountdownStarted( m_GHost->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
-
-						// if the game owner is still in the game only allow the root admin to unhost the game
-
-						else if( m_GHost->m_CurrentGame->GetPlayerFromName( m_GHost->m_CurrentGame->GetOwnerName( ), false ) && !IsRootAdmin( User ) )
-							QueueChatCommand( m_GHost->m_Language->CantUnhostGameOwnerIsPresent( m_GHost->m_CurrentGame->GetOwnerName( ) ), User, Whisper, m_IRC );
-						else
-						{
-							QueueChatCommand( m_GHost->m_Language->UnhostingGame( m_GHost->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
-							m_GHost->m_CurrentGame->SetExiting( true );
-						}
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->UnableToUnhostGameNoGameInLobby( ), User, Whisper, m_IRC );
-				}
 
 				//
 				// !W
@@ -1589,24 +1547,35 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				}
 				
 				//
-				// !R
+				// !DISABLE
 				//
 
-				else if( Command == "r" && !Payload.empty( ) )
+				else if( Command == "disable" )
 				{
-					QueueChatCommand( "/r " + Payload );				
+					if( IsRootAdmin( User ) )
+					{
+						QueueChatCommand( m_GHost->m_Language->BotDisabled( ), User, Whisper, m_IRC );
+						m_GHost->m_Enabled = false;
+					}
+					else
+						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
 				}
 				
 				//
-				// !WHOIS
+				// !ENABLE
 				//
 
-				else if( Command == "whois" && !Payload.empty( ) )
+				else if( Command == "enable" )
 				{
-					for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-						(*i)->QueueChatCommand(  "/whois " + Payload );
+					if( IsRootAdmin( User ) )
+					{
+						QueueChatCommand( m_GHost->m_Language->BotEnabled( ), User, Whisper, m_IRC );
+						m_GHost->m_Enabled = true;
+					}
+					else
+						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
 				}
-				
+								
 				//
 				// !GETCLAN
 				//
@@ -1625,7 +1594,30 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				{
 					SendGetFriendsList( );
 					QueueChatCommand( m_GHost->m_Language->UpdatingFriendsList( ), User, Whisper, m_IRC );
-				}				
+				}
+				
+				//
+				// !EXIT
+				// !QUIT
+				//
+
+				else if( Command == "exit" || Command == "quit" )
+				{
+					if( IsRootAdmin( User ) )
+					{						
+						if( Payload == "force" )
+							m_Exiting = true;
+						else
+						{
+							if( m_GHost->m_CurrentGame || !m_GHost->m_Games.empty( ) )
+								QueueChatCommand( m_GHost->m_Language->AtLeastOneGameActiveUseForceToShutdown( ), User, Whisper, m_IRC );
+							else
+								m_Exiting = true;
+						}
+					}
+					else
+						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+				}					
 			}
 			else
 				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] non-admin [" + User + "] sent command [" + Message + "]" );
@@ -1761,19 +1753,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
                         			else
                                 			QueueChatCommand( m_GHost->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
                                 	}
-				}
-
-				//
-				// !VERSION
-				//
-
-				else if( Command == "version" )
-				{
-					if( IsAdmin( User ) || IsRootAdmin( User ) )
-						QueueChatCommand( m_GHost->m_Language->VersionAdmin( m_GHost->m_Version ), User, Whisper, m_IRC );
-					else
-						QueueChatCommand( m_GHost->m_Language->VersionNotAdmin( m_GHost->m_Version ), User, Whisper, m_IRC );
-				}
+				}				
 				
 				//
 				// !STATUS
@@ -1794,13 +1774,17 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				}
 				
 				//
-				// !ONLINE
+				// !VERSION
 				//
-				
-				else if( Command == "o" || Command == "online" )
+
+				else if( Command == "version" )
 				{
-					QueueChatCommand( "/w Clan007 -o" );
+					if( IsAdmin( User ) || IsRootAdmin( User ) )
+						QueueChatCommand( m_GHost->m_Language->VersionAdmin( m_GHost->m_Version ), User, Whisper, m_IRC );
+					else
+						QueueChatCommand( m_GHost->m_Language->VersionNotAdmin( m_GHost->m_Version ), User, Whisper, m_IRC );
 				}
+				
 			}
 		}
 	}
