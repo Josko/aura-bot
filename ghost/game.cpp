@@ -206,8 +206,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				// kick players with ping higher than payload if payload isn't empty
 				// we only do this if the game hasn't started since we don't want to kick players from a game in progress
 
-				uint32_t Kicked = 0;
-				uint32_t KickPing = 0;
+				uint32_t Kicked = 0, KickPing = 0;
 
 				if( !m_GameLoading && !m_GameLoaded && !Payload.empty( ) )
 					KickPing = UTIL_ToUInt32( Payload );
@@ -642,11 +641,13 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			// !SPAM
 			//
 			
-			else if( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 5 && m_GameState == GAME_PRIVATE )
+			else if( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 6 && m_GameState == GAME_PRIVATE )
 			{
 				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					if( (*i)->GetServer( ) == "europe.battle.net" )
-						(*i)->SetSpam( true );			
+						(*i)->SetSpam( );
+				
+				CONSOLE_Print3( "[GAME: " + m_GameName + "] Allstars spam is on." );		
 			}
 				
 			//

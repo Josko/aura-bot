@@ -169,7 +169,7 @@ void IRC_Print( const string &message )
 
 int main( )
 {
-	srand( time( NULL ) );
+	srand( (unsigned int) time( NULL ) );
 
 	// read config file
 

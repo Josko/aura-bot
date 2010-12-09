@@ -160,9 +160,9 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = Time;
 		}
                 
-		// spam game every 4.25 seconds
+		// spam game every 4.35 seconds
 		
-		if( m_Spam && ( Ticks - m_LastSpamTicks > 4250 ) )
+		if( m_Spam && ( Ticks - m_LastSpamTicks > 4350 ) )
 		{
 			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 			{
@@ -170,7 +170,11 @@ bool CBNET :: Update( void *fd, void *send_fd )
 				m_LastSpamTicks = Ticks;
 			}
 			else
+			{
+				QueueChatCommand( "/j " + m_FirstChannel );
+				m_SpamChannel = "allstars";
 				m_Spam = false;
+			}
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
@@ -733,7 +737,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					if( m_Spam )
 					{
 						m_Spam = false;
-						QueueChatCommand( "/j " + m_FirstChannel );
+						QueueChatCommand( "/j " + m_FirstChannel );					
 						m_SpamChannel = "allstars";
 						CONSOLE_Print3( "Allstars spam is off." );					
 					}
