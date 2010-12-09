@@ -41,7 +41,7 @@ using namespace boost :: filesystem;
 // CBNET
 //
 
-CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, uint32_t nHostCounterID ) : m_GHost( nGHost ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_RootAdmin( nRootAdmin ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTicks( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_SpamChannel( "allstars" ), m_Deactivated( false ), m_IRC( false )
+CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, uint32_t nHostCounterID ) : m_GHost( nGHost ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_RootAdmin( nRootAdmin ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTicks( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_Deactivated( false ), m_IRC( false )
 {
 	m_Socket = new CTCPClient( );
 	m_Protocol = new CBNETProtocol( );
@@ -164,6 +164,12 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		
 		if( m_Spam && ( Ticks - m_LastSpamTicks > 4350 ) )
 		{
+			if( m_SpamChannel.empty( ) )
+			{
+				m_SpamChannel = "allstars";
+				QueueChatCommand( "/j allstars" );			
+			}
+		
 			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 			{
 				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
@@ -172,7 +178,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			else
 			{
 				QueueChatCommand( "/j " + m_FirstChannel );
-				m_SpamChannel = "allstars";
+				m_SpamChannel = string( );
 				m_Spam = false;
 			}
 		}
@@ -737,14 +743,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					if( m_Spam )
 					{
 						m_Spam = false;
-						QueueChatCommand( "/j " + m_FirstChannel );					
-						m_SpamChannel = "allstars";
+						QueueChatCommand( "/j " + m_FirstChannel );
 						CONSOLE_Print3( "Allstars spam is off." );					
 					}
 					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 					{
 						m_Spam = true;
-						QueueChatCommand( "/j allstars" );
 						CONSOLE_Print3( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
 					}
 					else
