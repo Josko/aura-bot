@@ -196,606 +196,70 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			/*****************
 			* ADMIN COMMANDS *
 			******************/
-
-			//
-			// !ABORT (abort countdown)
-			// !A
-			//
-
-			// we use "!a" as an alias for abort because you don't have much time to abort the countdown so it's useful for the abort command to be easy to type
-
-			if( ( Command == "abort" || Command == "a" ) && m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
-			{
-				SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
-				m_CountDownStarted = false;
-			}
-
-			//
-			// !ADDBAN
-			// !BAN
-			//
-
-			else if( ( Command == "addban" || Command == "ban" ) && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
-			{
-				// extract the victim and the reason
-				// e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
-
-				string Victim;
-				string Reason;
-				stringstream SS;
-				SS << Payload;
-				SS >> Victim;
-
-				if( !SS.eof( ) )
-				{
-					getline( SS, Reason );
-					string :: size_type Start = Reason.find_first_not_of( " " );
-
-					if( Start != string :: npos )
-						Reason = Reason.substr( Start );
-				}
-
-				if( m_GameLoaded )
-				{
-					string VictimLower = Victim;
-					transform( VictimLower.begin( ), VictimLower.end( ), VictimLower.begin( ), (int(*)(int))tolower );
-					uint32_t Matches = 0;
-					CDBBan *LastMatch = NULL;
-
-					// try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
-					// we use the m_DBBans vector for this in case the player already left and thus isn't in the m_Players vector anymore
-
-					for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
-					{
-						string TestName = (*i)->GetName( );
-						transform( TestName.begin( ), TestName.end( ), TestName.begin( ), (int(*)(int))tolower );
-
-						if( TestName.find( VictimLower ) != string :: npos )
-						{
-							++Matches;
-							LastMatch = *i;
-
-							// if the name matches exactly stop any further matching
-
-							if( TestName == VictimLower )
-							{
-								Matches = 1;
-								break;
-							}
-						}
-					}
-
-					if( Matches == 0 )
-						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
-					else if( Matches == 1 )
-					{
-						m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
-						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetServer( ), LastMatch->GetName( ), User ) );
-					}
-					else
-						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
-				}
-				else
-				{
-					CGamePlayer *LastMatch = NULL;
-					uint32_t Matches = GetPlayerFromNamePartial( Victim, &LastMatch );
-
-					if( Matches == 0 )
-						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
-					else if( Matches == 1 )
-					{
-						m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason );
-						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
-					}
-					else
-						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
-				}
-			}
-
-			//
-			// !BANLAST
-			//
-
-			else if( ( Command == "banlast" || Command == "bl" ) && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
-			{
-				m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
-				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), User ) );
-			}
-
-			//
-			// !CHECK
-			//
-
-			else if( Command == "check" )
-			{
-				if( !Payload.empty( ) )
-				{
-					CGamePlayer *LastMatch = NULL;
-					uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
-
-					if( Matches == 0 )
-						SendAllChat( m_GHost->m_Language->UnableToCheckPlayerNoMatchesFound( Payload ) );
-					else if( Matches == 1 )
-					{
-						bool LastMatchAdminCheck = false;
-
-						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-						{
-							if( ( (*i)->GetServer( ) == LastMatch->GetSpoofedRealm( ) || LastMatch->GetJoinedRealm( ).empty( ) ) && (*i)->IsAdmin( LastMatch->GetName( ) ) )
-							{
-								LastMatchAdminCheck = true;
-								break;
-							}
-						}
-
-						bool LastMatchRootAdminCheck = false;
-
-						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-						{
-							if( ( (*i)->GetServer( ) == LastMatch->GetSpoofedRealm( ) || LastMatch->GetJoinedRealm( ).empty( ) ) && (*i)->IsRootAdmin( LastMatch->GetName( ) ) )
-							{
-								LastMatchRootAdminCheck = true;
-								break;
-							}
-						}
-
-						SendAllChat( m_GHost->m_Language->CheckedPlayer( LastMatch->GetName( ), LastMatch->GetNumPings( ) > 0 ? UTIL_ToString( LastMatch->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", m_GHost->m_DB->FromCheck( UTIL_ByteArrayToUInt32( LastMatch->GetExternalIP( ), true ) ), LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No", IsOwner( LastMatch->GetName( ) ) ? "Yes" : "No", LastMatch->GetSpoofed( ) ? "Yes" : "No", LastMatch->GetJoinedRealm( ).empty( ) ? "LAN" : LastMatch->GetJoinedRealm( ), LastMatch->GetReserved( ) ? "Yes" : "No" ) );
-					}
-					else
-						SendAllChat( m_GHost->m_Language->UnableToCheckPlayerFoundMoreThanOneMatch( Payload ) );
-				}
-				else
-					SendAllChat( m_GHost->m_Language->CheckedPlayer( User, player->GetNumPings( ) > 0 ? UTIL_ToString( player->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", m_GHost->m_DB->FromCheck( UTIL_ByteArrayToUInt32( player->GetExternalIP( ), true ) ), AdminCheck || RootAdminCheck ? "Yes" : "No", IsOwner( User ) ? "Yes" : "No", player->GetSpoofed( ) ? "Yes" : "No", player->GetJoinedRealm( ).empty( ) ? "LAN" : player->GetJoinedRealm( ), player->GetReserved( ) ? "Yes" : "No" ) );
-			}
-
-			//
-			// !CHECKBAN
-			//
-
-			else if( Command == "checkban" && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
-			{
-				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
-				{
-					CDBBan *Ban = m_GHost->m_DB->BanCheck( (*i)->GetServer( ), Payload, string( ) );
-
-					if( Ban )
-					{
-						SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( (*i)->GetServer( ), Payload, Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
-						delete Ban;
-						Ban = NULL;
-					}
-					else
-						SendAllChat( m_GHost->m_Language->UserIsNotBanned( (*i)->GetServer( ), Payload ) );
-				}					
-			}
-
-			//
-			// !CLEARHCL
-			//
-
-			else if( Command == "clearhcl" && !m_CountDownStarted )
-			{
-				m_HCLCommandString.clear( );
-				SendAllChat( m_GHost->m_Language->ClearingHCL( ) );
-			}
-
-			//
-			// !CLOSE (close slot)
-			//
-
-			else if( Command == "close" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// close as many slots as specified, e.g. "5 10" closes slots 5 and 10
-
-				stringstream SS;
-				SS << Payload;
-
-				while( !SS.eof( ) )
-				{
-					uint32_t SID;
-					SS >> SID;
-
-					if( SS.fail( ) )
-					{
-						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input to close command" );
-						break;
-					}
-					else
-						CloseSlot( (unsigned char)( SID - 1 ), true );
-				}
-			}
-
-			//
-			// !CLOSEALL
-			//
-
-			else if( Command == "closeall" && !m_GameLoading && !m_GameLoaded )
-				CloseAllSlots( );
-
-			//
-			// !COMP (computer slot)
-			//
-
-			else if( Command == "comp" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// extract the slot and the skill
-				// e.g. "1 2" -> slot: "1", skill: "2"
-
-				uint32_t Slot;
-				uint32_t Skill = 1;
-				stringstream SS;
-				SS << Payload;
-				SS >> Slot;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comp command" );
-				else
-				{
-					if( !SS.eof( ) )
-						SS >> Skill;
-
-					if( SS.fail( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to comp command" );
-					else
-						ComputerSlot( (unsigned char)( Slot - 1 ), (unsigned char)Skill, true );
-				}
-			}
-
-			//
-			// !COMPCOLOUR (computer colour change)
-			//
-
-			else if( Command == "compcolour" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// extract the slot and the colour
-				// e.g. "1 2" -> slot: "1", colour: "2"
-
-				uint32_t Slot;
-				uint32_t Colour;
-				stringstream SS;
-				SS << Payload;
-				SS >> Slot;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to compcolour command" );
-				else
-				{
-					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to compcolour command" );
-					else
-					{
-						SS >> Colour;
-
-						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to compcolour command" );
-						else
-						{
-							unsigned char SID = (unsigned char)( Slot - 1 );
-
-							if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && Colour < 12 && SID < m_Slots.size( ) )
-							{
-								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
-									ColourSlot( SID, Colour );
-							}
-						}
-					}
-				}
-			}
-
-			//
-			// !COMPHANDICAP (computer handicap change)
-			//
-
-			else if( Command == "comphandicap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// extract the slot and the handicap
-				// e.g. "1 50" -> slot: "1", handicap: "50"
-
-				uint32_t Slot;
-				uint32_t Handicap;
-				stringstream SS;
-				SS << Payload;
-				SS >> Slot;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comphandicap command" );
-				else
-				{
-					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to comphandicap command" );
-					else
-					{
-						SS >> Handicap;
-
-						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to comphandicap command" );
-						else
-						{
-							unsigned char SID = (unsigned char)( Slot - 1 );
-
-							if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && ( Handicap == 50 || Handicap == 60 || Handicap == 70 || Handicap == 80 || Handicap == 90 || Handicap == 100 ) && SID < m_Slots.size( ) )
-							{
-								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
-								{
-									m_Slots[SID].SetHandicap( (unsigned char)Handicap );
-									SendAllSlotInfo( );
-								}
-							}
-						}
-					}
-				}
-			}
-
-			//
-			// !HANDICAP
-			//
-
-			else if( ( Command == "handicap" || Command == "h" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// extract the slot and the handicap
-				// e.g. "1 50" -> slot: "1", handicap: "50"
-
-				uint32_t Slot;
-				uint32_t Handicap;
-				stringstream SS;
-				SS << Payload;
-				SS >> Slot;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to handicap command" );
-				else
-				{
-					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to handicap command" );
-					else
-					{
-						SS >> Handicap;
-
-						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to handicap command" );
-						else
-						{
-							unsigned char SID = (unsigned char)( Slot - 1 );
-
-							if( SID < m_Slots.size( ) )
-							{
-								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED )
-								{
-									m_Slots[SID].SetHandicap( (unsigned char)Handicap );
-									SendAllSlotInfo( );
-								}
-							}
-						}
-					}
-				}
-			}
-
-			//
-			// !COMPRACE (computer race change)
-			//
-
-			else if( Command == "comprace" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// extract the slot and the race
-				// e.g. "1 human" -> slot: "1", race: "human"
-
-				uint32_t Slot;
-				string Race;
-				stringstream SS;
-				SS << Payload;
-				SS >> Slot;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comprace command" );
-				else
-				{
-					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to comprace command" );
-					else
-					{
-						getline( SS, Race );
-						string :: size_type Start = Race.find_first_not_of( " " );
-
-						if( Start != string :: npos )
-							Race = Race.substr( Start );
-
-						transform( Race.begin( ), Race.end( ), Race.begin( ), (int(*)(int))tolower );
-						unsigned char SID = (unsigned char)( Slot - 1 );
-
-						if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && !( m_Map->GetMapFlags( ) & MAPFLAG_RANDOMRACES ) && SID < m_Slots.size( ) )
-						{
-							if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
-							{
-								if( Race == "human" )
-								{
-									m_Slots[SID].SetRace( SLOTRACE_HUMAN | SLOTRACE_SELECTABLE );
-									SendAllSlotInfo( );
-								}
-								else if( Race == "orc" )
-								{
-									m_Slots[SID].SetRace( SLOTRACE_ORC | SLOTRACE_SELECTABLE );
-									SendAllSlotInfo( );
-								}
-								else if( Race == "night elf" )
-								{
-									m_Slots[SID].SetRace( SLOTRACE_NIGHTELF | SLOTRACE_SELECTABLE );
-									SendAllSlotInfo( );
-								}
-								else if( Race == "undead" )
-								{
-									m_Slots[SID].SetRace( SLOTRACE_UNDEAD | SLOTRACE_SELECTABLE );
-									SendAllSlotInfo( );
-								}
-								else if( Race == "random" )
-								{
-									m_Slots[SID].SetRace( SLOTRACE_RANDOM | SLOTRACE_SELECTABLE );
-									SendAllSlotInfo( );
-								}
-								else
-									CONSOLE_Print( "[GAME: " + m_GameName + "] unknown race [" + Race + "] sent to comprace command" );
-							}
-						}
-					}
-				}
-			}
-
-			//
-			// !COMPTEAM (computer team change)
-			//
-
-			else if( Command == "compteam" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				// extract the slot and the team
-				// e.g. "1 2" -> slot: "1", team: "2"
-
-				uint32_t Slot;
-				uint32_t Team;
-				stringstream SS;
-				SS << Payload;
-				SS >> Slot;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to compteam command" );
-				else
-				{
-					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to compteam command" );
-					else
-					{
-						SS >> Team;
-
-						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to compteam command" );
-						else
-						{
-							unsigned char SID = (unsigned char)( Slot - 1 );
-
-							if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && Team < 12 && SID < m_Slots.size( ) )
-							{
-								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
-								{
-									m_Slots[SID].SetTeam( (unsigned char)( Team - 1 ) );
-									SendAllSlotInfo( );
-								}
-							}
-						}
-					}
-				}
-			}
-
-			//
-			// !DOWNLOAD
-			// !DL
-			//
-
-			else if( ( Command == "download" || Command == "dl" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
-			{
-				CGamePlayer *LastMatch = NULL;
-				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
-
-				if( Matches == 0 )
-					SendAllChat( m_GHost->m_Language->UnableToStartDownloadNoMatchesFound( Payload ) );
-				else if( Matches == 1 )
-				{
-					if( !LastMatch->GetDownloadStarted( ) && !LastMatch->GetDownloadFinished( ) )
-					{
-						unsigned char SID = GetSIDFromPID( LastMatch->GetPID( ) );
-
-						if( SID < m_Slots.size( ) && m_Slots[SID].GetDownloadStatus( ) != 100 )
-						{
-							// inform the client that we are willing to send the map
-
-							CONSOLE_Print( "[GAME: " + m_GameName + "] map download started for player [" + LastMatch->GetName( ) + "]" );
-							Send( LastMatch, m_Protocol->SEND_W3GS_STARTDOWNLOAD( GetHostPID( ) ) );
-							LastMatch->SetDownloadAllowed( true );
-							LastMatch->SetDownloadStarted( true );
-							LastMatch->SetStartedDownloadingTicks( GetTicks( ) );
-						}
-					}
-				}
-				else
-					SendAllChat( m_GHost->m_Language->UnableToStartDownloadFoundMoreThanOneMatch( Payload ) );
-			}
 			
 			//
-			// !DOWNLOADS
+			// !PING
 			//
 
-			else if( ( Command == "downloads" || Command == "dls" ) && !Payload.empty( ) )
+			if( Command == "ping" || Command == "p" )
 			{
-				uint32_t Downloads = UTIL_ToUInt32( Payload );
+				// kick players with ping higher than payload if payload isn't empty
+				// we only do this if the game hasn't started since we don't want to kick players from a game in progress
 
-				if( Downloads == 0 )
+				uint32_t Kicked = 0;
+				uint32_t KickPing = 0;
+
+				if( !m_GameLoading && !m_GameLoaded && !Payload.empty( ) )
+					KickPing = UTIL_ToUInt32( Payload );
+
+				// copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
+
+				vector<CGamePlayer *> SortedPlayers = m_Players;
+				sort( SortedPlayers.begin( ), SortedPlayers.end( ), CGamePlayerSortDescByPing( ) );
+				string Pings;
+
+				for( vector<CGamePlayer *> :: iterator i = SortedPlayers.begin( ); i != SortedPlayers.end( ); ++i )
 				{
-					SendAllChat( m_GHost->m_Language->MapDownloadsDisabled( ) );
-					m_GHost->m_AllowDownloads = 0;
+					Pings += (*i)->GetNameTerminated( );
+					Pings += ": ";
+
+					if( (*i)->GetNumPings( ) > 0 )
+					{
+						Pings += UTIL_ToString( (*i)->GetPing( m_GHost->m_LCPings ) );
+
+						if( !m_GameLoading && !m_GameLoaded && !(*i)->GetReserved( ) && KickPing > 0 && (*i)->GetPing( m_GHost->m_LCPings ) > KickPing )
+						{
+							(*i)->SetDeleteMe( true );
+							(*i)->SetLeftReason( "was kicked for excessive ping " + UTIL_ToString( (*i)->GetPing( m_GHost->m_LCPings ) ) + " > " + UTIL_ToString( KickPing ) );
+							(*i)->SetLeftCode( PLAYERLEAVE_LOBBY );
+							OpenSlot( GetSIDFromPID( (*i)->GetPID( ) ), false );
+							++Kicked;
+						}
+
+						Pings += "ms";
+					}
+					else
+						Pings += "N/A";
+
+					if( i != SortedPlayers.end( ) - 1 )
+						Pings += ", ";
+
+					if( ( m_GameLoading || m_GameLoaded ) && Pings.size( ) > 100 )
+					{
+						// cut the text into multiple lines ingame
+
+						SendAllChat( Pings );
+						Pings.clear( );
+					}
 				}
-				else if( Downloads == 1 )
-				{
-					SendAllChat( m_GHost->m_Language->MapDownloadsEnabled( ) );
-					m_GHost->m_AllowDownloads = 1;
-				}
-				else if( Downloads == 2 )
-				{
-					SendAllChat( m_GHost->m_Language->MapDownloadsConditional( ) );
-					m_GHost->m_AllowDownloads = 2;
-				}
+
+				if( !Pings.empty( ) )
+					SendAllChat( Pings );
+
+				if( Kicked > 0 )
+					SendAllChat( m_GHost->m_Language->KickingPlayersWithPingsGreaterThan( UTIL_ToString( Kicked ), UTIL_ToString( KickPing ) ) );
 			}
-
-			//
-			// !DROP
-			//
-
-			else if( Command == "drop" && m_GameLoaded )
-				StopLaggers( "lagged out (dropped by admin)" );
-
-			//
-			// !END
-			//
-
-			else if( ( Command == "end" || Command == "e" ) && m_GameLoaded )
-			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (admin ended game)" );
-				StopPlayers( "was disconnected (admin ended game)" );
-			}
-
-			//
-			// !FAKEPLAYER
-			//
-
-			else if( ( Command == "fakeplayer" || Command == "fp" ) && !m_CountDownStarted )
-				CreateFakePlayer( );
-
-			//
-			// !DELETEFAKE
-				
-			else if( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && m_FakePlayers.size( ) && !m_CountDownStarted )
-				DeleteFakePlayers( );
-
-			//
-			// !FPPAUSE
-			//
-
-			else if( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && m_FakePlayers.size( ) )
-			{
-				BYTEARRAY CRC;
-				BYTEARRAY Action;
-				Action.push_back( 1 );
-				m_Actions.push( new CIncomingAction( m_FakePlayers[ rand( ) % m_FakePlayers.size( ) ], CRC, Action ) );
-			}
-
-			//
-			// !FPRESUME
-			//
-
-			else if( ( Command == "fpresume" || Command == "fpr" ) && m_FakePlayers.size( ) && m_GameLoaded )
-			{
-				BYTEARRAY CRC;
-				BYTEARRAY Action;
-				Action.push_back( 2 );
-				m_Actions.push( new CIncomingAction( m_FakePlayers[0], CRC, Action ) );
-			}
-
+			
 			//
 			// !FROM
 			//
@@ -828,6 +292,52 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				if( !Froms.empty( ) )
 					SendAllChat( Froms );
 			}
+						
+			//
+			// !BANLAST
+			//
+
+			else if( ( Command == "banlast" || Command == "bl" ) && m_GameLoaded && !m_GHost->m_BNETs.empty( ) && m_DBBanLast )
+			{
+				m_GHost->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
+				SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), User ) );
+			}			
+
+			//
+			// !CLOSE (close slot)
+			//
+
+			else if( ( Command == "close" || Command == "c" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// close as many slots as specified, e.g. "5 10" closes slots 5 and 10
+
+				stringstream SS;
+				SS << Payload;
+
+				while( !SS.eof( ) )
+				{
+					uint32_t SID;
+					SS >> SID;
+
+					if( SS.fail( ) )
+					{
+						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input to close command" );
+						break;
+					}
+					else
+						CloseSlot( (unsigned char)( SID - 1 ), true );
+				}
+			}			
+
+			//
+			// !END
+			//
+
+			else if( ( Command == "end" || Command == "e" ) && m_GameLoaded )
+			{
+				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (admin ended game)" );
+				StopPlayers( "was disconnected (admin ended game)" );
+			}			
 
 			//
 			// !HCL
@@ -938,47 +448,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					else
 						SendAllChat( m_GHost->m_Language->SettingLatencyTo( UTIL_ToString( m_Latency ) ) );
 				}
-			}
-
-			//
-			// !LOCK
-			//
-
-			else if( Command == "lock" && ( RootAdminCheck || IsOwner( User ) ) )
-			{
-				SendAllChat( m_GHost->m_Language->GameLocked( ) );
-				m_Locked = true;
-			}
-
-			//
-			// !MUTE
-			//
-
-			else if( Command == "mute" )
-			{
-				CGamePlayer *LastMatch = NULL;
-				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
-
-				if( Matches == 0 )
-					SendAllChat( m_GHost->m_Language->UnableToMuteNoMatchesFound( Payload ) );
-				else if( Matches == 1 )
-				{
-					SendAllChat( m_GHost->m_Language->MutedPlayer( LastMatch->GetName( ), User ) );
-					LastMatch->SetMuted( true );
-				}
-				else
-					SendAllChat( m_GHost->m_Language->UnableToMuteFoundMoreThanOneMatch( Payload ) );
-			}
-
-			//
-			// !MUTEALL
-			//
-
-			else if( Command == "muteall" && m_GameLoaded )
-			{
-				SendAllChat( m_GHost->m_Language->GlobalChatMuted( ) );
-				m_MuteAll = true;
-			}
+			}		
 
 			//
 			// !OPEN (open slot)
@@ -1004,100 +474,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					else
 						OpenSlot( (unsigned char)( SID - 1 ), true );
 				}
-			}
+			}		
 
-			//
-			// !OPENALL
-			//
-
-			else if( Command == "openall" && !m_GameLoading && !m_GameLoaded )
-				OpenAllSlots( );
-
-			//
-			// !OWNER (set game owner)
-			//
-
-			else if( Command == "owner" )
-			{
-				if( RootAdminCheck || IsOwner( User ) || !GetPlayerFromName( m_OwnerName, false ) )
-				{
-					if( !Payload.empty( ) )
-					{
-						SendAllChat( m_GHost->m_Language->SettingGameOwnerTo( Payload ) );
-						m_OwnerName = Payload;
-					}
-					else
-					{
-						SendAllChat( m_GHost->m_Language->SettingGameOwnerTo( User ) );
-						m_OwnerName = User;
-					}
-				}
-				else
-					SendAllChat( m_GHost->m_Language->UnableToSetGameOwner( m_OwnerName ) );
-			}
-
-			//
-			// !PING
-			//
-
-			else if( Command == "ping" || Command == "p" )
-			{
-				// kick players with ping higher than payload if payload isn't empty
-				// we only do this if the game hasn't started since we don't want to kick players from a game in progress
-
-				uint32_t Kicked = 0;
-				uint32_t KickPing = 0;
-
-				if( !m_GameLoading && !m_GameLoaded && !Payload.empty( ) )
-					KickPing = UTIL_ToUInt32( Payload );
-
-				// copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
-
-				vector<CGamePlayer *> SortedPlayers = m_Players;
-				sort( SortedPlayers.begin( ), SortedPlayers.end( ), CGamePlayerSortDescByPing( ) );
-				string Pings;
-
-				for( vector<CGamePlayer *> :: iterator i = SortedPlayers.begin( ); i != SortedPlayers.end( ); ++i )
-				{
-					Pings += (*i)->GetNameTerminated( );
-					Pings += ": ";
-
-					if( (*i)->GetNumPings( ) > 0 )
-					{
-						Pings += UTIL_ToString( (*i)->GetPing( m_GHost->m_LCPings ) );
-
-						if( !m_GameLoading && !m_GameLoaded && !(*i)->GetReserved( ) && KickPing > 0 && (*i)->GetPing( m_GHost->m_LCPings ) > KickPing )
-						{
-							(*i)->SetDeleteMe( true );
-							(*i)->SetLeftReason( "was kicked for excessive ping " + UTIL_ToString( (*i)->GetPing( m_GHost->m_LCPings ) ) + " > " + UTIL_ToString( KickPing ) );
-							(*i)->SetLeftCode( PLAYERLEAVE_LOBBY );
-							OpenSlot( GetSIDFromPID( (*i)->GetPID( ) ), false );
-							++Kicked;
-						}
-
-						Pings += "ms";
-					}
-					else
-						Pings += "N/A";
-
-					if( i != SortedPlayers.end( ) - 1 )
-						Pings += ", ";
-
-					if( ( m_GameLoading || m_GameLoaded ) && Pings.size( ) > 100 )
-					{
-						// cut the text into multiple lines ingame
-
-						SendAllChat( Pings );
-						Pings.clear( );
-					}
-				}
-
-				if( !Pings.empty( ) )
-					SendAllChat( Pings );
-
-				if( Kicked > 0 )
-					SendAllChat( m_GHost->m_Language->KickingPlayersWithPingsGreaterThan( UTIL_ToString( Kicked ), UTIL_ToString( KickPing ) ) );
-			}
+			
 
 			//
 			// !PRIV (rehost as private game)
@@ -1173,93 +552,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				}
 				else
 					SendAllChat( m_GHost->m_Language->UnableToCreateGameNameTooLong( Payload ) );
-			}
-
-			//
-			// !SAY
-			//
-
-			else if( Command == "say" && !Payload.empty( ) )
-			{
-				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-					(*i)->QueueChatCommand( Payload );
-			}
-
-			//
-			// !STATUS
-			//
-
-			else if ( Command == "status" && m_GHost->m_BNETs.size( ) )
-			{
-				string message = "Status: ";
-
-		    		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-					message += (*i)->GetServer( ) + ( (*i)->GetLoggedIn( ) ? " [Online], " : " [Offline], " );
-
-				message += m_GHost->m_IRC->m_Server + ( !m_GHost->m_IRC->m_WaitingToConnect ? " [Online]" : " [Offline]" );
-
-				SendAllChat( message );		 
-			}
-
-			//
-			// !SENDLAN
-			//
-
-			else if( Command == "sendlan" && !Payload.empty( ) && !m_CountDownStarted )
-			{
-				// extract the ip and the port
-				// e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
-
-				string IP;
-				uint32_t Port = 6112;
-				stringstream SS;
-				SS << Payload;
-				SS >> IP;
-
-				if( !SS.eof( ) )
-					SS >> Port;
-
-				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad inputs to sendlan command" );
-				else
-				{
-					// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
-					// the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
-					// the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
-					// since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
-					// when a player joins a game we can obtain the ID from the received host counter
-					// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
-
-					uint32_t FixedHostCounter = m_HostCounter & 0x0FFFFFFF;
-
-					// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
-					// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
-					// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
-					// however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
-					// nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
-					// we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
-					// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
-					// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
-
-					
-					// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
-					// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
-
-					uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-					
-					m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
-				}
-			}
-
-			//
-			// !SP
-			//
-
-			else if( Command == "sp" && !m_CountDownStarted )
-			{
-				SendAllChat( m_GHost->m_Language->ShufflingPlayers( ) );
-				ShuffleSlots( );
-			}
+			}				
 
 			//
 			// !START
@@ -1344,6 +637,607 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			else if( ( Command == "unhost" || Command == "uh" ) && !m_CountDownStarted )
 				m_Exiting = true;
+				
+			//
+			// !SPAM
+			//
+			
+			else if( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 5 && m_GameState == GAME_PRIVATE )
+			{
+				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+					if( (*i)->GetServer( ) == "europe.battle.net" )
+						(*i)->SetSpam( true );			
+			}
+				
+			//
+			// !HANDICAP
+			//
+
+			else if( ( Command == "handicap" || Command == "h" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// extract the slot and the handicap
+				// e.g. "1 50" -> slot: "1", handicap: "50"
+
+				uint32_t Slot, Handicap;
+				stringstream SS;
+				SS << Payload;
+				SS >> Slot;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to handicap command" );
+				else
+				{
+					if( SS.eof( ) )
+						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to handicap command" );
+					else
+					{
+						SS >> Handicap;
+
+						if( SS.fail( ) )
+							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to handicap command" );
+						else
+						{
+							unsigned char SID = (unsigned char)( Slot - 1 );
+
+							if( SID < m_Slots.size( ) )
+							{
+								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED )
+								{
+									m_Slots[SID].SetHandicap( (unsigned char)Handicap );
+									SendAllSlotInfo( );
+								}
+							}
+						}
+					}
+				}
+			}		
+
+			//
+			// !DOWNLOAD
+			// !DL
+			//
+
+			else if( ( Command == "download" || Command == "dl" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				CGamePlayer *LastMatch = NULL;
+				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
+
+				if( Matches == 0 )
+					SendAllChat( m_GHost->m_Language->UnableToStartDownloadNoMatchesFound( Payload ) );
+				else if( Matches == 1 )
+				{
+					if( !LastMatch->GetDownloadStarted( ) && !LastMatch->GetDownloadFinished( ) )
+					{
+						unsigned char SID = GetSIDFromPID( LastMatch->GetPID( ) );
+
+						if( SID < m_Slots.size( ) && m_Slots[SID].GetDownloadStatus( ) != 100 )
+						{
+							// inform the client that we are willing to send the map
+
+							CONSOLE_Print( "[GAME: " + m_GameName + "] map download started for player [" + LastMatch->GetName( ) + "]" );
+							Send( LastMatch, m_Protocol->SEND_W3GS_STARTDOWNLOAD( GetHostPID( ) ) );
+							LastMatch->SetDownloadAllowed( true );
+							LastMatch->SetDownloadStarted( true );
+							LastMatch->SetStartedDownloadingTicks( GetTicks( ) );
+						}
+					}
+				}
+				else
+					SendAllChat( m_GHost->m_Language->UnableToStartDownloadFoundMoreThanOneMatch( Payload ) );
+			}
+			
+			//
+			// !DOWNLOADS
+			//
+
+			else if( ( Command == "downloads" || Command == "dls" ) && !Payload.empty( ) )
+			{
+				uint32_t Downloads = UTIL_ToUInt32( Payload );
+
+				if( Downloads == 0 )
+				{
+					SendAllChat( m_GHost->m_Language->MapDownloadsDisabled( ) );
+					m_GHost->m_AllowDownloads = 0;
+				}
+				else if( Downloads == 1 )
+				{
+					SendAllChat( m_GHost->m_Language->MapDownloadsEnabled( ) );
+					m_GHost->m_AllowDownloads = 1;
+				}
+				else if( Downloads == 2 )
+				{
+					SendAllChat( m_GHost->m_Language->MapDownloadsConditional( ) );
+					m_GHost->m_AllowDownloads = 2;
+				}
+			}
+			
+			//
+			// !DROP
+			//
+
+			else if( Command == "drop" && m_GameLoaded )
+				StopLaggers( "lagged out (dropped by admin)" );			
+
+			//
+			// !MUTE
+			//
+
+			else if( Command == "mute" )
+			{
+				CGamePlayer *LastMatch = NULL;
+				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
+
+				if( Matches == 0 )
+					SendAllChat( m_GHost->m_Language->UnableToMuteNoMatchesFound( Payload ) );
+				else if( Matches == 1 )
+				{
+					SendAllChat( m_GHost->m_Language->MutedPlayer( LastMatch->GetName( ), User ) );
+					LastMatch->SetMuted( true );
+				}
+				else
+					SendAllChat( m_GHost->m_Language->UnableToMuteFoundMoreThanOneMatch( Payload ) );
+			}
+
+			//
+			// !MUTEALL
+			//
+
+			else if( Command == "muteall" && m_GameLoaded )
+			{
+				SendAllChat( m_GHost->m_Language->GlobalChatMuted( ) );
+				m_MuteAll = true;
+			}
+				
+			//
+			// !ABORT (abort countdown)
+			// !A
+			//
+
+			// we use "!a" as an alias for abort because you don't have much time to abort the countdown so it's useful for the abort command to be easy to type
+
+			else if( ( Command == "abort" || Command == "a" ) && m_CountDownStarted && !m_GameLoading && !m_GameLoaded )
+			{
+				SendAllChat( m_GHost->m_Language->CountDownAborted( ) );
+				m_CountDownStarted = false;
+			}
+
+			//
+			// !ADDBAN
+			// !BAN
+			//
+
+			else if( ( Command == "addban" || Command == "ban" ) && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
+			{
+				// extract the victim and the reason
+				// e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
+
+				string Victim, Reason;
+				stringstream SS;
+				SS << Payload;
+				SS >> Victim;
+
+				if( !SS.eof( ) )
+				{
+					getline( SS, Reason );
+					string :: size_type Start = Reason.find_first_not_of( " " );
+
+					if( Start != string :: npos )
+						Reason = Reason.substr( Start );
+				}
+
+				if( m_GameLoaded )
+				{
+					string VictimLower = Victim;
+					transform( VictimLower.begin( ), VictimLower.end( ), VictimLower.begin( ), (int(*)(int))tolower );
+					uint32_t Matches = 0;
+					CDBBan *LastMatch = NULL;
+
+					// try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
+					// we use the m_DBBans vector for this in case the player already left and thus isn't in the m_Players vector anymore
+
+					for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
+					{
+						string TestName = (*i)->GetName( );
+						transform( TestName.begin( ), TestName.end( ), TestName.begin( ), (int(*)(int))tolower );
+
+						if( TestName.find( VictimLower ) != string :: npos )
+						{
+							++Matches;
+							LastMatch = *i;
+
+							// if the name matches exactly stop any further matching
+
+							if( TestName == VictimLower )
+							{
+								Matches = 1;
+								break;
+							}
+						}
+					}
+
+					if( Matches == 0 )
+						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
+					else if( Matches == 1 )
+					{
+						m_GHost->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
+						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetServer( ), LastMatch->GetName( ), User ) );
+					}
+					else
+						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
+				}
+				else
+				{
+					CGamePlayer *LastMatch = NULL;
+					uint32_t Matches = GetPlayerFromNamePartial( Victim, &LastMatch );
+
+					if( Matches == 0 )
+						SendAllChat( m_GHost->m_Language->UnableToBanNoMatchesFound( Victim ) );
+					else if( Matches == 1 )
+					{
+						m_GHost->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason );
+						SendAllChat( m_GHost->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
+					}
+					else
+						SendAllChat( m_GHost->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
+				}
+			}
+
+			
+			//
+			// !CHECK
+			//
+
+			else if( Command == "check" )
+			{
+				if( !Payload.empty( ) )
+				{
+					CGamePlayer *LastMatch = NULL;
+					uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
+
+					if( Matches == 0 )
+						SendAllChat( m_GHost->m_Language->UnableToCheckPlayerNoMatchesFound( Payload ) );
+					else if( Matches == 1 )
+					{
+						bool LastMatchAdminCheck = false;
+
+						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+						{
+							if( ( (*i)->GetServer( ) == LastMatch->GetSpoofedRealm( ) || LastMatch->GetJoinedRealm( ).empty( ) ) && (*i)->IsAdmin( LastMatch->GetName( ) ) )
+							{
+								LastMatchAdminCheck = true;
+								break;
+							}
+						}
+
+						bool LastMatchRootAdminCheck = false;
+
+						for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+						{
+							if( ( (*i)->GetServer( ) == LastMatch->GetSpoofedRealm( ) || LastMatch->GetJoinedRealm( ).empty( ) ) && (*i)->IsRootAdmin( LastMatch->GetName( ) ) )
+							{
+								LastMatchRootAdminCheck = true;
+								break;
+							}
+						}
+
+						SendAllChat( m_GHost->m_Language->CheckedPlayer( LastMatch->GetName( ), LastMatch->GetNumPings( ) > 0 ? UTIL_ToString( LastMatch->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", m_GHost->m_DB->FromCheck( UTIL_ByteArrayToUInt32( LastMatch->GetExternalIP( ), true ) ), LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No", IsOwner( LastMatch->GetName( ) ) ? "Yes" : "No", LastMatch->GetSpoofed( ) ? "Yes" : "No", LastMatch->GetJoinedRealm( ).empty( ) ? "LAN" : LastMatch->GetJoinedRealm( ), LastMatch->GetReserved( ) ? "Yes" : "No" ) );
+					}
+					else
+						SendAllChat( m_GHost->m_Language->UnableToCheckPlayerFoundMoreThanOneMatch( Payload ) );
+				}
+				else
+					SendAllChat( m_GHost->m_Language->CheckedPlayer( User, player->GetNumPings( ) > 0 ? UTIL_ToString( player->GetPing( m_GHost->m_LCPings ) ) + "ms" : "N/A", m_GHost->m_DB->FromCheck( UTIL_ByteArrayToUInt32( player->GetExternalIP( ), true ) ), AdminCheck || RootAdminCheck ? "Yes" : "No", IsOwner( User ) ? "Yes" : "No", player->GetSpoofed( ) ? "Yes" : "No", player->GetJoinedRealm( ).empty( ) ? "LAN" : player->GetJoinedRealm( ), player->GetReserved( ) ? "Yes" : "No" ) );
+			}
+
+			//
+			// !CHECKBAN
+			//
+
+			else if( Command == "checkban" && !Payload.empty( ) && !m_GHost->m_BNETs.empty( ) )
+			{
+				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); i++ )
+				{
+					CDBBan *Ban = m_GHost->m_DB->BanCheck( (*i)->GetServer( ), Payload, string( ) );
+
+					if( Ban )
+					{
+						SendAllChat( m_GHost->m_Language->UserWasBannedOnByBecause( (*i)->GetServer( ), Payload, Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
+						delete Ban;
+						Ban = NULL;
+					}
+					else
+						SendAllChat( m_GHost->m_Language->UserIsNotBanned( (*i)->GetServer( ), Payload ) );
+				}					
+			}
+
+			//
+			// !CLEARHCL
+			//
+
+			else if( Command == "clearhcl" && !m_CountDownStarted )
+			{
+				m_HCLCommandString.clear( );
+				SendAllChat( m_GHost->m_Language->ClearingHCL( ) );
+			}
+				
+			//
+			// !STATUS
+			//
+
+			else if ( Command == "status" && m_GHost->m_BNETs.size( ) )
+			{
+				string message = "Status: ";
+
+		    		for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+					message += (*i)->GetServer( ) + ( (*i)->GetLoggedIn( ) ? " [Online], " : " [Offline], " );
+
+				message += m_GHost->m_IRC->m_Server + ( !m_GHost->m_IRC->m_WaitingToConnect ? " [Online]" : " [Offline]" );
+
+				SendAllChat( message );		 
+			}
+				
+			//
+			// !SENDLAN
+			//
+
+			else if( Command == "sendlan" && !Payload.empty( ) && !m_CountDownStarted )
+			{
+				// extract the ip and the port
+				// e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
+
+				string IP;
+				uint32_t Port = 6112;
+				stringstream SS;
+				SS << Payload;
+				SS >> IP;
+
+				if( !SS.eof( ) )
+					SS >> Port;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad inputs to sendlan command" );
+				else
+				{
+					// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
+					// the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
+					// the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
+					// since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
+					// when a player joins a game we can obtain the ID from the received host counter
+					// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
+
+					uint32_t FixedHostCounter = m_HostCounter & 0x0FFFFFFF;
+
+					// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
+					// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
+					// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
+					// however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
+					// nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
+					// we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
+					// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
+					// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
+
+					
+					// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
+					// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
+
+					uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
+					
+					m_GHost->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_GHost->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter ) );
+				}
+			}
+			
+			//
+			// !OWNER (set game owner)
+			//
+
+			else if( Command == "owner" )
+			{
+				if( RootAdminCheck || IsOwner( User ) || !GetPlayerFromName( m_OwnerName, false ) )
+				{
+					if( !Payload.empty( ) )
+					{
+						SendAllChat( m_GHost->m_Language->SettingGameOwnerTo( Payload ) );
+						m_OwnerName = Payload;
+					}
+					else
+					{
+						SendAllChat( m_GHost->m_Language->SettingGameOwnerTo( User ) );
+						m_OwnerName = User;
+					}
+				}
+				else
+					SendAllChat( m_GHost->m_Language->UnableToSetGameOwner( m_OwnerName ) );
+			}
+				
+			//
+			// !SAY
+			//
+
+			else if( Command == "say" && !Payload.empty( ) )
+			{
+				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+					(*i)->QueueChatCommand( Payload );
+			}
+				
+			//
+			// !CLOSEALL
+			//
+
+			else if( Command == "closeall" && !m_GameLoading && !m_GameLoaded )
+				CloseAllSlots( );
+
+			//
+			// !COMP (computer slot)
+			//
+
+			else if( Command == "comp" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// extract the slot and the skill
+				// e.g. "1 2" -> slot: "1", skill: "2"
+
+				uint32_t Slot, Skill = 1;
+				stringstream SS;
+				SS << Payload;
+				SS >> Slot;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comp command" );
+				else
+				{
+					if( !SS.eof( ) )
+						SS >> Skill;
+
+					if( SS.fail( ) )
+						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to comp command" );
+					else
+						ComputerSlot( (unsigned char)( Slot - 1 ), (unsigned char)Skill, true );
+				}
+			}
+
+			//
+			// !COMPCOLOUR (computer colour change)
+			//
+
+			else if( Command == "compcolour" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// extract the slot and the colour
+				// e.g. "1 2" -> slot: "1", colour: "2"
+
+				uint32_t Slot, Colour;
+				stringstream SS;
+				SS << Payload;
+				SS >> Slot;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to compcolour command" );
+				else
+				{
+					if( SS.eof( ) )
+						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to compcolour command" );
+					else
+					{
+						SS >> Colour;
+
+						if( SS.fail( ) )
+							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to compcolour command" );
+						else
+						{
+							unsigned char SID = (unsigned char)( Slot - 1 );
+
+							if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && Colour < 12 && SID < m_Slots.size( ) )
+							{
+								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
+									ColourSlot( SID, Colour );
+							}
+						}
+					}
+				}
+			}
+
+			//
+			// !COMPHANDICAP (computer handicap change)
+			//
+
+			else if( Command == "comphandicap" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// extract the slot and the handicap
+				// e.g. "1 50" -> slot: "1", handicap: "50"
+
+				uint32_t Slot, Handicap;
+				stringstream SS;
+				SS << Payload;
+				SS >> Slot;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comphandicap command" );
+				else
+				{
+					if( SS.eof( ) )
+						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to comphandicap command" );
+					else
+					{
+						SS >> Handicap;
+
+						if( SS.fail( ) )
+							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to comphandicap command" );
+						else
+						{
+							unsigned char SID = (unsigned char)( Slot - 1 );
+
+							if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && ( Handicap == 50 || Handicap == 60 || Handicap == 70 || Handicap == 80 || Handicap == 90 || Handicap == 100 ) && SID < m_Slots.size( ) )
+							{
+								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
+								{
+									m_Slots[SID].SetHandicap( (unsigned char)Handicap );
+									SendAllSlotInfo( );
+								}
+							}
+						}
+					}
+				}
+			}
+				
+			//
+			// !FAKEPLAYER
+			//
+
+			else if( ( Command == "fakeplayer" || Command == "fp" ) && !m_CountDownStarted )
+				CreateFakePlayer( );
+
+			//
+			// !DELETEFAKE
+				
+			else if( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && m_FakePlayers.size( ) && !m_CountDownStarted )
+				DeleteFakePlayers( );
+
+			//
+			// !FPPAUSE
+			//
+
+			else if( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && m_FakePlayers.size( ) )
+			{
+				BYTEARRAY CRC, Action;
+				Action.push_back( 1 );
+				m_Actions.push( new CIncomingAction( m_FakePlayers[ rand( ) % m_FakePlayers.size( ) ], CRC, Action ) );
+			}
+
+			//
+			// !FPRESUME
+			//
+
+			else if( ( Command == "fpresume" || Command == "fpr" ) && m_FakePlayers.size( ) && m_GameLoaded )
+			{
+				BYTEARRAY CRC, Action;
+				Action.push_back( 2 );
+				m_Actions.push( new CIncomingAction( m_FakePlayers[0], CRC, Action ) );
+			}
+				
+			//
+			// !SP
+			//
+
+			else if( Command == "sp" && !m_CountDownStarted )
+			{
+				SendAllChat( m_GHost->m_Language->ShufflingPlayers( ) );
+				ShuffleSlots( );
+			}
+				
+			//
+			// !LOCK
+			//
+
+			else if( Command == "lock" && ( RootAdminCheck || IsOwner( User ) ) )
+			{
+				SendAllChat( m_GHost->m_Language->GameLocked( ) );
+				m_Locked = true;
+			}
+				
+			//
+			// !OPENALL
+			//
+
+			else if( Command == "openall" && !m_GameLoading && !m_GameLoaded )
+				OpenAllSlots( );
 
 			//
 			// !UNLOCK
@@ -1385,15 +1279,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				m_MuteAll = false;
 			}
 
-			//
-			// !VIRTUALHOST
-			//
-
-			else if( Command == "virtualhost" && !Payload.empty( ) && Payload.size( ) <= 15 && !m_CountDownStarted )
-			{
-				DeleteVirtualHost( );
-				m_VirtualHostName = Payload;
-			}
+			
 
 			//
 			// !VOTECANCEL
@@ -1436,6 +1322,128 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 					(*i)->QueueChatCommand(  "/whois " + Payload );
+			}
+			
+			//
+			// !COMPRACE (computer race change)
+			//
+
+			else if( Command == "comprace" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// extract the slot and the race
+				// e.g. "1 human" -> slot: "1", race: "human"
+
+				uint32_t Slot;
+				string Race;
+				stringstream SS;
+				SS << Payload;
+				SS >> Slot;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comprace command" );
+				else
+				{
+					if( SS.eof( ) )
+						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to comprace command" );
+					else
+					{
+						getline( SS, Race );
+						string :: size_type Start = Race.find_first_not_of( " " );
+
+						if( Start != string :: npos )
+							Race = Race.substr( Start );
+
+						transform( Race.begin( ), Race.end( ), Race.begin( ), (int(*)(int))tolower );
+						unsigned char SID = (unsigned char)( Slot - 1 );
+
+						if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && !( m_Map->GetMapFlags( ) & MAPFLAG_RANDOMRACES ) && SID < m_Slots.size( ) )
+						{
+							if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
+							{
+								if( Race == "human" )
+								{
+									m_Slots[SID].SetRace( SLOTRACE_HUMAN | SLOTRACE_SELECTABLE );
+									SendAllSlotInfo( );
+								}
+								else if( Race == "orc" )
+								{
+									m_Slots[SID].SetRace( SLOTRACE_ORC | SLOTRACE_SELECTABLE );
+									SendAllSlotInfo( );
+								}
+								else if( Race == "night elf" )
+								{
+									m_Slots[SID].SetRace( SLOTRACE_NIGHTELF | SLOTRACE_SELECTABLE );
+									SendAllSlotInfo( );
+								}
+								else if( Race == "undead" )
+								{
+									m_Slots[SID].SetRace( SLOTRACE_UNDEAD | SLOTRACE_SELECTABLE );
+									SendAllSlotInfo( );
+								}
+								else if( Race == "random" )
+								{
+									m_Slots[SID].SetRace( SLOTRACE_RANDOM | SLOTRACE_SELECTABLE );
+									SendAllSlotInfo( );
+								}
+								else
+									CONSOLE_Print( "[GAME: " + m_GameName + "] unknown race [" + Race + "] sent to comprace command" );
+							}
+						}
+					}
+				}
+			}
+
+			//
+			// !COMPTEAM (computer team change)
+			//
+
+			else if( Command == "compteam" && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
+			{
+				// extract the slot and the team
+				// e.g. "1 2" -> slot: "1", team: "2"
+
+				uint32_t Slot, Team;
+				stringstream SS;
+				SS << Payload;
+				SS >> Slot;
+
+				if( SS.fail( ) )
+					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to compteam command" );
+				else
+				{
+					if( SS.eof( ) )
+						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to compteam command" );
+					else
+					{
+						SS >> Team;
+
+						if( SS.fail( ) )
+							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to compteam command" );
+						else
+						{
+							unsigned char SID = (unsigned char)( Slot - 1 );
+
+							if( !( m_Map->GetMapOptions( ) & MAPOPT_FIXEDPLAYERSETTINGS ) && Team < 12 && SID < m_Slots.size( ) )
+							{
+								if( m_Slots[SID].GetSlotStatus( ) == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer( ) == 1 )
+								{
+									m_Slots[SID].SetTeam( (unsigned char)( Team - 1 ) );
+									SendAllSlotInfo( );
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			//
+			// !VIRTUALHOST
+			//
+
+			else if( Command == "virtualhost" && !Payload.empty( ) && Payload.size( ) <= 15 && !m_CountDownStarted )
+			{
+				DeleteVirtualHost( );
+				m_VirtualHostName = Payload;
 			}
 		}
 		else
