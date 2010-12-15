@@ -33,7 +33,6 @@
 #include "gameplayer.h"
 #include "gameprotocol.h"
 #include "gpsprotocol.h"
-#include "game_base.h"
 #include "game.h"
 #include "irc.h"
 
@@ -79,7 +78,7 @@ uint32_t GetTime( )
 	uint32_t ticks;
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
-	ticks = t.tv_sec * 1000;
+	ticks = t.tv_sec;
 	ticks += t.tv_nsec / 1e9;
 	return ticks;
 #endif
@@ -426,7 +425,7 @@ CGHost :: ~CGHost( )
 
 	delete m_CurrentGame;
 
-	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
 		delete *i;
 
 	delete m_DB;
@@ -481,7 +480,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 
 	// 2. all running games' player sockets
 
-	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
 		NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
 	// 3. all battle.net sockets
@@ -515,7 +514,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 	// however, in an effort to make game updates happen closer to the desired latency setting we now use a dynamic block interval
 	// note: we still use the passed usecBlock as a hard maximum
 
-	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
 	{
 		if( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
 			usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
@@ -549,7 +548,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 	
 	// update running games
 
-	for( vector<CBaseGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); )
+	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); )
 	{
 		if( (*i)->Update( &fd, &send_fd ) )
 		{
@@ -648,7 +647,7 @@ inline bool CGHost :: Update( unsigned long usecBlock )
 
 							CGamePlayer *Match = NULL;
 
-							for( vector<CBaseGame *> :: iterator j = m_Games.begin( ); j != m_Games.end( ); ++j )
+							for( vector<CGame *> :: iterator j = m_Games.begin( ); j != m_Games.end( ); ++j )
 							{
 								if( (*j)->GetGameLoaded( ) )
 								{
@@ -735,7 +734,7 @@ void CGHost :: EventBNETGameRefreshFailed( CBNET *bnet )
 	}
 }
 
-void CGHost :: EventGameDeleted( CBaseGame *game )
+void CGHost :: EventGameDeleted( CGame *game )
 {
 	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
 	{

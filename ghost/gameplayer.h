@@ -35,7 +35,7 @@ class CPotentialPlayer
 {
 public:
 	CGameProtocol *m_Protocol;
-	CBaseGame *m_Game;
+	CGame *m_Game;
 
 protected:
 	// note: we permit m_Socket to be NULL in this class to allow for the virtual host player which doesn't really exist
@@ -49,7 +49,7 @@ protected:
 	CIncomingJoinPlayer *m_IncomingJoinPlayer;
 
 public:
-	CPotentialPlayer( CGameProtocol *nProtocol, CBaseGame *nGame, CTCPSocket *nSocket );
+	CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket );
 	virtual ~CPotentialPlayer( );
 
 	virtual CTCPSocket *GetSocket( )				{ return m_Socket; }
@@ -123,7 +123,7 @@ private:
 	uint32_t m_LastGProxyAckTime;
 
 public:
-	CGamePlayer( CGameProtocol *nProtocol, CBaseGame *nGame, CTCPSocket *nSocket, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
+	CGamePlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
 	CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
 	virtual ~CGamePlayer( );
 

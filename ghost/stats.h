@@ -38,10 +38,10 @@ class CGHostDB;
 class CStats
 {
 protected:
-	CBaseGame *m_Game;
+	CGame *m_Game;
 
 public:
-	CStats( CBaseGame *nGame );
+	CStats( CGame *nGame );
 	virtual ~CStats( );
 
 	virtual bool ProcessAction( CIncomingAction *Action );

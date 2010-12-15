@@ -25,7 +25,7 @@
 // CStats
 //
 
-CStats :: CStats( CBaseGame *nGame ) : m_Game( nGame )
+CStats :: CStats( CGame *nGame ) : m_Game( nGame )
 {
 
 }

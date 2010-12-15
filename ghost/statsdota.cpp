@@ -23,7 +23,7 @@
 #include "ghostdb.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
-#include "game_base.h"
+#include "game.h"
 #include "stats.h"
 #include "statsdota.h"
 
@@ -31,7 +31,7 @@
 // CStatsDOTA
 //
 
-CStatsDOTA :: CStatsDOTA( CBaseGame *nGame ) : CStats( nGame ), m_Winner( 0 ), m_Min( 0 ), m_Sec( 0 )
+CStatsDOTA :: CStatsDOTA( CGame *nGame ) : CStats( nGame ), m_Winner( 0 ), m_Min( 0 ), m_Sec( 0 )
 {
 	CONSOLE_Print( "[STATSDOTA] using dota stats" );
 
@@ -52,9 +52,7 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 {
 	unsigned int i = 0;
 	BYTEARRAY *ActionData = Action->GetAction( );
-	BYTEARRAY Data;
-	BYTEARRAY Key;
-	BYTEARRAY Value;
+	BYTEARRAY Data, Key, Value;
 
 	// dota actions with real time replay data start with 0x6b then the null terminated string "dr.x"
 	// unfortunately more than one action can be sent in a single packet and the length of each action isn't explicitly represented in the packet

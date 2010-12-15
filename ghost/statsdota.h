@@ -36,7 +36,7 @@ private:
 	uint32_t m_Sec;
 
 public:
-	CStatsDOTA( CBaseGame *nGame );
+	CStatsDOTA( CGame *nGame );
 	virtual ~CStatsDOTA( );
 
 	virtual bool ProcessAction( CIncomingAction *Action );

@@ -78,7 +78,7 @@ private:
 	uint32_t m_LastOutPacketSize;
 	uint32_t m_LastAdminRefreshTime;			// GetTime when the admin list was last refreshed from the database
 	uint32_t m_LastBanRefreshTime;				// GetTime when the ban list was last refreshed from the database
-	uint32_t m_LastSpamTicks;
+	uint32_t m_LastSpamTime;
 	bool m_FirstConnect;					// if we haven't tried to connect to battle.net yet
 	bool m_WaitingToConnect;				// if we're waiting to reconnect to battle.net after being disconnected
 	bool m_LoggedIn;					// if we've logged into battle.net or not
@@ -142,8 +142,8 @@ public:
 	bool IsAdmin( string name );
 	bool IsRootAdmin( string name );
 	CDBBan *IsBannedName( string name );
-	void HoldFriends( CBaseGame *game );
-	void HoldClan( CBaseGame *game );
+	void HoldFriends( CGame *game );
+	void HoldClan( CGame *game );
 };
 
 #endif

@@ -34,7 +34,7 @@ class CGPSProtocol;
 class CCRC32;
 class CSHA1;
 class CBNET;
-class CBaseGame;
+class CGame;
 class CGHostDB;
 class CLanguage;
 class CMap;
@@ -53,8 +53,8 @@ public:
 	CCRC32 *m_CRC;				// for calculating CRC's
 	CSHA1 *m_SHA;				// for calculating SHA1's
 	vector<CBNET *> m_BNETs;		// all our battle.net connections (there can be more than one)
-	CBaseGame *m_CurrentGame;		// this game is still in the lobby state
-	vector<CBaseGame *> m_Games;		// these games are in progress
+	CGame *m_CurrentGame;			// this game is still in the lobby state
+	vector<CGame *> m_Games;		// these games are in progress
 	CGHostDB *m_DB;				// database	
 	CLanguage *m_Language;			// language
 	CMap *m_Map;				// the currently loaded map
@@ -97,7 +97,7 @@ public:
 	// events
 
 	void EventBNETGameRefreshFailed( CBNET *bnet );
-	void EventGameDeleted( CBaseGame *game );
+	void EventGameDeleted( CGame *game );
 
 	// other functions
 

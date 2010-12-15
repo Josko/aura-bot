@@ -11,13 +11,14 @@
 
 CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals ) : m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 )
 {
-	m_Socket = new CTCPClient( );
-
 	if( m_Server.empty( ) || m_Username.empty( ) || m_Nickname.empty( ) )
 	{
 		CONSOLE_Print2( "[IRC] Insufficient input for IRC. Exiting..." );
 		m_Exiting = true;
+		return;
 	}
+	
+	m_Socket = new CTCPClient( );
 }
 
 CIRC :: ~CIRC( )
