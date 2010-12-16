@@ -763,24 +763,24 @@ void CGame :: UpdatePost( void *send_fd )
 	}
 }
 
-void CGame :: Send( CGamePlayer *player, const BYTEARRAY &data )
+inline void CGame :: Send( CGamePlayer *player, const BYTEARRAY &data )
 {
 	if( player )
 		player->Send( data );
 }
 
-void CGame :: Send( unsigned char PID, const BYTEARRAY &data )
+inline void CGame :: Send( unsigned char PID, const BYTEARRAY &data )
 {
 	Send( GetPlayerFromPID( PID ), data );
 }
 
-void CGame :: Send( const BYTEARRAY &PIDs, const BYTEARRAY &data )
+inline void CGame :: Send( const BYTEARRAY &PIDs, const BYTEARRAY &data )
 {
 	for( unsigned int i = 0; i < PIDs.size( ); ++i )
 		Send( PIDs[i], data );
 }
 
-void CGame :: SendAll( const BYTEARRAY &data )
+inline void CGame :: SendAll( const BYTEARRAY &data )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		(*i)->Send( data );
@@ -863,7 +863,7 @@ void CGame :: SendAllChat( const string &message )
 	SendAllChat( GetHostPID( ), message );
 }
 
-void CGame :: SendAllSlotInfo( )
+inline void CGame :: SendAllSlotInfo( )
 {
 	if( !m_GameLoading && !m_GameLoaded )
 	{
@@ -872,7 +872,7 @@ void CGame :: SendAllSlotInfo( )
 	}
 }
 
-void CGame :: SendVirtualHostPlayerInfo( CGamePlayer *player )
+inline void CGame :: SendVirtualHostPlayerInfo( CGamePlayer *player )
 {
 	if( m_VirtualHostPID == 255 )
 		return;
@@ -886,7 +886,7 @@ void CGame :: SendVirtualHostPlayerInfo( CGamePlayer *player )
 	Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( m_VirtualHostPID, m_VirtualHostName, IP, IP ) );
 }
 
-void CGame :: SendFakePlayerInfo( CGamePlayer *player )
+inline void CGame :: SendFakePlayerInfo( CGamePlayer *player )
 {
 	if( m_FakePlayers.empty( ) )
 		return;
@@ -903,7 +903,7 @@ void CGame :: SendFakePlayerInfo( CGamePlayer *player )
 	}	
 }
 
-void CGame :: SendAllActions( )
+inline void CGame :: SendAllActions( )
 {
 	bool UsingGProxy = false;
 
@@ -3509,7 +3509,7 @@ void CGame :: EventPlayerPongToHost( CGamePlayer *player, uint32_t pong )
 	}
 }
 
-void CGame :: EventGameStarted( )
+inline void CGame :: EventGameStarted( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
@@ -3646,7 +3646,7 @@ void CGame :: EventGameStarted( )
 	}
 }
 
-void CGame :: EventGameLoaded( )
+inline void CGame :: EventGameLoaded( )
 {
 	CONSOLE_Print( "[GAME: " + m_GameName + "] finished loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
@@ -3774,7 +3774,7 @@ CGamePlayer *CGame :: GetPlayerFromColour( unsigned char colour )
 	return NULL;
 }
 
-unsigned char CGame :: GetNewPID( )
+inline unsigned char CGame :: GetNewPID( )
 {
 	// find an unused PID for a new player to use
 
@@ -3815,7 +3815,7 @@ unsigned char CGame :: GetNewPID( )
 	return 255;
 }
 
-unsigned char CGame :: GetNewColour( )
+inline unsigned char CGame :: GetNewColour( )
 {
 	// find an unused colour for a player to use
 
@@ -3899,7 +3899,7 @@ unsigned char CGame :: GetHostPID( )
 	return 255;
 }
 
-unsigned char CGame :: GetEmptySlot( bool reserved )
+inline unsigned char CGame :: GetEmptySlot( bool reserved )
 {
 	if( m_Slots.size( ) > 255 )
 		return 255;
@@ -3957,7 +3957,7 @@ unsigned char CGame :: GetEmptySlot( bool reserved )
 	return 255;
 }
 
-unsigned char CGame :: GetEmptySlot( unsigned char team, unsigned char PID )
+inline unsigned char CGame :: GetEmptySlot( unsigned char team, unsigned char PID )
 {
 	if( m_Slots.size( ) > 255 )
 		return 255;
@@ -4401,7 +4401,7 @@ void CGame :: StopPlayers( const string &reason )
 	}
 }
 
-void CGame :: StopLaggers( const string &reason )
+inline void CGame :: StopLaggers( const string &reason )
 {
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 	{

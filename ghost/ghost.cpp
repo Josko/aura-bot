@@ -277,8 +277,14 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.84" ), m_HostCounter( 1 )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.85" ), m_HostCounter( 1 )
 {
+#ifdef WIN32
+	// hide the window so it doesn't bother anyone
+
+	ShowWindow( GetConsoleWindow(), SW_HIDE );
+#endif
+
 	vector<string> channels, locals;
 
 	for( int i = 0; i < 10; ++i )

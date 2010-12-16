@@ -162,7 +162,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
                 
 		// spam game every 5 seconds
 		
-		if( m_Spam && ( Ticks - m_LastSpamTime > 5 ) )
+		if( m_Spam && ( Time - m_LastSpamTime > 5 ) )
 		{
 			if( m_SpamChannel.empty( ) )
 			{

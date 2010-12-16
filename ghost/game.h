@@ -154,10 +154,10 @@ public:
 
 	// generic functions to send packets to players
 
-	void Send( CGamePlayer *player, const BYTEARRAY &data );
-	void Send( unsigned char PID, const BYTEARRAY &data );
-	void Send( const BYTEARRAY &PIDs, const BYTEARRAY &data );
-	void SendAll( const BYTEARRAY &data );
+	inline void Send( CGamePlayer *player, const BYTEARRAY &data );
+	inline void Send( unsigned char PID, const BYTEARRAY &data );
+	inline void Send( const BYTEARRAY &PIDs, const BYTEARRAY &data );
+	inline void SendAll( const BYTEARRAY &data );
 
 	// functions to send packets to players
 
@@ -167,10 +167,10 @@ public:
 	void SendChat( unsigned char toPID, const string &message );
 	void SendAllChat( unsigned char fromPID, const string &message );
 	void SendAllChat( const string &message );
-	void SendAllSlotInfo( );
-	void SendVirtualHostPlayerInfo( CGamePlayer *player );
-	void SendFakePlayerInfo( CGamePlayer *player );
-	void SendAllActions( );
+	inline void SendAllSlotInfo( );
+	inline void SendVirtualHostPlayerInfo( CGamePlayer *player );
+	inline void SendFakePlayerInfo( CGamePlayer *player );
+	inline void SendAllActions( );
 
 	// events
 	// note: these are only called while iterating through the m_Potentials or m_Players vectors
@@ -198,8 +198,8 @@ public:
 
 	// these events are called outside of any iterations
 	
-	void EventGameStarted( );
-	void EventGameLoaded( );
+	inline void EventGameStarted( );
+	inline void EventGameLoaded( );
 
 	// other functions
 
@@ -209,13 +209,13 @@ public:
 	CGamePlayer *GetPlayerFromName( string name, bool sensitive );
 	uint32_t GetPlayerFromNamePartial( string name, CGamePlayer **player );
 	CGamePlayer *GetPlayerFromColour( unsigned char colour );
-	unsigned char GetNewPID( );
-	unsigned char GetNewColour( );
+	inline unsigned char GetNewPID( );
+	inline unsigned char GetNewColour( );
 	BYTEARRAY GetPIDs( );
 	BYTEARRAY GetPIDs( unsigned char excludePID );
-	unsigned char GetHostPID( );
-	unsigned char GetEmptySlot( bool reserved );
-	unsigned char GetEmptySlot( unsigned char team, unsigned char PID );
+	inline unsigned char GetHostPID( );
+	inline unsigned char GetEmptySlot( bool reserved );
+	inline unsigned char GetEmptySlot( unsigned char team, unsigned char PID );
 	void SwapSlots( unsigned char SID1, unsigned char SID2 );
 	void OpenSlot( unsigned char SID, bool kick );
 	void CloseSlot( unsigned char SID, bool kick );
@@ -231,7 +231,7 @@ public:
 	bool IsDownloading( );
 	void StartCountDown( bool force );
 	void StopPlayers( const string &reason );
-	void StopLaggers( const string &reason );
+	inline void StopLaggers( const string &reason );
 	inline void CreateVirtualHost( );
 	inline void DeleteVirtualHost( );
 	inline void CreateFakePlayer( );
