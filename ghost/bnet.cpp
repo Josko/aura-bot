@@ -46,6 +46,11 @@ CBNET :: CBNET( CGHost *nGHost, string nServer, string nServerAlias, string nCDK
 	m_Socket = new CTCPClient( );
 	m_Protocol = new CBNETProtocol( );
 	m_BNCSUtil = new CBNCSUtilInterface( nUserName, nUserPassword );
+	
+	if( m_PasswordHashType != "pvpgn" )
+		m_ReconnectDelay = 180;
+	else
+		m_ReconnectDelay = 90;
 
 	if( !nServerAlias.empty( ) )
 		m_ServerAlias = nServerAlias;
@@ -192,7 +197,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		// the socket has an error
 
 		CONSOLE_Print3( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
+		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting " + UTIL_ToString( m_ReconnectDelay ) + " seconds to reconnect" );
 		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
 		m_Socket->Reset( );
 		m_LastDisconnectedTime = Time;
@@ -207,18 +212,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		// the socket was disconnected
 
 		CONSOLE_Print3( "[BNET: " + m_ServerAlias + "] disconnected from battle.net" );
-		
-		if( m_PasswordHashType != "pvpgn" )
-		{
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 180 seconds to reconnect" );
-			m_LastDisconnectedTime = Time + 90;
-		}
-		else
-		{
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
-			m_LastDisconnectedTime = Time;
-		}
-		
+		m_LastDisconnectedTime = Time;
 		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
 		m_Socket->Reset( );		
 		m_LoggedIn = false;
@@ -227,7 +221,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		return m_Exiting;
 	}
 	
-	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( m_FirstConnect || (Time - m_LastDisconnectedTime >= 90) ) )
+	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && ( m_FirstConnect || ( Time - m_LastDisconnectedTime >= m_ReconnectDelay ) ) )
 	{
 		// attempt to connect to battle.net
 
