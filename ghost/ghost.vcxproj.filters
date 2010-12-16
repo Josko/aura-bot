@@ -47,10 +47,7 @@
     </ClCompile>
     <ClCompile Include="game_admin.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game_base.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    </ClCompile>   
     <ClCompile Include="gameplayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -145,10 +142,7 @@
     </ClInclude>
     <ClInclude Include="game_admin.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    </ClInclude>    
     <ClInclude Include="gameplayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

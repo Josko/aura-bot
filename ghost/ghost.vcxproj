@@ -76,9 +76,6 @@
     <ClCompile Include="crc32.cpp" />
     <ClCompile Include="csvparser.cpp" />
     <ClCompile Include="game.cpp" />
-    <ClCompile Include="game_base.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release MySQL|Win32'">..\bncsutil\src;..\StormLib;..\zlib\include;..\mysql\include;D:\boost_1_43_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
     <ClCompile Include="gameplayer.cpp" />
     <ClCompile Include="gameprotocol.cpp" />
     <ClCompile Include="gameslot.cpp" />
@@ -105,7 +102,6 @@
     <ClInclude Include="crc32.h" />
     <ClInclude Include="csvparser.h" />
     <ClInclude Include="game.h" />
-    <ClInclude Include="game_base.h" />
     <ClInclude Include="gameplayer.h" />
     <ClInclude Include="gameprotocol.h" />
     <ClInclude Include="gameslot.h" />

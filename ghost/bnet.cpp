@@ -191,11 +191,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 	{
 		// the socket has an error
 
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
-
-		if( m_Socket->GetError( ) == ECONNRESET && Time - m_LastConnectionAttemptTime <= 15 )
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] warning - you are probably temporarily IP banned from battle.net" );
-
+		CONSOLE_Print3( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
 		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
 		m_Socket->Reset( );
@@ -210,7 +206,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 	{
 		// the socket was disconnected
 
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net" );
+		CONSOLE_Print3( "[BNET: " + m_ServerAlias + "] disconnected from battle.net" );
 		
 		if( m_PasswordHashType != "pvpgn" )
 		{
@@ -271,7 +267,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		{
 			// the connection attempt completed
 
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] connected" );
+			CONSOLE_Print3( "[BNET: " + m_ServerAlias + "] connected" );
 			m_Socket->PutBytes( m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR( ) );
 			m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_INFO( m_War3Version, m_LocaleID, m_CountryAbbrev, m_Country ) );
 			m_Socket->DoSend( (fd_set *)send_fd );
