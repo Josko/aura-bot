@@ -211,10 +211,20 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		// the socket was disconnected
 
 		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] disconnected from battle.net" );
-		CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
+		
+		if( m_PasswordHashType != "pvpgn" )
+		{
+			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 180 seconds to reconnect" );
+			m_LastDisconnectedTime = Time + 90;
+		}
+		else
+		{
+			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect" );
+			m_LastDisconnectedTime = Time;
+		}
+		
 		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-		m_Socket->Reset( );
-		m_LastDisconnectedTime = Time;
+		m_Socket->Reset( );		
 		m_LoggedIn = false;
 		m_InChat = false;
 		m_WaitingToConnect = true;

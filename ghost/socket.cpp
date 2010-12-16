@@ -104,7 +104,7 @@ string CSocket :: GetErrorString( )
 		case EDQUOT: return "EDQUOT";
 		case ESTALE: return "ESTALE";
 		case EREMOTE: return "EREMOTE";
-		case ECONNRESET: return "ECONNRESET";
+		case ECONNRESET: return "Connection reset by peer";
 	}
 
 	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";

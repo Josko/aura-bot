@@ -9,7 +9,7 @@
 //// CIRC ////
 //////////////
 
-CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals ) : m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 )
+CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals ) : m_GHost( nGHost ), m_Locals( nLocals ), m_Channels( nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) )
 {
 	if( m_Server.empty( ) || m_Username.empty( ) || m_Nickname.empty( ) )
 	{
@@ -41,18 +41,27 @@ unsigned int CIRC :: SetFD( void *fd, void *send_fd, int *nfds )
 }
 
 bool CIRC :: Update( void *fd, void *send_fd )
-{	
+{
+	uint32_t Time = GetTime( );
+	
 	if( m_Socket->GetConnected( ) )
 	{
 		// the socket is connected and everything appears to be working properly
+		
+		if( Time - m_LastPacketTime > 180 )
+		{
+			CONSOLE_Print( "[IRC: " + m_Server + "] ping timeout,  waiting 30 seconds to reconnect" );			
+			m_Socket->Reset( );
+			m_WaitingToConnect = true;
+			m_LastConnectionAttemptTime = Time;
+			return m_Exiting;
+		}
 
 		m_Socket->DoRecv( (fd_set *)fd );
 		ExtractPackets( );
 		m_Socket->DoSend( (fd_set *)send_fd );
 		return m_Exiting;
-	}
-	
-	uint32_t Time = GetTime( );
+	}	
 	
 	if( m_Socket->HasError( ) )
 	{
@@ -143,6 +152,9 @@ inline void CIRC :: ExtractPackets( )
 	string *RecvBuffer = m_Socket->GetBytes( );
 	vector<string> Packets = UTIL_Tokenize( *RecvBuffer, '\n' );
 	*RecvBuffer = RecvBuffer->erase( );
+	
+	if( Packets.size( ) )
+		m_LastPacketTime = GetTime( );
 
 	for( vector<string> :: iterator i = Packets.begin( ); i != Packets.end( ); ++i )
 	{
@@ -207,12 +219,7 @@ inline void CIRC :: ExtractPackets( )
 						SendMessageIRC( "ON: " + on, Target );
 						SendMessageIRC( "OFF: " + off, Target );
 						return;
-					}
-					else if( Command == "send" && !Payload.empty( ) && Root )
-					{
-						SendDCC( Payload );
-						return;
-					}                                       
+					}                                    
 					else if( Command == "irc" && Root )
 					{
 						m_Socket->Reset( );
@@ -220,10 +227,6 @@ inline void CIRC :: ExtractPackets( )
 						m_LastConnectionAttemptTime = GetTime( );
 						return;
 					}
-					else if( Command == "quit" && Root )
-	                                {
-	                                        SendIRC( "QUIT: Quit" );
-	                                }
 					else if( Command == "bnetoff" )
 					{
 						if( Payload.empty( ) )

@@ -128,38 +128,33 @@ void SignalCatcher( int s )
 
 void CONSOLE_Print( const string &message )
 {
-	cout << message << endl;	
-
-	if( gGHost )
-		if( gGHost->m_IRC )
+	// cout << message << endl;
+	
+	if( gGHost && gGHost->m_IRC )
 			gGHost->m_IRC->SendDCC( message );
 }
 
 void CONSOLE_Print2( const string &message )
 {
-	cout << message << endl;
+	// cout << message << endl;
 	
 }
 
 void CONSOLE_Print3( const string &message )
 {
-	cout << message << endl;
+	// cout << message << endl;
 	
-	if( gGHost )
+	if( gGHost->m_IRC )
 	{
-		if( gGHost->m_IRC )
-		{
-			gGHost->m_IRC->SendMessageIRC( message, string( ) );
-			gGHost->m_IRC->SendDCC( message );
-		}
-	}
+		gGHost->m_IRC->SendMessageIRC( message, string( ) );
+		gGHost->m_IRC->SendDCC( message );
+	}	
 }
 
 void IRC_Print( const string &message )
 {
-	if( gGHost )
-		if( gGHost->m_IRC )
-			gGHost->m_IRC->SendMessageIRC( message, string( ) );
+	if( gGHost->m_IRC )
+		gGHost->m_IRC->SendMessageIRC( message, string( ) );
 }
 
 //

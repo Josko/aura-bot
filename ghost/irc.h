@@ -20,11 +20,12 @@ public:
 	string m_Username;
 	string m_CommandTrigger;
 	string m_Password;
-	uint16_t m_Port;
+	uint16_t m_Port;	
 	bool m_Exiting;
 	bool m_WaitingToConnect;
 	bool m_OriginalNick;
 	uint32_t m_LastConnectionAttemptTime;
+	uint32_t m_LastPacketTime;
 	
 	CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals );
 	~CIRC( );
