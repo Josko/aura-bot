@@ -594,6 +594,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	string User = chatEvent->GetUser( );
 	string Message = chatEvent->GetMessage( );
 	
+	// handle spoof checking for current game
+	// this case covers whispers - we assume that anyone who sends a whisper to the bot with message "spoofcheck" should be considered spoof checked
+	// note that this means you can whisper "spoofcheck" even in a public game to manually spoofcheck if the /whois fails
+	
 	if( Event == CBNETProtocol :: EID_WHISPER && m_GHost->m_CurrentGame )
 	{
 		if( Message == "s" || Message == "sc" || Message == "spoofcheck" )
@@ -606,11 +610,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	m_IRC = ( Event == CBNETProtocol :: EID_IRC );
 
 	if( Event == CBNETProtocol :: EID_WHISPER || Event == CBNETProtocol :: EID_TALK || Event == CBNETProtocol :: EID_IRC )
-	{
-		// handle spoof checking for current game
-		// this case covers whispers - we assume that anyone who sends a whisper to the bot with message "spoofcheck" should be considered spoof checked
-		// note that this means you can whisper "spoofcheck" even in a public game to manually spoofcheck if the /whois fails
-		
+	{		
 		if( Event == CBNETProtocol :: EID_WHISPER )
 		{
 			CONSOLE_Print3( "[WHISPER: " + m_ServerAlias + "] [" + User + "] " + Message );
@@ -627,8 +627,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			// extract the command trigger, the command, and the payload
 			// e.g. "!say hello world" -> command: "say", payload: "hello world"
 
-			string Command;
-			string Payload;
+			string Command, Payload;
 			string :: size_type PayloadStart = Message.find( " " );
 
 			if( PayloadStart != string :: npos )
@@ -1534,7 +1533,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				{
 					if( ( !m_GHost->m_Games.size( ) && !m_GHost->m_CurrentGame ) || Payload == "force" )
 					{
-						m_GHost->Restart( false );
+						m_Exiting = true;
+						
+						// gRestart is defined in ghost.cpp 
+						
+						extern bool gRestart;
+						gRestart = true;						
 					}
 					else
 						QueueChatCommand( "Games in progress, use !restart force", User, Whisper, m_IRC );

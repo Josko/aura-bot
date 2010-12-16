@@ -56,6 +56,7 @@
 #endif
 
 CGHost *gGHost = NULL;
+bool gRestart = false;
 
 uint32_t GetTime( )
 {
@@ -130,8 +131,8 @@ void CONSOLE_Print( const string &message )
 {
 	// cout << message << endl;
 	
-	if( gGHost && gGHost->m_IRC )
-			gGHost->m_IRC->SendDCC( message );
+	if( gGHost && gGHost->m_IRC )	
+		gGHost->m_IRC->SendDCC( message );
 }
 
 void CONSOLE_Print2( const string &message )
@@ -258,12 +259,23 @@ int main( )
 	// shutdown winsock
 
 	CONSOLE_Print( "[AURA] shutting down winsock" );
-	WSACleanup( );
+	WSACleanup( );	
 
 	// shutdown timer
 
 	timeEndPeriod( TimerResolution );
 #endif
+
+	// restart the program
+
+	if( gRestart )
+	{
+#ifdef WIN32
+	_spawnl( _P_OVERLAY, "ghost.exe", "ghost.exe", NULL );
+#else		
+	execl( "ghost++", "ghost++", NULL );
+#endif
+	}
 
 	return 0;
 }
@@ -1040,24 +1052,4 @@ void CGHost :: CreateGame( CMap *map, unsigned char gameState, string gameName, 
 		(*i)->HoldFriends( m_CurrentGame );
 		(*i)->HoldClan( m_CurrentGame );
 	}
-}
-
-void CGHost :: Restart ( bool force )
-{
-	// shutdown ghost
-
-	CONSOLE_Print3( "[AURA] restarting" );
-	delete gGHost;
-	gGHost = NULL;	
-
-#ifdef WIN32
-	// shutdown winsock
-
-	CONSOLE_Print( "[AURA] shutting down winsock" );
-	WSACleanup( );
-
-	_spawnl( _P_OVERLAY, "ghost.exe", "ghost.exe", NULL );
-#else		
-	execl( "ghost", "ghost", NULL );
-#endif
 }

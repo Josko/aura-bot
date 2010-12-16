@@ -153,7 +153,7 @@ inline void CIRC :: ExtractPackets( )
 	vector<string> Packets = UTIL_Tokenize( *RecvBuffer, '\n' );
 	*RecvBuffer = RecvBuffer->erase( );
 	
-	if( Packets.size( ) )
+	if( !Packets.empty( ) )
 		m_LastPacketTime = GetTime( );
 
 	for( vector<string> :: iterator i = Packets.begin( ); i != Packets.end( ); ++i )
