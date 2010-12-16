@@ -173,7 +173,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 			{
 				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
-				m_LastSpamTime = Ticks;
+				m_LastSpamTime = Time;
 			}
 			else
 			{
