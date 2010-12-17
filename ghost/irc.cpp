@@ -48,7 +48,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 	{
 		// the socket is connected and everything appears to be working properly
 		
-		if( Time - m_LastPacketTime > 180 )
+		if( Time - m_LastPacketTime > 210 )
 		{
 			CONSOLE_Print( "[IRC: " + m_Server + "] ping timeout,  reconnecting" );			
 			m_Socket->Reset( );

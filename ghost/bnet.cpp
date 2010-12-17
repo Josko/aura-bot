@@ -207,7 +207,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		return m_Exiting;
 	}
 
-	if( !m_Socket->GetConnecting( ) && !m_Socket->GetConnected( ) && !m_WaitingToConnect )
+	if( !m_Socket->GetConnected( ) && !m_Socket->GetConnecting( ) && !m_WaitingToConnect )
 	{
 		// the socket was disconnected
 
@@ -1818,45 +1818,50 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 		// extract the first word which we hope is the username
 		// this is not necessarily true though since info messages also include channel MOTD's and such
-
-		string UserName;
-		string :: size_type Split = Message.find( " " );
-
-		if( Split != string :: npos )
-			UserName = Message.substr( 0, Split );
-		else
-			UserName = Message;
-
-		// handle spoof checking for current game
-		// this case covers whois results which are used when hosting a public game (we send out a "/whois [player]" for each player)
-		// at all times you can still /w the bot with "spoofcheck" to manually spoof check
-
-		if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetPlayerFromName( UserName, true ) )
+		
+		if( m_GHost->m_CurrentGame )
 		{
-			if( Message.find( "is away" ) != string :: npos )
-				m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofPossibleIsAway( UserName ) );
-			else if( Message.find( "is unavailable" ) != string :: npos )
-				m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofPossibleIsUnavailable( UserName ) );
-			else if( Message.find( "is refusing messages" ) != string :: npos )
-				m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofPossibleIsRefusingMessages( UserName ) );
-			else if( Message.find( "is using Warcraft III The Frozen Throne in the channel" ) != string :: npos )
-				m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsNotInGame( UserName ) );
-			else if( Message.find( "is using Warcraft III The Frozen Throne in channel" ) != string :: npos )
-				m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsNotInGame( UserName ) );
-			else if( Message.find( "is using Warcraft III The Frozen Throne in a private channel" ) != string :: npos )
-				m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsInPrivateChannel( UserName ) );
+			string UserName;
+			string :: size_type Split = Message.find( " " );
 
-			if( Message.find( "is using Warcraft III The Frozen Throne in game" ) != string :: npos || Message.find( "is using Warcraft III Frozen Throne and is currently in  game" ) != string :: npos || Message.find( "is using Warcraft III Frozen Throne and is currently in private game" ) != string :: npos )
+			if( Split != string :: npos )
+				UserName = Message.substr( 0, Split );
+			else
+				UserName = Message;
+				
+			if( m_GHost->m_CurrentGame->GetPlayerFromName( UserName, true ) )
 			{
-				// check both the current game name and the last game name against the /whois response
-				// this is because when the game is rehosted, players who joined recently will be in the previous game according to battle.net
-				// note: if the game is rehosted more than once it is possible (but unlikely) for a false positive because only two game names are checked
+				// handle spoof checking for current game
+				// this case covers whois results which are used when hosting a public game (we send out a "/whois [player]" for each player)
+				// at all times you can still /w the bot with "spoofcheck" to manually spoof check
 
-				if( Message.find( m_GHost->m_CurrentGame->GetGameName( ) ) != string :: npos || Message.find( m_GHost->m_CurrentGame->GetLastGameName( ) ) != string :: npos )
-					m_GHost->m_CurrentGame->AddToSpoofed( m_Server, UserName, false );
-				else
-					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsInAnotherGame( UserName ) );
-			}
+				if( Message.find( "Throne in game" ) != string :: npos || Message.find( "currently in  game" ) != string :: npos || Message.find( "currently in private game" ) != string :: npos )
+				{
+					// check both the current game name and the last game name against the /whois response
+					// this is because when the game is rehosted, players who joined recently will be in the previous game according to battle.net
+					// note: if the game is rehosted more than once it is possible (but unlikely) for a false positive because only two game names are checked
+
+					if( Message.find( m_GHost->m_CurrentGame->GetGameName( ) ) != string :: npos || Message.find( m_GHost->m_CurrentGame->GetLastGameName( ) ) != string :: npos )
+						m_GHost->m_CurrentGame->AddToSpoofed( m_Server, UserName, false );
+					else
+						m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsInAnotherGame( UserName ) );
+						
+					return;
+				}
+		
+				if( Message.find( "is away" ) != string :: npos )
+					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofPossibleIsAway( UserName ) );
+				else if( Message.find( "is unavailable" ) != string :: npos )
+					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofPossibleIsUnavailable( UserName ) );
+				else if( Message.find( "is refusing messages" ) != string :: npos )
+					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofPossibleIsRefusingMessages( UserName ) );
+				else if( Message.find( "is using Warcraft III The Frozen Throne in the channel" ) != string :: npos )
+					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsNotInGame( UserName ) );
+				else if( Message.find( "is using Warcraft III The Frozen Throne in channel" ) != string :: npos )
+					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsNotInGame( UserName ) );
+				else if( Message.find( "is using Warcraft III The Frozen Throne in a private channel" ) != string :: npos )
+					m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->SpoofDetectedIsInPrivateChannel( UserName ) );
+			}			
 		}
 	}
 	else if( Event == CBNETProtocol :: EID_ERROR )

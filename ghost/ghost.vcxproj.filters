@@ -24,12 +24,6 @@
     <ClCompile Include="bnetprotocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bnlsclient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bnlsprotocol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="commandpacket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,9 +39,6 @@
     <ClCompile Include="game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game_admin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>   
     <ClCompile Include="gameplayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,9 +54,6 @@
     <ClCompile Include="ghostdb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ghostdbmysql.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ghostdbsqlite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,15 +64,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="packed.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="replay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="savegame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sha1.cpp">
@@ -102,10 +81,10 @@
     <ClCompile Include="statsdota.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="statsw3mmd.cpp">
+    <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="util.cpp">
+    <ClCompile Include="irc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,12 +96,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bnetprotocol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bnlsclient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bnlsprotocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="commandpacket.h">
@@ -140,9 +113,6 @@
     <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game_admin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>    
     <ClInclude Include="gameplayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -156,9 +126,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ghostdb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ghostdbmysql.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ghostdbsqlite.h">
@@ -179,18 +146,6 @@
     <ClInclude Include="ms_stdint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="next_combination.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="packed.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="replay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="savegame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sha1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -209,10 +164,10 @@
     <ClInclude Include="statsdota.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="statsw3mmd.h">
+    <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="util.h">
+    <ClInclude Include="irc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

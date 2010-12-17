@@ -231,10 +231,7 @@ void CMap :: Load( CConfig *CFG, const string &nCFGFile )
 
 	// try to calculate map_size, map_info, map_crc, map_sha1
 
-	BYTEARRAY MapSize;
-	BYTEARRAY MapInfo;
-	BYTEARRAY MapCRC;
-	BYTEARRAY MapSHA1;
+	BYTEARRAY MapSize, MapInfo, MapCRC, MapSHA1;
 
 	if( !m_MapData.empty( ) )
 	{

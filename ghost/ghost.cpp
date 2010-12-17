@@ -94,7 +94,7 @@ uint32_t GetTicks( )
 #endif
 }
 
-void SignalCatcher( int s )
+inline static void SignalCatcher( int s )
 {
 	CONSOLE_Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
 
@@ -250,9 +250,9 @@ int main( )
 	if( gRestart )
 	{
 #ifdef WIN32
-	_spawnl( _P_OVERLAY, "ghost.exe", "ghost.exe", NULL );
+		_spawnl( _P_OVERLAY, "ghost.exe", "ghost.exe", NULL );
 #else		
-	execl( "ghost++", "ghost++", NULL );
+		execl( "ghost++", "ghost++", NULL );
 #endif
 	}
 
