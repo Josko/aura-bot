@@ -50,10 +50,9 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		
 		if( Time - m_LastPacketTime > 180 )
 		{
-			CONSOLE_Print( "[IRC: " + m_Server + "] ping timeout,  waiting 30 seconds to reconnect" );			
+			CONSOLE_Print( "[IRC: " + m_Server + "] ping timeout,  reconnecting" );			
 			m_Socket->Reset( );
 			m_WaitingToConnect = true;
-			m_LastConnectionAttemptTime = Time;
 			return m_Exiting;
 		}
 
@@ -94,6 +93,8 @@ bool CIRC :: Update( void *fd, void *send_fd )
 			// the connection attempt completed
 
 			CONSOLE_Print( "[IRC: " + m_Server + "] connected" );
+			
+			m_LastPacketTime = Time;
 
 			if( !m_OriginalNick )
 				m_Nickname = m_NicknameCpy;

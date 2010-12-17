@@ -66,15 +66,6 @@ uint32_t GetTime( )
 	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
 
 	return timeGetTime( ) / 1000;
-#elif __APPLE__
-	uint64_t current = mach_absolute_time( );
-	static mach_timebase_info_data_t info = { 0, 0 };
-	// get timebase info
-	if( info.denom == 0 )
-		mach_timebase_info( &info );
-	uint64_t elapsednano = current * ( info.numer / info.denom );
-	// convert ns to ms
-	return elapsednano / 1e9;
 #else
 	uint32_t ticks;
 	struct timespec t;
@@ -93,15 +84,6 @@ uint32_t GetTicks( )
 	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
 
 	return timeGetTime( );
-#elif __APPLE__
-	uint64_t current = mach_absolute_time( );
-	static mach_timebase_info_data_t info = { 0, 0 };
-	// get timebase info
-	if( info.denom == 0 )
-		mach_timebase_info( &info );
-	uint64_t elapsednano = current * ( info.numer / info.denom );
-	// convert ns to ms
-	return elapsednano / 1e6;
 #else
 	uint32_t ticks;
 	struct timespec t;
@@ -137,8 +119,7 @@ void CONSOLE_Print( const string &message )
 
 void CONSOLE_Print2( const string &message )
 {
-	// cout << message << endl;
-	
+	// cout << message << endl;	
 }
 
 void CONSOLE_Print3( const string &message )
@@ -205,8 +186,6 @@ int main( )
 	}
 
 	CONSOLE_Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
-#elif __APPLE__
-	// not sure how to get the resolution
 #else
 	// print the timer resolution
 
