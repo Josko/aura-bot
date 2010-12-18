@@ -684,7 +684,7 @@ Flags:
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_STARTADVEX3" );
+		Print( "[BNETPROTO] invalid parameters passed to SEND_SID_STARTADVEX3" );
 
 	// DEBUG_Print( "SENT SID_STARTADVEX3" );
 	// DEBUG_Print( packet );
@@ -725,7 +725,7 @@ BYTEARRAY CBNETProtocol :: SEND_SID_PING( BYTEARRAY pingValue )
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_PING" );
+		Print( "[BNETPROTO] invalid parameters passed to SEND_SID_PING" );
 
 	// DEBUG_Print( "SENT SID_PING" );
 	// DEBUG_Print( packet );
@@ -821,7 +821,7 @@ BYTEARRAY CBNETProtocol :: SEND_SID_AUTH_CHECK( BYTEARRAY clientToken, BYTEARRAY
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_CHECK" );
+		Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_CHECK" );
 
 	// DEBUG_Print( "SENT SID_AUTH_CHECK" );
 	// DEBUG_Print( packet );
@@ -843,7 +843,7 @@ BYTEARRAY CBNETProtocol :: SEND_SID_AUTH_ACCOUNTLOGON( BYTEARRAY clientPublicKey
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
+		Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
 
 	// DEBUG_Print( "SENT SID_AUTH_ACCOUNTLOGON" );
 	// DEBUG_Print( packet );
@@ -864,7 +864,7 @@ BYTEARRAY CBNETProtocol :: SEND_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY clientPass
 		AssignLength( packet );
 	}
 	else
-		CONSOLE_Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
+		Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
 
 	// DEBUG_Print( "SENT SID_AUTH_ACCOUNTLOGONPROOF" );
 	// DEBUG_Print( packet );

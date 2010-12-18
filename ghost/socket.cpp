@@ -132,7 +132,7 @@ void CSocket :: Allocate( int type )
 	{
 		m_HasError = true;
 		m_Error = GetLastError( );
-		CONSOLE_Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
 		return;
 	}
 }
@@ -239,14 +239,14 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 
 			m_HasError = true;
 			m_Error = GetLastError( );
-			CONSOLE_Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) );
+			Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) );
 			return;
 		}
 		else if( c == 0 )
 		{
 			// the other end closed the connection
 
-			CONSOLE_Print( "[TCPSOCKET] closed by remote host" );
+			Print( "[TCPSOCKET] closed by remote host" );
 			m_Connected = false;
 		}
 	}
@@ -276,7 +276,7 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 
 			m_HasError = true;
 			m_Error = GetLastError( );
-			CONSOLE_Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
+			Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
 			return;
 		}
 	}
@@ -342,7 +342,7 @@ void CTCPClient :: Connect( const string &localaddress, const string &address, u
 		{
 			m_HasError = true;
 			m_Error = GetLastError( );
-			CONSOLE_Print( "[TCPCLIENT] error (bind) - " + GetErrorString( ) );
+			Print( "[TCPCLIENT] error (bind) - " + GetErrorString( ) );
 			return;
 		}
 	}
@@ -357,7 +357,7 @@ void CTCPClient :: Connect( const string &localaddress, const string &address, u
 	{
 		m_HasError = true;
 		// m_Error = h_error;
-		CONSOLE_Print( "[TCPCLIENT] error (gethostbyname)" );
+		Print( "[TCPCLIENT] error (gethostbyname)" );
 		return;
 	}
 
@@ -377,7 +377,7 @@ void CTCPClient :: Connect( const string &localaddress, const string &address, u
 
 			m_HasError = true;
 			m_Error = GetLastError( );
-			CONSOLE_Print( "[TCPCLIENT] error (connect) - " + GetErrorString( ) );
+			Print( "[TCPCLIENT] error (connect) - " + GetErrorString( ) );
 			return;
 		}
 	}
@@ -464,7 +464,7 @@ bool CTCPServer :: Listen( const string &address, uint16_t port )
 	{
 		m_HasError = true;
 		m_Error = GetLastError( );
-		CONSOLE_Print( "[TCPSERVER] error (bind) - " + GetErrorString( ) );
+		Print( "[TCPSERVER] error (bind) - " + GetErrorString( ) );
 		return false;
 	}
 
@@ -474,7 +474,7 @@ bool CTCPServer :: Listen( const string &address, uint16_t port )
 	{
 		m_HasError = true;
 		m_Error = GetLastError( );
-		CONSOLE_Print( "[TCPSERVER] error (listen) - " + GetErrorString( ) );
+		Print( "[TCPSERVER] error (listen) - " + GetErrorString( ) );
 		return false;
 	}
 
@@ -563,7 +563,7 @@ bool CUDPSocket :: SendTo( const string &address, uint16_t port, const BYTEARRAY
 	{
 		m_HasError = true;
 		// m_Error = h_error;
-		CONSOLE_Print( "[UDPSOCKET] error (gethostbyname)" );
+		Print( "[UDPSOCKET] error (gethostbyname)" );
 		return false;
 	}
 
@@ -590,7 +590,7 @@ bool CUDPSocket :: Broadcast( uint16_t port, const BYTEARRAY &message )
 
 	if( sendto( m_Socket, MessageString.c_str( ), MessageString.size( ), 0, (struct sockaddr *)&sin, sizeof( sin ) ) == -1 )
 	{
-		CONSOLE_Print( "[UDPSOCKET] failed to broadcast packet (port " + UTIL_ToString( port ) + ", size " + UTIL_ToString( MessageString.size( ) ) + " bytes)" );
+		Print( "[UDPSOCKET] failed to broadcast packet (port " + UTIL_ToString( port ) + ", size " + UTIL_ToString( MessageString.size( ) ) + " bytes)" );
 		return false;
 	}
 
@@ -601,7 +601,7 @@ void CUDPSocket :: SetBroadcastTarget( const string &subnet )
 {
 	if( subnet.empty( ) )
 	{
-		CONSOLE_Print( "[UDPSOCKET] using default broadcast target" );
+		Print( "[UDPSOCKET] using default broadcast target" );
 		m_BroadcastTarget.s_addr = INADDR_BROADCAST;
 	}
 	else
@@ -609,14 +609,14 @@ void CUDPSocket :: SetBroadcastTarget( const string &subnet )
 		// this function does not check whether the given subnet is a valid subnet the user is on
 		// convert string representation of ip/subnet to in_addr
 
-		CONSOLE_Print( "[UDPSOCKET] using broadcast target [" + subnet + "]" );
+		Print( "[UDPSOCKET] using broadcast target [" + subnet + "]" );
 		m_BroadcastTarget.s_addr = inet_addr( subnet.c_str( ) );
 
 		// if conversion fails, inet_addr( ) returns INADDR_NONE
 
 		if( m_BroadcastTarget.s_addr == INADDR_NONE )
 		{
-			CONSOLE_Print( "[UDPSOCKET] invalid broadcast target, using default broadcast target" );
+			Print( "[UDPSOCKET] invalid broadcast target, using default broadcast target" );
 			m_BroadcastTarget.s_addr = INADDR_BROADCAST;
 		}
 	}

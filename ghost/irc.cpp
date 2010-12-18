@@ -13,7 +13,6 @@ CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername
 {
 	if( m_Server.empty( ) || m_Username.empty( ) || m_Nickname.empty( ) )
 	{
-		CONSOLE_Print2( "[IRC] Insufficient input for IRC. Exiting..." );
 		m_Exiting = true;
 		return;
 	}
@@ -50,7 +49,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		
 		if( Time - m_LastPacketTime > 210 )
 		{
-			CONSOLE_Print( "[IRC: " + m_Server + "] ping timeout,  reconnecting" );			
+			Print( "[IRC: " + m_Server + "] ping timeout,  reconnecting" );			
 			m_Socket->Reset( );
 			m_WaitingToConnect = true;
 			return m_Exiting;
@@ -66,7 +65,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 	{
 		// the socket has an error
 
-		CONSOLE_Print( "[IRC: " + m_Server + "] disconnected due to socket error,  waiting 30 seconds to reconnect" );
+		Print( "[IRC: " + m_Server + "] disconnected due to socket error,  waiting 30 seconds to reconnect" );
 		m_Socket->Reset( );
 		m_WaitingToConnect = true;
 		m_LastConnectionAttemptTime = Time;
@@ -77,7 +76,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 	{
 		// the socket was disconnected
 
-		CONSOLE_Print( "[IRC: " + m_Server + "] disconnected, waiting 30 seconds to reconnect" );
+		Print( "[IRC: " + m_Server + "] disconnected, waiting 30 seconds to reconnect" );
 		m_Socket->Reset( );
 		m_WaitingToConnect = true;
 		m_LastConnectionAttemptTime = Time;
@@ -92,7 +91,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		{
 			// the connection attempt completed
 
-			CONSOLE_Print( "[IRC: " + m_Server + "] connected" );
+			Print( "[IRC: " + m_Server + "] connected" );
 			
 			m_LastPacketTime = Time;
 
@@ -109,7 +108,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		{
 			// the connection attempt timed out (15 seconds)
 
-			CONSOLE_Print( "[IRC: " + m_Server + "] connect timed out, waiting 30 seconds to reconnect" );
+			Print( "[IRC: " + m_Server + "] connect timed out, waiting 30 seconds to reconnect" );
 			m_Socket->Reset( );
 			m_LastConnectionAttemptTime = Time;
 			m_WaitingToConnect = true;
@@ -121,7 +120,7 @@ bool CIRC :: Update( void *fd, void *send_fd )
 	{
 		// attempt to connect to irc
 
-		CONSOLE_Print( "[IRC: " + m_Server + "] connecting to server [" + m_Server + "] on port " + UTIL_ToString( m_Port ) );
+		Print( "[IRC: " + m_Server + "] connecting to server [" + m_Server + "] on port " + UTIL_ToString( m_Port ) );
 
 		if( m_ServerIP.empty( ) )
 		{
@@ -130,14 +129,12 @@ bool CIRC :: Update( void *fd, void *send_fd )
 			if( !m_Socket->HasError( ) )
 			{
 				m_ServerIP = m_Socket->GetIPString( );
-				CONSOLE_Print2( "[IRC: " + m_Server + "] resolved and cached server IP address " + m_ServerIP );
 			}
 		}
 		else
 		{
 			// use cached server IP address since resolving takes time and is blocking
 
-			CONSOLE_Print2( "[IRC: " + m_Server + "] using cached server IP address " + m_ServerIP );
 			m_Socket->Connect( string( ), m_ServerIP, m_Port );
 		}
 
@@ -178,8 +175,6 @@ inline void CIRC :: ExtractPackets( )
 
 			if( Message[0] != '\1' )
 			{
-				CONSOLE_Print2( "[" + Target + "] " + Nickname + ": " + Message );
-
 				if( Message[0] == m_CommandTrigger[0] )
 				{
 					// Commands
@@ -347,7 +342,7 @@ inline void CIRC :: ExtractPackets( )
 		}
 		else if( Parts.size( ) >= 2 && Parts[0] == "NOTICE" )
 		{
-			CONSOLE_Print( "[IRC: " + m_Server + "] " + (*i) );
+			Print( "[IRC: " + m_Server + "] " + (*i) );
 		}
 		else if( Parts.size( ) >= 2 && Parts[1] == "221" )
 		{
@@ -370,7 +365,7 @@ inline void CIRC :: ExtractPackets( )
 		{
 			// we don't actually check if we joined all of the channels
 
-			CONSOLE_Print( "[IRC: " + m_Server + "] joined at least one channel successfully" );
+			Print( "[IRC: " + m_Server + "] joined at least one channel successfully" );
 		}
 		else if( Parts.size( ) >= 4 && Parts[1] == "KICK" && Parts[3] == m_Nickname )
 		{
@@ -426,7 +421,7 @@ CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) 
 	m_Socket = new CTCPClient( );	
 	m_Socket->Connect( string( ), nIP, nPort );
 	
-	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
+	Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 }
 
 CDCC :: ~CDCC( )
@@ -470,7 +465,7 @@ void CDCC :: Connect( const string &IP, uint16_t Port )
 	m_IP = IP;
 	m_Port = Port;
 	
-	CONSOLE_Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
+	Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 			
 	m_Socket->Connect( string( ), m_IP, m_Port );
 }

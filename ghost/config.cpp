@@ -43,10 +43,10 @@ void CConfig :: Read( const string &file )
 	in.open( file.c_str( ) );
 
 	if( in.fail( ) )
-		CONSOLE_Print( "[CONFIG] warning - unable to read file [" + file + "]" );
+		Print( "[CONFIG] warning - unable to read file [" + file + "]" );
 	else
 	{
-		CONSOLE_Print( "[CONFIG] loading file [" + file + "]" );
+		Print( "[CONFIG] loading file [" + file + "]" );
 		string Line;
 
 		while( !in.eof( ) )

@@ -86,13 +86,13 @@ CGame :: CGame( CGHost *nGHost, CMap *nMap, uint16_t nHostPort, unsigned char nG
 	// start listening for connections
 
 	if( !m_GHost->m_BindAddress.empty( ) )
-		CONSOLE_Print( "[GAME: " + m_GameName + "] attempting to bind to address [" + m_GHost->m_BindAddress + "]" );
+		Print( "[GAME: " + m_GameName + "] attempting to bind to address [" + m_GHost->m_BindAddress + "]" );
 
 	if( m_Socket->Listen( m_GHost->m_BindAddress, m_HostPort ) )
-		CONSOLE_Print( "[GAME: " + m_GameName + "] listening on port " + UTIL_ToString( m_HostPort ) );
+		Print( "[GAME: " + m_GameName + "] listening on port " + UTIL_ToString( m_HostPort ) );
 	else
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] error listening on port " + UTIL_ToString( m_HostPort ) );
+		Print( "[GAME: " + m_GameName + "] error listening on port " + UTIL_ToString( m_HostPort ) );
 		m_Exiting = true;
 	}
 
@@ -133,7 +133,7 @@ CGame :: ~CGame( )
 			m_Stats->Save( m_GHost, m_GHost->m_DB, m_GameID );
 	}
 	else
-		CONSOLE_Print( "[GAME: " + m_GameName + "] unable to save player/stats data to database" );
+		Print( "[GAME: " + m_GameName + "] unable to save player/stats data to database" );
 
 	for( vector<CDBBan *> :: iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
 		delete *i;
@@ -381,7 +381,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			{
 				// start the lag screen
 
-				CONSOLE_Print( "[GAME: " + m_GameName + "] started lagging on [" + LaggingString + "]" );
+				Print( "[GAME: " + m_GameName + "] started lagging on [" + LaggingString + "]" );
 				SendAll( m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
 
 				// reset everyone's drop vote
@@ -466,7 +466,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 				{
 					// stop the lag screen for this player
 
-					CONSOLE_Print( "[GAME: " + m_GameName + "] stopped lagging on [" + (*i)->GetName( ) + "]" );
+					Print( "[GAME: " + m_GameName + "] stopped lagging on [" + (*i)->GetName( ) + "]" );
 					SendAll( m_Protocol->SEND_W3GS_STOP_LAG( *i ) );
 					(*i)->SetLagging( false );
 					(*i)->SetStartedLaggingTicks( 0 );
@@ -511,8 +511,8 @@ bool CGame :: Update( void *fd, void *send_fd )
 	{
 		if( !m_Saving )
 		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (no players left)" );
-			CONSOLE_Print( "[GAME: " + m_GameName + "] saving game data to database" );
+			Print( "[GAME: " + m_GameName + "] is over (no players left)" );
+			Print( "[GAME: " + m_GameName + "] saving game data to database" );
 			
 			m_Saving = true;
 				
@@ -549,7 +549,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 
 	if( m_Players.size( ) == 1 && m_FakePlayers.size( ) == 0 && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] gameover timer started (one player left)" );
+		Print( "[GAME: " + m_GameName + "] gameover timer started (one player left)" );
 		m_GameOverTime = Time;
 	}
 
@@ -562,7 +562,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 		{
 			if( !(*i)->GetDeleteMe( ) )
 			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (gameover timer finished)" );
+				Print( "[GAME: " + m_GameName + "] is over (gameover timer finished)" );
 				StopPlayers( "was disconnected (gameover timer finished)" );
 				break;
 			}
@@ -573,7 +573,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 
 	if( !m_KickVotePlayer.empty( ) && Time - m_StartedKickVoteTime >= 60 )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] expired" );
+		Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] expired" );
 		SendAllChat( m_GHost->m_Language->VoteKickExpired( m_KickVotePlayer ) );
 		m_KickVotePlayer.clear( );
 		m_StartedKickVoteTime = 0;
@@ -707,7 +707,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 
 		if( Time - m_LastReservedSeen > m_GHost->m_LobbyTimeLimit * 60 )
 		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] is over (lobby time limit hit)" );
+			Print( "[GAME: " + m_GameName + "] is over (lobby time limit hit)" );
 			return true;
 		}
 	}	
@@ -839,7 +839,7 @@ void CGame :: SendAllChat( unsigned char fromPID, const string &message )
 
 	if( GetNumHumanPlayers( ) > 0 )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] [Local]: " + message );
+		Print( "[GAME: " + m_GameName + "] [Local]: " + message );
 
 		if( !m_GameLoading && !m_GameLoaded )
 		{
@@ -1001,7 +1001,7 @@ inline void CGame :: SendAllActions( )
 		
 		// this program is SO FAST, I've yet to see this happen *coolface*
 
-		CONSOLE_Print( "[GAME: " + m_GameName + "] warning - the latency is " + UTIL_ToString( m_Latency ) + "ms but the last update was late by " + UTIL_ToString( m_LastActionLateBy ) + "ms" );
+		Print( "[GAME: " + m_GameName + "] warning - the latency is " + UTIL_ToString( m_Latency ) + "ms but the last update was late by " + UTIL_ToString( m_LastActionLateBy ) + "ms" );
 		m_LastActionLateBy = m_Latency;
 	}
 
@@ -1010,7 +1010,7 @@ inline void CGame :: SendAllActions( )
 
 void CGame :: EventPlayerDeleted( CGamePlayer *player )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] deleting player [" + player->GetName( ) + "]: " + player->GetLeftReason( ) );
+	Print( "[GAME: " + m_GameName + "] deleting player [" + player->GetName( ) + "]: " + player->GetLeftReason( ) );
 
 	m_LastPlayerLeaveTicks = GetTicks( );
 
@@ -1200,7 +1200,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 
 	if( joinPlayer->GetName( ).empty( ) || joinPlayer->GetName( ).size( ) > 15 || joinPlayer->GetName( ) == m_VirtualHostName || GetPlayerFromName( joinPlayer->GetName( ), false ) || joinPlayer->GetName( ).find( " " ) != string :: npos || joinPlayer->GetName( ).find( "|" ) != string :: npos  )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] invalid name (taken, invalid char, spoofer, too long)" );
+		Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] invalid name (taken, invalid char, spoofer, too long)" );
 		potential->Send( m_Protocol->SEND_W3GS_REJECTJOIN( REJECTJOIN_FULL ) );
 		potential->SetDeleteMe( true );
 		return;
@@ -1240,7 +1240,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 
 			if( Ban )
 			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is banned" );
+				Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] is banned" );
 
 				if( m_IgnoredNames.find( joinPlayer->GetName( ) ) == m_IgnoredNames.end( ) )
 				{
@@ -1353,7 +1353,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 	// this problem is solved by setting the socket to NULL before deletion and handling the NULL case in the destructor
 	// we also have to be careful to not modify the m_Potentials vector since we're currently looping through it
 
-	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] joined the game" );
+	Print( "[GAME: " + m_GameName + "] player [" + joinPlayer->GetName( ) + "|" + potential->GetExternalIPString( ) + "] joined the game" );
 	CGamePlayer *Player = new CGamePlayer( potential, GetNewPID( ), JoinedRealm, joinPlayer->GetName( ), joinPlayer->GetInternalIP( ), Reserved );
 
 	// consider LAN players to have already spoof checked since they can't
@@ -1484,7 +1484,7 @@ void CGame :: EventPlayerLeft( CGamePlayer *player, uint32_t reason )
 
 void CGame :: EventPlayerLoaded( CGamePlayer *player )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float) ( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
+	Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float) ( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
 
 	
 	SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( player->GetPID( ) ) );
@@ -1498,7 +1498,7 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 
 	if( !action->GetAction( )->empty( ) && (*action->GetAction( ))[0] == 6 )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] is saving the game" );
+		Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] is saving the game" );
 		SendAllChat( m_GHost->m_Language->PlayerIsSavingTheGame( player->GetName( ) ) );
 	}
 	
@@ -1506,7 +1506,7 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 
 	if( m_Stats && m_Stats->ProcessAction( action ) && m_GameOverTime == 0 )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] gameover timer started (stats class reported game over)" );
+		Print( "[GAME: " + m_GameName + "] gameover timer started (stats class reported game over)" );
 		m_GameOverTime = GetTime( );
 	}
 }
@@ -1545,7 +1545,7 @@ void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
 	{
 		if( !(*i)->GetDeleteMe( ) && (*i)->GetCheckSums( )->front( ) != FirstCheckSum )
 		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] desync detected" );
+			Print( "[GAME: " + m_GameName + "] desync detected" );
 			SendAllChat( m_GHost->m_Language->DesyncDetected( ) );
 
 			// try to figure out who desynced
@@ -1604,12 +1604,12 @@ void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
 				// however, we still kick every player because it's not fair to pick one or another group
 				// todotodo: it would be possible to split the game at this point and create a "new" game for each game state
 
-				CONSOLE_Print( "[GAME: " + m_GameName + "] can't kick desynced players because there is a tie, kicking all players instead" );
+				Print( "[GAME: " + m_GameName + "] can't kick desynced players because there is a tie, kicking all players instead" );
 				StopPlayers( m_GHost->m_Language->WasDroppedDesync( ) );
 			}
 			else
 			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] kicking desynced players" );
+				Print( "[GAME: " + m_GameName + "] kicking desynced players" );
 
 				for( map< uint32_t, vector<unsigned char> > :: iterator j = Bins.begin( ); j != Bins.end( ); ++j )
 				{
@@ -1674,13 +1674,13 @@ void CGame :: EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *c
 			{
 				if( ExtraFlags[0] == 1 )
 				{
-					CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Allies] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+					Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Allies] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
 				}
 				else if( ExtraFlags[0] == 0 )
 				{
 					// this is an ingame [All] message, print it to the console
 
-					CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [All] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+					Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [All] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
 
 					// don't relay ingame messages targeted for all players if we're currently muting all
 					// note that commands will still be processed even when muting all because we only stop relaying the messages, the rest of the function is unaffected
@@ -1692,14 +1692,14 @@ void CGame :: EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *c
 				{
 					// this is an ingame [Obs/Ref] message, print it to the console
 
-					CONSOLE_Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Obs/Ref] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+					Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Obs/Ref] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
 				}
 			}
 			else
 			{
 				// this is a lobby message, print it to the console
 
-				CONSOLE_Print( "[GAME: " + m_GameName + "] [Lobby] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+				Print( "[GAME: " + m_GameName + "] [Lobby] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
 
 				if( m_MuteLobby )
 					Relay = false;
@@ -1781,7 +1781,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 	if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
+		Print( "[GAME: " + m_GameName + "] admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
 
 		if( !m_Locked || RootAdminCheck || IsOwner( User ) )
 		{
@@ -1912,7 +1912,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 					if( SS.fail( ) )
 					{
-						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input to close command" );
+						Print( "[GAME: " + m_GameName + "] bad input to close command" );
 						break;
 					}
 					else
@@ -1926,7 +1926,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			else if( ( Command == "end" || Command == "e" ) && m_GameLoaded )
 			{
-				CONSOLE_Print( "[GAME: " + m_GameName + "] is over (admin ended game)" );
+				Print( "[GAME: " + m_GameName + "] is over (admin ended game)" );
 				StopPlayers( "was disconnected (admin ended game)" );
 			}			
 
@@ -1975,7 +1975,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 					if( SS.fail( ) )
 					{
-						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input to hold command" );
+						Print( "[GAME: " + m_GameName + "] bad input to hold command" );
 						break;
 					}
 					else
@@ -2059,7 +2059,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 					if( SS.fail( ) )
 					{
-						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input to open command" );
+						Print( "[GAME: " + m_GameName + "] bad input to open command" );
 						break;
 					}
 					else
@@ -2077,7 +2077,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				if( Payload.length() < 31 )
 				{
-					CONSOLE_Print( "[GAME: " + m_GameName + "] trying to rehost as private game [" + Payload + "]" );
+					Print( "[GAME: " + m_GameName + "] trying to rehost as private game [" + Payload + "]" );
 					SendAllChat( m_GHost->m_Language->TryingToRehostAsPrivateGame( Payload ) );
 					m_GameState = GAME_PRIVATE;
 					m_LastGameName = m_GameName;
@@ -2118,7 +2118,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				if( Payload.length() < 31 )
 				{
-					CONSOLE_Print( "[GAME: " + m_GameName + "] trying to rehost as public game [" + Payload + "]" );
+					Print( "[GAME: " + m_GameName + "] trying to rehost as public game [" + Payload + "]" );
 					SendAllChat( m_GHost->m_Language->TryingToRehostAsPublicGame( Payload ) );
 					m_GameState = GAME_PUBLIC;
 					m_LastGameName = m_GameName;
@@ -2178,17 +2178,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> SID1;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to swap command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to swap command" );
 				else
 				{
 					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to swap command" );
+						Print( "[GAME: " + m_GameName + "] missing input #2 to swap command" );
 					else
 					{
 						SS >> SID2;
 
 						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to swap command" );
+							Print( "[GAME: " + m_GameName + "] bad input #2 to swap command" );
 						else
 							SwapSlots( (unsigned char)( SID1 - 1 ), (unsigned char)( SID2 - 1 ) );
 					}
@@ -2239,7 +2239,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					if( (*i)->GetServer( ) == "europe.battle.net" )
 						(*i)->SetSpam( );
 				
-				CONSOLE_Print3( "[GAME: " + m_GameName + "] Allstars spam is on." );		
+				Print2( "[GAME: " + m_GameName + "] Allstars spam is on." );		
 			}
 				
 			//
@@ -2257,17 +2257,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> Slot;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to handicap command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to handicap command" );
 				else
 				{
 					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to handicap command" );
+						Print( "[GAME: " + m_GameName + "] missing input #2 to handicap command" );
 					else
 					{
 						SS >> Handicap;
 
 						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to handicap command" );
+							Print( "[GAME: " + m_GameName + "] bad input #2 to handicap command" );
 						else
 						{
 							unsigned char SID = (unsigned char)( Slot - 1 );
@@ -2307,7 +2307,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						{
 							// inform the client that we are willing to send the map
 
-							CONSOLE_Print( "[GAME: " + m_GameName + "] map download started for player [" + LastMatch->GetName( ) + "]" );
+							Print( "[GAME: " + m_GameName + "] map download started for player [" + LastMatch->GetName( ) + "]" );
 							Send( LastMatch, m_Protocol->SEND_W3GS_STARTDOWNLOAD( GetHostPID( ) ) );
 							LastMatch->SetDownloadAllowed( true );
 							LastMatch->SetDownloadStarted( true );
@@ -2588,7 +2588,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					SS >> Port;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad inputs to sendlan command" );
+					Print( "[GAME: " + m_GameName + "] bad inputs to sendlan command" );
 				else
 				{
 					// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
@@ -2674,14 +2674,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> Slot;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comp command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to comp command" );
 				else
 				{
 					if( !SS.eof( ) )
 						SS >> Skill;
 
 					if( SS.fail( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to comp command" );
+						Print( "[GAME: " + m_GameName + "] bad input #2 to comp command" );
 					else
 						ComputerSlot( (unsigned char)( Slot - 1 ), (unsigned char)Skill, true );
 				}
@@ -2702,17 +2702,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> Slot;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to compcolour command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to compcolour command" );
 				else
 				{
 					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to compcolour command" );
+						Print( "[GAME: " + m_GameName + "] missing input #2 to compcolour command" );
 					else
 					{
 						SS >> Colour;
 
 						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to compcolour command" );
+							Print( "[GAME: " + m_GameName + "] bad input #2 to compcolour command" );
 						else
 						{
 							unsigned char SID = (unsigned char)( Slot - 1 );
@@ -2742,17 +2742,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> Slot;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comphandicap command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to comphandicap command" );
 				else
 				{
 					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to comphandicap command" );
+						Print( "[GAME: " + m_GameName + "] missing input #2 to comphandicap command" );
 					else
 					{
 						SS >> Handicap;
 
 						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to comphandicap command" );
+							Print( "[GAME: " + m_GameName + "] bad input #2 to comphandicap command" );
 						else
 						{
 							unsigned char SID = (unsigned char)( Slot - 1 );
@@ -2933,11 +2933,11 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> Slot;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to comprace command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to comprace command" );
 				else
 				{
 					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to comprace command" );
+						Print( "[GAME: " + m_GameName + "] missing input #2 to comprace command" );
 					else
 					{
 						getline( SS, Race );
@@ -2979,7 +2979,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 									SendAllSlotInfo( );
 								}
 								else
-									CONSOLE_Print( "[GAME: " + m_GameName + "] unknown race [" + Race + "] sent to comprace command" );
+									Print( "[GAME: " + m_GameName + "] unknown race [" + Race + "] sent to comprace command" );
 							}
 						}
 					}
@@ -3001,17 +3001,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SS >> Slot;
 
 				if( SS.fail( ) )
-					CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #1 to compteam command" );
+					Print( "[GAME: " + m_GameName + "] bad input #1 to compteam command" );
 				else
 				{
 					if( SS.eof( ) )
-						CONSOLE_Print( "[GAME: " + m_GameName + "] missing input #2 to compteam command" );
+						Print( "[GAME: " + m_GameName + "] missing input #2 to compteam command" );
 					else
 					{
 						SS >> Team;
 
 						if( SS.fail( ) )
-							CONSOLE_Print( "[GAME: " + m_GameName + "] bad input #2 to compteam command" );
+							Print( "[GAME: " + m_GameName + "] bad input #2 to compteam command" );
 						else
 						{
 							unsigned char SID = (unsigned char)( Slot - 1 );
@@ -3041,16 +3041,16 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 		}
 		else
 		{
-			CONSOLE_Print( "[GAME: " + m_GameName + "] admin command ignored, the game is locked" );
+			Print( "[GAME: " + m_GameName + "] admin command ignored, the game is locked" );
 			SendChat( player, m_GHost->m_Language->TheGameIsLocked( ) );
 		}
 	}
 	else
 	{
 		if( !player->GetSpoofed( ) )
-			CONSOLE_Print( "[GAME: " + m_GameName + "] non-spoofchecked user [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
+			Print( "[GAME: " + m_GameName + "] non-spoofchecked user [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
 		else
-			CONSOLE_Print( "[GAME: " + m_GameName + "] non-admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
+			Print( "[GAME: " + m_GameName + "] non-admin [" + User + "] sent command [" + Command + "] with payload [" + Payload + "]" );
 	}
 
 	/*********************
@@ -3194,7 +3194,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						(*i)->SetKickVote( false );
 
 					player->SetKickVote( true );
-					CONSOLE_Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]" );
+					Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]" );
 					SendAllChat( m_GHost->m_Language->StartedVoteKick( LastMatch->GetName( ), User, UTIL_ToString( (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float) (m_GHost->m_VoteKickPercentage / 100) ) - 1 ) ) );
 					SendAllChat( m_GHost->m_Language->TypeYesToVote( string( 1, m_GHost->m_CommandTrigger ) ) );
 				}
@@ -3236,7 +3236,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				if( !m_GameLoading && !m_GameLoaded )
 					OpenSlot( GetSIDFromPID( Victim->GetPID( ) ), false );
 
-				CONSOLE_Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] passed with " + UTIL_ToString( Votes ) + "/" + UTIL_ToString( GetNumHumanPlayers( ) ) + " votes" );
+				Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] passed with " + UTIL_ToString( Votes ) + "/" + UTIL_ToString( GetNumHumanPlayers( ) ) + " votes" );
 				SendAllChat( m_GHost->m_Language->VoteKickPassed( m_KickVotePlayer ) );
 			}
 			else
@@ -3385,7 +3385,7 @@ void CGame :: EventPlayerDropRequest( CGamePlayer *player )
 
 	if( m_Lagging )
 	{
-		CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] voted to drop laggers" );
+		Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] voted to drop laggers" );
 		SendAllChat( m_GHost->m_Language->PlayerVotedToDropLaggers( player->GetName( ) ) );
 
 		// check if at least half the players voted to drop
@@ -3430,7 +3430,7 @@ void CGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize
 					{
 						// inform the client that we are willing to send the map
 
-						CONSOLE_Print( "[GAME: " + m_GameName + "] map download started for player [" + player->GetName( ) + "]" );
+						Print( "[GAME: " + m_GameName + "] map download started for player [" + player->GetName( ) + "]" );
 						Send( player, m_Protocol->SEND_W3GS_STARTDOWNLOAD( GetHostPID( ) ) );
 						player->SetDownloadStarted( true );
 						player->SetStartedDownloadingTicks( GetTicks( ) );
@@ -3461,7 +3461,7 @@ void CGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize
 
 		float Seconds = (float)( GetTicks( ) - player->GetStartedDownloadingTicks( ) ) / 1000.f;
 		float Rate = (float) MapSize / 1024.f / Seconds;
-		CONSOLE_Print( "[GAME: " + m_GameName + "] map download finished for player [" + player->GetName( ) + "] in " + UTIL_ToString( Seconds, 1 ) + " seconds" );
+		Print( "[GAME: " + m_GameName + "] map download finished for player [" + player->GetName( ) + "] in " + UTIL_ToString( Seconds, 1 ) + " seconds" );
 		SendAllChat( m_GHost->m_Language->PlayerDownloadedTheMap( player->GetName( ), UTIL_ToString( Seconds, 1 ), UTIL_ToString( Rate, 1 ) ) );
 		player->SetDownloadFinished( true );
 		player->SetFinishedDownloadingTime( GetTime( ) );
@@ -3511,7 +3511,7 @@ void CGame :: EventPlayerPongToHost( CGamePlayer *player, uint32_t pong )
 
 inline void CGame :: EventGameStarted( )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
+	Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
 	// encode the HCL command string in the slot handicaps
 	// here's how it works:
@@ -3561,13 +3561,13 @@ inline void CGame :: EventGameStarted( )
 				}
 
 				SendAllSlotInfo( );
-				CONSOLE_Print( "[GAME: " + m_GameName + "] successfully encoded HCL command string [" + m_HCLCommandString + "]" );
+				Print( "[GAME: " + m_GameName + "] successfully encoded HCL command string [" + m_HCLCommandString + "]" );
 			}
 			else
-				CONSOLE_Print( "[GAME: " + m_GameName + "] encoding HCL command string [" + m_HCLCommandString + "] failed because it contains invalid characters" );
+				Print( "[GAME: " + m_GameName + "] encoding HCL command string [" + m_HCLCommandString + "] failed because it contains invalid characters" );
 		}
 		else
-			CONSOLE_Print( "[GAME: " + m_GameName + "] encoding HCL command string [" + m_HCLCommandString + "] failed because there aren't enough occupied slots" );
+			Print( "[GAME: " + m_GameName + "] encoding HCL command string [" + m_HCLCommandString + "] failed because there aren't enough occupied slots" );
 	}
 
 	// send a final slot info update if necessary
@@ -3648,7 +3648,7 @@ inline void CGame :: EventGameStarted( )
 
 inline void CGame :: EventGameLoaded( )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] finished loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
+	Print( "[GAME: " + m_GameName + "] finished loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
 	// send shortest, longest, and personal load times to each player
 

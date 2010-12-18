@@ -107,18 +107,6 @@ bool CPotentialPlayer :: Update( void *fd )
 				else
 					break;
 			}
-			else
-			{
-				m_Error = true;
-				m_ErrorString = "received invalid packet from player (bad length)";
-				break;
-			}
-		}
-		else
-		{
-			m_Error = true;
-			m_ErrorString = "received invalid packet from player (bad header constant)";
-			break;
 		}
 	}
 	
@@ -445,7 +433,7 @@ inline void CGamePlayer :: ProcessPackets( )
 				{
 					m_GProxy = true;
 					m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
-					CONSOLE_Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
+					Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
 				}				
 			}
 		}
