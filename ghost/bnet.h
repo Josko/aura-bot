@@ -49,7 +49,6 @@ private:
 	queue<BYTEARRAY> m_OutPackets;				// queue of outgoing packets to be sent (to prevent getting kicked for flooding)
 	vector<CIncomingFriendList *> m_Friends;		// vector of friends
 	vector<CIncomingClanList *> m_Clans;			// vector of clan members
-	// vector<CDBBan *> m_Bans;				// vector of cached bans
 	bool m_Exiting;						// set to true and this class will be deleted next update
 	bool m_Spam;						// spam game in allstars
 	string m_Server;					// battle.net server to connect to
@@ -118,7 +117,6 @@ public:
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
 	bool Update( void *fd, void *send_fd );
-	inline void ExtractPackets( );
 	inline void ProcessPackets( );
 	void ProcessChatEvent( CIncomingChatEvent *chatEvent );
 

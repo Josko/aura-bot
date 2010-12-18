@@ -80,20 +80,7 @@ bool CPotentialPlayer :: Update( void *fd )
 		return false;
 
 	m_Socket->DoRecv( (fd_set *)fd );
-	ExtractPackets( );
-	ProcessPackets( );
-
-	// don't call DoSend here because some other players may not have updated yet and may generate a packet for this player
-	// also m_Socket may have been set to NULL during ProcessPackets but we're banking on the fact that m_DeleteMe has been set to true as well so it'll short circuit before dereferencing
-
-	return m_DeleteMe || m_Error || m_Socket->HasError( ) || !m_Socket->GetConnected( );
-}
-
-inline void CPotentialPlayer :: ExtractPackets( )
-{
-	if( !m_Socket )
-		return;
-
+	
 	// extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
 
 	string *RecvBuffer = m_Socket->GetBytes( );
@@ -118,22 +105,29 @@ inline void CPotentialPlayer :: ExtractPackets( )
 					Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
 				}
 				else
-					return;
+					break;
 			}
 			else
 			{
 				m_Error = true;
 				m_ErrorString = "received invalid packet from player (bad length)";
-				return;
+				break;
 			}
 		}
 		else
 		{
 			m_Error = true;
 			m_ErrorString = "received invalid packet from player (bad header constant)";
-			return;
+			break;
 		}
 	}
+	
+	ProcessPackets( );
+
+	// don't call DoSend here because some other players may not have updated yet and may generate a packet for this player
+	// also m_Socket may have been set to NULL during ProcessPackets but we're banking on the fact that m_DeleteMe has been set to true as well so it'll short circuit before dereferencing
+
+	return m_DeleteMe || !m_Socket->GetConnected( ) || m_Socket->HasError( ) || m_Error;
 }
 
 inline void CPotentialPlayer :: ProcessPackets( )
@@ -310,62 +304,8 @@ bool CGamePlayer :: Update( void *fd )
 	return Deleting;
 }
 
-inline void CGamePlayer :: ExtractPackets( )
-{
-	if( !m_Socket )
-		return;
-
-	// extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
-
-	string *RecvBuffer = m_Socket->GetBytes( );
-	BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
-
-	// a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
-
-	while( Bytes.size( ) >= 4 )
-	{
-		if( Bytes[0] == W3GS_HEADER_CONSTANT || Bytes[0] == GPS_HEADER_CONSTANT )
-		{
-			// bytes 2 and 3 contain the length of the packet
-
-			uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
-
-			if( Length >= 4 )
-			{
-				if( Bytes.size( ) >= Length )
-				{
-					m_Packets.push( new CCommandPacket( Bytes[0], Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
-
-					if( Bytes[0] == W3GS_HEADER_CONSTANT )
-                                                ++m_TotalPacketsReceived;
-
-					*RecvBuffer = RecvBuffer->substr( Length );
-					Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
-				}
-				else
-					return;
-			}
-			else
-			{
-				m_Error = true;
-				m_ErrorString = "received invalid packet from player (bad length)";
-				return;
-			}
-		}
-		else
-		{
-			m_Error = true;
-			m_ErrorString = "received invalid packet from player (bad header constant)";
-			return;
-		}
-	}
-}
-
 inline void CGamePlayer :: ProcessPackets( )
 {
-	if( !m_Socket )
-		return;
-
 	CIncomingAction *Action = NULL;
 	CIncomingChatPlayer *ChatPlayer = NULL;
 	CIncomingMapSize *MapSize = NULL;

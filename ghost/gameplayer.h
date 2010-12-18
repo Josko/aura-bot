@@ -67,7 +67,6 @@ public:
 	// processing functions
 
 	virtual bool Update( void *fd );
-	inline virtual void ExtractPackets( );
 	inline virtual void ProcessPackets( );
 
 	// other functions
@@ -194,7 +193,6 @@ public:
 	// processing functions
 
 	virtual bool Update( void *fd );
-	inline virtual void ExtractPackets( );
 	inline virtual void ProcessPackets( );
 
 	// other functions

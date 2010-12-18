@@ -1484,7 +1484,7 @@ void CGame :: EventPlayerLeft( CGamePlayer *player, uint32_t reason )
 
 void CGame :: EventPlayerLoaded( CGamePlayer *player )
 {
-	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float)( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
+	CONSOLE_Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float) ( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
 
 	
 	SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( player->GetPID( ) ) );
@@ -3082,9 +3082,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			if( GamePlayerSummary )
 			{
                        		if( player->GetSpoofed( ) && ( m_GHost->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
-					SendAllChat( m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
+					SendAllChat( m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float) (GamePlayerSummary->GetAvgLoadingTime( ) / 1000), 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
 				else
-					SendChat( player, m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float)GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
+					SendChat( player, m_GHost->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float) (GamePlayerSummary->GetAvgLoadingTime( ) / 1000), 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
                                
                        		delete GamePlayerSummary;
 				GamePlayerSummary = NULL;
@@ -3195,7 +3195,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 					player->SetKickVote( true );
 					CONSOLE_Print( "[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]" );
-					SendAllChat( m_GHost->m_Language->StartedVoteKick( LastMatch->GetName( ), User, UTIL_ToString( (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float)m_GHost->m_VoteKickPercentage / 100 ) - 1 ) ) );
+					SendAllChat( m_GHost->m_Language->StartedVoteKick( LastMatch->GetName( ), User, UTIL_ToString( (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float) (m_GHost->m_VoteKickPercentage / 100) ) - 1 ) ) );
 					SendAllChat( m_GHost->m_Language->TypeYesToVote( string( 1, m_GHost->m_CommandTrigger ) ) );
 				}
 			}
@@ -3211,7 +3211,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 	else if( Command == "yes" && !m_KickVotePlayer.empty( ) && player->GetName( ) != m_KickVotePlayer && !player->GetKickVote( ) )
 	{
 		player->SetKickVote( true );
-		uint32_t Votes = 0, VotesNeeded = (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float)m_GHost->m_VoteKickPercentage / 100 );
+		uint32_t Votes = 0, VotesNeeded = (uint32_t)ceil( ( GetNumHumanPlayers( ) - 1 ) * (float) (m_GHost->m_VoteKickPercentage / 100) );
 
 		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
@@ -3390,7 +3390,7 @@ void CGame :: EventPlayerDropRequest( CGamePlayer *player )
 
 		// check if at least half the players voted to drop
 
-		uint32_t Votes = 0;
+		int Votes = 0;
 
 		for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
@@ -3398,7 +3398,7 @@ void CGame :: EventPlayerDropRequest( CGamePlayer *player )
 				++Votes;
 		}
 
-		if( (float)Votes / m_Players.size( ) > 0.50f )
+		if( (float) Votes / m_Players.size( ) > 0.50f )
 			StopLaggers( m_GHost->m_Language->LaggedOutDroppedByVote( ) );
 	}
 }
@@ -3460,7 +3460,7 @@ void CGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize
 		// calculate download rate
 
 		float Seconds = (float)( GetTicks( ) - player->GetStartedDownloadingTicks( ) ) / 1000.f;
-		float Rate = (float)MapSize / 1024.f / Seconds;
+		float Rate = (float) MapSize / 1024.f / Seconds;
 		CONSOLE_Print( "[GAME: " + m_GameName + "] map download finished for player [" + player->GetName( ) + "] in " + UTIL_ToString( Seconds, 1 ) + " seconds" );
 		SendAllChat( m_GHost->m_Language->PlayerDownloadedTheMap( player->GetName( ), UTIL_ToString( Seconds, 1 ), UTIL_ToString( Rate, 1 ) ) );
 		player->SetDownloadFinished( true );

@@ -131,7 +131,50 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		// the socket is connected and everything appears to be working properly
 
 		m_Socket->DoRecv( (fd_set *)fd );
-		ExtractPackets( );
+		
+		// extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
+
+		string *RecvBuffer = m_Socket->GetBytes( );
+		BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
+
+		// a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
+
+		while( Bytes.size( ) >= 4 )
+		{
+			// byte 0 is always 255
+
+			if( Bytes[0] == BNET_HEADER_CONSTANT )
+			{
+				// bytes 2 and 3 contain the length of the packet
+
+				uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+
+				if( Length >= 4 )
+				{
+					if( Bytes.size( ) >= Length )
+					{
+						m_Packets.push( new CCommandPacket( BNET_HEADER_CONSTANT, Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
+						*RecvBuffer = RecvBuffer->substr( Length );
+						Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+					}
+					else
+						break;
+				}
+				else
+				{
+					CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error - received invalid packet from battle.net (bad length), disconnecting" );
+					m_Socket->Disconnect( );
+					break;
+				}
+			}
+			else
+			{
+				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error - received invalid packet from battle.net (bad header constant), disconnecting" );
+				m_Socket->Disconnect( );
+				break;
+			}
+		}
+		
 		ProcessPackets( );
 
 		// check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
@@ -287,52 +330,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
 	}
 
 	return m_Exiting;
-}
-
-inline void CBNET :: ExtractPackets( )
-{
-	// extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
-
-	string *RecvBuffer = m_Socket->GetBytes( );
-	BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
-
-	// a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
-
-	while( Bytes.size( ) >= 4 )
-	{
-		// byte 0 is always 255
-
-		if( Bytes[0] == BNET_HEADER_CONSTANT )
-		{
-			// bytes 2 and 3 contain the length of the packet
-
-			uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
-
-			if( Length >= 4 )
-			{
-				if( Bytes.size( ) >= Length )
-				{
-					m_Packets.push( new CCommandPacket( BNET_HEADER_CONSTANT, Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
-					*RecvBuffer = RecvBuffer->substr( Length );
-					Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
-				}
-				else
-					return;
-			}
-			else
-			{
-				CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error - received invalid packet from battle.net (bad length), disconnecting" );
-				m_Socket->Disconnect( );
-				return;
-			}
-		}
-		else
-		{
-			CONSOLE_Print( "[BNET: " + m_ServerAlias + "] error - received invalid packet from battle.net (bad header constant), disconnecting" );
-			m_Socket->Disconnect( );
-			return;
-		}
-	}
 }
 
 inline void CBNET :: ProcessPackets( )
