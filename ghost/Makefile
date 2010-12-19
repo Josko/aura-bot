@@ -4,7 +4,7 @@ C++ = g++
 CC = gcc
 DFLAGS = -DSQLITE_THREADSAFE=0 
 OFLAGS = -O3
-LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
+LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lboost_date_time -lboost_system -lboost_filesystem
 CFLAGS = -Wall -m64 -fno-builtin
 
 ifeq ($(SYSTEM),Darwin)

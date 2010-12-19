@@ -1504,7 +1504,7 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 	
 	// give the stats class a chance to process the action
 
-	if( m_Stats && m_Stats->ProcessAction( action ) && m_GameOverTime == 0 )
+	if( m_Stats && ( *action->GetAction( ) ).size( ) >= 6 && m_Stats->ProcessAction( action ) && m_GameOverTime == 0 )
 	{
 		Print( "[GAME: " + m_GameName + "] gameover timer started (stats class reported game over)" );
 		m_GameOverTime = GetTime( );

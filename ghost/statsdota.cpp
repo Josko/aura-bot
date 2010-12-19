@@ -60,7 +60,7 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 	// parsing the actions would be more correct but would be a lot more difficult to write for relatively little gain
 	// so we take the easy route (which isn't always guaranteed to work) and search the data for the sequence "6b 64 72 2e 78 00" and hope it identifies an action
 
-	while( ActionData->size( ) >= i + 6 )
+	do
 	{
 		if( (*ActionData)[i] == 0x6b && (*ActionData)[i + 1] == 0x64 && (*ActionData)[i + 2] == 0x72 && (*ActionData)[i + 3] == 0x2e && (*ActionData)[i + 4] == 0x78 && (*ActionData)[i + 5] == 0x00 )
 		{
@@ -363,7 +363,7 @@ bool CStatsDOTA :: ProcessAction( CIncomingAction *Action )
 		}
 		else
 			++i;
-	}
+	} while( ActionData->size( ) >= i + 6 );
 
 	return m_Winner != 0;
 }
