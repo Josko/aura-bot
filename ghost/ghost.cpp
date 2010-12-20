@@ -71,7 +71,7 @@ uint32_t GetTime( )
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
 	ticks = t.tv_sec;
-	ticks += t.tv_nsec / 1e9;
+	// ticks += t.tv_nsec / 1e9;
 	return ticks;
 #endif
 }

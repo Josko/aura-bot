@@ -707,16 +707,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 							QueueChatCommand( m_GHost->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
 						}
 					}
-				}
-				
-				//
-				// !ONLINE
-				//
-				
-				else if( Command == "o" || Command == "online" )
-				{
-					QueueChatCommand( "/w Clan007 -o" );
-				}
+					}
 				
 				//
 				// !SPAM
@@ -986,527 +977,527 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
 				}
 
-				//
-				// !CLOSEALL
-				//
+					//
+					// !CLOSEALL
+					//
 
-				else if( Command == "closeall" && m_GHost->m_CurrentGame )
-				{
-					if( !m_GHost->m_CurrentGame->GetLocked( ) )
-						m_GHost->m_CurrentGame->CloseAllSlots( );
-					else
-						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !COUNTADMINS
-				//
-
-				else if( Command == "countadmins" )
-				{
-					if( IsRootAdmin( User ) )
+					else if( Command == "closeall" && m_GHost->m_CurrentGame )
 					{
-						uint32_t Count = m_GHost->m_DB->AdminCount( m_Server );
-
-                        			if( Count == 0 )
-                               				QueueChatCommand( m_GHost->m_Language->ThereAreNoAdmins( m_Server ), User, Whisper, m_IRC );
-                        			else if( Count == 1 )
-                                			QueueChatCommand( m_GHost->m_Language->ThereIsAdmin( m_Server ), User, Whisper, m_IRC );
-                        			else
-                                			QueueChatCommand( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !COUNTBANS
-				//
-
-				else if( Command == "countbans" )
-				{
-					uint32_t Count = m_GHost->m_DB->BanCount( m_Server );				 
-
-                        		if( Count == 0 )
-                               			QueueChatCommand( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ), User, Whisper, m_IRC );
-                        		else if( Count == 1 )
-                                		QueueChatCommand( m_GHost->m_Language->ThereIsBannedUser( m_Server ), User, Whisper, m_IRC );
-                        		else
-                                		QueueChatCommand( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !DELADMIN
-				//
-
-				else if( Command == "deladmin" && !Payload.empty( ) )
-				{
-					if( IsRootAdmin( User ) )
-					{
-						if( !IsAdmin( Payload ) )
-							QueueChatCommand( m_GHost->m_Language->UserIsNotAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
-						else if(  m_GHost->m_DB->AdminRemove( m_Server, Payload ) )
-							QueueChatCommand( m_GHost->m_Language->DeletedUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+						if( !m_GHost->m_CurrentGame->GetLocked( ) )
+							m_GHost->m_CurrentGame->CloseAllSlots( );
 						else
-							QueueChatCommand( m_GHost->m_Language->ErrorDeletingUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+							QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
 					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}
 
-				//
-				// !DELBAN
-				// !UNBAN
-				//
+					//
+					// !COUNTADMINS
+					//
 
-				else if( ( Command == "delban" || Command == "unban" ) && !Payload.empty( ) )
-				{
-					if( m_GHost->m_DB->BanRemove( Payload ) )					
-						QueueChatCommand( m_GHost->m_Language->UnbannedUser( Payload ), User, Whisper, m_IRC );					
-					else
-						QueueChatCommand( m_GHost->m_Language->ErrorUnbanningUser( Payload ), User, Whisper, m_IRC );
-				}				
-
-				//
-				// !DOWNLOADS
-				//
-
-				else if( ( Command == "downloads" || Command == "dls" ) )
-				{
-					if( Payload.empty( ) )
+					else if( Command == "countadmins" )
 					{
-						if( m_GHost->m_AllowDownloads == 0 )						
-							QueueChatCommand( m_GHost->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );					
-						else if( m_GHost->m_AllowDownloads == 1 )						
-							QueueChatCommand( m_GHost->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );					
-						else if( m_GHost->m_AllowDownloads == 2 )						
+						if( IsRootAdmin( User ) )
+						{
+							uint32_t Count = m_GHost->m_DB->AdminCount( m_Server );
+
+										if( Count == 0 )
+												QueueChatCommand( m_GHost->m_Language->ThereAreNoAdmins( m_Server ), User, Whisper, m_IRC );
+										else if( Count == 1 )
+												QueueChatCommand( m_GHost->m_Language->ThereIsAdmin( m_Server ), User, Whisper, m_IRC );
+										else
+												QueueChatCommand( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !COUNTBANS
+					//
+
+					else if( Command == "countbans" )
+					{
+						uint32_t Count = m_GHost->m_DB->BanCount( m_Server );				 
+
+									if( Count == 0 )
+											QueueChatCommand( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ), User, Whisper, m_IRC );
+									else if( Count == 1 )
+											QueueChatCommand( m_GHost->m_Language->ThereIsBannedUser( m_Server ), User, Whisper, m_IRC );
+									else
+											QueueChatCommand( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !DELADMIN
+					//
+
+					else if( Command == "deladmin" && !Payload.empty( ) )
+					{
+						if( IsRootAdmin( User ) )
+						{
+							if( !IsAdmin( Payload ) )
+								QueueChatCommand( m_GHost->m_Language->UserIsNotAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+							else if(  m_GHost->m_DB->AdminRemove( m_Server, Payload ) )
+								QueueChatCommand( m_GHost->m_Language->DeletedUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+							else
+								QueueChatCommand( m_GHost->m_Language->ErrorDeletingUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !DELBAN
+					// !UNBAN
+					//
+
+					else if( ( Command == "delban" || Command == "unban" ) && !Payload.empty( ) )
+					{
+						if( m_GHost->m_DB->BanRemove( Payload ) )					
+							QueueChatCommand( m_GHost->m_Language->UnbannedUser( Payload ), User, Whisper, m_IRC );					
+						else
+							QueueChatCommand( m_GHost->m_Language->ErrorUnbanningUser( Payload ), User, Whisper, m_IRC );
+					}				
+
+					//
+					// !DOWNLOADS
+					//
+
+					else if( ( Command == "downloads" || Command == "dls" ) )
+					{
+						if( Payload.empty( ) )
+						{
+							if( m_GHost->m_AllowDownloads == 0 )						
+								QueueChatCommand( m_GHost->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );					
+							else if( m_GHost->m_AllowDownloads == 1 )						
+								QueueChatCommand( m_GHost->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );					
+							else if( m_GHost->m_AllowDownloads == 2 )						
+								QueueChatCommand( m_GHost->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
+								
+							return;				
+						}
+					
+						uint32_t Downloads = UTIL_ToUInt32( Payload );
+
+						if( Downloads == 0 )
+						{
+							QueueChatCommand( m_GHost->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );
+							m_GHost->m_AllowDownloads = 0;
+						}
+						else if( Downloads == 1 )
+						{
+							QueueChatCommand( m_GHost->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );
+							m_GHost->m_AllowDownloads = 1;
+						}
+						else if( Downloads == 2 )
+						{
 							QueueChatCommand( m_GHost->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
-							
-						return;				
-					}
-				
-					uint32_t Downloads = UTIL_ToUInt32( Payload );
-
-					if( Downloads == 0 )
-					{
-						QueueChatCommand( m_GHost->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );
-						m_GHost->m_AllowDownloads = 0;
-					}
-					else if( Downloads == 1 )
-					{
-						QueueChatCommand( m_GHost->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );
-						m_GHost->m_AllowDownloads = 1;
-					}
-					else if( Downloads == 2 )
-					{
-						QueueChatCommand( m_GHost->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
-						m_GHost->m_AllowDownloads = 2;
-					}
-				}				
-
-				//
-				// !END
-				//
-
-				else if( Command == "end" && !Payload.empty( ) )
-				{
-					// todotodo: what if a game ends just as you're typing this command and the numbering changes?
-
-					uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
-
-					if( GameNumber < m_GHost->m_Games.size( ) )
-					{
-						// if the game owner is still in the game only allow the root admin to end the game
-
-						if( m_GHost->m_Games[GameNumber]->GetPlayerFromName( m_GHost->m_Games[GameNumber]->GetOwnerName( ), false ) && !IsRootAdmin( User ) )
-							QueueChatCommand( m_GHost->m_Language->CantEndGameOwnerIsStillPlaying( m_GHost->m_Games[GameNumber]->GetOwnerName( ) ), User, Whisper, m_IRC );
-						else
-						{
-							QueueChatCommand( m_GHost->m_Language->EndingGame( m_GHost->m_Games[GameNumber]->GetDescription( ) ), User, Whisper, m_IRC );
-							Print( "[GAME: " + m_GHost->m_Games[GameNumber]->GetGameName( ) + "] is over (admin ended game)" );
-							m_GHost->m_Games[GameNumber]->StopPlayers( "was disconnected (admin ended game)" );
+							m_GHost->m_AllowDownloads = 2;
 						}
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
-				}										
+					}				
 
-				//
-				// !HOLD (hold a slot for someone)
-				//
+					//
+					// !END
+					//
 
-				else if( Command == "hold" && !Payload.empty( ) && m_GHost->m_CurrentGame )
-				{
-					// hold as many players as specified, e.g. "Varlock Kilranin" holds players "Varlock" and "Kilranin"
-
-					stringstream SS;
-					SS << Payload;
-
-					while( !SS.eof( ) )
+					else if( Command == "end" && !Payload.empty( ) )
 					{
-						string HoldName;
-						SS >> HoldName;
+						// todotodo: what if a game ends just as you're typing this command and the numbering changes?
 
-						if( SS.fail( ) )
+						uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
+
+						if( GameNumber < m_GHost->m_Games.size( ) )
 						{
-							Print( "[BNET: " + m_ServerAlias + "] bad input to hold command" );
-							break;
+							// if the game owner is still in the game only allow the root admin to end the game
+
+							if( m_GHost->m_Games[GameNumber]->GetPlayerFromName( m_GHost->m_Games[GameNumber]->GetOwnerName( ), false ) && !IsRootAdmin( User ) )
+								QueueChatCommand( m_GHost->m_Language->CantEndGameOwnerIsStillPlaying( m_GHost->m_Games[GameNumber]->GetOwnerName( ) ), User, Whisper, m_IRC );
+							else
+							{
+								QueueChatCommand( m_GHost->m_Language->EndingGame( m_GHost->m_Games[GameNumber]->GetDescription( ) ), User, Whisper, m_IRC );
+								Print( "[GAME: " + m_GHost->m_Games[GameNumber]->GetGameName( ) + "] is over (admin ended game)" );
+								m_GHost->m_Games[GameNumber]->StopPlayers( "was disconnected (admin ended game)" );
+							}
 						}
 						else
-						{
-							QueueChatCommand( m_GHost->m_Language->AddedPlayerToTheHoldList( HoldName ), User, Whisper, m_IRC );
-							m_GHost->m_CurrentGame->AddToReserved( HoldName );
-						}
-					}
-				}				
+							QueueChatCommand( m_GHost->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
+					}										
 
-				//
-				// !COUNTMAPS
-				//
-				
-				else if( Command == "countmaps" || Command == "countmap" )
-				{
-					directory_iterator EndIterator;
-					int Count = 0;
+					//
+					// !HOLD (hold a slot for someone)
+					//
 
-					for( directory_iterator i( m_GHost->m_MapPath ); i != EndIterator; ++i )
+					else if( Command == "hold" && !Payload.empty( ) && m_GHost->m_CurrentGame )
 					{
-						string FileName = i->filename( );
-						transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
-
-						if( FileName.find( ".w3x" ) != string :: npos || FileName.find( ".w3m" ) != string :: npos )
-							++Count;
-					}
-
-					QueueChatCommand( "There are currently [" + UTIL_ToString( Count ) + "] maps.", User, Whisper, m_IRC );
-				}
-
-				//
-				// !COUNTCFG(s)
-				//
-				
-				else if( Command == "countcfg" || Command == "countcfgs" )
-				{
-					directory_iterator EndIterator;
-					int Count = 0;
-
-					for( directory_iterator i( m_GHost->m_MapCFGPath ); i != EndIterator; ++i )
-					{
-						string FileName = i->filename( );
-						transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
-
-						if( FileName.find( ".cfg" ) != string :: npos  )
-							++Count;
-					}
-
-					QueueChatCommand( "There are currently [" + UTIL_ToString( Count ) + "] cfgs.", User, Whisper, m_IRC );
-				}
-
-				//
-				// !DELETECFG
-				//
-				
-				else if( Command == "deletecfg" && IsRootAdmin( User ) && !Payload.empty( ) )
-				{
-					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
-
-					if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".cfg" ) )
-						Payload.append( ".cfg" );
-
-					directory_iterator EndIterator;
-
-					for( directory_iterator i( m_GHost->m_MapCFGPath ); i != EndIterator; ++i )
-					{
-						string FileName = i->filename( );
-						transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
-
-						if( FileName == Payload )
-						{
-							remove( m_GHost->m_MapCFGPath + i->filename( ) );
-							QueueChatCommand( "Deleted [" + i->filename( ) + "]", User, Whisper, m_IRC );
-						}
-					}
-				}
-
-				//
-				// !DELETEMAP
-				//
-				
-				else if( Command == "deletemap" && IsRootAdmin( User ) && !Payload.empty( ) )
-				{
-					transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
-
-					if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".w3x" || Payload.substr( Payload.size( ) - 4  ) != ".w3m" ) )
-						Payload.append( ".w3x" );
-
-					directory_iterator EndIterator;
-
-					for( directory_iterator i( m_GHost->m_MapPath ); i != EndIterator; ++i )
-					{
-						string FileName = i->filename( );
-						transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
-
-						if( FileName == Payload )
-						{
-							remove( m_GHost->m_MapPath + i->filename( ) );
-							QueueChatCommand( "Deleted [" + i->filename( ) + "]", User, Whisper, m_IRC );
-						}
-					}
-				}
-
-				//
-				// !OPEN (open slot)
-				//
-
-				else if( Command == "open" && !Payload.empty( ) && m_GHost->m_CurrentGame )
-				{
-					if( !m_GHost->m_CurrentGame->GetLocked( ) )
-					{
-						// open as many slots as specified, e.g. "5 10" opens slots 5 and 10
+						// hold as many players as specified, e.g. "Varlock Kilranin" holds players "Varlock" and "Kilranin"
 
 						stringstream SS;
 						SS << Payload;
 
 						while( !SS.eof( ) )
 						{
-							uint32_t SID;
-							SS >> SID;
+							string HoldName;
+							SS >> HoldName;
 
 							if( SS.fail( ) )
 							{
-								Print( "[BNET: " + m_ServerAlias + "] bad input to open command" );
+								Print( "[BNET: " + m_ServerAlias + "] bad input to hold command" );
 								break;
 							}
 							else
-								m_GHost->m_CurrentGame->OpenSlot( (unsigned char)( SID - 1 ), true );
-						}
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !OPENALL
-				//
-
-				else if( Command == "openall" && m_GHost->m_CurrentGame )
-				{
-					if( !m_GHost->m_CurrentGame->GetLocked( ) )
-						m_GHost->m_CurrentGame->OpenAllSlots( );
-					else
-						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}			
-
-				//
-				// !PRIVBY (host private game by other player)
-				//
-
-				else if( Command == "privby" && !Payload.empty( ) )
-				{
-					// extract the owner and the game name
-					// e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
-
-					string Owner;
-					string GameName;
-					string :: size_type GameNameStart = Payload.find( " " );
-
-					if( GameNameStart != string :: npos )
-					{
-						Owner = Payload.substr( 0, GameNameStart );
-						GameName = Payload.substr( GameNameStart + 1 );
-						m_GHost->CreateGame( m_GHost->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper );
-					}
-				}				
-
-				//
-				// !PUBBY (host public game by other player)
-				//
-
-				else if( Command == "pubby" && !Payload.empty( ) )
-				{
-					// extract the owner and the game name
-					// e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
-
-					string Owner;
-					string GameName;
-					string :: size_type GameNameStart = Payload.find( " " );
-
-					if( GameNameStart != string :: npos )
-					{
-						Owner = Payload.substr( 0, GameNameStart );
-						GameName = Payload.substr( GameNameStart + 1 );
-						m_GHost->CreateGame( m_GHost->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper );
-					}
-				}
-
-				//
-				// !RELOAD
-				//
-
-				else if( Command == "reload" )
-				{
-					if( IsRootAdmin( User ) )
-					{
-						QueueChatCommand( m_GHost->m_Language->ReloadingConfigurationFiles( ), User, Whisper, m_IRC );
-						m_GHost->ReloadConfigs( );
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !SAY
-				//
-
-				else if( Command == "say" && !Payload.empty( ) )
-				{
-					if( IsRootAdmin( User ) || Payload[0] != '/'  )
-						QueueChatCommand( Payload );
-				}
-
-				//
-				// !SAYGAME
-				//
-
-				else if( Command == "saygame" && !Payload.empty( ) )
-				{
-					if( IsRootAdmin( User ) )
-					{
-						// extract the game number and the message
-						// e.g. "3 hello everyone" -> game number: "3", message: "hello everyone"
-
-						uint32_t GameNumber;
-						string Message;
-						stringstream SS;
-						SS << Payload;
-						SS >> GameNumber;
-
-						if( SS.fail( ) )
-							Print( "[BNET: " + m_ServerAlias + "] bad input #1 to saygame command" );
-						else
-						{
-							if( SS.eof( ) )
-								Print( "[BNET: " + m_ServerAlias + "] missing input #2 to saygame command" );
-							else
 							{
-								getline( SS, Message );
-								string :: size_type Start = Message.find_first_not_of( " " );
+								QueueChatCommand( m_GHost->m_Language->AddedPlayerToTheHoldList( HoldName ), User, Whisper, m_IRC );
+								m_GHost->m_CurrentGame->AddToReserved( HoldName );
+							}
+						}
+					}				
 
-								if( Start != string :: npos )
-									Message = Message.substr( Start );
+					//
+					// !COUNTMAPS
+					//
+					
+					else if( Command == "countmaps" || Command == "countmap" )
+					{
+						directory_iterator EndIterator;
+						int Count = 0;
 
-								if( GameNumber - 1 < m_GHost->m_Games.size( ) )
-									m_GHost->m_Games[GameNumber - 1]->SendAllChat( "ADMIN: " + Message );
-								else
-									QueueChatCommand( m_GHost->m_Language->GameNumberDoesntExist( UTIL_ToString( GameNumber ) ), User, Whisper, m_IRC );
+						for( directory_iterator i( m_GHost->m_MapPath ); i != EndIterator; ++i )
+						{
+							string FileName = i->filename( );
+							transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
+
+							if( FileName.find( ".w3x" ) != string :: npos || FileName.find( ".w3m" ) != string :: npos )
+								++Count;
+						}
+
+						QueueChatCommand( "There are currently [" + UTIL_ToString( Count ) + "] maps.", User, Whisper, m_IRC );
+					}
+
+					//
+					// !COUNTCFG(s)
+					//
+					
+					else if( Command == "countcfg" || Command == "countcfgs" )
+					{
+						directory_iterator EndIterator;
+						int Count = 0;
+
+						for( directory_iterator i( m_GHost->m_MapCFGPath ); i != EndIterator; ++i )
+						{
+							string FileName = i->filename( );
+							transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
+
+							if( FileName.find( ".cfg" ) != string :: npos  )
+								++Count;
+						}
+
+						QueueChatCommand( "There are currently [" + UTIL_ToString( Count ) + "] cfgs.", User, Whisper, m_IRC );
+					}
+
+					//
+					// !DELETECFG
+					//
+					
+					else if( Command == "deletecfg" && IsRootAdmin( User ) && !Payload.empty( ) )
+					{
+						transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
+
+						if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".cfg" ) )
+							Payload.append( ".cfg" );
+
+						directory_iterator EndIterator;
+
+						for( directory_iterator i( m_GHost->m_MapCFGPath ); i != EndIterator; ++i )
+						{
+							string FileName = i->filename( );
+							transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
+
+							if( FileName == Payload )
+							{
+								remove( m_GHost->m_MapCFGPath + i->filename( ) );
+								QueueChatCommand( "Deleted [" + i->filename( ) + "]", User, Whisper, m_IRC );
 							}
 						}
 					}
-					else
-						QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
-				}
 
-				//
-				// !SAYGAMES
-				//
-
-				else if( Command == "saygames" && !Payload.empty( ) )
-				{
-					if( IsRootAdmin( User ) )
+					//
+					// !DELETEMAP
+					//
+					
+					else if( Command == "deletemap" && IsRootAdmin( User ) && !Payload.empty( ) )
 					{
-						if( m_GHost->m_CurrentGame )
-							m_GHost->m_CurrentGame->SendAllChat( Payload );
+						transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
 
-						for( vector<CGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); ++i )
-							(*i)->SendAllChat( "ADMIN: " + Payload );
-					}
-					else
-					{
-						if( m_GHost->m_CurrentGame )
-							m_GHost->m_CurrentGame->SendAllChat( Payload );
+						if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".w3x" || Payload.substr( Payload.size( ) - 4  ) != ".w3m" ) )
+							Payload.append( ".w3x" );
 
-						for( vector<CGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); ++i )
-							(*i)->SendAllChat( "ADMIN (" + User + "): " + Payload );
-					}
-				}
+						directory_iterator EndIterator;
 
-				//
-				// !SP
-				//
-
-				else if( Command == "sp" && m_GHost->m_CurrentGame && !m_GHost->m_CurrentGame->GetCountDownStarted( ) )
-				{
-					if( !m_GHost->m_CurrentGame->GetLocked( ) )
-					{
-						m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->ShufflingPlayers( ) );
-						m_GHost->m_CurrentGame->ShuffleSlots( );
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !START
-				//
-
-				else if( ( Command == "start" || Command == "s" ) && m_GHost->m_CurrentGame && !m_GHost->m_CurrentGame->GetCountDownStarted( ) && m_GHost->m_CurrentGame->GetNumHumanPlayers( ) > 0 )
-				{
-					if( !m_GHost->m_CurrentGame->GetLocked( ) )
-					{
-						// if the player sent "!start force" skip the checks and start the countdown
-						// otherwise check that the game is ready to start
-
-						if( Payload == "force" )
-							m_GHost->m_CurrentGame->StartCountDown( true );
-						else
-							m_GHost->m_CurrentGame->StartCountDown( false );
-					}
-					else
-						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}
-
-				//
-				// !SWAP (swap slots)
-				//
-
-				else if( Command == "swap" && !Payload.empty( ) && m_GHost->m_CurrentGame )
-				{
-					if( !m_GHost->m_CurrentGame->GetLocked( ) )
-					{
-						uint32_t SID1;
-						uint32_t SID2;
-						stringstream SS;
-						SS << Payload;
-						SS >> SID1;
-
-						if( SS.fail( ) )
-							Print( "[BNET: " + m_ServerAlias + "] bad input #1 to swap command" );
-						else
+						for( directory_iterator i( m_GHost->m_MapPath ); i != EndIterator; ++i )
 						{
-							if( SS.eof( ) )
-								Print( "[BNET: " + m_ServerAlias + "] missing input #2 to swap command" );
-							else
+							string FileName = i->filename( );
+							transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(*)(int))tolower );
+
+							if( FileName == Payload )
 							{
-								SS >> SID2;
+								remove( m_GHost->m_MapPath + i->filename( ) );
+								QueueChatCommand( "Deleted [" + i->filename( ) + "]", User, Whisper, m_IRC );
+							}
+						}
+					}
+
+					//
+					// !OPEN (open slot)
+					//
+
+					else if( Command == "open" && !Payload.empty( ) && m_GHost->m_CurrentGame )
+					{
+						if( !m_GHost->m_CurrentGame->GetLocked( ) )
+						{
+							// open as many slots as specified, e.g. "5 10" opens slots 5 and 10
+
+							stringstream SS;
+							SS << Payload;
+
+							while( !SS.eof( ) )
+							{
+								uint32_t SID;
+								SS >> SID;
 
 								if( SS.fail( ) )
-									Print( "[BNET: " + m_ServerAlias + "] bad input #2 to swap command" );
+								{
+									Print( "[BNET: " + m_ServerAlias + "] bad input to open command" );
+									break;
+								}
 								else
-									m_GHost->m_CurrentGame->SwapSlots( (unsigned char)( SID1 - 1 ), (unsigned char)( SID2 - 1 ) );
+									m_GHost->m_CurrentGame->OpenSlot( (unsigned char)( SID - 1 ), true );
 							}
 						}
+						else
+							QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
 					}
-					else
-						QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
-				}				
 
-				//
-				// !RESTART
-				//
+					//
+					// !OPENALL
+					//
 
-				else if( Command == "restart" )
-				{
-					if( ( !m_GHost->m_Games.size( ) && !m_GHost->m_CurrentGame ) || Payload == "force" )
+					else if( Command == "openall" && m_GHost->m_CurrentGame )
+					{
+						if( !m_GHost->m_CurrentGame->GetLocked( ) )
+							m_GHost->m_CurrentGame->OpenAllSlots( );
+						else
+							QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+					}			
+
+					//
+					// !PRIVBY (host private game by other player)
+					//
+
+					else if( Command == "privby" && !Payload.empty( ) )
+					{
+						// extract the owner and the game name
+						// e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
+
+						string Owner;
+						string GameName;
+						string :: size_type GameNameStart = Payload.find( " " );
+
+						if( GameNameStart != string :: npos )
+						{
+							Owner = Payload.substr( 0, GameNameStart );
+							GameName = Payload.substr( GameNameStart + 1 );
+							m_GHost->CreateGame( m_GHost->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper );
+						}
+					}				
+
+					//
+					// !PUBBY (host public game by other player)
+					//
+
+					else if( Command == "pubby" && !Payload.empty( ) )
+					{
+						// extract the owner and the game name
+						// e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
+
+						string Owner;
+						string GameName;
+						string :: size_type GameNameStart = Payload.find( " " );
+
+						if( GameNameStart != string :: npos )
+						{
+							Owner = Payload.substr( 0, GameNameStart );
+							GameName = Payload.substr( GameNameStart + 1 );
+							m_GHost->CreateGame( m_GHost->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper );
+						}
+					}
+
+					//
+					// !RELOAD
+					//
+
+					else if( Command == "reload" )
+					{
+						if( IsRootAdmin( User ) )
+						{
+							QueueChatCommand( m_GHost->m_Language->ReloadingConfigurationFiles( ), User, Whisper, m_IRC );
+							m_GHost->ReloadConfigs( );
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !SAY
+					//
+
+					else if( Command == "say" && !Payload.empty( ) )
+					{
+						if( IsRootAdmin( User ) || Payload[0] != '/'  )
+							QueueChatCommand( Payload );
+					}
+
+					//
+					// !SAYGAME
+					//
+
+					else if( Command == "saygame" && !Payload.empty( ) )
+					{
+						if( IsRootAdmin( User ) )
+						{
+							// extract the game number and the message
+							// e.g. "3 hello everyone" -> game number: "3", message: "hello everyone"
+
+							uint32_t GameNumber;
+							string Message;
+							stringstream SS;
+							SS << Payload;
+							SS >> GameNumber;
+
+							if( SS.fail( ) )
+								Print( "[BNET: " + m_ServerAlias + "] bad input #1 to saygame command" );
+							else
+							{
+								if( SS.eof( ) )
+									Print( "[BNET: " + m_ServerAlias + "] missing input #2 to saygame command" );
+								else
+								{
+									getline( SS, Message );
+									string :: size_type Start = Message.find_first_not_of( " " );
+
+									if( Start != string :: npos )
+										Message = Message.substr( Start );
+
+									if( GameNumber - 1 < m_GHost->m_Games.size( ) )
+										m_GHost->m_Games[GameNumber - 1]->SendAllChat( "ADMIN: " + Message );
+									else
+										QueueChatCommand( m_GHost->m_Language->GameNumberDoesntExist( UTIL_ToString( GameNumber ) ), User, Whisper, m_IRC );
+								}
+							}
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !SAYGAMES
+					//
+
+					else if( Command == "saygames" && !Payload.empty( ) )
+					{
+						if( IsRootAdmin( User ) )
+						{
+							if( m_GHost->m_CurrentGame )
+								m_GHost->m_CurrentGame->SendAllChat( Payload );
+
+							for( vector<CGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); ++i )
+								(*i)->SendAllChat( "ADMIN: " + Payload );
+						}
+						else
+						{
+							if( m_GHost->m_CurrentGame )
+								m_GHost->m_CurrentGame->SendAllChat( Payload );
+
+							for( vector<CGame *> :: iterator i = m_GHost->m_Games.begin( ); i != m_GHost->m_Games.end( ); ++i )
+								(*i)->SendAllChat( "ADMIN (" + User + "): " + Payload );
+						}
+					}
+
+					//
+					// !SP
+					//
+
+					else if( Command == "sp" && m_GHost->m_CurrentGame && !m_GHost->m_CurrentGame->GetCountDownStarted( ) )
+					{
+						if( !m_GHost->m_CurrentGame->GetLocked( ) )
+						{
+							m_GHost->m_CurrentGame->SendAllChat( m_GHost->m_Language->ShufflingPlayers( ) );
+							m_GHost->m_CurrentGame->ShuffleSlots( );
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !START
+					//
+
+					else if( ( Command == "start" || Command == "s" ) && m_GHost->m_CurrentGame && !m_GHost->m_CurrentGame->GetCountDownStarted( ) && m_GHost->m_CurrentGame->GetNumHumanPlayers( ) > 0 )
+					{
+						if( !m_GHost->m_CurrentGame->GetLocked( ) )
+						{
+							// if the player sent "!start force" skip the checks and start the countdown
+							// otherwise check that the game is ready to start
+
+							if( Payload == "force" )
+								m_GHost->m_CurrentGame->StartCountDown( true );
+							else
+								m_GHost->m_CurrentGame->StartCountDown( false );
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+					}
+
+					//
+					// !SWAP (swap slots)
+					//
+
+					else if( Command == "swap" && !Payload.empty( ) && m_GHost->m_CurrentGame )
+					{
+						if( !m_GHost->m_CurrentGame->GetLocked( ) )
+						{
+							uint32_t SID1;
+							uint32_t SID2;
+							stringstream SS;
+							SS << Payload;
+							SS >> SID1;
+
+							if( SS.fail( ) )
+								Print( "[BNET: " + m_ServerAlias + "] bad input #1 to swap command" );
+							else
+							{
+								if( SS.eof( ) )
+									Print( "[BNET: " + m_ServerAlias + "] missing input #2 to swap command" );
+								else
+								{
+									SS >> SID2;
+
+									if( SS.fail( ) )
+										Print( "[BNET: " + m_ServerAlias + "] bad input #2 to swap command" );
+									else
+										m_GHost->m_CurrentGame->SwapSlots( (unsigned char)( SID1 - 1 ), (unsigned char)( SID2 - 1 ) );
+								}
+							}
+						}
+						else
+							QueueChatCommand( m_GHost->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+					}				
+
+					//
+					// !RESTART
+					//
+
+					else if( Command == "restart" )
+					{
+						if( ( !m_GHost->m_Games.size( ) && !m_GHost->m_CurrentGame ) || Payload == "force" )
 					{
 						m_Exiting = true;
 						
@@ -1631,6 +1622,15 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			if( IsAdmin( User ) || IsRootAdmin( User ) || m_OutPackets.size( ) < 3 )
 			{
 				//
+				// !ONLINE
+				//
+
+				if( Command == "o" || Command == "online" )
+				{
+					QueueChatCommand( "/w clan007 -uptime" );
+				}
+
+				//
 				// !STATS
 				//
 
@@ -1687,7 +1687,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !GETPLAYERS
 				//
 				
-				else if( Command == "getplayers" && !Payload.empty( ) )
+				else if( ( Command == "gp"  || Command == "getplayers" ) && !Payload.empty( ) )
 				{
 					uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
