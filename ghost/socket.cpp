@@ -68,7 +68,7 @@ string CSocket :: GetErrorString( )
 		return "NO ERROR";
 
 	switch( m_Error )
-	{	
+	{
 		case EWOULDBLOCK: return "EWOULDBLOCK";
 		case EINPROGRESS: return "EINPROGRESS";
 		case EALREADY: return "EALREADY";
@@ -152,8 +152,10 @@ void CSocket :: Reset( )
 // CTCPSocket
 //
 
-CTCPSocket :: CTCPSocket( ) : CSocket( ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
+CTCPSocket :: CTCPSocket( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
 {
+        memset( &m_SIN, 0, sizeof( m_SIN ) );
+
 	Allocate( SOCK_STREAM );
 
 	// make socket non blocking
@@ -166,7 +168,7 @@ CTCPSocket :: CTCPSocket( ) : CSocket( ), m_Connected( false ), m_LastRecv( GetT
 #endif
 }
 
-CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : CSocket( nSocket, nSIN ), m_Connected( true ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
+CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_HasError( false ), m_Error( 0 ), m_Connected( true ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
 {
 	// make socket non blocking
 
@@ -185,9 +187,15 @@ CTCPSocket :: ~CTCPSocket( )
 
 void CTCPSocket :: Reset( )
 {
-	CSocket :: Reset( );
+	if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
 
-	Allocate( SOCK_STREAM );
+        Allocate( SOCK_STREAM );
+
+	m_Socket = INVALID_SOCKET;
+	memset( &m_SIN, 0, sizeof( m_SIN ) );
+	m_HasError = false;
+	m_Error = 0;
 	m_Connected = false;
 	m_RecvBuffer.clear( );
 	m_SendBuffer.clear( );
@@ -201,7 +209,6 @@ void CTCPSocket :: Reset( )
 #else
 	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
-
 }
 
 void CTCPSocket :: PutBytes( const string &bytes )
@@ -225,7 +232,7 @@ void CTCPSocket :: DoRecv( fd_set *fd )
 
 		char buffer[1024];
 		int c = recv( m_Socket, buffer, 1024, 0 );
-		
+
 		if( c > 0 )
 		{
 			// success! add the received data to the buffer
@@ -262,7 +269,7 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 		// socket is ready, send it
 
 		int s = send( m_Socket, m_SendBuffer.c_str( ), (int)m_SendBuffer.size( ), MSG_NOSIGNAL );
-		
+
 		if( s > 0 )
 		{
 			// success! only some of the data may have been sent, remove it from the buffer
@@ -296,29 +303,155 @@ void CTCPSocket :: SetNoDelay( )
 	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
 }
 
+BYTEARRAY CTCPSocket :: GetPort( )
+{
+	return UTIL_CreateByteArray( m_SIN.sin_port, false );
+}
+
+BYTEARRAY CTCPSocket :: GetIP( )
+{
+	return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
+}
+
+string CTCPSocket :: GetIPString( )
+{
+	return inet_ntoa( m_SIN.sin_addr );
+}
+
+string CTCPSocket :: GetErrorString( )
+{
+	if( !m_HasError )
+		return "NO ERROR";
+
+	switch( m_Error )
+	{
+		case EWOULDBLOCK: return "EWOULDBLOCK";
+		case EINPROGRESS: return "EINPROGRESS";
+		case EALREADY: return "EALREADY";
+		case ENOTSOCK: return "ENOTSOCK";
+		case EDESTADDRREQ: return "EDESTADDRREQ";
+		case EMSGSIZE: return "EMSGSIZE";
+		case EPROTOTYPE: return "EPROTOTYPE";
+		case ENOPROTOOPT: return "ENOPROTOOPT";
+		case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
+		case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
+		case EOPNOTSUPP: return "EOPNOTSUPP";
+		case EPFNOSUPPORT: return "EPFNOSUPPORT";
+		case EAFNOSUPPORT: return "EAFNOSUPPORT";
+		case EADDRINUSE: return "EADDRINUSE";
+		case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
+		case ENETDOWN: return "ENETDOWN";
+		case ENETUNREACH: return "ENETUNREACH";
+		case ENETRESET: return "ENETRESET";
+		case ECONNABORTED: return "ECONNABORTED";
+		case ENOBUFS: return "ENOBUFS";
+		case EISCONN: return "EISCONN";
+		case ENOTCONN: return "ENOTCONN";
+		case ESHUTDOWN: return "ESHUTDOWN";
+		case ETOOMANYREFS: return "ETOOMANYREFS";
+		case ETIMEDOUT: return "ETIMEDOUT";
+		case ECONNREFUSED: return "ECONNREFUSED";
+		case ELOOP: return "ELOOP";
+		case ENAMETOOLONG: return "ENAMETOOLONG";
+		case EHOSTDOWN: return "EHOSTDOWN";
+		case EHOSTUNREACH: return "EHOSTUNREACH";
+		case ENOTEMPTY: return "ENOTEMPTY";
+		case EUSERS: return "EUSERS";
+		case EDQUOT: return "EDQUOT";
+		case ESTALE: return "ESTALE";
+		case EREMOTE: return "EREMOTE";
+		case ECONNRESET: return "Connection reset by peer";
+	}
+
+	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+}
+
+void CTCPSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
+{
+	if( m_Socket == INVALID_SOCKET )
+		return;
+
+	FD_SET( m_Socket, fd );
+	FD_SET( m_Socket, send_fd );
+
+#ifndef WIN32
+	if( m_Socket > *nfds )
+		*nfds = m_Socket;
+#endif
+}
+
+void CTCPSocket :: Allocate( int type )
+{
+	m_Socket = socket( AF_INET, type, 0 );
+
+	if( m_Socket == INVALID_SOCKET )
+	{
+		m_HasError = true;
+		m_Error = GetLastError( );
+		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+		return;
+	}
+}
+
 //
 // CTCPClient
 //
 
-CTCPClient :: CTCPClient( ) : CTCPSocket( ), m_Connecting( false )
+CTCPClient :: CTCPClient( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 ), m_Connected( false ), m_Connecting( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
 {
+    memset( &m_SIN, 0, sizeof( m_SIN ) );
 
+    Allocate( SOCK_STREAM );
+
+    // make socket non blocking
+
+#ifdef WIN32
+	int iMode = 1;
+	ioctlsocket( m_Socket, FIONBIO, (u_long FAR *)&iMode );
+#else
+	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
+#endif
 }
 
 CTCPClient :: ~CTCPClient( )
 {
-
+    if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
 }
 
 void CTCPClient :: Reset( )
 {
-	CTCPSocket :: Reset( );
+	if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
+
+        Allocate( SOCK_STREAM );
+
+	m_Socket = INVALID_SOCKET;
+	memset( &m_SIN, 0, sizeof( m_SIN ) );
+	m_HasError = false;
+	m_Error = 0;
+	m_Connected = false;
+	m_RecvBuffer.clear( );
+	m_SendBuffer.clear( );
+	m_LastRecv = m_LastSend = GetTime( );
+
+	// make socket non blocking
+
+#ifdef WIN32
+	int iMode = 1;
+	ioctlsocket( m_Socket, FIONBIO, (u_long FAR *)&iMode );
+#else
+	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
+#endif
 	m_Connecting = false;
 }
 
 void CTCPClient :: Disconnect( )
 {
-	CTCPSocket :: Disconnect( );
+	if( m_Socket != INVALID_SOCKET )
+		shutdown( m_Socket, SHUT_RDWR );
+
+	m_Connected = false;
 	m_Connecting = false;
 }
 
@@ -421,12 +554,202 @@ bool CTCPClient :: CheckConnect( )
 	return false;
 }
 
+void CTCPClient :: PutBytes( const string &bytes )
+{
+	m_SendBuffer += bytes;
+}
+
+void CTCPClient :: PutBytes( const BYTEARRAY &bytes )
+{
+	m_SendBuffer += string( bytes.begin( ), bytes.end( ) );
+}
+
+void CTCPClient :: FlushRecv( fd_set *fd )
+{
+    if( FD_ISSET( m_Socket, fd ) )
+    {
+        char buffer[1024];
+	recv( m_Socket, buffer, 1024, 0 );
+    }
+}
+
+void CTCPClient :: DoRecv( fd_set *fd )
+{
+	if( FD_ISSET( m_Socket, fd ) )
+	{
+		// data is waiting, receive it
+
+		char buffer[1024];
+		int c = recv( m_Socket, buffer, 1024, 0 );
+
+		if( c > 0 )
+		{
+			// success! add the received data to the buffer
+
+			m_RecvBuffer += string( buffer, c );
+			m_LastRecv = GetTime( );
+		}
+		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+		{
+			// receive error
+
+			m_HasError = true;
+			m_Error = GetLastError( );
+			Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) );
+			return;
+		}
+		else if( c == 0 )
+		{
+			// the other end closed the connection
+
+			Print( "[TCPSOCKET] closed by remote host" );
+			m_Connected = false;
+		}
+	}
+}
+
+void CTCPClient :: DoSend( fd_set *send_fd )
+{
+	if( FD_ISSET( m_Socket, send_fd ) )
+	{
+		// socket is ready, send it
+
+		int s = send( m_Socket, m_SendBuffer.c_str( ), (int)m_SendBuffer.size( ), MSG_NOSIGNAL );
+
+		if( s > 0 )
+		{
+			// success! only some of the data may have been sent, remove it from the buffer
+
+			m_SendBuffer = m_SendBuffer.substr( s );
+			m_LastSend = GetTime( );
+		}
+		else if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+		{
+			// send error
+
+			m_HasError = true;
+			m_Error = GetLastError( );
+			Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
+			return;
+		}
+	}
+}
+
+void CTCPClient :: SetNoDelay( )
+{
+	int OptVal = 1;
+	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
+}
+
+BYTEARRAY CTCPClient :: GetPort( )
+{
+	return UTIL_CreateByteArray( m_SIN.sin_port, false );
+}
+
+BYTEARRAY CTCPClient :: GetIP( )
+{
+	return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
+}
+
+string CTCPClient :: GetIPString( )
+{
+	return inet_ntoa( m_SIN.sin_addr );
+}
+
+string CTCPClient :: GetErrorString( )
+{
+	if( !m_HasError )
+		return "NO ERROR";
+
+	switch( m_Error )
+	{
+		case EWOULDBLOCK: return "EWOULDBLOCK";
+		case EINPROGRESS: return "EINPROGRESS";
+		case EALREADY: return "EALREADY";
+		case ENOTSOCK: return "ENOTSOCK";
+		case EDESTADDRREQ: return "EDESTADDRREQ";
+		case EMSGSIZE: return "EMSGSIZE";
+		case EPROTOTYPE: return "EPROTOTYPE";
+		case ENOPROTOOPT: return "ENOPROTOOPT";
+		case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
+		case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
+		case EOPNOTSUPP: return "EOPNOTSUPP";
+		case EPFNOSUPPORT: return "EPFNOSUPPORT";
+		case EAFNOSUPPORT: return "EAFNOSUPPORT";
+		case EADDRINUSE: return "EADDRINUSE";
+		case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
+		case ENETDOWN: return "ENETDOWN";
+		case ENETUNREACH: return "ENETUNREACH";
+		case ENETRESET: return "ENETRESET";
+		case ECONNABORTED: return "ECONNABORTED";
+		case ENOBUFS: return "ENOBUFS";
+		case EISCONN: return "EISCONN";
+		case ENOTCONN: return "ENOTCONN";
+		case ESHUTDOWN: return "ESHUTDOWN";
+		case ETOOMANYREFS: return "ETOOMANYREFS";
+		case ETIMEDOUT: return "ETIMEDOUT";
+		case ECONNREFUSED: return "ECONNREFUSED";
+		case ELOOP: return "ELOOP";
+		case ENAMETOOLONG: return "ENAMETOOLONG";
+		case EHOSTDOWN: return "EHOSTDOWN";
+		case EHOSTUNREACH: return "EHOSTUNREACH";
+		case ENOTEMPTY: return "ENOTEMPTY";
+		case EUSERS: return "EUSERS";
+		case EDQUOT: return "EDQUOT";
+		case ESTALE: return "ESTALE";
+		case EREMOTE: return "EREMOTE";
+		case ECONNRESET: return "Connection reset by peer";
+	}
+
+	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+}
+
+void CTCPClient :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
+{
+	if( m_Socket == INVALID_SOCKET )
+		return;
+
+	FD_SET( m_Socket, fd );
+	FD_SET( m_Socket, send_fd );
+
+#ifndef WIN32
+	if( m_Socket > *nfds )
+		*nfds = m_Socket;
+#endif
+}
+
+void CTCPClient :: Allocate( int type )
+{
+	m_Socket = socket( AF_INET, type, 0 );
+
+	if( m_Socket == INVALID_SOCKET )
+	{
+		m_HasError = true;
+		m_Error = GetLastError( );
+		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+		return;
+	}
+}
+
 //
 // CTCPServer
 //
 
-CTCPServer :: CTCPServer( ) : CTCPSocket( )
+CTCPServer :: CTCPServer( )
 {
+        memset( &m_SIN, 0, sizeof( m_SIN ) );
+
+	Allocate( SOCK_STREAM );
+
+	// make socket non blocking
+
+#ifdef WIN32
+	int iMode = 1;
+	ioctlsocket( m_Socket, FIONBIO, (u_long FAR *)&iMode );
+#else
+	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
+#endif
+
 	// set the socket to reuse the address in case it hasn't been released yet
 
 	int optval = 1;
@@ -440,7 +763,8 @@ CTCPServer :: CTCPServer( ) : CTCPSocket( )
 
 CTCPServer :: ~CTCPServer( )
 {
-
+    if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
 }
 
 bool CTCPServer :: Listen( const string &address, uint16_t port )
@@ -513,11 +837,219 @@ CTCPSocket *CTCPServer :: Accept( fd_set *fd )
 	return NULL;
 }
 
+void CTCPServer :: Reset( )
+{
+	if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
+
+        Allocate( SOCK_STREAM );
+
+	m_Socket = INVALID_SOCKET;
+	memset( &m_SIN, 0, sizeof( m_SIN ) );
+	m_HasError = false;
+	m_Error = 0;
+	m_Connected = false;
+	m_RecvBuffer.clear( );
+	m_SendBuffer.clear( );
+	m_LastRecv = m_LastSend = GetTime( );
+
+	// make socket non blocking
+
+#ifdef WIN32
+	int iMode = 1;
+	ioctlsocket( m_Socket, FIONBIO, (u_long FAR *)&iMode );
+#else
+	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
+#endif
+}
+
+void CTCPServer :: PutBytes( const string &bytes )
+{
+	m_SendBuffer += bytes;
+}
+
+void CTCPServer :: PutBytes( const BYTEARRAY &bytes )
+{
+	m_SendBuffer += string( bytes.begin( ), bytes.end( ) );
+}
+
+void CTCPServer :: DoRecv( fd_set *fd )
+{
+	if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected )
+		return;
+
+	if( FD_ISSET( m_Socket, fd ) )
+	{
+		// data is waiting, receive it
+
+		char buffer[1024];
+		int c = recv( m_Socket, buffer, 1024, 0 );
+
+		if( c > 0 )
+		{
+			// success! add the received data to the buffer
+
+			m_RecvBuffer += string( buffer, c );
+			m_LastRecv = GetTime( );
+		}
+		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+		{
+			// receive error
+
+			m_HasError = true;
+			m_Error = GetLastError( );
+			Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) );
+			return;
+		}
+		else if( c == 0 )
+		{
+			// the other end closed the connection
+
+			Print( "[TCPSOCKET] closed by remote host" );
+			m_Connected = false;
+		}
+	}
+}
+
+void CTCPServer :: DoSend( fd_set *send_fd )
+{
+	if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected || m_SendBuffer.empty( ) )
+		return;
+
+	if( FD_ISSET( m_Socket, send_fd ) )
+	{
+		// socket is ready, send it
+
+		int s = send( m_Socket, m_SendBuffer.c_str( ), (int)m_SendBuffer.size( ), MSG_NOSIGNAL );
+
+		if( s > 0 )
+		{
+			// success! only some of the data may have been sent, remove it from the buffer
+
+			m_SendBuffer = m_SendBuffer.substr( s );
+			m_LastSend = GetTime( );
+		}
+		else if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
+		{
+			// send error
+
+			m_HasError = true;
+			m_Error = GetLastError( );
+			Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
+			return;
+		}
+	}
+}
+
+void CTCPServer :: Disconnect( )
+{
+	if( m_Socket != INVALID_SOCKET )
+		shutdown( m_Socket, SHUT_RDWR );
+
+	m_Connected = false;
+}
+
+void CTCPServer :: SetNoDelay( )
+{
+	int OptVal = 1;
+	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
+}
+
+BYTEARRAY CTCPServer :: GetPort( )
+{
+	return UTIL_CreateByteArray( m_SIN.sin_port, false );
+}
+
+BYTEARRAY CTCPServer :: GetIP( )
+{
+	return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
+}
+
+string CTCPServer :: GetIPString( )
+{
+	return inet_ntoa( m_SIN.sin_addr );
+}
+
+string CTCPServer :: GetErrorString( )
+{
+	if( !m_HasError )
+		return "NO ERROR";
+
+	switch( m_Error )
+	{
+		case EWOULDBLOCK: return "EWOULDBLOCK";
+		case EINPROGRESS: return "EINPROGRESS";
+		case EALREADY: return "EALREADY";
+		case ENOTSOCK: return "ENOTSOCK";
+		case EDESTADDRREQ: return "EDESTADDRREQ";
+		case EMSGSIZE: return "EMSGSIZE";
+		case EPROTOTYPE: return "EPROTOTYPE";
+		case ENOPROTOOPT: return "ENOPROTOOPT";
+		case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
+		case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
+		case EOPNOTSUPP: return "EOPNOTSUPP";
+		case EPFNOSUPPORT: return "EPFNOSUPPORT";
+		case EAFNOSUPPORT: return "EAFNOSUPPORT";
+		case EADDRINUSE: return "EADDRINUSE";
+		case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
+		case ENETDOWN: return "ENETDOWN";
+		case ENETUNREACH: return "ENETUNREACH";
+		case ENETRESET: return "ENETRESET";
+		case ECONNABORTED: return "ECONNABORTED";
+		case ENOBUFS: return "ENOBUFS";
+		case EISCONN: return "EISCONN";
+		case ENOTCONN: return "ENOTCONN";
+		case ESHUTDOWN: return "ESHUTDOWN";
+		case ETOOMANYREFS: return "ETOOMANYREFS";
+		case ETIMEDOUT: return "ETIMEDOUT";
+		case ECONNREFUSED: return "ECONNREFUSED";
+		case ELOOP: return "ELOOP";
+		case ENAMETOOLONG: return "ENAMETOOLONG";
+		case EHOSTDOWN: return "EHOSTDOWN";
+		case EHOSTUNREACH: return "EHOSTUNREACH";
+		case ENOTEMPTY: return "ENOTEMPTY";
+		case EUSERS: return "EUSERS";
+		case EDQUOT: return "EDQUOT";
+		case ESTALE: return "ESTALE";
+		case EREMOTE: return "EREMOTE";
+		case ECONNRESET: return "Connection reset by peer";
+	}
+
+	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+}
+
+void CTCPServer :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
+{
+	if( m_Socket == INVALID_SOCKET )
+		return;
+
+	FD_SET( m_Socket, fd );
+	FD_SET( m_Socket, send_fd );
+
+#ifndef WIN32
+	if( m_Socket > *nfds )
+		*nfds = m_Socket;
+#endif
+}
+
+void CTCPServer :: Allocate( int type )
+{
+	m_Socket = socket( AF_INET, type, 0 );
+
+	if( m_Socket == INVALID_SOCKET )
+	{
+		m_HasError = true;
+		m_Error = GetLastError( );
+		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+		return;
+	}
+}
+
 //
 // CUDPSocket
 //
 
-CUDPSocket :: CUDPSocket( ) : CSocket( )
+CUDPSocket :: CUDPSocket( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 )
 {
 	Allocate( SOCK_DGRAM );
 
@@ -525,14 +1057,15 @@ CUDPSocket :: CUDPSocket( ) : CSocket( )
 
 	int OptVal = 1;
 	setsockopt( m_Socket, SOL_SOCKET, SO_BROADCAST, (const char *)&OptVal, sizeof( int ) );
-	
+
 	// set default broadcast target
 	m_BroadcastTarget.s_addr = INADDR_BROADCAST;
 }
 
 CUDPSocket :: ~CUDPSocket( )
 {
-
+        if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
 }
 
 bool CUDPSocket :: SendTo( struct sockaddr_in sin, const BYTEARRAY &message )
@@ -633,4 +1166,105 @@ void CUDPSocket :: SetDontRoute( bool dontRoute )
 	// belonging to the target address directly
 
 	setsockopt( m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *)&OptVal, sizeof( int ) );
+}
+
+BYTEARRAY CUDPSocket :: GetPort( )
+{
+	return UTIL_CreateByteArray( m_SIN.sin_port, false );
+}
+
+BYTEARRAY CUDPSocket :: GetIP( )
+{
+	return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
+}
+
+string CUDPSocket :: GetIPString( )
+{
+	return inet_ntoa( m_SIN.sin_addr );
+}
+
+string CUDPSocket :: GetErrorString( )
+{
+	if( !m_HasError )
+		return "NO ERROR";
+
+	switch( m_Error )
+	{
+		case EWOULDBLOCK: return "EWOULDBLOCK";
+		case EINPROGRESS: return "EINPROGRESS";
+		case EALREADY: return "EALREADY";
+		case ENOTSOCK: return "ENOTSOCK";
+		case EDESTADDRREQ: return "EDESTADDRREQ";
+		case EMSGSIZE: return "EMSGSIZE";
+		case EPROTOTYPE: return "EPROTOTYPE";
+		case ENOPROTOOPT: return "ENOPROTOOPT";
+		case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
+		case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
+		case EOPNOTSUPP: return "EOPNOTSUPP";
+		case EPFNOSUPPORT: return "EPFNOSUPPORT";
+		case EAFNOSUPPORT: return "EAFNOSUPPORT";
+		case EADDRINUSE: return "EADDRINUSE";
+		case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
+		case ENETDOWN: return "ENETDOWN";
+		case ENETUNREACH: return "ENETUNREACH";
+		case ENETRESET: return "ENETRESET";
+		case ECONNABORTED: return "ECONNABORTED";
+		case ENOBUFS: return "ENOBUFS";
+		case EISCONN: return "EISCONN";
+		case ENOTCONN: return "ENOTCONN";
+		case ESHUTDOWN: return "ESHUTDOWN";
+		case ETOOMANYREFS: return "ETOOMANYREFS";
+		case ETIMEDOUT: return "ETIMEDOUT";
+		case ECONNREFUSED: return "ECONNREFUSED";
+		case ELOOP: return "ELOOP";
+		case ENAMETOOLONG: return "ENAMETOOLONG";
+		case EHOSTDOWN: return "EHOSTDOWN";
+		case EHOSTUNREACH: return "EHOSTUNREACH";
+		case ENOTEMPTY: return "ENOTEMPTY";
+		case EUSERS: return "EUSERS";
+		case EDQUOT: return "EDQUOT";
+		case ESTALE: return "ESTALE";
+		case EREMOTE: return "EREMOTE";
+		case ECONNRESET: return "Connection reset by peer";
+	}
+
+	return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+}
+
+void CUDPSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
+{
+	if( m_Socket == INVALID_SOCKET )
+		return;
+
+	FD_SET( m_Socket, fd );
+	FD_SET( m_Socket, send_fd );
+
+#ifndef WIN32
+	if( m_Socket > *nfds )
+		*nfds = m_Socket;
+#endif
+}
+
+void CUDPSocket :: Allocate( int type )
+{
+	m_Socket = socket( AF_INET, type, 0 );
+
+	if( m_Socket == INVALID_SOCKET )
+	{
+		m_HasError = true;
+		m_Error = GetLastError( );
+		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+		return;
+	}
+}
+
+void CUDPSocket :: Reset( )
+{
+	if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
+
+	m_Socket = INVALID_SOCKET;
+	memset( &m_SIN, 0, sizeof( m_SIN ) );
+	m_HasError = false;
+	m_Error = 0;
 }

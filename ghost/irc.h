@@ -1,5 +1,7 @@
 
 #define LF '\x0A'
+#define CR '\x0D'
+#define SOH '\x01'
 
 class CGHost;
 class CTCPClient;
@@ -7,7 +9,7 @@ class CDCC;
 
 class CIRC
 {
-public: 
+public:
 	CGHost *m_GHost;
 	CTCPClient *m_Socket;
 	vector<CDCC *> m_DCC;
@@ -20,13 +22,14 @@ public:
 	string m_Username;
 	string m_CommandTrigger;
 	string m_Password;
-	uint16_t m_Port;	
+	uint16_t m_Port;
 	bool m_Exiting;
 	bool m_WaitingToConnect;
 	bool m_OriginalNick;
 	uint32_t m_LastConnectionAttemptTime;
 	uint32_t m_LastPacketTime;
-	
+	uint32_t m_LastAntiIdleTime;
+
 	CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals );
 	~CIRC( );
 
@@ -47,15 +50,15 @@ class CDCC
 public:
 	CTCPClient *m_Socket;
 	string m_Nickname;
-	CIRC *m_IRC;	
+	CIRC *m_IRC;
 	string m_IP;
 	uint16_t m_Port;
-	
+
 	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname );
 	~CDCC( );
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-	void Update( void *fd, void *send_fd );
+	void Update( fd_set *fd, fd_set *send_fd );
 	void Connect( const string &IP, uint16_t Port );
 };
 

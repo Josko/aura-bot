@@ -1627,7 +1627,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
 				if( Command == "o" || Command == "online" )
 				{
-					QueueChatCommand( "/w clan007 -uptime" );
+					QueueChatCommand( "/w clan007 -online" );
 				}
 
 				//
