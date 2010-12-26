@@ -2,8 +2,8 @@
 #include "irc.h"
 #include "socket.h"
 #include "util.h"
-// #include "bnetprotocol.h"
-// #include "bnet.h"
+#include "bnetprotocol.h"
+#include "bnet.h"
 
 //////////////
 //// CIRC ////
@@ -154,7 +154,6 @@ bool CIRC :: Update( void *fd, void *send_fd )
 inline void CIRC :: ExtractPackets( )
 {
 	string Token, PreviousToken, Recv = *( m_Socket->GetBytes( ) );
-
         uint32_t Time = GetTime( );
         unsigned int i;
 
@@ -389,7 +388,6 @@ inline void CIRC :: ExtractPackets( )
 
                     if( Message[0] != SOH )
                     {
-                            /*
                             for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
                             {
                                     if( Message[0] == (*i)->GetCommandTrigger( ) )
@@ -398,7 +396,7 @@ inline void CIRC :: ExtractPackets( )
 					(*i)->ProcessChatEvent( &event );
 					break;
                                     }
-                            }*/
+                            }
 
                             if( Message[0] == m_CommandTrigger[0] )
                             {
@@ -424,7 +422,7 @@ inline void CIRC :: ExtractPackets( )
 
                                         SendMessageIRC( "ON: " + on, string( ) );
                                         SendMessageIRC( "OFF: " + off, string( ) );
-                                } /*
+                                }
                                 else if( Command == "bnetoff" )
                                 {
                                         if( Payload.empty( ) )
@@ -473,7 +471,6 @@ inline void CIRC :: ExtractPackets( )
                                                 }
                                         }
                                  }
-                              */
                           }
                     }
                     else if( Payload.size( ) > 12 && Payload.substr( 0, 4 ) == "CHAT" )
