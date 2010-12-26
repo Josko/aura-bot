@@ -57,8 +57,8 @@ public:
 	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname );
 	~CDCC( );
 
-	unsigned int SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-	void Update( fd_set *fd, fd_set *send_fd );
+	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
+	void Update( void *fd, void *send_fd );
 	void Connect( const string &IP, uint16_t Port );
 };
 

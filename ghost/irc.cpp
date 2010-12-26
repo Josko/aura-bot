@@ -592,7 +592,7 @@ CDCC :: ~CDCC( )
 	delete m_Socket;
 }
 
-unsigned int CDCC :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
+unsigned int CDCC :: SetFD( void *fd, void *send_fd, int *nfds )
 {
 	if( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
 	{
@@ -603,7 +603,7 @@ unsigned int CDCC :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 	return 0;
 }
 
-void CDCC :: Update( fd_set* fd, fd_set *send_fd )
+void CDCC :: Update( void* fd, void *send_fd )
 {
 	if( m_Socket->GetConnected( ) )
 	{
