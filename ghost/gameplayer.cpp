@@ -23,7 +23,7 @@
 #include "language.h"
 #include "socket.h"
 #include "commandpacket.h"
-#include "bnet.h"1
+#include "bnet.h"
 #include "map.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
