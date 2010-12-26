@@ -267,21 +267,7 @@ unsigned int CGame :: SetFD( void *fd, void *send_fd, int *nfds )
 	return NumFDs;
 }
 bool CGame :: Update( void *fd, void *send_fd )
-{
-	// update players
-
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); )
-	{
-		if( (*i)->Update( fd ) )
-		{
-			EventPlayerDeleted( *i );
-			delete *i;
-			i = m_Players.erase( i );
-		}
-		else
-                        ++i;
-	}
-	
+{	
 	uint32_t Time = GetTime( ), Ticks = GetTicks( );
 	
 	// ping every 5 seconds
@@ -331,6 +317,20 @@ bool CGame :: Update( void *fd, void *send_fd )
 		}
 
 		m_LastPingTime = Time;
+	}
+
+        // update players
+
+	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); )
+	{
+		if( (*i)->Update( fd ) )
+		{
+			EventPlayerDeleted( *i );
+			delete *i;
+			i = m_Players.erase( i );
+		}
+		else
+                        ++i;
 	}
 
 	for( vector<CPotentialPlayer *> :: iterator i = m_Potentials.begin( ); i != m_Potentials.end( ); )
@@ -1024,7 +1024,6 @@ void CGame :: EventPlayerDeleted( CGamePlayer *player )
 
 	if( player->GetLagging( ) )
 		SendAll( m_Protocol->SEND_W3GS_STOP_LAG( player ) );
-
 
 	// tell everyone about the player leaving
 	

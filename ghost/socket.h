@@ -284,10 +284,10 @@ protected:
 	bool m_HasError;
 	int m_Error;
 	struct in_addr m_BroadcastTarget;
+        
 public:
 	CUDPSocket( );
 	~CUDPSocket( );
-
 
         BYTEARRAY GetPort( );
 	BYTEARRAY GetIP( );

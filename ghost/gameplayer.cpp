@@ -23,7 +23,7 @@
 #include "language.h"
 #include "socket.h"
 #include "commandpacket.h"
-#include "bnet.h"
+#include "bnet.h"1
 #include "map.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
@@ -180,6 +180,7 @@ string CGamePlayer :: GetNameTerminated( )
 	// if the player's name contains an unterminated colour code add the colour terminator to the end of their name
 	// this is useful because it allows you to print the player's name in a longer message which doesn't colour all the subsequent text
 
+        /*
 	string LowerName = m_Name;
 	transform( LowerName.begin( ), LowerName.end( ), LowerName.begin( ), (int(*)(int))tolower );
 	string :: size_type Start = LowerName.find( "|c" );
@@ -188,7 +189,9 @@ string CGamePlayer :: GetNameTerminated( )
 	if( Start != string :: npos && ( End == string :: npos || End < Start ) )
 		return m_Name + "|r";
 	else
-		return m_Name;
+         */
+    
+	return m_Name;
 }
 
 uint32_t CGamePlayer :: GetPing( bool LCPing )

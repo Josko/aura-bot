@@ -170,163 +170,8 @@ inline void CIRC :: ExtractPackets( )
             else if( Recv[i] == ' ' )
             {
                 // end of token, examine
-
-                if( Token == "NOTICE" )
-                {
-                    string Packet;
-                    unsigned int Pos;
-
-                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
-                    {
-                        if( Recv[Pos] != CR && Recv[Pos] != LF )
-                            Packet += Recv[Pos];
-                        else
-                            break;
-                    }
-
-                    Print( "[IRC] NOTICE " + Packet );
-
-                    // move position after the \n
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                }
-                else if( Token == "PING" )
-                {
-                    string Packet;
-                    unsigned int Pos;
-
-                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
-                    {
-                        if( Recv[Pos] != CR && Recv[Pos] != LF )
-                            Packet += Recv[Pos];
-                        else
-                            break;
-                    }
-
-                    m_Socket->PutBytes( "PONG " + Packet );
-
-                    // move position after the \n
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                }
-                else if( Token == "221" )
-                {
-                    // Q auth if the server is QuakeNet
-
-                    if( m_Server.find( "quakenet.org" ) != string :: npos && !m_Password.empty( ) )
-                    {
-                            SendMessageIRC( "AUTH " + m_Username + " " + m_Password, "Q@CServe.quakenet.org" );
-                            SendIRC( "MODE " + m_Nickname + " +x" );
-                    }
-
-                    // join channels
-
-                    for( vector<string> :: iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
-                    {
-                            SendIRC( "JOIN " + (*j) );
-                    }
-
-                    // move position after the \n (next packet)
-
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
-
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                }
-                else if( Token == "433" )
-                {
-                    // nick taken, append _
-
-                    m_OriginalNick = false;
-                    m_Nickname += '_';
-
-                    SendIRC( "NICK " + m_Nickname );
-
-                    // move position after the \n (next packet)
-
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
-
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                }
-                else if( Token == "353" )
-                {
-                    // we don't actually check if we joined all of the channels
-
-                    Print( "[IRC: " + m_Server + "] joined at least one channel successfully" );
-
-                    // move position after the \n (next packet)
-
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
-
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                } /*
-                else if( Token == "KICK" )
-                {
-                    string Packet;
-                    unsigned int Pos;
-
-                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
-                    {
-                        if( Recv[Pos] && Recv[Pos] != CR && Recv[Pos] != LF )
-                            Packet += Recv[Pos];
-                        else
-                            break;
-                    }
-
-                    Print( "KICK: " + Packet );
-
-                    // move position after the \n
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                } */
-                else if( Token == "391" )
-                {
-                    // move position after the \n (next packet)
-
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
-
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                }
-                else if( Token == "PRIVMSG" )
+                
+                if( Token == "PRIVMSG" )
                 {
                     unsigned int Pos;
 
@@ -537,6 +382,161 @@ inline void CIRC :: ExtractPackets( )
 
                     m_LastPacketTime = Time;
                 }
+                else if( Token == "391" )
+                {
+                    // move position after the \n (next packet)
+
+                    unsigned int Pos;
+                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+
+                    // insert the Pos+1 into i
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                }
+                else if( Token == "NOTICE" )
+                {
+                    string Packet;
+                    unsigned int Pos;
+
+                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
+                    {
+                        if( Recv[Pos] != CR && Recv[Pos] != LF )
+                            Packet += Recv[Pos];
+                        else
+                            break;
+                    }
+
+                    Print( "[IRC] NOTICE " + Packet );
+
+                    // move position after the \n
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                }
+                else if( Token == "PING" )
+                {
+                    string Packet;
+                    unsigned int Pos;
+
+                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
+                    {
+                        if( Recv[Pos] != CR && Recv[Pos] != LF )
+                            Packet += Recv[Pos];
+                        else
+                            break;
+                    }
+
+                    m_Socket->PutBytes( "PONG " + Packet );
+
+                    // move position after the \n
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                }
+                else if( Token == "221" )
+                {
+                    // Q auth if the server is QuakeNet
+
+                    if( m_Server.find( "quakenet.org" ) != string :: npos && !m_Password.empty( ) )
+                    {
+                            SendMessageIRC( "AUTH " + m_Username + " " + m_Password, "Q@CServe.quakenet.org" );
+                            SendIRC( "MODE " + m_Nickname + " +x" );
+                    }
+
+                    // join channels
+
+                    for( vector<string> :: iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
+                    {
+                            SendIRC( "JOIN " + (*j) );
+                    }
+
+                    // move position after the \n (next packet)
+
+                    unsigned int Pos;
+                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+
+                    // insert the Pos+1 into i
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                }
+                else if( Token == "433" )
+                {
+                    // nick taken, append _
+
+                    m_OriginalNick = false;
+                    m_Nickname += '_';
+
+                    SendIRC( "NICK " + m_Nickname );
+
+                    // move position after the \n (next packet)
+
+                    unsigned int Pos;
+                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+
+                    // insert the Pos+1 into i
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                }
+                else if( Token == "353" )
+                {
+                    // we don't actually check if we joined all of the channels
+
+                    Print( "[IRC: " + m_Server + "] joined at least one channel successfully" );
+
+                    // move position after the \n (next packet)
+
+                    unsigned int Pos;
+                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+
+                    // insert the Pos+1 into i
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                } /*
+                else if( Token == "KICK" )
+                {
+                    string Packet;
+                    unsigned int Pos;
+
+                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
+                    {
+                        if( Recv[Pos] && Recv[Pos] != CR && Recv[Pos] != LF )
+                            Packet += Recv[Pos];
+                        else
+                            break;
+                    }
+
+                    Print( "KICK: " + Packet );
+
+                    // move position after the \n
+
+                    i = Pos + 2;
+
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                } */                
 
                 // empty the token
 
@@ -592,7 +592,7 @@ CDCC :: ~CDCC( )
 	delete m_Socket;
 }
 
-unsigned int CDCC :: SetFD( void *fd, void *send_fd, int *nfds )
+unsigned int CDCC :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 {
 	if( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
 	{
@@ -625,13 +625,8 @@ void CDCC :: Update( fd_set* fd, fd_set *send_fd )
 void CDCC :: Connect( const string &IP, uint16_t Port )
 {
 	m_Socket->Reset( );
-
         m_IP = IP;
-
-        if( Port > 1026 || 1024 > Port )
-            m_Port = 1024;
-        else
-            m_Port = Port;
+        m_Port = Port;
 
 	Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
 
