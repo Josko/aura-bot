@@ -522,7 +522,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			return true;
 	}
 	
-			// check if the game is loaded
+	// check if the game is loaded
 
 	if( m_GameLoading )
 	{

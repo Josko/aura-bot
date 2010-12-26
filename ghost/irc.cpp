@@ -14,7 +14,6 @@ CIRC :: CIRC( CGHost *nGHost, string nServer, string nNickname, string nUsername
 	if( m_Server.empty( ) || m_Username.empty( ) || m_Nickname.empty( ) )
 	{
 		m_Exiting = true;
-		return;
 	}
 
 	m_Socket = new CTCPClient( );
@@ -204,7 +203,7 @@ inline void CIRC :: ExtractPackets( )
                     {
                         Message += Recv[i];
 
-                        if( Recv[i] == ' ' )
+                        if( Recv[i] == ' ' && IsCommand )
                         {
                             IsCommand = false;
                             continue;
@@ -222,7 +221,6 @@ inline void CIRC :: ExtractPackets( )
                     // move position after the \n
 
                     i += 2;
-
 
                     if( Message[0] != SOH )
                     {
@@ -311,27 +309,48 @@ inline void CIRC :: ExtractPackets( )
                     }
                     else if( Payload.size( ) > 12 && Payload.substr( 0, 4 ) == "CHAT" )
                     {
-                            unsigned int SpacePos = Payload.find( ' ', 10 );
-                            string strIP, strPort = Payload.substr( SpacePos + 1 );
+                            // CHAT chat 3162588924 1025
+
+                            string strIP, strPort;
+                            bool IsPort = false;
+
+                            for( unsigned int j = 10; j < ( Payload.size( ) - 1 ); ++j )
+                            {
+                                if( !IsPort && Payload[j] == ' ' )
+                                {
+                                    IsPort = true;
+                                    continue;
+                                }
+
+                                if( !IsPort )
+                                {
+                                    strIP += Payload[j];
+                                }
+                                else
+                                    strPort += Payload[j];
+                            }
+
                             unsigned int Port = UTIL_ToUInt16( strPort );
 
                             if( Port < 1024 || 1026 < Port )
                                 Port = 1024;
+
+                            bool Local = false;
 
                             for( vector<string> :: iterator i = m_Locals.begin( ); i != m_Locals.end( ); ++i )
                             {
                                     if( Nickname == (*i) )
                                     {
                                             strIP = "127.0.0.1";
+                                            Local = true;
                                             break;
                                     }
                             }
 
-                            if( strIP.empty( ) )
+                            if( !Local )
                             {
-                                    strIP = Payload.substr( 10, SpacePos - 10 );
                                     unsigned long IP = UTIL_ToUInt32( strIP ), divider = 16777216UL;
-                                    strIP.clear( );
+                                    strIP = "";
 
                                     for( int i = 0; i <= 3; ++i )
                                     {
@@ -385,10 +404,23 @@ inline void CIRC :: ExtractPackets( )
                 {
                     string Packet;
 
-                    for( ++i; Recv[i] != CR; ++i )
-                            Packet += Recv[i];
+                    // PING :blabla
 
-                    m_Socket->PutBytes( "PONG " + Packet );
+                    // skip until :
+
+                    for( unsigned int j = 0; Recv[j] != CR; ++j )
+                        Packet += Recv[j];
+                    Print( "PING: [" + Packet + "]");
+                    Packet.clear();
+
+
+                    for( ++i; Recv[i] != ':'; ++i );
+
+                    for( ++i; Recv[i] != CR; ++i )
+                        Packet += Recv[i];
+
+                    m_Socket->PutBytes( "PONG :" + Packet );
+                    Print( "[PONG :" + Packet + "]");
 
                     // move position after the \n
 
@@ -535,7 +567,7 @@ void CIRC :: SendDCC( const string &message )
 {
 	for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
 		if( (*i)->m_Socket->GetConnected( ) )
-			(*i)->m_Socket->PutBytes( message + '\n' );
+			(*i)->m_Socket->PutBytes( message + LF );
 }
 
 void CIRC :: SendMessageIRC( const string &message, const string &target )
@@ -594,7 +626,6 @@ void CDCC :: Update( void* fd, void *send_fd )
 	else if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
 	{
 		m_Socket->FlushRecv( (fd_set *)fd );
-                m_Socket->PutBytes( "Mys xF\n" );
 		m_Socket->DoSend( (fd_set *)send_fd );
 	}
 }

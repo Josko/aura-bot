@@ -735,7 +735,7 @@ void CTCPClient :: Allocate( int type )
 // CTCPServer
 //
 
-CTCPServer :: CTCPServer( )
+CTCPServer :: CTCPServer( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
 {
         memset( &m_SIN, 0, sizeof( m_SIN ) );
 
