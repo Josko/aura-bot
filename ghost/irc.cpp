@@ -170,66 +170,59 @@ inline void CIRC :: ExtractPackets( )
             else if( Recv[i] == ' ' )
             {
                 // end of token, examine
-                
+
                 if( Token == "PRIVMSG" )
                 {
-                    unsigned int Pos;
-
                     // parse the PreviousToken as it holds the user info and then the Token for the message itself
 
                     string Nickname, Hostname, Message, Command, Payload;
+                    bool IsCommand = true;
 
-                    bool HostnameStart = false, NicknameEnd = false, MessageStart = false, CommandEnd = false;
+                    unsigned int j = 1;
 
-                    for( unsigned int j = 1; j < PreviousToken.size( ); ++j )
+                    // get nickname
+
+                    for( ; PreviousToken[j] != '!'; ++j )
+                        Nickname += PreviousToken[j];
+
+                    // skip username
+
+                    for( j += 2; PreviousToken[j] != '@'; ++j );
+
+                    // get hostname
+
+                    for( ++j; j < PreviousToken.size( ); ++j )
+                        Hostname += PreviousToken[j];
+
+                    // skip channel
+
+                    for( i += 3; Recv[i] != ':'; ++i );
+
+                    // process message
+
+                    for( ++i; Recv[i] != CR; ++i )
                     {
-                        if( PreviousToken[j] == '!' && !NicknameEnd )
+                        Message += Recv[i];
+
+                        if( Recv[i] == ' ' )
                         {
-                            NicknameEnd = true;
-                            continue;
-                        }
-                        else if( PreviousToken[j] == '@' && !HostnameStart )
-                        {
-                            HostnameStart = true;
+                            IsCommand = false;
                             continue;
                         }
 
-                        if( !NicknameEnd )
-                            Nickname += PreviousToken[j];
-                        else if( HostnameStart )
+                        if( Message.size( ) != 1 )
                         {
-                            Hostname += PreviousToken[j];
+                            if( IsCommand )
+                                Command += tolower( Recv[i] );
+                            else
+                                Payload += Recv[i];
                         }
                     }
 
-                    for( Pos = i+3; Pos < Recv.size( ); ++Pos )
-                    {
-                            if( Recv[Pos] == ':' && !MessageStart )
-                            {
-                                MessageStart = true;
-                                continue;
-                            }
-                            else if( Recv[Pos] == ' ' && MessageStart && !CommandEnd )
-                            {
-                                CommandEnd = true;
-                                Message += Recv[Pos];
-                                continue;
-                            }
-                            else if( Recv[Pos] == LF || Recv[Pos] == CR )
-                                break;
+                    // move position after the \n
 
-                            if( MessageStart )
-                            {
-                               Message += Recv[Pos];
+                    i += 2;
 
-                               if( !CommandEnd && Message.size( ) != 1 )
-                                   Command += tolower( Recv[Pos] );
-                               else if( Message.size( ) != 1 )
-                                   Payload += Recv[Pos];
-                            }
-                    }
-
-                    Print( "Message: [" + Message + "] Command: [" + Command + "] Payload: [" + Payload + "]" );
 
                     if( Message[0] != SOH )
                     {
@@ -290,8 +283,6 @@ inline void CIRC :: ExtractPackets( )
                                                         }
                                                 }
                                         }
-
-                                        return;
                                 }
                                 else if( Command == "bneton" )
                                 {
@@ -374,10 +365,6 @@ inline void CIRC :: ExtractPackets( )
                                 m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
                     }
 
-                    // move position after the \n
-
-                    i = Pos + 2;
-
                     // remember last packet time
 
                     m_LastPacketTime = Time;
@@ -386,12 +373,26 @@ inline void CIRC :: ExtractPackets( )
                 {
                     // move position after the \n (next packet)
 
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+                    for( ++i; Recv[i] != CR; ++i );
 
-                    // insert the Pos+1 into i
+                    i += 2;
 
-                    i = Pos + 2;
+                    // remember last packet time
+
+                    m_LastPacketTime = Time;
+                }
+                 else if( Token == "PING" )
+                {
+                    string Packet;
+
+                    for( ++i; Recv[i] != CR; ++i )
+                            Packet += Recv[i];
+
+                    m_Socket->PutBytes( "PONG " + Packet );
+
+                    // move position after the \n
+
+                    i += 2;
 
                     // remember last packet time
 
@@ -400,44 +401,15 @@ inline void CIRC :: ExtractPackets( )
                 else if( Token == "NOTICE" )
                 {
                     string Packet;
-                    unsigned int Pos;
 
-                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
-                    {
-                        if( Recv[Pos] != CR && Recv[Pos] != LF )
-                            Packet += Recv[Pos];
-                        else
-                            break;
-                    }
+                    for( ++i; Recv[i] != CR; ++i )
+                            Packet += Recv[i];
 
                     Print( "[IRC] NOTICE " + Packet );
 
                     // move position after the \n
 
-                    i = Pos + 2;
-
-                    // remember last packet time
-
-                    m_LastPacketTime = Time;
-                }
-                else if( Token == "PING" )
-                {
-                    string Packet;
-                    unsigned int Pos;
-
-                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
-                    {
-                        if( Recv[Pos] != CR && Recv[Pos] != LF )
-                            Packet += Recv[Pos];
-                        else
-                            break;
-                    }
-
-                    m_Socket->PutBytes( "PONG " + Packet );
-
-                    // move position after the \n
-
-                    i = Pos + 2;
+                    i += 2;
 
                     // remember last packet time
 
@@ -460,14 +432,11 @@ inline void CIRC :: ExtractPackets( )
                             SendIRC( "JOIN " + (*j) );
                     }
 
-                    // move position after the \n (next packet)
+                    // move position after the \n
 
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+                    for( ++i; Recv[i] != CR; ++i );
 
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
+                    i += 2;
 
                     // remember last packet time
 
@@ -484,12 +453,9 @@ inline void CIRC :: ExtractPackets( )
 
                     // move position after the \n (next packet)
 
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+                    for( ++i; Recv[i] != CR; ++i );
 
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
+                    i += 2;
 
                     // remember last packet time
 
@@ -503,40 +469,51 @@ inline void CIRC :: ExtractPackets( )
 
                     // move position after the \n (next packet)
 
-                    unsigned int Pos;
-                    for( Pos = ++i; Pos < Recv.size( ) && Recv[Pos] != CR; ++Pos );
+                    for( ++i; Recv[i] != CR; ++i );
 
-                    // insert the Pos+1 into i
-
-                    i = Pos + 2;
+                    i += 2;
 
                     // remember last packet time
 
                     m_LastPacketTime = Time;
-                } /*
+                }
                 else if( Token == "KICK" )
                 {
-                    string Packet;
-                    unsigned int Pos;
+                    string Channel, Victim;
+                    bool Space = false;
 
-                    for( Pos = ++i; Pos < Recv.size( ); ++Pos )
+                    // get channel
+
+                    for( ++i; Recv[i] != ' '; ++i )
+                            Channel += Recv[i];
+
+                    // get the victim
+
+                    for( ++i ; i < Recv.size( ); ++i )
                     {
-                        if( Recv[Pos] && Recv[Pos] != CR && Recv[Pos] != LF )
-                            Packet += Recv[Pos];
-                        else
+                        if( Recv[i] == ' ' )
+                            Space = true;
+                        else if( Recv[i] == CR )
                             break;
+                        else if( Space && Recv[i] != ':' )
+                            Victim += Recv[i];
                     }
 
-                    Print( "KICK: " + Packet );
+                    // we're the victim here! rejoin
+
+                    if( Victim == m_Nickname )
+                    {
+                        SendIRC( "JOIN " + Channel );
+                    }
 
                     // move position after the \n
 
-                    i = Pos + 2;
+                    i += 2;
 
                     // remember last packet time
 
                     m_LastPacketTime = Time;
-                } */                
+                }
 
                 // empty the token
 
@@ -616,7 +593,7 @@ void CDCC :: Update( void* fd, void *send_fd )
 	}
 	else if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
 	{
-		m_Socket->FlushRecv( (fd_set *)send_fd );
+		m_Socket->FlushRecv( (fd_set *)fd );
                 m_Socket->PutBytes( "Mys xF\n" );
 		m_Socket->DoSend( (fd_set *)send_fd );
 	}
