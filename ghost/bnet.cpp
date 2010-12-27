@@ -198,17 +198,14 @@ bool CBNET :: Update( void *fd, void *send_fd )
                 
 		// SPAM game every 5 seconds
 		
-		if( m_Spam && ( Time - m_LastSpamTime > 4 ) )
+		if( m_Spam && Time - m_LastSpamTime > 4 )
 		{
                         if( m_InChat )
                         {
                             if( m_SpamChannel == m_CurrentChannel )
                             {
                                 if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
-                                {
                                         m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
-                                        m_LastSpamTime = Time;
-                                }
                                 else
                                 {
                                         Print2( "Allstars spam is auto-off." );
@@ -220,8 +217,8 @@ bool CBNET :: Update( void *fd, void *send_fd )
                             else
                                 QueueChatCommand( "/j " + m_SpamChannel );
                         }
-                        else
-                            m_LastSpamTime = Time;
+
+                        m_LastSpamTime = Time;
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
@@ -718,7 +715,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !SPAM
 				//
 				
-				else if( Command == "spam" && m_Server == "europe.battle.net" )
+				else if( Command == "spam" )
 				{
                                         for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
                                             if( (*i)->GetPasswordHashType( ) != "pvpgn" )
@@ -1697,7 +1694,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !STATSDOTA
 				//
 
-				else if( Command == "statsdota" )
+				else if( Command == "statsdota" || Command == "sd" );
 				{
 					string StatsUser = User;
 
