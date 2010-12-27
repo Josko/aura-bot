@@ -404,19 +404,12 @@ inline void CIRC :: ExtractPackets( )
 
                     // skip until :
 
-                    for( unsigned int j = 0; Recv[j] != CR; ++j )
-                        Packet += Recv[j];
-                    Print( "PING: [" + Packet + "]");
-                    Packet.clear();
-
-
                     for( ++i; Recv[i] != ':'; ++i );
 
                     for( ++i; Recv[i] != CR; ++i )
                         Packet += Recv[i];
 
                     m_Socket->PutBytes( "PONG :" + Packet );
-                    Print( "[PONG :" + Packet + "]");
 
                     // move position after the \n
 
