@@ -211,6 +211,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
                                 }
                                 else
                                 {
+                                        Print2( "Allstars spam is auto-off." );
                                         QueueChatCommand( "/j " + m_FirstChannel );
                                         m_SpamChannel = "Allstars";
                                         m_Spam = false;
@@ -719,21 +720,10 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				
 				else if( Command == "spam" && m_Server == "europe.battle.net" )
 				{
-					if( m_Spam )
-					{
-						m_Spam = false;
-						QueueChatCommand( "/j " + m_FirstChannel );
-						Print2( "Allstars spam is off." );					
-					}
-					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
-					{
-						m_Spam = true;
-                                                m_SpamChannel = "Allstars";
-						Print2( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
-					}
-					else
-						QueueChatCommand( "Cannot be executed.", User, Whisper, m_IRC );
-				}
+                                        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+                                            if( (*i)->GetPasswordHashType( ) != "pvpgn" )
+                                                (*i)->SetSpam( );
+                                }
 
 				//
 				// !UNHOST
@@ -1004,12 +994,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						{
 							uint32_t Count = m_GHost->m_DB->AdminCount( m_Server );
 
-										if( Count == 0 )
-												QueueChatCommand( m_GHost->m_Language->ThereAreNoAdmins( m_Server ), User, Whisper, m_IRC );
-										else if( Count == 1 )
-												QueueChatCommand( m_GHost->m_Language->ThereIsAdmin( m_Server ), User, Whisper, m_IRC );
-										else
-												QueueChatCommand( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+                                                        if( Count == 0 )
+                                                                QueueChatCommand( m_GHost->m_Language->ThereAreNoAdmins( m_Server ), User, Whisper, m_IRC );
+                                                        else if( Count == 1 )
+                                                                QueueChatCommand( m_GHost->m_Language->ThereIsAdmin( m_Server ), User, Whisper, m_IRC );
+                                                        else
+                                                                QueueChatCommand( m_GHost->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
 						}
 						else
 							QueueChatCommand( m_GHost->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
@@ -1023,12 +1013,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					{
 						uint32_t Count = m_GHost->m_DB->BanCount( m_Server );				 
 
-									if( Count == 0 )
-											QueueChatCommand( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ), User, Whisper, m_IRC );
-									else if( Count == 1 )
-											QueueChatCommand( m_GHost->m_Language->ThereIsBannedUser( m_Server ), User, Whisper, m_IRC );
-									else
-											QueueChatCommand( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+                                                if( Count == 0 )
+                                                        QueueChatCommand( m_GHost->m_Language->ThereAreNoBannedUsers( m_Server ), User, Whisper, m_IRC );
+                                                else if( Count == 1 )
+                                                        QueueChatCommand( m_GHost->m_Language->ThereIsBannedUser( m_Server ), User, Whisper, m_IRC );
+                                                else
+                                                        QueueChatCommand( m_GHost->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
 					}
 
 					//
@@ -1869,6 +1859,22 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	}
 }
 
+void CBNET :: SetSpam( )
+{
+    if( !m_Spam )
+    {
+        m_SpamChannel = "Allstars";
+        m_Spam = true;
+        Print2( "Allstars spam is on." );
+    }
+    else
+    {
+        m_Spam = false;
+        Print2( "Allstars spam is off." );
+        QueueChatCommand( "/j " + m_FirstChannel );
+    }
+}
+
 void CBNET :: SendJoinChannel( const string &channel )
 {
 	if( m_LoggedIn && m_InChat )
@@ -1891,20 +1897,6 @@ void CBNET :: QueueEnterChat( )
 {
 	if( m_LoggedIn )
 		m_OutPackets.push( m_Protocol->SEND_SID_ENTERCHAT( ) );
-}
-
-void CBNET :: SetSpam( )
-{
-    if( !m_Spam )
-    {
-        m_SpamChannel = "Allstars";
-        m_Spam = true;        
-    }
-    else
-    {
-        m_Spam = false;
-        QueueChatCommand( "/j " + m_FirstChannel );
-    }
 }
 
 void CBNET :: QueueChatCommand( const string &chatCommand )

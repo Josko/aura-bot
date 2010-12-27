@@ -220,6 +220,13 @@ inline void CIRC :: ExtractPackets( )
 
                     i += 2;
 
+                    if( Message.empty( ) )
+                    {
+                        PreviousToken = Token;
+                        Token.clear( );
+                        continue;
+                    }
+
                     if( Message[0] != SOH )
                     {
                             for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
@@ -388,7 +395,7 @@ inline void CIRC :: ExtractPackets( )
                 {
                     // move position after the \n (next packet)
 
-                    for( ++i; Recv[i] != CR; ++i );
+                    for( ++i; Recv[i] != LF; ++i );
 
                     i += 2;
 
@@ -421,12 +428,9 @@ inline void CIRC :: ExtractPackets( )
                 }
                 else if( Token == "NOTICE" )
                 {
-                    string Packet;
-
-                    for( ++i; Recv[i] != CR; ++i )
-                            Packet += Recv[i];
-
                     // move position after the \n
+
+                    for( ++i; Recv[i] != CR; ++i )                   
 
                     i += 2;
 
