@@ -1694,7 +1694,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !STATSDOTA
 				//
 
-				else if( Command == "statsdota" || Command == "sd" );
+				else if( Command == "statsdota" || Command == "sd" )
 				{
 					string StatsUser = User;
 
