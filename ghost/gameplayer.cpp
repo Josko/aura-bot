@@ -102,7 +102,7 @@ bool CPotentialPlayer :: Update( void *fd )
                                                 if( m_IncomingJoinPlayer )
                                                         m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
 
-                                                // this is the packet which interests us for now, the remaning is left for CGamePlayer
+                                                // this is the packet which interests us for now, the remaining is left for CGamePlayer
 
                                                 *RecvBuffer = RecvBuffer->substr( Length );
                                                 Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );

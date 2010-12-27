@@ -648,8 +648,12 @@ void CTCPClient :: SetKeepAlive( )
 
         int OptVal = 1;
 
-	setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, (const char *)&OptVal, sizeof( int ) );        
-
+	setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, (const char *)&OptVal, sizeof( int ) );
+        
+        // Windows users need to edit the registry for the following options :(
+        // http://support.microsoft.com/kb/158474
+        
+#ifndef WIN32
         // set the time after which keep alives are started to be sent, in seconds
 
         OptVal = 900;
@@ -661,6 +665,7 @@ void CTCPClient :: SetKeepAlive( )
         OptVal = 60;
         
         setsockopt( m_Socket, SOL_TCP, TCP_KEEPINTVL, (const char *)&OptVal, sizeof( int ) );
+#endif
 }
 
 BYTEARRAY CTCPClient :: GetPort( )

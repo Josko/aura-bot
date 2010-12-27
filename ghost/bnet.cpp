@@ -708,7 +708,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 				// !SPAM
 				//
 				
-				else if( Command == "spam" )
+                                else if( Command == "spam" && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 				{
                                         for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
                                             if( (*i)->GetPasswordHashType( ) != "pvpgn" )
@@ -736,7 +736,11 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 							m_GHost->m_CurrentGame->SetExiting( true );
 
                                                         if( m_Spam )
-                                                            SetSpam( );
+                                                        {
+                                                            m_Spam = false;
+                                                            Print2( "Allstars spam is auto-off." );
+                                                            QueueChatCommand( "/j " + m_FirstChannel );
+                                                        }
 						}
 					}
 					else

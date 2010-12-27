@@ -311,14 +311,6 @@ inline void CIRC :: ExtractPackets( )
                                                 }
                                         }
                                  }
-                                 else if( Command == "cleardcc" && Root )
-                                 {
-                                     for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-                                     {
-                                         delete *i;
-                                         i = m_DCC.erase( i );
-                                     }
-                                 }
                           }
                     }
                     else if( Payload.size( ) > 12 && Payload.substr( 0, 4 ) == "CHAT" )
