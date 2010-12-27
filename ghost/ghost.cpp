@@ -67,12 +67,9 @@ uint32_t GetTime( )
 
 	return timeGetTime( ) / 1000;
 #else
-	uint32_t ticks;
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
-	ticks = t.tv_sec;
-	// ticks += t.tv_nsec / 1e9;
-	return ticks;
+	return t.tv_sec;
 #endif
 }
 

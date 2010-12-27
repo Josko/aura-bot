@@ -172,6 +172,7 @@ public:
 	bool GetGProxy( )						{ return m_GProxy; }
 	bool GetGProxyDisconnectNoticeSent( )				{ return m_GProxyDisconnectNoticeSent; }
 	uint32_t GetGProxyReconnectKey( )				{ return m_GProxyReconnectKey; }
+        uint32_t GetPing( bool LCPing );
 
 	void SetLeftReason( const string &nLeftReason )						{ m_LeftReason = nLeftReason; }
 	void SetSpoofedRealm( const string &nSpoofedRealm )					{ m_SpoofedRealm = nSpoofedRealm; }
@@ -195,10 +196,7 @@ public:
 	void SetKickVote( bool nKickVote )							{ m_KickVote = nKickVote; }
 	void SetMuted( bool nMuted )								{ m_Muted = nMuted; }
 	void SetLeftMessageSent( bool nLeftMessageSent )					{ m_LeftMessageSent = nLeftMessageSent; }
-	void SetGProxyDisconnectNoticeSent( bool nGProxyDisconnectNoticeSent )			{ m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent; }
-
-	string GetNameTerminated( );
-	uint32_t GetPing( bool LCPing );
+	void SetGProxyDisconnectNoticeSent( bool nGProxyDisconnectNoticeSent )			{ m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent; }	
 
 	// processing functions
 

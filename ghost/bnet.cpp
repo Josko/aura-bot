@@ -204,15 +204,8 @@ bool CBNET :: Update( void *fd, void *send_fd )
                         {
                             if( m_SpamChannel == m_CurrentChannel )
                             {
-                                if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
-                                        m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
-                                else
-                                {
-                                        Print2( "Allstars spam is auto-off." );
-                                        QueueChatCommand( "/j " + m_FirstChannel );
-                                        m_SpamChannel = "Allstars";
-                                        m_Spam = false;
-                                }
+                                if( m_GHost->m_CurrentGame )
+                                    m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
                             }
                             else
                                 QueueChatCommand( "/j " + m_SpamChannel );
@@ -1785,7 +1778,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
                 
 		m_CurrentChannel = Message;
 		
-		if( m_Spam && m_GHost->m_CurrentGame )
+		if( m_Spam && m_GHost->m_CurrentGame && m_SpamChannel != m_CurrentChannel )
 		{
                         m_SpamChannel = Message;
 			m_GHost->m_CurrentGame->SendAllChat( "Joined channel [" + Message + "] for spamming." ) ;

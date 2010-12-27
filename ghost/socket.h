@@ -217,6 +217,7 @@ public:
 	void DoRecv( fd_set *fd );
 	void DoSend( fd_set *send_fd );
 	void SetNoDelay( );
+        void SetKeepAlive( );
 	void Disconnect( );
 	bool GetConnecting( )                                                               { return m_Connecting; }
 	void Connect( const string &localaddress, const string &address, uint16_t port );

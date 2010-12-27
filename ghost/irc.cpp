@@ -311,6 +311,14 @@ inline void CIRC :: ExtractPackets( )
                                                 }
                                         }
                                  }
+                                 else if( Command == "cleardcc" && Root )
+                                 {
+                                     for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
+                                     {
+                                         delete *i;
+                                         i = m_DCC.erase( i );
+                                     }
+                                 }
                           }
                     }
                     else if( Payload.size( ) > 12 && Payload.substr( 0, 4 ) == "CHAT" )
@@ -329,9 +337,7 @@ inline void CIRC :: ExtractPackets( )
                                 }
 
                                 if( !IsPort )
-                                {
                                     strIP += Payload[j];
-                                }
                                 else
                                     strPort += Payload[j];
                             }
@@ -431,8 +437,8 @@ inline void CIRC :: ExtractPackets( )
                 {
                     // move position after the \n
 
-                    for( ++i; Recv[i] != CR; ++i )                   
-
+                    for( ++i; Recv[i] != CR; ++i );
+                    
                     i += 2;
 
                     // remember last packet time
@@ -579,6 +585,7 @@ void CIRC :: SendMessageIRC( const string &message, const string &target )
 CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort )
 {
 	m_Socket = new CTCPClient( );
+        m_Socket->SetKeepAlive( );
 	m_Socket->Connect( string( ), nIP, nPort );
 
         Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
@@ -621,6 +628,7 @@ void CDCC :: Update( void* fd, void *send_fd )
 void CDCC :: Connect( const string &IP, uint16_t Port )
 {
 	m_Socket->Reset( );
+        m_Socket->SetKeepAlive( );
         m_IP = IP;
         m_Port = Port;
 

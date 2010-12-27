@@ -102,12 +102,9 @@ bool CPotentialPlayer :: Update( void *fd )
                                                 if( m_IncomingJoinPlayer )
                                                         m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
 
-                                                // don't continue looping because there may be more packets waiting and this parent class doesn't handle them
-                                                // EventPlayerJoined creates the new player, NULLs the socket, and sets the delete flag on this object so it'll be deleted shortly
-                                                // any unprocessed packets will be copied to the new CGamePlayer in the constructor or discarded if we get deleted because the game is full
+                                                // h4x: clear whole buffer?
 
-                                                // h4x: ignore other packets?
-
+                                                RecvBuffer->clear( );
                                                 break;
                                         }
 
@@ -118,7 +115,7 @@ bool CPotentialPlayer :: Update( void *fd )
 					break;
 			}
 		}
-	}
+	}        
 
 	// don't call DoSend here because some other players may not have updated yet and may generate a packet for this player
 	// also m_Socket may have been set to NULL during ProcessPackets but we're banking on the fact that m_DeleteMe has been set to true as well so it'll short circuit before dereferencing
@@ -168,11 +165,6 @@ string CGamePlayer :: GetExternalIPString( )
             return m_Socket->GetIPString( );
 
 	return string( );
-}
-
-string CGamePlayer :: GetNameTerminated( )
-{
-	return m_Name;
 }
 
 uint32_t CGamePlayer :: GetPing( bool LCPing )

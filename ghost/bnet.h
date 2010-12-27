@@ -110,6 +110,7 @@ public:
 	bool GetInChat( )				{ return m_InChat; }	
 	uint32_t GetOutPacketsQueued( )			{ return m_OutPackets.size( ); }
 	BYTEARRAY GetUniqueName( );
+        void SetSpam( bool spam )                       { m_Spam = spam; }
 	
 	void SetSpam( );
 

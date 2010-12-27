@@ -1797,7 +1797,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 				for( vector<CGamePlayer *> :: iterator i = SortedPlayers.begin( ); i != SortedPlayers.end( ); ++i )
 				{
-					Pings += (*i)->GetNameTerminated( );
+					Pings += (*i)->GetName( );
 					Pings += ": ";
 
 					if( (*i)->GetNumPings( ) > 0 )
@@ -1849,7 +1849,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				{
 					// we reverse the byte order on the IP because it's stored in network byte order
 
-					Froms += (*i)->GetNameTerminated( );
+					Froms += (*i)->GetName( );
 					Froms += ": (";
 					Froms += m_GHost->m_DB->FromCheck( UTIL_ByteArrayToUInt32( (*i)->GetExternalIP( ), true ) );
 					Froms += ")";
@@ -2223,7 +2223,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
                                 {
-					if( (*i)->GetServer( ) == "europe.battle.net" )
+					if( (*i)->GetPasswordHashType( ) != "pvpgn" )
                                         {
 						(*i)->SetSpam( );
                                         }
@@ -3619,8 +3619,12 @@ inline void CGame :: EventGameStarted( )
 
 	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
 	{
+                (*i)->SetSpam( false );
+                Print2( "Allstars spam is auto-off." );
+                
 		(*i)->QueueGameUncreate( );
 		(*i)->QueueEnterChat( );
+                (*i)->SendJoinChannel( (*i)->GetFirstChannel( ) );
 	}
 
 	// record everything we need to ban each player in case we decide to do so later
