@@ -734,6 +734,9 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						{
 							QueueChatCommand( m_GHost->m_Language->UnhostingGame( m_GHost->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
 							m_GHost->m_CurrentGame->SetExiting( true );
+
+                                                        if( m_Spam )
+                                                            SetSpam( );
 						}
 					}
 					else

@@ -2213,7 +2213,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			//
 
 			else if( ( Command == "unhost" || Command == "uh" ) && !m_CountDownStarted )
+                        {
+                                for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+                                {
+					if( (*i)->GetPasswordHashType( ) != "pvpgn" && (*i)->GetSpam( ) )
+                                        {
+						(*i)->SetSpam( );
+                                        }
+                                }
+                                
 				m_Exiting = true;
+                        }
 				
 			//
 			// !SPAM
