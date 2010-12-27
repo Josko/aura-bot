@@ -200,22 +200,27 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		
 		if( m_Spam && ( Time - m_LastSpamTime > 4 ) )
 		{
-                        if( m_SpamChannel == m_CurrentChannel )
+                        if( m_InChat )
                         {
-                            if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
+                            if( m_SpamChannel == m_CurrentChannel )
                             {
-                                    m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
-                                    m_LastSpamTime = Time;
+                                if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
+                                {
+                                        m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
+                                        m_LastSpamTime = Time;
+                                }
+                                else
+                                {
+                                        QueueChatCommand( "/j " + m_FirstChannel );
+                                        m_SpamChannel = "Allstars";
+                                        m_Spam = false;
+                                }
                             }
                             else
-                            {
-                                    QueueChatCommand( "/j " + m_FirstChannel );
-                                    m_SpamChannel = "Allstars";
-                                    m_Spam = false;
-                            }
+                                QueueChatCommand( "/j " + m_SpamChannel );
                         }
                         else
-                            QueueChatCommand( "/j " + m_SpamChannel );
+                            m_LastSpamTime = Time;
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
