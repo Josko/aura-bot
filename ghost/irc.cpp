@@ -426,8 +426,6 @@ inline void CIRC :: ExtractPackets( )
                     for( ++i; Recv[i] != CR; ++i )
                             Packet += Recv[i];
 
-                    Print( "[IRC] NOTICE " + Packet );
-
                     // move position after the \n
 
                     i += 2;
@@ -484,10 +482,6 @@ inline void CIRC :: ExtractPackets( )
                 }
                 else if( Token == "353" )
                 {
-                    // we don't actually check if we joined all of the channels
-
-                    Print( "[IRC: " + m_Server + "] joined at least one channel successfully" );
-
                     // move position after the \n (next packet)
 
                     for( ++i; Recv[i] != CR; ++i );

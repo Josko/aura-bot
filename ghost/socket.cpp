@@ -182,7 +182,8 @@ CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( 
 
 CTCPSocket :: ~CTCPSocket( )
 {
-
+    if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
 }
 
 void CTCPSocket :: Reset( )
