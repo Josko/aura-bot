@@ -395,7 +395,7 @@ inline void CIRC :: ExtractPackets( )
                 {
                     // move position after the \n (next packet)
 
-                    for( ++i; Recv[i] != LF; ++i );
+                    for( ++i; Recv[i] != CR; ++i );
 
                     i += 2;
 
