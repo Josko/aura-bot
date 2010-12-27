@@ -644,7 +644,7 @@ void CTCPClient :: SetNoDelay( )
 
 void CTCPClient :: SetKeepAlive( )
 {
-        // set the keep alive on
+        // set the keep alive sending
 
         int OptVal = 1;
 
@@ -656,13 +656,12 @@ void CTCPClient :: SetKeepAlive( )
 
         setsockopt( m_Socket, SOL_TCP, TCP_KEEPIDLE, (const char *)&OptVal, sizeof( int ) );
 
-        // set the interval between two consecutive keep alives, i nseconds
+        // set the interval between two consecutive keep alives, in seconds
 
         OptVal = 60;
         
         setsockopt( m_Socket, SOL_TCP, TCP_KEEPINTVL, (const char *)&OptVal, sizeof( int ) );
 }
-
 
 BYTEARRAY CTCPClient :: GetPort( )
 {

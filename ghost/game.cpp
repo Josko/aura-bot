@@ -3618,13 +3618,16 @@ inline void CGame :: EventGameStarted( )
 	// and finally reenter battle.net chat
 
 	for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
-	{
+        {
+            (*i)->QueueGameUncreate( );
+            (*i)->QueueEnterChat( );
+
+            if( (*i)->GetSpam( ) )
+            {
                 (*i)->SetSpam( false );
-                Print2( "Allstars spam is auto-off." );
-                
-		(*i)->QueueGameUncreate( );
-		(*i)->QueueEnterChat( );
                 (*i)->SendJoinChannel( (*i)->GetFirstChannel( ) );
+                Print2( "Allstars spam is auto-off." );
+            }
 	}
 
 	// record everything we need to ban each player in case we decide to do so later

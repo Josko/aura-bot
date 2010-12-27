@@ -109,9 +109,10 @@ public:
 	bool GetLoggedIn( )				{ return m_LoggedIn; }
 	bool GetInChat( )				{ return m_InChat; }	
 	uint32_t GetOutPacketsQueued( )			{ return m_OutPackets.size( ); }
-	BYTEARRAY GetUniqueName( );
-        void SetSpam( bool spam )                       { m_Spam = spam; }
-	
+        bool GetSpam( )                                 { return m_Spam; }
+	BYTEARRAY GetUniqueName( );        
+
+        void SetSpam( bool spam )                       { m_Spam = spam; }	
 	void SetSpam( );
 
 	// processing functions
