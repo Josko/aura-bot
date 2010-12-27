@@ -165,7 +165,7 @@ inline void CIRC :: ExtractPackets( )
             {
                 Token += Recv[i];
             }
-            else if( Recv[i] == ' ' )
+            else if( Recv[i] == ' ' || Recv[i] == LF )
             {
                 // end of token, examine
 

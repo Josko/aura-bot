@@ -1782,10 +1782,12 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		// keep track of current channel so we can rejoin it after hosting a game
 
 		Print( "[BNET: " + m_ServerAlias + "] joined channel [" + Message + "]" );
+                
 		m_CurrentChannel = Message;
 		
 		if( m_Spam && m_GHost->m_CurrentGame )
 		{
+                        m_SpamChannel = Message;
 			m_GHost->m_CurrentGame->SendAllChat( "Joined channel [" + Message + "] for spamming." ) ;
 		}
 	}

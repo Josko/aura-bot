@@ -107,9 +107,9 @@ bool CPotentialPlayer :: Update( void *fd )
                                                 // any unprocessed packets will be copied to the new CGamePlayer in the constructor or discarded if we get deleted because the game is full
 
                                                 // h4x: ignore other packets?
+
+                                                break;
                                         }
-                                        /*else
-                                            m_Packets.push( new CCommandPacket( Bytes[0], Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );*/
 
 					*RecvBuffer = RecvBuffer->substr( Length );
 					Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
