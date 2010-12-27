@@ -102,9 +102,10 @@ bool CPotentialPlayer :: Update( void *fd )
                                                 if( m_IncomingJoinPlayer )
                                                         m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
 
-                                                // h4x: clear whole buffer?
+                                                // this is the packet which interests us for now, the remaning is left for CGamePlayer
 
-                                                RecvBuffer->clear( );
+                                                *RecvBuffer = RecvBuffer->substr( Length );
+                                                Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
                                                 break;
                                         }
 
