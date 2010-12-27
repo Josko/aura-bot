@@ -2235,10 +2235,18 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			else if( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 6 && m_GameState == GAME_PRIVATE )
 			{
 				for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+                                {
 					if( (*i)->GetServer( ) == "europe.battle.net" )
-						(*i)->SetSpam( );
-				
-				Print2( "[GAME: " + m_GameName + "] Allstars spam is on." );		
+                                        {
+						if( (*i)->SetSpam( ) )
+                                                    Print2( "[GAME: " + m_GameName + "] Allstars spam is on." );
+                                                else
+                                                {
+                                                    Print2( "[GAME: " + m_GameName + "] Allstars spam is off." );
+                                                    (*i)->RejoinFirstChannel( );
+                                                }
+                                        }
+                                }
 			}
 				
 			//

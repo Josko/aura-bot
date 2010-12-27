@@ -196,27 +196,26 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = Time;
 		}
                 
-		// spam game every 5 seconds
+		// SPAM game every 5 seconds
 		
-		if( m_Spam && ( Time - m_LastSpamTime > 5 ) )
+		if( m_Spam && ( Time - m_LastSpamTime > 4 ) )
 		{
-			if( m_SpamChannel.empty( ) )
-			{
-				m_SpamChannel = "allstars";
-				QueueChatCommand( "/j allstars" );			
-			}
-		
-			if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
-			{
-				m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
-				m_LastSpamTime = Time;
-			}
-			else
-			{
-				QueueChatCommand( "/j " + m_FirstChannel );
-				m_SpamChannel = string( );
-				m_Spam = false;
-			}
+                        if( m_SpamChannel == m_CurrentChannel )
+                        {
+                            if( m_InChat && m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
+                            {
+                                    m_OutPackets.push( m_Protocol->SEND_SID_CHATCOMMAND( m_GHost->m_CurrentGame->GetGameName( ) ) );
+                                    m_LastSpamTime = Time;
+                            }
+                            else
+                            {
+                                    QueueChatCommand( "/j " + m_FirstChannel );
+                                    m_SpamChannel = "Allstars";
+                                    m_Spam = false;
+                            }
+                        }
+                        else
+                            QueueChatCommand( "/j " + m_SpamChannel );
 		}
 
 		m_Socket->DoSend( (fd_set *)send_fd );
@@ -724,6 +723,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					else if( m_GHost->m_CurrentGame && m_GHost->m_CurrentGame->GetGameState( ) == GAME_PRIVATE && m_GHost->m_CurrentGame->GetGameName( ).size( ) < 6 )
 					{
 						m_Spam = true;
+                                                m_SpamChannel = "Allstars";
 						Print2( "[GAME: " + m_GHost->m_CurrentGame->GetGameName( ) + "] Allstars spam is on." );		
 					}
 					else
@@ -1855,12 +1855,11 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 		
 		if( m_Spam && Message == "Channel is full." )
 		{			
-			if( m_SpamChannel == "allstars/j allstars/j allstars" )
-				m_SpamChannel = "allstars";
+			// if( m_SpamChannel == "allstars/j allstars/j allstars" )
+                        if( m_SpamChannel.size( ) > 19 )
+				m_SpamChannel = "Allstars";
 			else
 				m_SpamChannel += "/j allstars";
-				
-			QueueChatCommand( "/j " + m_SpamChannel );
 		}
 	}
 }

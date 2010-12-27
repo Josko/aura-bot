@@ -111,7 +111,8 @@ public:
 	uint32_t GetOutPacketsQueued( )			{ return m_OutPackets.size( ); }
 	BYTEARRAY GetUniqueName( );
 	
-	void SetSpam( )					{ m_Spam = true; }
+	bool SetSpam( )					{ m_SpamChannel = "Allstars"; return m_Spam = !m_Spam; }
+        void RejoinFirstChannel( )                      { QueueChatCommand( "/j " + m_FirstChannel ); }
 
 	// processing functions
 
