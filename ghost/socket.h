@@ -150,21 +150,21 @@ public:
         BYTEARRAY GetPort( );
 	BYTEARRAY GetIP( );
 	string GetIPString( );
-	bool HasError( )					{ return m_HasError; }
-	int GetError( )						{ return m_Error; }
+	bool HasError( )                                                { return m_HasError; }
+	int GetError( )                                                 { return m_Error; }
 	string GetErrorString( );
 	void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
 	void Allocate( int type );
 	void Reset( );
-	bool GetConnected( )                                { return m_Connected; }
-	string *GetBytes( )                                 { return &m_RecvBuffer; }
+	bool GetConnected( )                                        { return m_Connected; }
+	string *GetBytes( )                                         { return &m_RecvBuffer; }
 	void PutBytes( const string &bytes );
 	void PutBytes( const BYTEARRAY &bytes );
-	void ClearRecvBuffer( )                             { m_RecvBuffer.clear( ); }
-        void SubstrRecvBuffer( unsigned int i )             { m_RecvBuffer = m_RecvBuffer.substr( i ); }
-	void ClearSendBuffer( )                             { m_SendBuffer.clear( ); }
-	uint32_t GetLastRecv( )                             { return m_LastRecv; }
-	uint32_t GetLastSend( )                             { return m_LastSend; }
+	void ClearRecvBuffer( )                                     { m_RecvBuffer.clear( ); }
+        void SubstrRecvBuffer( unsigned int i )                     { m_RecvBuffer = m_RecvBuffer.substr( i ); }
+	void ClearSendBuffer( )                                     { m_SendBuffer.clear( ); }
+	uint32_t GetLastRecv( )                                     { return m_LastRecv; }
+	uint32_t GetLastSend( )                                     { return m_LastSend; }
 	void DoRecv( fd_set *fd );
 	void DoSend( fd_set *send_fd );
 	void Disconnect( );

@@ -178,7 +178,6 @@ public:
 
 	void EventPlayerDeleted( CGamePlayer *player );
 	void EventPlayerDisconnectTimedOut( CGamePlayer *player );
-	void EventPlayerDisconnectPlayerError( CGamePlayer *player );
 	void EventPlayerDisconnectSocketError( CGamePlayer *player );
 	void EventPlayerDisconnectConnectionClosed( CGamePlayer *player );
 	void EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer );

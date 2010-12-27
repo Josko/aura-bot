@@ -110,7 +110,9 @@ inline static void SignalCatcher( int s )
 }
 
 void Print( const string &message )
-{	
+{
+        cout << message << endl;
+        
 	if( gGHost && gGHost->m_IRC )	
 		gGHost->m_IRC->SendDCC( message );
 }

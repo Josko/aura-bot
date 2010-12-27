@@ -44,43 +44,49 @@ protected:
 	CTCPSocket *m_Socket;
 	queue<CCommandPacket *> m_Packets;
 	bool m_DeleteMe;
-	bool m_Error;
-	string m_ErrorString;
 	CIncomingJoinPlayer *m_IncomingJoinPlayer;
 
 public:
 	CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket );
-	virtual ~CPotentialPlayer( );
+	 ~CPotentialPlayer( );
 
-	virtual CTCPSocket *GetSocket( )				{ return m_Socket; }
-	virtual BYTEARRAY GetExternalIP( );
-	virtual string GetExternalIPString( );
-	virtual queue<CCommandPacket *> GetPackets( )			{ return m_Packets; }
-	virtual bool GetDeleteMe( )					{ return m_DeleteMe; }
-	virtual bool GetError( )					{ return m_Error; }
-	virtual string GetErrorString( )				{ return m_ErrorString; }
-	virtual CIncomingJoinPlayer *GetJoinPlayer( )			{ return m_IncomingJoinPlayer; }
+	CTCPSocket *GetSocket( )				{ return m_Socket; }
+	BYTEARRAY GetExternalIP( );
+	string GetExternalIPString( );
+	queue<CCommandPacket *> GetPackets( )			{ return m_Packets; }
+	bool GetDeleteMe( )					{ return m_DeleteMe; }
+	CIncomingJoinPlayer *GetJoinPlayer( )			{ return m_IncomingJoinPlayer; }
 
-	virtual void SetSocket( CTCPSocket *nSocket )			{ m_Socket = nSocket; }
-	virtual void SetDeleteMe( bool nDeleteMe )			{ m_DeleteMe = nDeleteMe; }
+	void SetSocket( CTCPSocket *nSocket )			{ m_Socket = nSocket; }
+	void SetDeleteMe( bool nDeleteMe )			{ m_DeleteMe = nDeleteMe; }
 
 	// processing functions
 
-	virtual bool Update( void *fd );
-	inline virtual void ProcessPackets( );
-
+	bool Update( void *fd );
+        
 	// other functions
 
-	virtual void Send( const BYTEARRAY &data );
+	 void Send( const BYTEARRAY &data );
 };
 
 //
 // CGamePlayer
 //
 
-class CGamePlayer : public CPotentialPlayer
+class CGamePlayer // : public CPotentialPlayer
 {
+public:
+        CGameProtocol *m_Protocol;
+	CGame *m_Game;
+
+protected:
+	// note: we permit m_Socket to be NULL in this class to allow for the virtual host player which doesn't really exist
+
+	CTCPSocket *m_Socket;	
+	bool m_DeleteMe;
+
 private:
+    
 	unsigned char m_PID;
 	string m_Name;						// the player's name
 	BYTEARRAY m_InternalIP;					// the player's internal IP address as reported by the player when connecting
@@ -124,8 +130,12 @@ private:
 public:
 	CGamePlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
 	CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
-	virtual ~CGamePlayer( );
+	~CGamePlayer( );
 
+         CTCPSocket *GetSocket( )                                       { return m_Socket; }
+	BYTEARRAY GetExternalIP( );
+	string GetExternalIPString( );	
+	bool GetDeleteMe( )                                             { return m_DeleteMe; }
 	unsigned char GetPID( )						{ return m_PID; }
 	string GetName( )						{ return m_Name; }
 	BYTEARRAY GetInternalIP( )					{ return m_InternalIP; }
@@ -192,13 +202,15 @@ public:
 
 	// processing functions
 
-	virtual bool Update( void *fd );
-	inline virtual void ProcessPackets( );
+	bool Update( void *fd );       
+
+	void SetSocket( CTCPSocket *nSocket )                                                   { m_Socket = nSocket; }
+	void SetDeleteMe( bool nDeleteMe )                                                      { m_DeleteMe = nDeleteMe; }
 
 	// other functions
 
-	virtual void Send( const BYTEARRAY &data );
-	virtual void EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket );
+	void Send( const BYTEARRAY &data );
+	void EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket );
 };
 
 #endif
