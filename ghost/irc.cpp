@@ -94,17 +94,18 @@ bool CIRC :: Update( void *fd, void *send_fd )
 		{
 			// the connection attempt completed
 
-			Print( "[IRC: " + m_Server + "] connected" );
-
-			m_LastPacketTime = Time;
-
-			if( !m_OriginalNick )
+                        if( !m_OriginalNick )
 				m_Nickname = m_NicknameCpy;
 
 			SendIRC( "NICK " + m_Nickname );
 			SendIRC( "USER " + m_Username + " " +  m_Nickname + " " + m_Username + " :by h4x0rz88" );
 
 			m_Socket->DoSend( (fd_set *)send_fd );
+
+			Print( "[IRC: " + m_Server + "] connected" );
+
+			m_LastPacketTime = Time;
+			
 			return m_Exiting;
 		}
 		else if( Time - m_LastConnectionAttemptTime > 15 )
@@ -416,7 +417,7 @@ inline void CIRC :: ExtractPackets( )
                     for( ++i; Recv[i] != CR; ++i )
                         Packet += Recv[i];
 
-                    m_Socket->PutBytes( "PONG :" + Packet );
+                    SendIRC( "PONG :" + Packet );
 
                     // move position after the \n
 
