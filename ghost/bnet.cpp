@@ -1859,7 +1859,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
                         if( m_SpamChannel.size( ) > 19 )
 				m_SpamChannel = "Allstars";
 			else
-				m_SpamChannel += "/j allstars";
+				m_SpamChannel += "/j Allstars";
 		}
 	}
 }
@@ -1886,6 +1886,20 @@ void CBNET :: QueueEnterChat( )
 {
 	if( m_LoggedIn )
 		m_OutPackets.push( m_Protocol->SEND_SID_ENTERCHAT( ) );
+}
+
+void CBNET :: SetSpam( )
+{
+    if( !m_Spam )
+    {
+        m_SpamChannel = "Allstars";
+        m_Spam = true;        
+    }
+    else
+    {
+        m_Spam = false;
+        QueueChatCommand( "/j " + m_FirstChannel );
+    }
 }
 
 void CBNET :: QueueChatCommand( const string &chatCommand )

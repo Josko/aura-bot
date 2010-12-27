@@ -2238,13 +2238,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
                                 {
 					if( (*i)->GetServer( ) == "europe.battle.net" )
                                         {
-						if( (*i)->SetSpam( ) )
-                                                    Print2( "[GAME: " + m_GameName + "] Allstars spam is on." );
-                                                else
-                                                {
-                                                    Print2( "[GAME: " + m_GameName + "] Allstars spam is off." );
-                                                    (*i)->RejoinFirstChannel( );
-                                                }
+						(*i)->SetSpam( );
                                         }
                                 }
 			}
