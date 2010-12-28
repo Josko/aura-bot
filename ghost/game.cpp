@@ -708,6 +708,15 @@ bool CGame :: Update( void *fd, void *send_fd )
 		if( Time - m_LastReservedSeen > m_GHost->m_LobbyTimeLimit * 60 )
 		{
 			Print( "[GAME: " + m_GameName + "] is over (lobby time limit hit)" );
+
+                        for( vector<CBNET *> :: iterator i = m_GHost->m_BNETs.begin( ); i != m_GHost->m_BNETs.end( ); ++i )
+                        {
+                                if( (*i)->GetPasswordHashType( ) != "pvpgn" && (*i)->GetSpam( ) )
+                                {
+                                        (*i)->SetSpam( );
+                                }
+                        }
+                        
 			return true;
 		}
 	}	

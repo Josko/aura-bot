@@ -42,7 +42,6 @@ protected:
 	// it also allows us to convert CPotentialPlayers to CGamePlayers without the CPotentialPlayer's destructor closing the socket
 
 	CTCPSocket *m_Socket;
-	queue<CCommandPacket *> m_Packets;
 	bool m_DeleteMe;
 	CIncomingJoinPlayer *m_IncomingJoinPlayer;
 
@@ -53,7 +52,6 @@ public:
 	CTCPSocket *GetSocket( )				{ return m_Socket; }
 	BYTEARRAY GetExternalIP( );
 	string GetExternalIPString( );
-	queue<CCommandPacket *> GetPackets( )			{ return m_Packets; }
 	bool GetDeleteMe( )					{ return m_DeleteMe; }
 	CIncomingJoinPlayer *GetJoinPlayer( )			{ return m_IncomingJoinPlayer; }
 
@@ -66,7 +64,7 @@ public:
         
 	// other functions
 
-	 void Send( const BYTEARRAY &data );
+	void Send( const BYTEARRAY &data );
 };
 
 //

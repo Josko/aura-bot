@@ -250,7 +250,7 @@ bool CGamePlayer :: Update( void *fd )
 
 	while( Bytes.size( ) >= 4 )
 	{
-		if( Bytes[0] == W3GS_HEADER_CONSTANT || Bytes[0] == GPS_HEADER_CONSTANT )
+		if( Bytes[0] == W3GS_HEADER_CONSTANT )
 		{
 			// bytes 2 and 3 contain the length of the packet
 
@@ -262,143 +262,152 @@ bool CGamePlayer :: Update( void *fd )
 				{
 					// m_Packets.push( new CCommandPacket( Bytes[0], Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
 
-                                        if( Bytes[0] == W3GS_HEADER_CONSTANT )
-                                        {
-                                                switch( Bytes[1] )
-                                                {
-                                                case CGameProtocol :: W3GS_LEAVEGAME:
-                                                        m_Game->EventPlayerLeft( this, m_Protocol->RECEIVE_W3GS_LEAVEGAME( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
-                                                        break;
+                                            switch( Bytes[1] )
+                                            {
+                                            case CGameProtocol :: W3GS_LEAVEGAME:
+                                                    m_Game->EventPlayerLeft( this, m_Protocol->RECEIVE_W3GS_LEAVEGAME( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_GAMELOADED_SELF:
-                                                        if( m_Protocol->RECEIVE_W3GS_GAMELOADED_SELF( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
-                                                        {
-                                                                if( !m_FinishedLoading )
-                                                                {
-                                                                        m_FinishedLoading = true;
-                                                                        m_FinishedLoadingTicks = GetTicks( );
-                                                                        m_Game->EventPlayerLoaded( this );
-                                                                }
-                                                        }
+                                            case CGameProtocol :: W3GS_GAMELOADED_SELF:
+                                                    if( m_Protocol->RECEIVE_W3GS_GAMELOADED_SELF( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+                                                    {
+                                                            if( !m_FinishedLoading )
+                                                            {
+                                                                    m_FinishedLoading = true;
+                                                                    m_FinishedLoadingTicks = GetTicks( );
+                                                                    m_Game->EventPlayerLoaded( this );
+                                                            }
+                                                    }
 
-                                                        break;
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_OUTGOING_ACTION:
-                                                        Action = m_Protocol->RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_PID );
+                                            case CGameProtocol :: W3GS_OUTGOING_ACTION:
+                                                    Action = m_Protocol->RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_PID );
 
-                                                        if( Action )
-                                                                m_Game->EventPlayerAction( this, Action );
+                                                    if( Action )
+                                                            m_Game->EventPlayerAction( this, Action );
 
-                                                        // don't delete Action here because the game is going to store it in a queue and delete it later
+                                                    // don't delete Action here because the game is going to store it in a queue and delete it later
 
-                                                        break;
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_OUTGOING_KEEPALIVE:
-                                                        CheckSum = m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-                                                        m_CheckSums.push( CheckSum );
-                                                        ++m_SyncCounter;
-                                                        m_Game->EventPlayerKeepAlive( this, CheckSum );
-                                                        break;
+                                            case CGameProtocol :: W3GS_OUTGOING_KEEPALIVE:
+                                                    CheckSum = m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+                                                    m_CheckSums.push( CheckSum );
+                                                    ++m_SyncCounter;
+                                                    m_Game->EventPlayerKeepAlive( this, CheckSum );
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_CHAT_TO_HOST:
-                                                        ChatPlayer = m_Protocol->RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+                                            case CGameProtocol :: W3GS_CHAT_TO_HOST:
+                                                    ChatPlayer = m_Protocol->RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
 
-                                                        if( ChatPlayer )
-                                                                m_Game->EventPlayerChatToHost( this, ChatPlayer );
+                                                    if( ChatPlayer )
+                                                            m_Game->EventPlayerChatToHost( this, ChatPlayer );
 
-                                                        delete ChatPlayer;
-                                                        ChatPlayer = NULL;
-                                                        break;
+                                                    delete ChatPlayer;
+                                                    ChatPlayer = NULL;
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_DROPREQ:
-                                                        if( !m_DropVote )
-                                                        {
-                                                                m_DropVote = true;
-                                                                m_Game->EventPlayerDropRequest( this );
-                                                        }
+                                            case CGameProtocol :: W3GS_DROPREQ:
+                                                    if( !m_DropVote )
+                                                    {
+                                                            m_DropVote = true;
+                                                            m_Game->EventPlayerDropRequest( this );
+                                                    }
 
-                                                        break;
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_MAPSIZE:
-                                                        MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_Game->m_GHost->m_Map->GetMapSize( ) );
+                                            case CGameProtocol :: W3GS_MAPSIZE:
+                                                    MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_Game->m_GHost->m_Map->GetMapSize( ) );
 
-                                                        if( MapSize )
-                                                                m_Game->EventPlayerMapSize( this, MapSize );
+                                                    if( MapSize )
+                                                            m_Game->EventPlayerMapSize( this, MapSize );
 
-                                                        delete MapSize;
-                                                        MapSize = NULL;
-                                                        break;
+                                                    delete MapSize;
+                                                    MapSize = NULL;
+                                                    break;
 
-                                                case CGameProtocol :: W3GS_PONG_TO_HOST:
-                                                        Pong = m_Protocol->RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+                                            case CGameProtocol :: W3GS_PONG_TO_HOST:
+                                                    Pong = m_Protocol->RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
 
-                                                        // we discard pong values of 1
-                                                        // the client sends one of these when connecting plus we return 1 on error to kill two birds with one stone
+                                                    // we discard pong values of 1
+                                                    // the client sends one of these when connecting plus we return 1 on error to kill two birds with one stone
 
-                                                        if( Pong != 1 )
-                                                        {
-                                                                // we also discard pong values when we're downloading because they're almost certainly inaccurate
-                                                                // this statement also gives the player a 5 second grace period after downloading the map to allow queued (i.e. delayed) ping packets to be ignored
+                                                    if( Pong != 1 )
+                                                    {
+                                                            // we also discard pong values when we're downloading because they're almost certainly inaccurate
+                                                            // this statement also gives the player a 5 second grace period after downloading the map to allow queued (i.e. delayed) ping packets to be ignored
 
-                                                                if( !m_DownloadStarted || ( m_DownloadFinished && GetTime( ) - m_FinishedDownloadingTime >= 5 ) )
-                                                                {
-                                                                        // we also discard pong values when anyone else is downloading if we're configured to
+                                                            if( !m_DownloadStarted || ( m_DownloadFinished && GetTime( ) - m_FinishedDownloadingTime >= 5 ) )
+                                                            {
+                                                                    // we also discard pong values when anyone else is downloading if we're configured to
 
-                                                                        if( !m_Game->IsDownloading( ) )
-                                                                        {
-                                                                                m_Pings.push_back( GetTicks( ) - Pong );
+                                                                    if( !m_Game->IsDownloading( ) )
+                                                                    {
+                                                                            m_Pings.push_back( GetTicks( ) - Pong );
 
-                                                                                if( m_Pings.size( ) > 20 )
-                                                                                        m_Pings.erase( m_Pings.begin( ) );
-                                                                        }
-                                                                }
-                                                        }
+                                                                            if( m_Pings.size( ) > 20 )
+                                                                                    m_Pings.erase( m_Pings.begin( ) );
+                                                                    }
+                                                            }
+                                                    }
 
-                                                        m_Game->EventPlayerPongToHost( this, Pong );
-                                                        break;
-                                                }
-                                        }
-                                        else if( Bytes[0] == GPS_HEADER_CONSTANT )
-                                        {
-                                                BYTEARRAY Data = BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length );
-
-                                                if( Bytes[1] == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
-                                                {
-                                                        uint32_t LastPacket = UTIL_ByteArrayToUInt32( Data, false, 4 );
-                                                        uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
-
-                                                        if( LastPacket > PacketsAlreadyUnqueued )
-                                                        {
-                                                                uint32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
-
-                                                                if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
-                                                                        PacketsToUnqueue = m_GProxyBuffer.size( );
-
-                                                                while( PacketsToUnqueue > 0 )
-                                                                {
-                                                                        m_GProxyBuffer.pop( );
-                                                                        --PacketsToUnqueue;
-                                                                }
-                                                        }
-                                                }
-                                                else if( Bytes[1] == CGPSProtocol :: GPS_INIT )
-                                                {
-                                                        if( m_Game->m_GHost->m_Reconnect )
-                                                        {
-                                                                m_GProxy = true;
-                                                                m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
-                                                                Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
-                                                        }
-                                                }
-                                        }
+                                                    m_Game->EventPlayerPongToHost( this, Pong );
+                                                    break;
+                                            }
+                                    }                                       
                                         
-					*RecvBuffer = RecvBuffer->substr( Length );
-					Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+                                    *RecvBuffer = RecvBuffer->substr( Length );
+                                    Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
 				}
 				else
 					break;
 			}
-		}
+                        else if( Bytes[0] == GPS_HEADER_CONSTANT )
+                        {
+                            uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+
+                            if( Length >= 4 )
+                            {
+                                        if( Bytes.size( ) >= Length )
+                                        {
+
+                                            BYTEARRAY Data = BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length );
+
+                                            if( Bytes[1] == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
+                                            {
+                                                    uint32_t LastPacket = UTIL_ByteArrayToUInt32( Data, false, 4 );
+                                                    uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
+
+                                                    if( LastPacket > PacketsAlreadyUnqueued )
+                                                    {
+                                                            uint32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
+
+                                                            if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
+                                                                    PacketsToUnqueue = m_GProxyBuffer.size( );
+
+                                                            while( PacketsToUnqueue > 0 )
+                                                            {
+                                                                    m_GProxyBuffer.pop( );
+                                                                    --PacketsToUnqueue;
+                                                            }
+                                                    }
+                                            }
+                                            else if( Bytes[1] == CGPSProtocol :: GPS_INIT )
+                                            {
+                                                    if( m_Game->m_GHost->m_Reconnect )
+                                                    {
+                                                            m_GProxy = true;
+                                                            m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
+                                                            Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
+                                                    }
+                                            }
+                                        }
+                            }
+
+                            *RecvBuffer = RecvBuffer->substr( Length );
+                            Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+                        }
         }
 
         bool Deleting;
