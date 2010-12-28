@@ -242,7 +242,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
                                                             {
                                                                     Print( "[BNET: " + m_ServerAlias + "] logon failed - bncsutil key hash failed (check your Warcraft 3 path and cd keys), disconnecting" );
                                                                     m_Socket->Disconnect( );
-                                                                    return m_Exiting;
                                                             }
                                                     }
 
@@ -281,7 +280,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
                                                             }
 
                                                             m_Socket->Disconnect( );
-                                                            return m_Exiting;
                                                     }
 
                                                     break;
@@ -312,7 +310,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
                                                     {
                                                             Print( "[BNET: " + m_ServerAlias + "] logon failed - invalid username, disconnecting" );
                                                             m_Socket->Disconnect( );
-                                                            return m_Exiting;
                                                     }
 
                                                     break;
@@ -344,7 +341,6 @@ bool CBNET :: Update( void *fd, void *send_fd )
                                                                     Print( "[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's \"battle.net custom data\" section" );
 
                                                             m_Socket->Disconnect( );
-                                                            return m_Exiting;
                                                     }
 
                                                     break;
@@ -367,10 +363,10 @@ bool CBNET :: Update( void *fd, void *send_fd )
                                                     m_Clans = Clans;
                                                     break;
                                             }
-                                    }
 
-                                    *RecvBuffer = RecvBuffer->substr( Length );
-                                    Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+                                        *RecvBuffer = RecvBuffer->substr( Length );
+                                        Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+                                    }
                                 }
                                 else
                                         break;
