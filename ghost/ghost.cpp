@@ -91,7 +91,7 @@ uint32_t GetTicks( )
 #endif
 }
 
-inline static void SignalCatcher( int s )
+void SignalCatcher( int s )
 {
 	Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
 
@@ -108,7 +108,7 @@ inline static void SignalCatcher( int s )
 
 void Print( const string &message )
 {
-        cout << message << endl;
+        // cout << message << endl;
         
 	if( gGHost && gGHost->m_IRC )	
 		gGHost->m_IRC->SendDCC( message );
