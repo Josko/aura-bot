@@ -557,7 +557,6 @@ bool CGame :: Update( void *fd, void *send_fd )
 
 	if( m_GameOverTime != 0 && Time - m_GameOverTime >= 60 )
 	{
-
                 for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		{
 			if( !(*i)->GetDeleteMe( ) )

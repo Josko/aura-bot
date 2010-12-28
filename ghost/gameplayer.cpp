@@ -354,13 +354,14 @@ bool CGamePlayer :: Update( void *fd )
                                                     m_Game->EventPlayerPongToHost( this, Pong );
                                                     break;
                                             }
-                                    }                                       
-                                        
-                                    *RecvBuffer = RecvBuffer->substr( Length );
-                                    Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
-				}
-				else
+
+                                            *RecvBuffer = RecvBuffer->substr( Length );
+                                            Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+                                    }
+                                    else
 					break;
+				}
+				
 			}
                         else if( Bytes[0] == GPS_HEADER_CONSTANT )
                         {
@@ -368,40 +369,43 @@ bool CGamePlayer :: Update( void *fd )
 
                             if( Length >= 4 )
                             {
-                                        if( Bytes.size( ) >= Length )
-                                        {
+                                if( Bytes.size( ) >= Length )
+                                {
 
-                                            BYTEARRAY Data = BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length );
+                                    BYTEARRAY Data = BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length );
 
-                                            if( Bytes[1] == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
+                                    if( Bytes[1] == CGPSProtocol :: GPS_ACK && Data.size( ) == 8 )
+                                    {
+                                            uint32_t LastPacket = UTIL_ByteArrayToUInt32( Data, false, 4 );
+                                            uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
+
+                                            if( LastPacket > PacketsAlreadyUnqueued )
                                             {
-                                                    uint32_t LastPacket = UTIL_ByteArrayToUInt32( Data, false, 4 );
-                                                    uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
+                                                    uint32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
 
-                                                    if( LastPacket > PacketsAlreadyUnqueued )
+                                                    if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
+                                                            PacketsToUnqueue = m_GProxyBuffer.size( );
+
+                                                    while( PacketsToUnqueue > 0 )
                                                     {
-                                                            uint32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
-
-                                                            if( PacketsToUnqueue > m_GProxyBuffer.size( ) )
-                                                                    PacketsToUnqueue = m_GProxyBuffer.size( );
-
-                                                            while( PacketsToUnqueue > 0 )
-                                                            {
-                                                                    m_GProxyBuffer.pop( );
-                                                                    --PacketsToUnqueue;
-                                                            }
+                                                            m_GProxyBuffer.pop( );
+                                                            --PacketsToUnqueue;
                                                     }
                                             }
-                                            else if( Bytes[1] == CGPSProtocol :: GPS_INIT )
+                                    }
+                                    else if( Bytes[1] == CGPSProtocol :: GPS_INIT )
+                                    {
+                                            if( m_Game->m_GHost->m_Reconnect )
                                             {
-                                                    if( m_Game->m_GHost->m_Reconnect )
-                                                    {
-                                                            m_GProxy = true;
-                                                            m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
-                                                            Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
-                                                    }
+                                                    m_GProxy = true;
+                                                    m_Socket->PutBytes( m_Game->m_GHost->m_GPSProtocol->SEND_GPSS_INIT( m_Game->m_GHost->m_ReconnectPort, m_PID, m_GProxyReconnectKey, m_Game->GetGProxyEmptyActions( ) ) );
+                                                    Print( "[GAME: " + m_Game->GetGameName( ) + "] player [" + m_Name + "] is using GProxy++" );
                                             }
-                                        }
+                                    }
+
+                                }
+                                else
+                                    break;
                             }
 
                             *RecvBuffer = RecvBuffer->substr( Length );
