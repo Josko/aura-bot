@@ -26,7 +26,6 @@
 //
 
 class CTCPClient;
-class CCommandPacket;
 class CBNCSUtilInterface;
 class CBNETProtocol;
 class CIncomingFriendList;

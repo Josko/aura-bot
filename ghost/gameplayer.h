@@ -22,7 +22,6 @@
 #define GAMEPLAYER_H
 
 class CTCPSocket;
-class CCommandPacket;
 class CGameProtocol;
 class CGame;
 class CIncomingJoinPlayer;

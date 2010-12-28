@@ -23,7 +23,6 @@
 #include "config.h"
 #include "language.h"
 #include "socket.h"
-#include "commandpacket.h"
 #include "ghostdb.h"
 #include "bncsutilinterface.h"
 #include "bnetprotocol.h"

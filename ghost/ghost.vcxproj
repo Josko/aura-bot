@@ -77,7 +77,6 @@
     <ClCompile Include="bncsutilinterface.cpp" />
     <ClCompile Include="bnet.cpp" />
     <ClCompile Include="bnetprotocol.cpp" />
-    <ClCompile Include="commandpacket.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="crc32.cpp" />
     <ClCompile Include="csvparser.cpp" />
@@ -103,7 +102,6 @@
     <ClInclude Include="bncsutilinterface.h" />
     <ClInclude Include="bnet.h" />
     <ClInclude Include="bnetprotocol.h" />
-    <ClInclude Include="commandpacket.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="crc32.h" />
     <ClInclude Include="csvparser.h" />

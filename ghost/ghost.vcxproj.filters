@@ -24,9 +24,6 @@
     <ClCompile Include="bnetprotocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="commandpacket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,9 +93,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bnetprotocol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="commandpacket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config.h">

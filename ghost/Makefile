@@ -25,7 +25,7 @@ endif
 
 CFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/
 
-OBJS = bncsutilinterface.o bnet.o bnetprotocol.o commandpacket.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o ghost.o ghostdb.o ghostdbsqlite.o gpsprotocol.o language.o map.o sha1.o socket.o stats.o statsdota.o util.o irc.o
+OBJS = bncsutilinterface.o bnet.o bnetprotocol.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o ghost.o ghostdb.o ghostdbsqlite.o gpsprotocol.o language.o map.o sha1.o socket.o stats.o statsdota.o util.o irc.o
 COBJS = sqlite3.o
 PROGS = ./ghost++
 
@@ -48,14 +48,13 @@ $(COBJS): %.o: %.c
 all: $(PROGS)
 
 bncsutilinterface.o: ghost.h includes.h util.h bncsutilinterface.h
-bnet.o: ghost.h includes.h util.h config.h language.h socket.h commandpacket.h ghostdb.h bncsutilinterface.h bnetprotocol.h bnet.h map.h gameprotocol.h
+bnet.o: ghost.h includes.h util.h config.h language.h socket.h ghostdb.h bncsutilinterface.h bnetprotocol.h bnet.h map.h gameprotocol.h
 bnetprotocol.o: ghost.h includes.h util.h bnetprotocol.h
-commandpacket.o: ghost.h includes.h commandpacket.h
 config.o: ghost.h includes.h config.h
 crc32.o: ghost.h includes.h crc32.h
 csvparser.o: csvparser.h
 game.o: ghost.h includes.h util.h config.h language.h socket.h ghostdb.h bnet.h map.h gameplayer.h gameprotocol.h game.h stats.h statsdota.h
-gameplayer.o: ghost.h includes.h util.h language.h socket.h commandpacket.h bnet.h map.h gameplayer.h gameprotocol.h gpsprotocol.h
+gameplayer.o: ghost.h includes.h util.h language.h socket.h bnet.h map.h gameplayer.h gameprotocol.h gpsprotocol.h
 gameprotocol.o: ghost.h includes.h util.h crc32.h gameplayer.h gameprotocol.h
 gameslot.o: ghost.h includes.h gameslot.h
 ghost.o: ghost.h includes.h util.h crc32.h sha1.h csvparser.h config.h language.h socket.h ghostdb.h ghostdbsqlite.h bnet.h map.h gameplayer.h gameprotocol.h gpsprotocol.h game.h
