@@ -1708,8 +1708,7 @@ void CGame :: EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *c
 				// extract the command trigger, the command, and the payload
 				// e.g. "!say hello world" -> command: "say", payload: "hello world"
 
-				string Command;
-				string Payload;
+				string Command, Payload;
 				string :: size_type PayloadStart = Message.find( " " );
 
 				if( PayloadStart != string :: npos )
@@ -2165,8 +2164,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			else if( ( Command == "swap" || Command == "sw" ) && !Payload.empty( ) && !m_GameLoading && !m_GameLoaded )
 			{
-				uint32_t SID1;
-				uint32_t SID2;
+				uint32_t SID1, SID2;
 				stringstream SS;
 				SS << Payload;
 				SS >> SID1;

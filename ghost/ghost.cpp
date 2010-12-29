@@ -253,7 +253,7 @@ int main( )
 // CGHost
 //
 
-CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "0.99" ), m_HostCounter( 1 )
+CGHost :: CGHost( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.00" ), m_HostCounter( 1 )
 {
 	vector<string> channels, locals;
 

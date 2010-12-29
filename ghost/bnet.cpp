@@ -262,21 +262,21 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
                                                         switch( UTIL_ByteArrayToUInt32( m_Protocol->GetKeyState( ), false ) )
                                                         {
-                                                        case CBNETProtocol :: KR_ROC_KEY_IN_USE:
-                                                                Print( "[BNET: " + m_ServerAlias + "] logon failed - ROC CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
-                                                                break;
-                                                        case CBNETProtocol :: KR_TFT_KEY_IN_USE:
-                                                                Print( "[BNET: " + m_ServerAlias + "] logon failed - TFT CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
-                                                                break;
-                                                        case CBNETProtocol :: KR_OLD_GAME_VERSION:
-                                                                Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is too old, disconnecting" );
-                                                                break;
-                                                        case CBNETProtocol :: KR_INVALID_VERSION:
-                                                                Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is invalid, disconnecting" );
-                                                                break;
-                                                        default:
-                                                                Print( "[BNET: " + m_ServerAlias + "] logon failed - cd keys not accepted, disconnecting" );
-                                                                break;
+                                                            case CBNETProtocol :: KR_ROC_KEY_IN_USE:
+                                                                    Print( "[BNET: " + m_ServerAlias + "] logon failed - ROC CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
+                                                                    break;
+                                                            case CBNETProtocol :: KR_TFT_KEY_IN_USE:
+                                                                    Print( "[BNET: " + m_ServerAlias + "] logon failed - TFT CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
+                                                                    break;
+                                                            case CBNETProtocol :: KR_OLD_GAME_VERSION:
+                                                                    Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is too old, disconnecting" );
+                                                                    break;
+                                                            case CBNETProtocol :: KR_INVALID_VERSION:
+                                                                    Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is invalid, disconnecting" );
+                                                                    break;
+                                                            default:
+                                                                    Print( "[BNET: " + m_ServerAlias + "] logon failed - cd keys not accepted, disconnecting" );
+                                                                    break;
                                                         }
 
                                                         m_Socket->Disconnect( );
@@ -548,13 +548,9 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 	if( Event == CBNETProtocol :: EID_WHISPER || Event == CBNETProtocol :: EID_TALK || Event == CBNETProtocol :: EID_IRC )
 	{		
 		if( Event == CBNETProtocol :: EID_WHISPER )
-		{
 			Print2( "[WHISPER: " + m_ServerAlias + "] [" + User + "] " + Message );
-		}
 		else
-		{
 			Print( "[LOCAL: " + m_ServerAlias + "] [" + User + "] " + Message );
-		}
 
 		// handle bot commands
 
