@@ -81,12 +81,9 @@ uint32_t GetTicks( )
 
 	return timeGetTime( );
 #else
-	uint32_t ticks;
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
-	ticks = t.tv_sec * 1000;
-	ticks += t.tv_nsec / 1000000;
-	return ticks;
+	return t.tv_sec * 1000 + t.tv_nsec / 1000000;
 #endif
 }
 
@@ -139,7 +136,7 @@ int main( )
 	// read config file
 
 	CConfig CFG;
-	CFG.Read( "default.cfg" );
+	CFG.Read( "aura.cfg" );
 
 	Print( "[AURA] starting up" );
 
