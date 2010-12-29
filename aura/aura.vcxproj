@@ -86,7 +86,6 @@
     <ClCompile Include="gameslot.cpp" />
     <ClCompile Include="aura.cpp" />
     <ClCompile Include="auradb.cpp" />
-    <ClCompile Include="auradbsqlite.cpp" />
     <ClCompile Include="gpsprotocol.cpp" />
     <ClCompile Include="irc.cpp" />
     <ClCompile Include="language.cpp" />
@@ -95,7 +94,6 @@
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="sqlite3.c" />
     <ClCompile Include="stats.cpp" />
-    <ClCompile Include="statsdota.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -111,7 +109,6 @@
     <ClInclude Include="gameslot.h" />
     <ClInclude Include="aura.h" />
     <ClInclude Include="auradb.h" />
-    <ClInclude Include="auradbsqlite.h" />
     <ClInclude Include="gpsprotocol.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="irc.h" />
@@ -123,7 +120,6 @@
     <ClInclude Include="sqlite3.h" />
     <ClInclude Include="sqlite3ext.h" />
     <ClInclude Include="stats.h" />
-    <ClInclude Include="statsdota.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

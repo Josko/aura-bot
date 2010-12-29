@@ -40,7 +40,6 @@ class CDBBan;
 class CDBGame;
 class CDBGamePlayer;
 class CStats;
-class CStatsDOTA;
 class CIRC;
 
 class CGame

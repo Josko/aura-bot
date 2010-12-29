@@ -30,7 +30,6 @@
 #include "gameprotocol.h"
 #include "game.h"
 #include "stats.h"
-#include "statsdota.h"
 #include "irc.h"
 
 #include <time.h>
@@ -97,7 +96,7 @@ CGame :: CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGam
 	}
 
 	if( m_Map->GetMapType( ) == "dota" )
-		m_Stats = new CStatsDOTA( this );
+		m_Stats = new CStats( this );
 	else
 		m_Stats = NULL;
 }

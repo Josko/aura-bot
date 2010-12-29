@@ -39,13 +39,17 @@ class CStats
 {
 protected:
 	CGame *m_Game;
+        CDBDotAPlayer *m_Players[12];
+	uint32_t m_Winner;
+	uint32_t m_Min;
+	uint32_t m_Sec;
 
 public:
 	CStats( CGame *nGame );
-	virtual ~CStats( );
+	~CStats( );
 
-	virtual bool ProcessAction( CIncomingAction *Action );
-	virtual void Save( CAura *CAura, CAuraDB *DB, uint32_t GameID );
+	bool ProcessAction( CIncomingAction *Action );
+	void Save( CAura *CAura, CAuraDB *DB, uint32_t GameID );
 };
 
 #endif

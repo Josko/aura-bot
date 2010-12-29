@@ -27,7 +27,6 @@
 #include "language.h"
 #include "socket.h"
 #include "auradb.h"
-#include "auradbsqlite.h"
 #include "bnet.h"
 #include "map.h"
 #include "gameplayer.h"
@@ -295,8 +294,8 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
 	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
 	
-	Print( "[AURA] opening primary database" );
-	m_DB = new CAuraDBSQLite( CFG );
+	Print( "[AURA] opening database" );
+	m_DB = new CAuraDB( CFG );
 	
 	SetConfigs( CFG );
 
