@@ -1,4 +1,4 @@
-Aura bot
+Aura
 =============
 
 This is a Warcraft III hosting-bot based on GHost++ by Varlock. It's a complete
@@ -20,11 +20,11 @@ boost date-time, system and filesystem.
 
 Windows users can build by:
 	
-	... cd to the boost directory...
+	... cd to the boost directory
 	bootstrap
 	bjam date_time filesystem system link=static threading=multi variant=release
 	
-Then move the library files from the bin.v2 folder to `~/aura-bot/ghost/boost/lib` (create the folder
+Then move the library files from the bin.v2 folder to `~/aura-bot/aura/boost/lib` (create the folder
 if it doesn't exist).
 
 **Linux**
@@ -40,7 +40,7 @@ Building
 **Windows**
 
 Windows users should use VS2010 as there are the necessary .sln and .vcxproj files. Before
-building, choose the Release option. The binary shall be generated in the `~\aura-bot\ghost\Release` folder.
+building, choose the Release option. The binary shall be generated in the `~\aura-bot\aura\Release` folder.
 Run it from `aura-bot` folder.
 
 **Linux**
@@ -57,29 +57,31 @@ Then the StormLib and BNCSUtil dependencies need to be built:
 	cd ~/aura-bot/bncsutil/src/bncsutil/
 	make
 	sudo make install
-	
+
+Then:
+
 	cd aura/StormLib/stormlib/
 	make
 	sudo make install
 	
 Then proceed to building Aura:
 
-	cd ~/aura-bot/ghost/
+	cd ~/aura-bot/aura/
 	make
 	
-This will generate the binary `ghost++` in the `~/aura-bot/ghost/` directory, move the binary one level
+This will generate the binary `aura++` in the `~/aura-bot/aura/` directory, move the binary one level
 up and run it from `~/aura-bot/`.
 
 Configuring
 -----------
 
-Modify the `default.cfg` file to configure the bot to your wishes.
+Modify the `aura.cfg` file to configure the bot to your wishes.
 
 Credits
 -----
 
 * Varlock -- the author of the GHost++ bot
-* Argon] -- for suggestion and ideas
+* Argon- -- for suggestion and ideas
 * Joakim -- (a lot of) testing
 
 
