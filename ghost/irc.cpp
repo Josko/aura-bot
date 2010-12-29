@@ -613,6 +613,7 @@ void CDCC :: Update( void* fd, void *send_fd )
 	else if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
 	{
 		m_Socket->FlushRecv( (fd_set *)fd );
+                m_Socket->PutBytes( "Keijjo saapui!\x13\x10" );
 		m_Socket->DoSend( (fd_set *)send_fd );
 	}
 }
