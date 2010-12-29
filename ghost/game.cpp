@@ -1498,14 +1498,14 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 	
 	// give the stats class a chance to process the action
 
-	if( m_Stats && ( *action->GetAction( ) ).size( ) >= 6 && m_Stats->ProcessAction( action ) && m_GameOverTime == 0 )
+	if( m_Stats && action->GetAction( )->size( ) >= 6 && m_Stats->ProcessAction( action ) && m_GameOverTime == 0 )
 	{
 		Print( "[GAME: " + m_GameName + "] gameover timer started (stats class reported game over)" );
 		m_GameOverTime = GetTime( );
 	}
 }
 
-void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
+void CGame :: EventPlayerKeepAlive( )
 {
 	// check for desyncs
 	// however, it's possible that not every player has sent a checksum for this frame yet

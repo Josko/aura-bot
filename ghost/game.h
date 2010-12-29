@@ -184,7 +184,7 @@ public:
 	void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
 	void EventPlayerLoaded( CGamePlayer *player );
 	void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
-	void EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum );
+	void EventPlayerKeepAlive( );
 	void EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *chatPlayer );
 	bool EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload );
 	void EventPlayerChangeTeam( CGamePlayer *player, unsigned char team );

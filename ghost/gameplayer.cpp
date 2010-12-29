@@ -294,7 +294,7 @@ bool CGamePlayer :: Update( void *fd )
                                             CheckSum = m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
                                             m_CheckSums.push( CheckSum );
                                             ++m_SyncCounter;
-                                            m_Game->EventPlayerKeepAlive( this, CheckSum );
+                                            m_Game->EventPlayerKeepAlive( );
                                             break;
 
                                     case CGameProtocol :: W3GS_CHAT_TO_HOST:
