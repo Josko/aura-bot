@@ -20,9 +20,9 @@ boost date-time, system and filesystem.
 
 Windows users can build by:
 	
-`... cd to the boost directory...`
-`bootstrap`
-`bjam date_time filesystem system link=static threading=multi variant=release`
+	... cd to the boost directory...
+	bootstrap
+	bjam date_time filesystem system link=static threading=multi variant=release
 	
 Then move the library files from the bin.v2 folder to `~/aura-bot/ghost/boost/lib` (create the folder
 if it doesn't exist).
@@ -54,18 +54,18 @@ Also install `g++` if the command above doesn't.
 
 Then the StormLib and BNCSUtil dependencies need to be built:
 
-	`cd ~/aura-bot/bncsutil/src/bncsutil/`
-	`make`
-	`sudo make install`
+	cd ~/aura-bot/bncsutil/src/bncsutil/
+	make
+	sudo make install
 	
-	`cd aura/StormLib/stormlib/`
-	`make`
-	`sudo make install`
+	cd aura/StormLib/stormlib/
+	make
+	sudo make install
 	
 Then proceed to building Aura:
 
-	`cd ~/aura-bot/ghost/`
-	`make`
+	cd ~/aura-bot/ghost/
+	make
 	
 This will generate the binary `ghost++` in the `~/aura-bot/ghost/` directory, move the binary one level
 up and run it from `~/aura-bot/`.
@@ -86,7 +86,7 @@ Credits
 Contributing
 ------------
 
-That would be lovely
+That would be lovely.
 
 1. Fork it.
 2. Create a branch (`git checkout -b my_aura`)
