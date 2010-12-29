@@ -8,39 +8,47 @@ Multi-platform
 ------------
 
 The bot is guaranteed to run on little-endian Linux and Windows machines. Running
-it on OS X and big-endian machines is possible with code modifications.
+it on OS X and big-endian machines is possible with minor-to-large code modifications.
 
 Boost
 ------------
 
 You will need the [Boost](http://www.boost.org/users/download/) libraries. Specifically
-boost date-time, system and filesystem. 
+boost date-time, system and filesystem.
 
-Linux users can usually fetch them from the repo:
-
-	* Arch Linux -- `pacman -S boost`
-	* Debian/Ubuntu -- `apt-get install libboost-dev`
+**Windows**
 
 Windows users can build by:
 	
-	... cd to the boost directory...
-	`bootstrap`
-	`bjam date_time filesystem system link=static threading=multi variant=release`
+`... cd to the boost directory...`
+`bootstrap`
+`bjam date_time filesystem system link=static threading=multi variant=release`
 	
 Then move the library files from the bin.v2 folder to `~/aura-bot/ghost/boost/lib` (create the folder
 if it doesn't exist).
 
+**Linux**
+
+Linux users can usually fetch them from the repo:
+
+* Arch Linux -- `pacman -S boost`
+* Debian/Ubuntu -- `apt-get install libboost-dev`
+
 Building
 ------------
 
+**Windows**
+
 Windows users should use VS2010 as there are the necessary .sln and .vcxproj files. Before
-building, choose the Release option. The binary shall be generated in the `~\ghost\Release` folder.
-Run it from 
+building, choose the Release option. The binary shall be generated in the `~\aura-bot\ghost\Release` folder.
+Run it from `aura-bot` folder.
+
+**Linux**
 
 Linux users will probably need some packages for it to build:
 
-	* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev libncurses5-dev`
-	* Arch Linux -- `pacman -S base-devel`
+* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev libncurses5-dev`
+* Arch Linux -- `pacman -S base-devel`
 	
 Also install `g++` if the command above doesn't.
 
@@ -72,7 +80,8 @@ Credits
 
 * Varlock -- the author of the GHost++ bot
 * Argon] -- for suggestion and ideas
-* Aurani -- (a lot of) testing
+* Joakim -- (a lot of) testing
+
 
 Contributing
 ------------
