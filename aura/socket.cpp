@@ -653,7 +653,7 @@ void CTCPClient :: SetKeepAlive( )
         // Windows users need to edit the registry for the following options :(
         // http://support.microsoft.com/kb/158474
         
-#ifndef WIN32
+#if !defined( WIN32 ) && !defined(__APPLE__)
         // set the time after which keep alives are started to be sent, in seconds
 
         OptVal = 900;
