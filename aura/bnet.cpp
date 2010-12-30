@@ -1155,7 +1155,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					{
 						transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
 
-						if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".cfg" ) )
+						if( Payload.find( ".cfg" ) == string :: npos )
 							Payload.append( ".cfg" );
 
 						directory_iterator EndIterator;
@@ -1181,7 +1181,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 					{
 						transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(*)(int))tolower );
 
-						if( Payload.size( ) > 4 && ( Payload.substr( Payload.size( ) - 4  ) != ".w3x" || Payload.substr( Payload.size( ) - 4  ) != ".w3m" ) )
+						if( Payload.find( ".w3x" ) == string :: npos || Payload.find( ".w3m" ) == string :: npos )
 							Payload.append( ".w3x" );
 
 						directory_iterator EndIterator;
