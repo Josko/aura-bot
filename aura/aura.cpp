@@ -200,9 +200,7 @@ int main( )
 	}
 
 	Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
-#elif __APPLE__
-        // TODO
-#else
+#else if !defined(__APPLE__)
 	// print the timer resolution
 
 	struct timespec Resolution;
@@ -404,10 +402,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 
 	LoadIPToCountryData( );
 
-	if( m_BNETs.empty( ) )
-		Print( "[AURA] warning - no battle.net connections found" );
-
-	Print( "[AURA] Aura++ Version " + m_Version + " (with over 9000 ECONNRESETs)" );
+	Print( "[AURA] Aura++ Version " + m_Version );
 }
 
 CAura :: ~CAura( )
