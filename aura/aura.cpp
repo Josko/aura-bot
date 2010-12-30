@@ -200,7 +200,7 @@ int main( )
 	}
 
 	Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
-#else if !defined(__APPLE__)
+#elif !defined(__APPLE__)
 	// print the timer resolution
 
 	struct timespec Resolution;
