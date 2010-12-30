@@ -344,38 +344,6 @@ bool CAuraDB :: AdminRemove( const string &server, string user )
 	return Success;
 }
 
-vector<string> CAuraDB :: AdminList( const string &server )
-{
-	vector<string> AdminList;
-	sqlite3_stmt *Statement;
-	m_DB->Prepare( "SELECT name FROM admins WHERE server=?", (void **)&Statement );
-
-	if( Statement )
-	{
-		sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
-		int RC = m_DB->Step( Statement );
-
-		while( RC == SQLITE_ROW )
-		{
-			vector<string> *Row = m_DB->GetRow( );
-
-			if( Row->size( ) == 1 )
-				AdminList.push_back( (*Row)[0] );
-
-			RC = m_DB->Step( Statement );
-		}
-
-		if( RC == SQLITE_ERROR )
-			Print( "[SQLITE3] error retrieving admin list [" + server + "] - " + m_DB->GetError( ) );
-
-		m_DB->Finalize( Statement );
-	}
-	else
-		Print( "[SQLITE3] prepare error retrieving admin list [" + server + "] - " + m_DB->GetError( ) );
-
-	return AdminList;
-}
-
 uint32_t CAuraDB :: BanCount( const string &server )
 {
 	uint32_t Count = 0;
@@ -523,38 +491,6 @@ bool CAuraDB :: BanRemove( string user )
 		Print( "[SQLITE3] prepare error removing ban [" + user + "] - " + m_DB->GetError( ) );
 
 	return Success;
-}
-
-vector<CDBBan *> CAuraDB :: BanList( const string &server )
-{
-	vector<CDBBan *> BanList;
-	sqlite3_stmt *Statement;
-	m_DB->Prepare( "SELECT name, ip, date, gamename, admin, reason FROM bans WHERE server=?", (void **)&Statement );
-
-	if( Statement )
-	{
-		sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
-		int RC = m_DB->Step( Statement );
-
-		while( RC == SQLITE_ROW )
-		{
-			vector<string> *Row = m_DB->GetRow( );
-
-			if( Row->size( ) == 6 )
-				BanList.push_back( new CDBBan( server, (*Row)[0], (*Row)[1], (*Row)[2], (*Row)[3], (*Row)[4], (*Row)[5] ) );
-
-			RC = m_DB->Step( Statement );
-		}
-
-		if( RC == SQLITE_ERROR )
-			Print( "[SQLITE3] error retrieving ban list [" + server + "] - " + m_DB->GetError( ) );
-
-		m_DB->Finalize( Statement );
-	}
-	else
-		Print( "[SQLITE3] prepare error retrieving ban list [" + server + "] - " + m_DB->GetError( ) );
-
-	return BanList;
 }
 
 uint32_t CAuraDB :: GameAdd( const string &server, const string &map, const string &gamename, const string &ownername, uint32_t duration, uint32_t gamestate, const string &creatorname, const string &creatorserver )

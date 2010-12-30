@@ -218,13 +218,11 @@ public:
 	bool AdminCheck( const string &server, string user );
 	bool AdminAdd( const string &server, string user );
 	bool AdminRemove( const string &server, string user );
-	vector<string> AdminList( const string &server );
 	uint32_t BanCount( const string &server );
 	CDBBan *BanCheck( const string &server, string user, const string &ip );
 	bool BanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason );
 	bool BanRemove( const string &server, string user );
 	bool BanRemove( string user );
-	vector<CDBBan *> BanList( const string &server );
 	uint32_t GameAdd( const string &server, const string &map, const string &gamename, const string &ownername, uint32_t duration, uint32_t gamestate, const string &creatorname, const string &creatorserver );
 	uint32_t GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, const string &spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, const string &leftreason, uint32_t team, uint32_t colour );
 	uint32_t GamePlayerCount( string name );
@@ -234,7 +232,7 @@ public:
 	uint32_t DotAPlayerCount( string name );
 	CDBDotAPlayerSummary *DotAPlayerSummaryCheck( string name );
 	string FromCheck( uint32_t ip );
-	bool FromAdd( uint32_t ip1, uint32_t ip2, const string &country );	
+	bool FromAdd( uint32_t ip1, uint32_t ip2, const string &country );
 };
 
 //
