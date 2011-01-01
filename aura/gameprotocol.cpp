@@ -626,11 +626,10 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_SEARCHGAME( unsigned char war3Version )
 	return packet;
 }
 
-BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter )
+BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey )
 {
 	unsigned char ProductID_TFT[]		= {          80, 88, 51, 87 };	// "W3XP"
 	unsigned char Version[]			= { war3Version,  0,  0,  0 };
-	unsigned char Unknown1[]        	= {           1,  2,  3,  4 };
 	unsigned char Unknown2[]		= {           1,  0,  0,  0 };
 
 	BYTEARRAY packet;
@@ -652,15 +651,15 @@ BYTEARRAY CGameProtocol :: SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEAR
 
 		// make the rest of the packet
 
-		packet.push_back( W3GS_HEADER_CONSTANT );						// W3GS header constant
-		packet.push_back( W3GS_GAMEINFO );								// W3GS_GAMEINFO
+		packet.push_back( W3GS_HEADER_CONSTANT );					// W3GS header constant
+		packet.push_back( W3GS_GAMEINFO );						// W3GS_GAMEINFO
 		packet.push_back( 0 );											// packet length will be assigned later
 		packet.push_back( 0 );											// packet length will be assigned later
 		
-		UTIL_AppendByteArray( packet, ProductID_TFT, 4 );			// Product ID (TFT)
-		UTIL_AppendByteArray( packet, Version, 4 );						// Version
+		UTIL_AppendByteArray( packet, ProductID_TFT, 4 );                               // Product ID (TFT)
+		UTIL_AppendByteArray( packet, Version, 4 );					// Version
 		UTIL_AppendByteArray( packet, hostCounter, false );				// Host Counter
-		UTIL_AppendByteArray( packet, Unknown1, 4 );
+		UTIL_AppendByteArray( packet, entryKey, false );                                // Entry Key
 		UTIL_AppendByteArrayFast( packet, gameName );					// Game Name
 		packet.push_back( 0 );											// ??? (maybe game password)
 		UTIL_AppendByteArrayFast( packet, StatString );					// Stat String
