@@ -67,6 +67,7 @@ all: $(LIB)
 
 install: $(LIB)
 	install $(LIB) /usr/local/lib
+	install $(LIB) /usr/lib
 	mkdir -p /usr/local/include/StormLib
 	cp StormLib.h /usr/local/include/StormLib
 	cp StormPort.h /usr/local/include/StormLib
