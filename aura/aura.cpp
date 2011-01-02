@@ -745,7 +745,7 @@ void CAura :: EventGameDeleted( CGame *game )
 void CAura :: ReloadConfigs( )
 {
 	CConfig CFG;
-	CFG.Read( "default.cfg" );
+	CFG.Read( "aura.cfg" );
 	SetConfigs( &CFG );
 }
 
