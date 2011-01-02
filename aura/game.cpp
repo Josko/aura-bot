@@ -2061,13 +2061,42 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					uint32_t SID;
 					SS >> SID;
 
+                                        // subtract one due to index starting at 0
+
+                                        --SID;
+
 					if( SS.fail( ) )
 					{
 						Print( "[GAME: " + m_GameName + "] bad input to open command" );
 						break;
 					}
 					else
-						OpenSlot( (unsigned char)( SID - 1 ), true );
+                                        {
+                                                // check if the slots is occupied by a fake player, if yes delete him
+
+                                                bool Fake = false;
+
+                                                if( SID < m_Slots.size( ) )
+                                                {
+                                                        for( vector<unsigned char> :: iterator i = m_FakePlayers.begin( ); i != m_FakePlayers.end( ); ++i )
+                                                        {
+                                                                if( m_Slots[SID].GetPID( ) == (*i) )
+                                                                {
+                                                                        Fake = true;
+                                                                        m_Slots[SID] = CGameSlot( 0, 255, SLOTSTATUS_OPEN, 0, m_Slots[SID].GetTeam( ), m_Slots[SID].GetColour( ), m_Slots[SID].GetRace( ) );
+                                                                        SendAll( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( *i, PLAYERLEAVE_LOBBY ) );
+                                                                        m_FakePlayers.erase( i );
+																		SendAllSlotInfo( );
+                                                                        break;
+                                                                }
+                                                        }
+                                                }
+
+                                                // not a fake player
+
+                                                if( !Fake )
+                                                    OpenSlot( (unsigned char) SID, true );
+                                        }
 				}
 			}		
 
