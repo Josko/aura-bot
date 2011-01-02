@@ -1,0 +1,21 @@
+# Compiled source #
+###################
+*.dll
+*.exe
+*.o
+*.so
+
+aura.exe
+aura++
+
+# OS generated files #
+######################
+Thumbs.db
+
+# Databases #
+#############
+*.dbs
+
+# Editor generated files #
+##########################
+*.swp
