@@ -1520,7 +1520,7 @@ void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
 {
 	// check for desyncs
 
-	uint32_t FirstCheckSum = m_Players[0]->GetCheckSums( )->front( );
+	uint32_t FirstCheckSum = player->GetCheckSums( )->front( );
 
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
 	{
