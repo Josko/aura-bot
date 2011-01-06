@@ -135,7 +135,7 @@ public:
 
 	// other functions
 
-	void Deactivate( )			{ m_Socket->Reset( ); m_Deactivated = true; m_WaitingToConnect = true; m_InChat = false; m_LoggedIn = false; m_Spam = false; }
+	void Deactivate( );
 	void Activate( )			{ m_Deactivated = false; m_Spam = false; }
 	bool IsAdmin( string name );
 	bool IsRootAdmin( string name );

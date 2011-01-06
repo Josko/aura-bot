@@ -2049,3 +2049,15 @@ void CBNET :: HoldClan( CGame *game )
 			game->AddToReserved( (*i)->GetName( ) );
 	}
 }
+
+void CBNET :: Deactivate()
+{
+    m_BNCSUtil->Reset( m_UserName, m_UserPassword );
+    m_Socket->Reset( );
+
+    m_Deactivated = true;
+    m_WaitingToConnect = true;
+    m_InChat = false;
+    m_LoggedIn = false;
+    m_Spam = false;
+}

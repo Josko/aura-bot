@@ -113,6 +113,7 @@ protected:
 	bool m_GameLoading;				// if the game is currently loading or not
 	bool m_GameLoaded;				// if the game has loaded or not
 	bool m_Lagging;					// if the lag screen is active or not
+        bool m_Desynced;				// if the game has desynced or not
 
 public:
 	CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
@@ -184,7 +185,7 @@ public:
 	void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
 	void EventPlayerLoaded( CGamePlayer *player );
 	void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
-	void EventPlayerKeepAlive( );
+	void EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum );
 	void EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *chatPlayer );
 	bool EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload );
 	void EventPlayerChangeTeam( CGamePlayer *player, unsigned char team );

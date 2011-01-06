@@ -61,7 +61,7 @@ public:
 // CGame
 //
 
-CGame :: CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : m_Aura( nAura ), m_DBBanLast( NULL ), m_GameID( 0 ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nAura->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nAura->m_HostCounter++ ), m_EntryKey( rand() ), m_Latency( nAura->m_Latency ), m_SyncLimit( nAura->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_Lagging( false )
+CGame :: CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : m_Aura( nAura ), m_DBBanLast( NULL ), m_GameID( 0 ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nAura->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nAura->m_HostCounter++ ), m_EntryKey( rand() ), m_Latency( nAura->m_Latency ), m_SyncLimit( nAura->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ),  m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_Lagging( false ), m_Desynced( false )
 {
 	m_Socket = new CTCPServer( );
 	m_Protocol = new CGameProtocol( m_Aura );
@@ -1516,141 +1516,29 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 	}
 }
 
-void CGame :: EventPlayerKeepAlive( )
+void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
 {
 	// check for desyncs
-	// however, it's possible that not every player has sent a checksum for this frame yet
-	// first we verify that we have enough checksums to work with otherwise we won't know exactly who desynced
 
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+	uint32_t FirstCheckSum = m_Players[0]->GetCheckSums( )->front( );
+
+	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
 	{
-		if( !(*i)->GetDeleteMe( ) && (*i)->GetCheckSums( )->empty( ) )
+		if( (*i)->GetCheckSums( )->empty( ) )
 			return;
-	}
 
-	// now we check for desyncs since we know that every player has at least one checksum waiting
-
-	bool FoundPlayer = false;
-	uint32_t FirstCheckSum = 0;
-
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-	{
-		if( !(*i)->GetDeleteMe( ) )
+		if( !m_Desynced && (*i)->GetCheckSums( )->front( ) != FirstCheckSum )
 		{
-			FoundPlayer = true;
-			FirstCheckSum = (*i)->GetCheckSums( )->front( );
-			break;
-		}
-	}
-
-	if( !FoundPlayer )
-		return;
-
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-	{
-		if( !(*i)->GetDeleteMe( ) && (*i)->GetCheckSums( )->front( ) != FirstCheckSum )
-		{
+			m_Desynced = true;
 			Print( "[GAME: " + m_GameName + "] desync detected" );
 			SendAllChat( m_Aura->m_Language->DesyncDetected( ) );
-
-			// try to figure out who desynced
-			// this is complicated by the fact that we don't know what the correct game state is so we let the players vote
-			// put the players into bins based on their game state
-
-			map< uint32_t, vector<unsigned char> > Bins;
-
-			for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); ++j )
-			{
-				if( !(*j)->GetDeleteMe( ) )
-					Bins[(*j)->GetCheckSums( )->front( )].push_back( (*j)->GetPID( ) );
-			}
-
-			uint32_t StateNumber = 1;
-			map< uint32_t, vector<unsigned char> > :: iterator LargestBin = Bins.begin( );
-			bool Tied = false;
-
-			for( map< uint32_t, vector<unsigned char> > :: iterator j = Bins.begin( ); j != Bins.end( ); ++j )
-			{
-				if( (*j).second.size( ) > (*LargestBin).second.size( ) )
-				{
-					LargestBin = j;
-					Tied = false;
-				}
-				else if( j != LargestBin && (*j).second.size( ) == (*LargestBin).second.size( ) )
-					Tied = true;
-
-				string Players;
-
-				for( vector<unsigned char> :: iterator k = (*j).second.begin( ); k != (*j).second.end( ); ++k )
-				{
-					CGamePlayer *Player = GetPlayerFromPID( *k );
-
-					if( Player )
-					{
-						if( Players.empty( ) )
-							Players = Player->GetName( );
-						else
-							Players += ", " + Player->GetName( );
-					}
-				}
-
-				SendAllChat( m_Aura->m_Language->PlayersInGameState( UTIL_ToString( StateNumber ), Players ) );
-				++StateNumber;
-			}
-
-			FirstCheckSum = (*LargestBin).first;
-
-			if( Tied )
-			{
-				// there is a tie, which is unfortunate
-				// the most common way for this to happen is with a desync in a 1v1 situation
-				// this is not really unsolvable since the game shouldn't continue anyway so we just kick both players
-				// in a 2v2 or higher the chance of this happening is very slim
-				// however, we still kick every player because it's not fair to pick one or another group
-				// todotodo: it would be possible to split the game at this point and create a "new" game for each game state
-
-				Print( "[GAME: " + m_GameName + "] can't kick desynced players because there is a tie, kicking all players instead" );
-				StopPlayers( m_Aura->m_Language->WasDroppedDesync( ) );
-			}
-			else
-			{
-				Print( "[GAME: " + m_GameName + "] kicking desynced players" );
-
-				for( map< uint32_t, vector<unsigned char> > :: iterator j = Bins.begin( ); j != Bins.end( ); ++j )
-				{
-					// kick players who are NOT in the largest bin
-					// examples: suppose there are 10 players
-					// the most common case will be 9v1 (e.g. one player desynced and the others were unaffected) and this will kick the single outlier
-					// another (very unlikely) possibility is 8v1v1 or 8v2 and this will kick both of the outliers, regardless of whether their game states match
-
-					if( (*j).first != (*LargestBin).first )
-					{
-						for( vector<unsigned char> :: iterator k = (*j).second.begin( ); k != (*j).second.end( ); ++k )
-						{
-							CGamePlayer *Player = GetPlayerFromPID( *k );
-
-							if( Player )
-							{
-								Player->SetDeleteMe( true );
-								Player->SetLeftReason( m_Aura->m_Language->WasDroppedDesync( ) );
-								Player->SetLeftCode( PLAYERLEAVE_LOST );
-							}
-						}
-					}
-				}
-			}
-
-			// don't continue looking for desyncs, we already found one!
-
-			break;
+			SendAllChat( m_Aura->m_Language->DesyncDetected( ) );
+			SendAllChat( m_Aura->m_Language->DesyncDetected( ) );
 		}
 	}
 
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-	{
-		if( !(*i)->GetDeleteMe( ) )
-			(*i)->GetCheckSums( )->pop( );
-	}
+	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+		(*i)->GetCheckSums( )->pop( );
 }
 
 void CGame :: EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *chatPlayer )
