@@ -1,10 +1,10 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 CXX = g++
-CXXFLAGS = -I ../ -Wno-multichar -fPIC
+CXXFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
 CC = gcc
-CCFLAGS = -I ../ -Wno-multichar -fPIC
+CCFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
 CCOBJ = nls.o pe.o sha1.o stack.o
 
 ifeq ($(SYSTEM),Darwin)
@@ -34,7 +34,7 @@ all:
 	make $(TARGET)
 
 install: $(TARGET)
-	mkdir -p /usr/local/include/bncsutil
-	cp *.h /usr/local/include/bncsutil
-	cp $(TARGET) /usr/local/lib
+	mkdir -p /usr/include/bncsutil
+	cp *.h /usr/include/bncsutil
+	cp $(TARGET) /usr/lib
 	ldconfig
