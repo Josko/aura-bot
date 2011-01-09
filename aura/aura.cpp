@@ -132,7 +132,7 @@ void SignalCatcher( int s )
 
 void Print( const string &message )
 {
-        // cout << message << endl;
+   cout << message << endl;
         
 	if( gAura && gAura->m_IRC )
 		gAura->m_IRC->SendDCC( message );
@@ -140,6 +140,8 @@ void Print( const string &message )
 
 void Print2( const string &message )
 {	
+   cout << message << endl;
+   
 	if( gAura->m_IRC )
 	{
 		gAura->m_IRC->SendMessageIRC( message, string( ) );
@@ -279,6 +281,7 @@ int main( )
 
 CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.01" ), m_HostCounter( 1 )
 {
+   Print ("START");
 	vector<string> channels, locals;
 
 	for( int i = 0; i < 10; ++i )
