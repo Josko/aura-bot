@@ -40,7 +40,7 @@ Xcode is the basic dependency for building anything on OS X.
 Apple's development tool is shipped for free with every Mac located on your system CD/DVD.
 Without Xcode installed you cannot proceed any further and won't be able to build boost.
 
-The easiest way to go is by using [Macports](http://www.macports.org/).
+The easiest way to go for boost is by using [Macports](http://www.macports.org/).
 After a successful install open (or reopen) Terminal.app located in /Applications/Utilities and execute
 	sudo port install boost
 Building boost will take some time.
