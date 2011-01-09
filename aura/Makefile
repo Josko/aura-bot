@@ -72,6 +72,7 @@ stats.o: aura.h includes.h stats.h
 util.o: aura.h includes.h util.h
 irc.o: aura.h includes.h irc.h socket.h util.h bnetprotocol.h bnet.h
 
+
 install: $(PROGS)
 	cp $(PROGS) ../
 	rm $(PROGS)
