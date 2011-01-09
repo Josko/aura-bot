@@ -1,13 +1,15 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 CXX = g++
-CXXFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
+CXXFLAGS = -I ../ -Wno-multichar -fPIC
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
 CC = gcc
-CCFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
+CCFLAGS = -I ../ -Wno-multichar -fPIC
 CCOBJ = nls.o pe.o sha1.o stack.o
 
 ifeq ($(SYSTEM),Darwin)
+CXX = /usr/bin/g++
+CC = /usr/bin/gcc
 LDFLAGS = -dynamiclib -lgmp -L/opt/local/lib
 TARGET = libbncsutil.a
 CCFLAGS += -m64
