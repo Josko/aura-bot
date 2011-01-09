@@ -81,7 +81,8 @@ Continue building bncsutil:
 	
 Then proceed to build Aura:
 
-	cd ~/aura-bot/aura
+	cd ../../..
+	cd aura
 	make && make install
 	cd ..
 	
