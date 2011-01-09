@@ -18,6 +18,7 @@ Thumbs.db
 # Databases #
 #############
 *.dbs
+*.dbs-journal
 
 # Editor generated files #
 ##########################
