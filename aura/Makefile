@@ -1,15 +1,19 @@
-﻿SHELL = /bin/sh
+SHELL = /bin/sh
 SYSTEM = $(shell uname)
 C++ = g++
 CC = gcc
-DFLAGS = -DSQLITE_THREADSAFE=0
+DFLAGS = -Wall -DSQLITE_THREADSAFE=0 -m64
 OFLAGS = -O3
-LFLAGS = -L. -L../bncsutil/src/bncsutil/ -L../StormLib/stormlib/ -lbncsutil -lpthread -ldl -lz -lStorm -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
+LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
 CFLAGS = -Wall -m64
 
 ifeq ($(SYSTEM),Darwin)
+C++ = /usr/bin/g++
+CC = /usr/bin/gcc
 DFLAGS += -D__APPLE__
 OFLAGS += -flat_namespace
+LFLAGS += -L/opt/local/lib/
+CFLAGS += -I/usr/local/boost_1_45_0/
 else
 LFLAGS += -lrt
 endif
@@ -67,3 +71,7 @@ socket.o: aura.h includes.h util.h socket.h
 stats.o: aura.h includes.h stats.h
 util.o: aura.h includes.h util.h
 irc.o: aura.h includes.h irc.h socket.h util.h bnetprotocol.h bnet.h
+
+install: $(PROGS)
+	cp $(PROGS) ../
+	rm $(PROGS)

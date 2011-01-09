@@ -4,6 +4,8 @@
 *.exe
 *.o
 *.so
+*.a
+*.dylib
 
 aura.exe
 aura++
@@ -11,6 +13,7 @@ aura++
 # OS generated files #
 ######################
 Thumbs.db
+.DS_Store
 
 # Databases #
 #############
@@ -19,3 +22,7 @@ Thumbs.db
 # Editor generated files #
 ##########################
 *.swp
+
+# SVN Directories #
+###################
+.svn/

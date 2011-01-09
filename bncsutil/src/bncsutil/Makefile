@@ -9,17 +9,19 @@ CCOBJ = nls.o pe.o sha1.o stack.o
 
 ifeq ($(SYSTEM),Darwin)
 LDFLAGS = -dynamiclib -lgmp -L/opt/local/lib
-TARGET = libbncsutil.dylib
+TARGET = libbncsutil.a
+CCFLAGS += -m64
+CXXFLAGS += -m64
 else
 LDFLAGS = -shared -lgmp
 TARGET = libbncsutil.so
 endif
 
-$(TARGET): $(CXXOBJ) $(CCOBJ)
+$(TARGET): $(CXXOBJ) $(CCOBJ) 
 	$(CXX)  $(CXXFLAGS) $(LDFLAGS) $(CXXOBJ) $(CCOBJ) -o $(TARGET)
 
 $(CXXOBJ): %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@ 
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(CCOBJ): %.o: %.c
 	$(CC) $(CCFLAGS) -c $< -o $@
@@ -30,7 +32,7 @@ all:
 	make $(TARGET)
 
 install: $(TARGET)
-	mkdir -p /usr/include/bncsutil
-	cp *.h /usr/include/bncsutil
-	cp $(TARGET) /usr/lib
+	mkdir -p /usr/local/include/bncsutil
+	cp *.h /usr/local/include/bncsutil
+	cp $(TARGET) /usr/local/lib
 	ldconfig
