@@ -38,7 +38,7 @@ Linux users can usually fetch them from the repo:
 
 The easiest way to go is by using [Macports](http://www.macports.org/).
 After a successful install open (or reopen) Terminal.app located in /Applications/Utilities and execute
-	`sudo port install boost`
+	sudo port install boost
 Building boost will take some time.
 
 Building
@@ -85,10 +85,10 @@ Most likely you'll need a more recent version of libgmp cause Apple ships an old
 what would result in problems since we are linking x86_64.
 
 Using [Macports](http://www.macports.org/):
-	`sudo port install gmp`
+	sudo port install gmp
    
-When finished type `cd ` (mind the space!) in Terminal and drag&drop your `aura-bot`-folder into the Terminal
-to get the folder's path and execute with enter.
+When finished type `cd ` (append a space after!) in Terminal, drag&drop your `aura-bot`-folder into the Terminal 
+window to get the folder's path and execute with enter.
 
 For building StormLib execute the following commands (line by line):
 	cd StormLib/stormlib_osx/
@@ -97,16 +97,16 @@ For building StormLib execute the following commands (line by line):
    
 Continue building bncsutil:
 	cd ../../
-   cd bncsutil/src/bncsutil
-   make
-   sudo make install
+	cd bncsutil/src/bncsutil
+	make
+	sudo make install
    
 Go on building aura:
 	cd ../../../
-   cd aura
-   make
-   make install
-   cd ../
+	cd aura
+	make
+	make install
+	cd ../
    
 Now you can run aura by typing './aura++'.
 
