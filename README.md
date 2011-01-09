@@ -92,8 +92,8 @@ window to get the folder's path and execute with enter.
 
 For building StormLib execute the following commands (line by line):
 	cd StormLib/stormlib_osx/
-   make
-   sudo make install
+	make
+	sudo make install
    
 Continue building bncsutil:
 	cd ../../
@@ -108,7 +108,7 @@ Go on building aura:
 	make install
 	cd ../
    
-Now you can run aura by typing './aura++'.
+Now you can run aura by executing `./aura++` in Terminal.
 
 Configuring
 -----------
