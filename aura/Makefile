@@ -13,7 +13,6 @@ CC = /usr/bin/gcc
 DFLAGS += -D__APPLE__
 OFLAGS += -flat_namespace
 LFLAGS += -L/opt/local/lib/
-CFLAGS += -I/usr/local/boost_1_45_0/
 else
 LFLAGS += -lrt
 endif
