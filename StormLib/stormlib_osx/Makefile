@@ -38,6 +38,8 @@ OBJS = SCommon.o SCompression.o SFileCompactArchive.o \
 COBJS = pklib/crc32.o pklib/explode.o pklib/implode.o
 
 ifeq ($(SYSTEM),Darwin)
+C++ = /usr/bin/g++
+CC = /usr/bin/gcc
 OBJS += StormPortMac.o
 LFLAGS += -dynamiclib -framework CoreServices
 LIB = libStorm.dylib
@@ -67,7 +69,6 @@ all: $(LIB)
 
 install: $(LIB)
 	install $(LIB) /usr/local/lib
-	install $(LIB) /usr/lib
 	mkdir -p /usr/local/include/StormLib
 	cp StormLib.h /usr/local/include/StormLib
 	cp StormPort.h /usr/local/include/StormLib
