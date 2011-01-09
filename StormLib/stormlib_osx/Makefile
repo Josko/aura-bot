@@ -68,8 +68,8 @@ $(LIB): $(OBJS) $(COBJS)
 all: $(LIB)
 
 install: $(LIB)
-	install $(LIB) /usr/local/lib
-	mkdir -p /usr/local/include/StormLib
-	cp StormLib.h /usr/local/include/StormLib
-	cp StormPort.h /usr/local/include/StormLib
+	install $(LIB) /usr/lib
+	mkdir -p /usr/include/StormLib
+	cp StormLib.h /usr/include/StormLib
+	cp StormPort.h /usr/include/StormLib
 	ldconfig
