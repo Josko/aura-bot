@@ -281,7 +281,6 @@ int main( )
 
 CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.01" ), m_HostCounter( 1 )
 {
-   Print ("START");
 	vector<string> channels, locals;
 
 	for( int i = 0; i < 10; ++i )
