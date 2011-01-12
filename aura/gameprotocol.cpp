@@ -237,7 +237,7 @@ bool CGameProtocol :: RECEIVE_W3GS_SEARCHGAME( BYTEARRAY data, unsigned char war
 	return false;
 }
 
-CIncomingMapSize *CGameProtocol :: RECEIVE_W3GS_MAPSIZE( BYTEARRAY data, BYTEARRAY mapSize )
+CIncomingMapSize *CGameProtocol :: RECEIVE_W3GS_MAPSIZE( BYTEARRAY data )
 {
 	// DEBUG_Print( "RECEIVED W3GS_MAPSIZE" );
 	// DEBUG_Print( data );

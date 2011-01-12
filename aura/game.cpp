@@ -123,7 +123,7 @@ CGame :: ~CGame( )
 
 	if( m_GameID )
 	{
-		for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); i++ )
+		for( vector<CDBGamePlayer *> :: iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); ++i )
 			m_Aura->m_DB->GamePlayerAdd( m_GameID, (*i)->GetName( ), (*i)->GetIP( ), (*i)->GetSpoofed( ), (*i)->GetSpoofedRealm( ), (*i)->GetReserved( ), (*i)->GetLoadingTime( ), (*i)->GetLeft( ), (*i)->GetLeftReason( ), (*i)->GetTeam( ), (*i)->GetColour( ) );
 
 		// store the stats in the database
@@ -709,7 +709,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 
                         for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
                         {
-                                if( (*i)->GetPasswordHashType( ) != "pvpgn" && (*i)->GetSpam( ) )
+                                if( !(*i)->GetPvPGN( ) && (*i)->GetSpam( ) )
                                 {
                                         (*i)->SetSpam( );
                                 }
@@ -1516,13 +1516,13 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 	}
 }
 
-void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
+void CGame :: EventPlayerKeepAlive( CGamePlayer *player )
 {
 	// check for desyncs
 
-	uint32_t FirstCheckSum = player->GetCheckSums( )->front( );
+	uint32_t FirstCheckSum = player->GetCheckSums()->front( );
 
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 	{
 		if( (*i)->GetCheckSums( )->empty( ) )
 			return;
@@ -1537,7 +1537,7 @@ void CGame :: EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum )
 		}
 	}
 
-	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); i++ )
+	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 		(*i)->GetCheckSums( )->pop( );
 }
 
@@ -2020,7 +2020,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 						(*i)->QueueGameCreate( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
 
-						if( (*i)->GetPasswordHashType( ) != "pvpgn" )
+						if( !(*i)->GetPvPGN( ) )
 							(*i)->QueueEnterChat( );
 					}
 
@@ -2150,7 +2150,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
                         {
                                 for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
                                 {
-					if( (*i)->GetPasswordHashType( ) != "pvpgn" && (*i)->GetSpam( ) )
+					if( !(*i)->GetPvPGN( ) && (*i)->GetSpam( ) )
                                         {
 						(*i)->SetSpam( );
                                         }
@@ -2167,7 +2167,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
                                 {
-					if( (*i)->GetPasswordHashType( ) != "pvpgn" )
+					if( !(*i)->GetPvPGN( ) )
                                         {
 						(*i)->SetSpam( );
                                         }
@@ -2460,7 +2460,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			else if( Command == "checkban" && !Payload.empty( ) && !m_Aura->m_BNETs.empty( ) )
 			{
-				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); i++ )
+				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
 				{
 					CDBBan *Ban = m_Aura->m_DB->BanCheck( (*i)->GetServer( ), Payload, string( ) );
 
@@ -3423,7 +3423,7 @@ void CGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize
 	}
 }
 
-void CGame :: EventPlayerPongToHost( CGamePlayer *player, uint32_t pong )
+void CGame :: EventPlayerPongToHost( CGamePlayer *player )
 {
 	// autokick players with excessive pings but only if they're not reserved and we've received at least 3 pings from them
 	// also don't kick anyone if the game is loading or loaded - this could happen because we send pings during loading but we stop sending them after the game is loaded

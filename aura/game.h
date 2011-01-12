@@ -185,7 +185,7 @@ public:
 	void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
 	void EventPlayerLoaded( CGamePlayer *player );
 	void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
-	void EventPlayerKeepAlive( CGamePlayer *player, uint32_t checkSum );
+	void EventPlayerKeepAlive( CGamePlayer *player );
 	void EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *chatPlayer );
 	bool EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload );
 	void EventPlayerChangeTeam( CGamePlayer *player, unsigned char team );
@@ -194,7 +194,7 @@ public:
 	void EventPlayerChangeHandicap( CGamePlayer *player, unsigned char handicap );
 	void EventPlayerDropRequest( CGamePlayer *player );
 	void EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize );
-	void EventPlayerPongToHost( CGamePlayer *player, uint32_t pong );
+	void EventPlayerPongToHost( CGamePlayer *player );
 
 	// these events are called outside of any iterations
 	

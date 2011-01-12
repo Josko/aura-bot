@@ -72,21 +72,22 @@ private:
 	uint32_t m_LastConnectionAttemptTime;			// GetTime when we last attempted to connect to battle.net
 	uint32_t m_LastNullTime;				// GetTime when the last null packet was sent for detecting disconnects
 	uint32_t m_LastOutPacketTicks;				// GetTicks when the last packet was sent for the m_OutPackets queue
-	uint32_t m_LastOutPacketSize;
+	uint32_t m_LastOutPacketSize;                           // byte size of the last packet we sent from the m_OutPackets queue
 	uint32_t m_LastAdminRefreshTime;			// GetTime when the admin list was last refreshed from the database
 	uint32_t m_LastBanRefreshTime;				// GetTime when the ban list was last refreshed from the database
-	uint32_t m_LastSpamTime;
-	uint32_t m_ReconnectDelay;
+	uint32_t m_LastSpamTime;                                // GetTime when we sent the gamename to a channel
+	uint32_t m_ReconnectDelay;                              // interval between two consecutive connect attempts
 	bool m_FirstConnect;					// if we haven't tried to connect to battle.net yet
 	bool m_WaitingToConnect;				// if we're waiting to reconnect to battle.net after being disconnected
 	bool m_LoggedIn;					// if we've logged into battle.net or not
 	bool m_InChat;						// if we've entered chat or not (but we're not necessarily in a chat channel yet)
-	string m_SpamChannel;
-	bool m_Deactivated;	
-	bool m_IRC;
+	bool m_Deactivated;                                     // if this BNET is deactivated
+	bool m_IRC;                                             // if the incoming event was received from IRC
+        bool m_PvPGN;                                           // if this BNET connection is actually a PvPGN
+        string m_SpamChannel;                                   // the channel we're currently spamming in
 
 public:
-	CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nMaxMessageLength, uint32_t nHostCounterID );
+	CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );
 	~CBNET( );
 
 	bool GetExiting( )				{ return m_Exiting; }
@@ -108,6 +109,7 @@ public:
 	bool GetInChat( )				{ return m_InChat; }	
 	uint32_t GetOutPacketsQueued( )			{ return m_OutPackets.size( ); }
         bool GetSpam( )                                 { return m_Spam; }
+        bool GetPvPGN( )                                { return m_PvPGN; }
 	BYTEARRAY GetUniqueName( );        
 
         void SetSpam( bool spam )                       { m_Spam = spam; }	

@@ -64,7 +64,7 @@ uint32_t GetTime( )
 	// don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
 	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
 
-	return timeGetTime( ) * 1e-3;
+	return timeGetTime( ) / 1000;
 #elif __APPLE__
         uint64_t current = mach_absolute_time( );
         static mach_timebase_info_data_t info = { 0, 0 };
@@ -78,7 +78,7 @@ uint32_t GetTime( )
 
         // convert ns to s
 
-        return elapsednano * 1e-9;
+        return elapsednano / 1000000000;
 #else
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
@@ -107,11 +107,11 @@ uint32_t GetTicks( )
 
         // convert ns to ms
         
-        return elapsednano * 1e-6;
+        return elapsednano / 1000000;
 #else
 	struct timespec t;
 	clock_gettime( CLOCK_MONOTONIC, &t );
-	return t.tv_sec * 1e3 + t.tv_nsec * 1e-6;
+	return t.tv_sec * 1000 + t.tv_nsec / 1000000;
 #endif
 }
 
@@ -367,7 +367,6 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 		BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
 		BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
 		string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
-		uint32_t MaxMessageLength = CFG->GetInt( Prefix + "custom_maxmessagelength", 200 );
 
 		if( Server.empty( ) )
 			break;
@@ -379,7 +378,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 			Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
 		}
 
-		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, MaxMessageLength, i ) );
+		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
 	}
 
 	if( m_BNETs.empty( ) )
@@ -782,11 +781,7 @@ void CAura :: SetConfigs( CConfig *CFG )
 	m_MaxDownloadSpeed = CFG->GetInt( "bot_maxdownloadspeed", 100 );
 	m_LCPings = CFG->GetInt( "bot_lcpings", 1 ) == 0 ? false : true;
 	m_AutoKickPing = CFG->GetInt( "bot_autokickping", 300 );
-	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );
-	
-	if( m_LobbyTimeLimit < 0 )
-		m_LobbyTimeLimit = 2;
-	
+	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );	
 	m_Latency = CFG->GetInt( "bot_latency", 100 );
 	m_SyncLimit = CFG->GetInt( "bot_synclimit", 50 );
 	m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );
@@ -1026,7 +1021,7 @@ void CAura :: CreateGame( CMap *map, unsigned char gameState, string gameName, s
 	{
 		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
 		{
-			if( (*i)->GetPasswordHashType( ) != "pvpgn" )
+			if( !(*i)->GetPvPGN( ) )
 				(*i)->QueueEnterChat( );
 		}
 	}

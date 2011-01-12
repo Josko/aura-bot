@@ -202,7 +202,7 @@ bool CGamePlayer :: Update( void *fd )
 		{
 			if( (*i)->GetServer( ) == m_JoinedRealm )
 			{
-				if( m_Game->GetGameState( ) == GAME_PUBLIC || (*i)->GetPasswordHashType( ) == "pvpgn" )
+				if( m_Game->GetGameState( ) == GAME_PUBLIC || (*i)->GetPvPGN( ) )
 					(*i)->QueueChatCommand( "/whois " + m_Name );
 				else if( m_Game->GetGameState( ) == GAME_PRIVATE )
 					(*i)->QueueChatCommand( m_Game->m_Aura->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
@@ -294,7 +294,7 @@ bool CGamePlayer :: Update( void *fd )
                                             CheckSum = m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
                                             m_CheckSums.push( CheckSum );
                                             ++m_SyncCounter;
-                                            m_Game->EventPlayerKeepAlive( this, CheckSum );
+                                            m_Game->EventPlayerKeepAlive( this );
                                             break;
 
                                     case CGameProtocol :: W3GS_CHAT_TO_HOST:
@@ -317,7 +317,7 @@ bool CGamePlayer :: Update( void *fd )
                                             break;
 
                                     case CGameProtocol :: W3GS_MAPSIZE:
-                                            MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_Game->m_Aura->m_Map->GetMapSize( ) );
+                                            MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
 
                                             if( MapSize )
                                                     m_Game->EventPlayerMapSize( this, MapSize );
@@ -351,7 +351,7 @@ bool CGamePlayer :: Update( void *fd )
                                                     }
                                             }
 
-                                            m_Game->EventPlayerPongToHost( this, Pong );
+                                            m_Game->EventPlayerPongToHost( this );
                                             break;
                                     }
 
