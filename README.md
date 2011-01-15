@@ -35,7 +35,7 @@ Linux users can usually fetch them from the repo:
 
 **OS X**
 
-Xcode is the basic dependency for building anything on OS X.
+[Xcode](http://developer.apple.com/technologies/xcode.html) is the basic dependency for building anything on OS X.
 Apple's development tool is shipped for free with every Mac located on your system CD/DVD.
 Without Xcode installed you cannot proceed any further and won't be able to build boost.
 
