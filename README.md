@@ -61,7 +61,7 @@ note: supplied project settings produce a SSE2-enabled x86 binary.
 
 Linux users will probably need some packages for it to build:
 
-* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev libncurses5-dev`
+* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev zlib1g-dev`
 * Arch Linux -- `pacman -S base-devel`
 	
 Also install `g++` if the command above doesn't.
