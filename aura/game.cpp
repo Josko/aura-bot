@@ -1888,7 +1888,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
 				if( Matches == 0 )
-					SendAllChat( m_Aura->m_Language->UnableToKickNoMatchesFound( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToKickNoMatchesFound( Payload ) );
 				else if( Matches == 1 )
 				{
 					LastMatch->SetDeleteMe( true );
@@ -1903,7 +1903,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						OpenSlot( GetSIDFromPID( LastMatch->GetPID( ) ), false );
 				}
 				else
-					SendAllChat( m_Aura->m_Language->UnableToKickFoundMoreThanOneMatch( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToKickFoundMoreThanOneMatch( Payload ) );
 			}
 
 			//
@@ -2228,7 +2228,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
 				if( Matches == 0 )
-					SendAllChat( m_Aura->m_Language->UnableToStartDownloadNoMatchesFound( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToStartDownloadNoMatchesFound( Payload ) );
 				else if( Matches == 1 )
 				{
 					if( !LastMatch->GetDownloadStarted( ) && !LastMatch->GetDownloadFinished( ) )
@@ -2293,14 +2293,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
 				if( Matches == 0 )
-					SendAllChat( m_Aura->m_Language->UnableToMuteNoMatchesFound( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToMuteNoMatchesFound( Payload ) );
 				else if( Matches == 1 )
 				{
 					SendAllChat( m_Aura->m_Language->MutedPlayer( LastMatch->GetName( ), User ) );
 					LastMatch->SetMuted( true );
 				}
 				else
-					SendAllChat( m_Aura->m_Language->UnableToMuteFoundMoreThanOneMatch( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToMuteFoundMoreThanOneMatch( Payload ) );
 			}
 
 			//
@@ -2381,14 +2381,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					}
 
 					if( Matches == 0 )
-						SendAllChat( m_Aura->m_Language->UnableToBanNoMatchesFound( Victim ) );
+						SendChat( player, m_Aura->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
 					{
 						m_Aura->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
 						SendAllChat( m_Aura->m_Language->PlayerWasBannedByPlayer( LastMatch->GetServer( ), LastMatch->GetName( ), User ) );
 					}
 					else
-						SendAllChat( m_Aura->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
+						SendChat( player, m_Aura->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
 				else
 				{
@@ -2396,14 +2396,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					uint32_t Matches = GetPlayerFromNamePartial( Victim, &LastMatch );
 
 					if( Matches == 0 )
-						SendAllChat( m_Aura->m_Language->UnableToBanNoMatchesFound( Victim ) );
+						SendChat( player, m_Aura->m_Language->UnableToBanNoMatchesFound( Victim ) );
 					else if( Matches == 1 )
 					{
 						m_Aura->m_DB->BanAdd( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), LastMatch->GetExternalIPString( ), m_GameName, User, Reason );
 						SendAllChat( m_Aura->m_Language->PlayerWasBannedByPlayer( LastMatch->GetJoinedRealm( ), LastMatch->GetName( ), User ) );
 					}
 					else
-						SendAllChat( m_Aura->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
+						SendChat( player, m_Aura->m_Language->UnableToBanFoundMoreThanOneMatch( Victim ) );
 				}
 			}
 
@@ -2420,7 +2420,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
 					if( Matches == 0 )
-						SendAllChat( m_Aura->m_Language->UnableToCheckPlayerNoMatchesFound( Payload ) );
+						SendChat( player, m_Aura->m_Language->UnableToCheckPlayerNoMatchesFound( Payload ) );
 					else if( Matches == 1 )
 					{
 						bool LastMatchAdminCheck = false;
@@ -2448,7 +2448,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						SendAllChat( m_Aura->m_Language->CheckedPlayer( LastMatch->GetName( ), LastMatch->GetNumPings( ) > 0 ? UTIL_ToString( LastMatch->GetPing( m_Aura->m_LCPings ) ) + "ms" : "N/A", m_Aura->m_DB->FromCheck( UTIL_ByteArrayToUInt32( LastMatch->GetExternalIP( ), true ) ), LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No", IsOwner( LastMatch->GetName( ) ) ? "Yes" : "No", LastMatch->GetSpoofed( ) ? "Yes" : "No", LastMatch->GetJoinedRealm( ).empty( ) ? "LAN" : LastMatch->GetJoinedRealm( ), LastMatch->GetReserved( ) ? "Yes" : "No" ) );
 					}
 					else
-						SendAllChat( m_Aura->m_Language->UnableToCheckPlayerFoundMoreThanOneMatch( Payload ) );
+						SendChat( player, m_Aura->m_Language->UnableToCheckPlayerFoundMoreThanOneMatch( Payload ) );
 				}
 				else
 					SendAllChat( m_Aura->m_Language->CheckedPlayer( User, player->GetNumPings( ) > 0 ? UTIL_ToString( player->GetPing( m_Aura->m_LCPings ) ) + "ms" : "N/A", m_Aura->m_DB->FromCheck( UTIL_ByteArrayToUInt32( player->GetExternalIP( ), true ) ), AdminCheck || RootAdminCheck ? "Yes" : "No", IsOwner( User ) ? "Yes" : "No", player->GetSpoofed( ) ? "Yes" : "No", player->GetJoinedRealm( ).empty( ) ? "LAN" : player->GetJoinedRealm( ), player->GetReserved( ) ? "Yes" : "No" ) );
@@ -2784,14 +2784,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				uint32_t Matches = GetPlayerFromNamePartial( Payload, &LastMatch );
 
 				if( Matches == 0 )
-					SendAllChat( m_Aura->m_Language->UnableToMuteNoMatchesFound( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToMuteNoMatchesFound( Payload ) );
 				else if( Matches == 1 )
 				{
 					SendAllChat( m_Aura->m_Language->UnmutedPlayer( LastMatch->GetName( ), User ) );
 					LastMatch->SetMuted( false );
 				}
 				else
-					SendAllChat( m_Aura->m_Language->UnableToMuteFoundMoreThanOneMatch( Payload ) );
+					SendChat( player, m_Aura->m_Language->UnableToMuteFoundMoreThanOneMatch( Payload ) );
 			}
 
 			//
