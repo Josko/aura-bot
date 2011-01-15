@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   CODE PORTED FROM THE ORIGINAL AURA PROJECT: http://ghost.pwner.org/
+   CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
 */
 
@@ -132,7 +132,7 @@ void SignalCatcher( int s )
 
 void Print( const string &message )
 {
-   cout << message << endl;
+        cout << message << endl;
         
 	if( gAura && gAura->m_IRC )
 		gAura->m_IRC->SendDCC( message );
@@ -140,7 +140,7 @@ void Print( const string &message )
 
 void Print2( const string &message )
 {	
-   cout << message << endl;
+        cout << message << endl;
    
 	if( gAura->m_IRC )
 	{
