@@ -88,7 +88,7 @@ Then proceed to build Aura:
 	
 Now you can run Aura by executing `./aura++`.
 
-note: supplied Makefile settings produce a x64 binary (remove the -m64 from CFLAGS to make it produce a x86 binary).
+note: supplied Makefile settings produce a x64 binary (remove the -m64 from CCFLAGS and CXXFLAGS to make it produce a x86 binary).
 
 ** OS X**
 
