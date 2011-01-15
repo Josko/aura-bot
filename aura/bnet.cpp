@@ -1581,15 +1581,6 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
 			if( IsAdmin( User ) || IsRootAdmin( User ) || m_OutPackets.size( ) < 3 )
 			{
 				//
-				// !ONLINE
-				//
-
-				if( Command == "o" || Command == "online" )
-				{
-					QueueChatCommand( "/w clan007 -online" );
-				}
-
-				//
 				// !STATS
 				//
 
