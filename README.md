@@ -31,7 +31,7 @@ if it doesn't exist).
 Linux users can usually fetch them from the repo:
 
 * Arch Linux -- `pacman -S boost`
-* Debian/Ubuntu -- `apt-get install libboost-dev`
+* Debian/Ubuntu -- `apt-get install libboost-date-time-dev libboost-system-dev libboost-filesystem-dev`
 
 **OS X**
 
@@ -61,10 +61,8 @@ note: supplied project settings produce a SSE2-enabled x86 binary.
 
 Linux users will probably need some packages for it to build:
 
-* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev zlib1g-dev`
+* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev zlib1g-dev libbz2-dev`
 * Arch Linux -- `pacman -S base-devel`
-	
-Also install `g++` if the command above doesn't.
 
 For building StormLib execute the following commands (line by line):	
 	
