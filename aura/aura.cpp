@@ -342,7 +342,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 		string ServerAlias = CFG->GetString( Prefix + "serveralias", string( ) );
 		string CDKeyROC = CFG->GetString( Prefix + "cdkeyroc", string( ) );
 		string CDKeyTFT = CFG->GetString( Prefix + "cdkeytft", string( ) );
-		string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "GER" );
+		string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "DEU" );
 		string Country = CFG->GetString( Prefix + "country", "Germany" );
 		string Locale = CFG->GetString( Prefix + "locale", "system" );
 		uint32_t LocaleID;
