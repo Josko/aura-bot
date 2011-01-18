@@ -1273,7 +1273,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 	// check if the player is an admin or root admin on any connected realm for determining reserved status
 	// we can't just use the spoof checked realm like in EventPlayerBotCommand because the player hasn't spoof checked yet
 
-	bool AnyAdminCheck = IsAdmin( joinPlayer->GetName( ) );
+	bool AnyAdminCheck = m_Aura->IsAnyAdmin( joinPlayer->GetName( ) );
 	bool Reserved = IsReserved( joinPlayer->GetName( ) ) || AnyAdminCheck || IsOwner( joinPlayer->GetName( ) );
 
 	// try to find a slot
@@ -3344,7 +3344,7 @@ void CGame :: EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize
 
 	uint32_t MapSize = UTIL_ByteArrayToUInt32( m_Map->GetMapSize( ), false );
 
-	bool Admin = IsAdmin( player->GetName( ) );
+	bool Admin = m_Aura->IsAnyAdmin( player->GetName( ) );
 
 	if( mapSize->GetSizeFlag( ) != 1 || mapSize->GetMapSize( ) != MapSize )
 	{
@@ -4424,15 +4424,4 @@ inline void CGame :: DeleteFakePlayers( )
 		
 	m_FakePlayers.clear( );
 	SendAllSlotInfo( );
-}
-
-inline bool CGame :: IsAdmin( string name )
-{
-	for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-	{
-		if( (*i)->IsAdmin( name ) || (*i)->IsRootAdmin( name ) )
-			return true;
-	}
-
-	return false;
 }

@@ -209,7 +209,7 @@ inline void CIRC :: ExtractPackets( )
 
                     // get hostname
 
-                    for( ++j; j < PreviousToken.size( ); ++j )
+                    for( ; j < PreviousToken.size( ); ++j )
                         Hostname += PreviousToken[j];
 
                     // skip channel
@@ -236,8 +236,6 @@ inline void CIRC :: ExtractPackets( )
                                 Payload += Recv[i];
                         }
                     }
-
-                    // move position after the \n
 
                     i += 2;
 
@@ -412,11 +410,7 @@ inline void CIRC :: ExtractPackets( )
                 }
                 else if( Token == "391" )
                 {
-                    // move position after the \n (next packet)
-
-                    for( ++i; Recv[i] != CR; ++i );
-
-                    i += 2;
+                    for( ; Recv[i] != LF; ++i );
 
                     // remember last packet time
 
@@ -437,8 +431,6 @@ inline void CIRC :: ExtractPackets( )
 
                     SendIRC( "PONG :" + Packet );
 
-                    // move position after the \n
-
                     i += 2;
 
                     // remember last packet time
@@ -447,11 +439,7 @@ inline void CIRC :: ExtractPackets( )
                 }
                 else if( Token == "NOTICE" )
                 {
-                    // move position after the \n
-
-                    for( ++i; Recv[i] != CR; ++i );
-                    
-                    i += 2;
+                    for( ; Recv[i] != LF; ++i );
 
                     // remember last packet time
 
@@ -474,11 +462,7 @@ inline void CIRC :: ExtractPackets( )
                             SendIRC( "JOIN " + (*j) );
                     }
 
-                    // move position after the \n
-
-                    for( ++i; Recv[i] != CR; ++i );
-
-                    i += 2;
+                    for( ; Recv[i] != LF; ++i );
 
                     // remember last packet time
 
@@ -493,11 +477,7 @@ inline void CIRC :: ExtractPackets( )
 
                     SendIRC( "NICK " + m_Nickname );
 
-                    // move position after the \n (next packet)
-
-                    for( ++i; Recv[i] != CR; ++i );
-
-                    i += 2;
+                    for( ; Recv[i] != LF; ++i );
 
                     // remember last packet time
 
@@ -505,11 +485,7 @@ inline void CIRC :: ExtractPackets( )
                 }
                 else if( Token == "353" )
                 {
-                    // move position after the \n (next packet)
-
-                    for( ++i; Recv[i] != CR; ++i );
-
-                    i += 2;
+                    for( ; Recv[i] != LF; ++i );
 
                     // remember last packet time
 
@@ -556,7 +532,7 @@ inline void CIRC :: ExtractPackets( )
                 // empty the token
 
                 PreviousToken = Token;
-                Token.clear( );
+                Token.clear( );                
             }
         }
 
@@ -621,19 +597,19 @@ unsigned int CDCC :: SetFD( void *fd, void *send_fd, int *nfds )
 
 void CDCC :: Update( void* fd, void *send_fd )
 {
-	if( m_Socket->GetConnected( ) )
+        if( m_Socket->HasError( ) )
+	{
+		m_Socket->Reset( );
+	}
+        else if( m_Socket->GetConnected( ) )
 	{
 		m_Socket->FlushRecv( (fd_set *)fd );
 		m_Socket->DoSend( (fd_set *)send_fd );
 	}
-	else if( m_Socket->HasError( ) )
-	{
-		m_Socket->Reset( );
-	}
 	else if( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
 	{
 		m_Socket->FlushRecv( (fd_set *)fd );
-                m_Socket->PutBytes( "Keijjo saapui!\x13\x10" );
+                Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] connected to " + m_Nickname + "!" );
 		m_Socket->DoSend( (fd_set *)send_fd );
 	}
 }
@@ -641,7 +617,6 @@ void CDCC :: Update( void* fd, void *send_fd )
 void CDCC :: Connect( const string &IP, uint16_t Port )
 {
 	m_Socket->Reset( );
-        m_Socket->SetKeepAlive( );
         m_IP = IP;
         m_Port = Port;
 

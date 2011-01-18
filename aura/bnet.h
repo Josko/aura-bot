@@ -61,7 +61,6 @@ private:
 	string m_UserPassword;					// battle.net password
 	string m_FirstChannel;					// the first chat channel to join upon entering chat (note: store the last channel when entering a game)
 	string m_CurrentChannel;				// the current chat channel
-	string m_RootAdmin;					// the root admin
 	char m_CommandTrigger;					// the character prefix to identify commands
 	unsigned char m_War3Version;				// custom warcraft 3 version for PvPGN users
 	BYTEARRAY m_EXEVersion;					// custom exe version for PvPGN users
@@ -87,7 +86,7 @@ private:
         string m_SpamChannel;                                   // the channel we're currently spamming in
 
 public:
-	CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );
+	CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );
 	~CBNET( );
 
 	bool GetExiting( )				{ return m_Exiting; }
@@ -99,7 +98,6 @@ public:
 	string GetUserPassword( )			{ return m_UserPassword; }
 	string GetFirstChannel( )			{ return m_FirstChannel; }
 	string GetCurrentChannel( )			{ return m_CurrentChannel; }
-	string GetRootAdmin( )				{ return m_RootAdmin; }
 	char GetCommandTrigger( )			{ return m_CommandTrigger; }
 	BYTEARRAY GetEXEVersion( )			{ return m_EXEVersion; }
 	BYTEARRAY GetEXEVersionHash( )			{ return m_EXEVersionHash; }
@@ -138,7 +136,7 @@ public:
 	// other functions
 
 	void Deactivate( );
-	void Activate( )			{ m_Deactivated = false; m_Spam = false; }
+	void Activate( )                                { m_Deactivated = false; m_Spam = false; }
 	bool IsAdmin( string name );
 	bool IsRootAdmin( string name );
 	CDBBan *IsBannedName( string name );

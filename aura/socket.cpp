@@ -124,9 +124,15 @@ void CSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 #endif
 }
 
-void CSocket :: Allocate( int type )
+//
+// CTCPSocket
+//
+
+CTCPSocket :: CTCPSocket( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_LastRecv( GetTime( ) )
 {
-	m_Socket = socket( AF_INET, type, 0 );
+        memset( &m_SIN, 0, sizeof( m_SIN ) );
+
+	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
 	if( m_Socket == INVALID_SOCKET )
 	{
@@ -135,28 +141,6 @@ void CSocket :: Allocate( int type )
 		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
 		return;
 	}
-}
-
-void CSocket :: Reset( )
-{
-	if( m_Socket != INVALID_SOCKET )
-		closesocket( m_Socket );
-
-	m_Socket = INVALID_SOCKET;
-	memset( &m_SIN, 0, sizeof( m_SIN ) );
-	m_HasError = false;
-	m_Error = 0;
-}
-
-//
-// CTCPSocket
-//
-
-CTCPSocket :: CTCPSocket( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
-{
-        memset( &m_SIN, 0, sizeof( m_SIN ) );
-
-	Allocate( SOCK_STREAM );
 
 	// make socket non blocking
 
@@ -168,7 +152,7 @@ CTCPSocket :: CTCPSocket( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m
 #endif
 }
 
-CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_HasError( false ), m_Error( 0 ), m_Connected( true ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
+CTCPSocket :: CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_Error( 0 ), m_HasError( false ), m_Connected( true ), m_LastRecv( GetTime( ) )
 {
 	// make socket non blocking
 
@@ -191,16 +175,23 @@ void CTCPSocket :: Reset( )
 	if( m_Socket != INVALID_SOCKET )
 		closesocket( m_Socket );
 
-        Allocate( SOCK_STREAM );
+        m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
-	m_Socket = INVALID_SOCKET;
+	if( m_Socket == INVALID_SOCKET )
+	{
+		m_HasError = true;
+		m_Error = GetLastError( );
+		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+		return;
+	}
+
 	memset( &m_SIN, 0, sizeof( m_SIN ) );
 	m_HasError = false;
 	m_Error = 0;
 	m_Connected = false;
 	m_RecvBuffer.clear( );
 	m_SendBuffer.clear( );
-	m_LastRecv = m_LastSend = GetTime( );
+	m_LastRecv = GetTime( );
 
 	// make socket non blocking
 
@@ -276,7 +267,6 @@ void CTCPSocket :: DoSend( fd_set *send_fd )
 			// success! only some of the data may have been sent, remove it from the buffer
 
 			m_SendBuffer = m_SendBuffer.substr( s );
-			m_LastSend = GetTime( );
 		}
 		else if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
@@ -381,28 +371,23 @@ void CTCPSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 #endif
 }
 
-void CTCPSocket :: Allocate( int type )
-{
-	m_Socket = socket( AF_INET, type, 0 );
-
-	if( m_Socket == INVALID_SOCKET )
-	{
-		m_HasError = true;
-		m_Error = GetLastError( );
-		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
-		return;
-	}
-}
-
 //
 // CTCPClient
 //
 
-CTCPClient :: CTCPClient( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 ), m_Connected( false ), m_Connecting( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
+CTCPClient :: CTCPClient( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_Connecting( false )
 {
     memset( &m_SIN, 0, sizeof( m_SIN ) );
 
-    Allocate( SOCK_STREAM );
+    m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
+
+    if( m_Socket == INVALID_SOCKET )
+    {
+            m_HasError = true;
+            m_Error = GetLastError( );
+            Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+            return;
+    }
 
     // make socket non blocking
 
@@ -425,16 +410,22 @@ void CTCPClient :: Reset( )
 	if( m_Socket != INVALID_SOCKET )
 		closesocket( m_Socket );
 
-        Allocate( SOCK_STREAM );
+        m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
-	m_Socket = INVALID_SOCKET;
+        if( m_Socket == INVALID_SOCKET )
+        {
+                m_HasError = true;
+                m_Error = GetLastError( );
+                Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+                return;
+        }
+
 	memset( &m_SIN, 0, sizeof( m_SIN ) );
 	m_HasError = false;
 	m_Error = 0;
 	m_Connected = false;
 	m_RecvBuffer.clear( );
 	m_SendBuffer.clear( );
-	m_LastRecv = m_LastSend = GetTime( );
 
 	// make socket non blocking
 
@@ -576,6 +567,9 @@ void CTCPClient :: FlushRecv( fd_set *fd )
 
 void CTCPClient :: DoRecv( fd_set *fd )
 {
+        if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected )
+		return;
+        
 	if( FD_ISSET( m_Socket, fd ) )
 	{
 		// data is waiting, receive it
@@ -588,7 +582,6 @@ void CTCPClient :: DoRecv( fd_set *fd )
 			// success! add the received data to the buffer
 
 			m_RecvBuffer += string( buffer, c );
-			m_LastRecv = GetTime( );
 		}
 		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
@@ -611,6 +604,9 @@ void CTCPClient :: DoRecv( fd_set *fd )
 
 void CTCPClient :: DoSend( fd_set *send_fd )
 {
+        if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected || m_SendBuffer.empty( ) )
+		return;
+        
 	if( FD_ISSET( m_Socket, send_fd ) )
 	{
 		// socket is ready, send it
@@ -622,7 +618,6 @@ void CTCPClient :: DoSend( fd_set *send_fd )
 			// success! only some of the data may have been sent, remove it from the buffer
 
 			m_SendBuffer = m_SendBuffer.substr( s );
-			m_LastSend = GetTime( );
 		}
 		else if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
 		{
@@ -649,10 +644,10 @@ void CTCPClient :: SetKeepAlive( )
         int OptVal = 1;
 
 	setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, (const char *)&OptVal, sizeof( int ) );
-        
+
         // Windows users need to edit the registry for the following options :(
         // http://support.microsoft.com/kb/158474
-        
+
 #if !defined( WIN32 ) && !defined(__APPLE__)
         // set the time after which keep alives are started to be sent, in seconds
 
@@ -663,7 +658,7 @@ void CTCPClient :: SetKeepAlive( )
         // set the interval between two consecutive keep alives, in seconds
 
         OptVal = 60;
-        
+
         setsockopt( m_Socket, SOL_TCP, TCP_KEEPINTVL, (const char *)&OptVal, sizeof( int ) );
 #endif
 }
@@ -745,28 +740,23 @@ void CTCPClient :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 #endif
 }
 
-void CTCPClient :: Allocate( int type )
-{
-	m_Socket = socket( AF_INET, type, 0 );
-
-	if( m_Socket == INVALID_SOCKET )
-	{
-		m_HasError = true;
-		m_Error = GetLastError( );
-		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
-		return;
-	}
-}
-
 //
 // CTCPServer
 //
 
-CTCPServer :: CTCPServer( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 ), m_Connected( false ), m_LastRecv( GetTime( ) ), m_LastSend( GetTime( ) )
+CTCPServer :: CTCPServer( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false )
 {
         memset( &m_SIN, 0, sizeof( m_SIN ) );
 
-	Allocate( SOCK_STREAM );
+	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
+
+        if( m_Socket == INVALID_SOCKET )
+        {
+                m_HasError = true;
+                m_Error = GetLastError( );
+                Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+                return;
+        }
 
 	// make socket non blocking
 
@@ -864,139 +854,6 @@ CTCPSocket *CTCPServer :: Accept( fd_set *fd )
 	return NULL;
 }
 
-void CTCPServer :: Reset( )
-{
-	if( m_Socket != INVALID_SOCKET )
-		closesocket( m_Socket );
-
-        Allocate( SOCK_STREAM );
-
-	m_Socket = INVALID_SOCKET;
-	memset( &m_SIN, 0, sizeof( m_SIN ) );
-	m_HasError = false;
-	m_Error = 0;
-	m_Connected = false;
-	m_RecvBuffer.clear( );
-	m_SendBuffer.clear( );
-	m_LastRecv = m_LastSend = GetTime( );
-
-	// make socket non blocking
-
-#ifdef WIN32
-	int iMode = 1;
-	ioctlsocket( m_Socket, FIONBIO, (u_long FAR *)&iMode );
-#else
-	fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
-#endif
-}
-
-void CTCPServer :: PutBytes( const string &bytes )
-{
-	m_SendBuffer += bytes;
-}
-
-void CTCPServer :: PutBytes( const BYTEARRAY &bytes )
-{
-	m_SendBuffer += string( bytes.begin( ), bytes.end( ) );
-}
-
-void CTCPServer :: DoRecv( fd_set *fd )
-{
-	if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected )
-		return;
-
-	if( FD_ISSET( m_Socket, fd ) )
-	{
-		// data is waiting, receive it
-
-		char buffer[1024];
-		int c = recv( m_Socket, buffer, 1024, 0 );
-
-		if( c > 0 )
-		{
-			// success! add the received data to the buffer
-
-			m_RecvBuffer += string( buffer, c );
-			m_LastRecv = GetTime( );
-		}
-		else if( c == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
-		{
-			// receive error
-
-			m_HasError = true;
-			m_Error = GetLastError( );
-			Print( "[TCPSOCKET] error (recv) - " + GetErrorString( ) );
-			return;
-		}
-		else if( c == 0 )
-		{
-			// the other end closed the connection
-
-			Print( "[TCPSOCKET] closed by remote host" );
-			m_Connected = false;
-		}
-	}
-}
-
-void CTCPServer :: DoSend( fd_set *send_fd )
-{
-	if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected || m_SendBuffer.empty( ) )
-		return;
-
-	if( FD_ISSET( m_Socket, send_fd ) )
-	{
-		// socket is ready, send it
-
-		int s = send( m_Socket, m_SendBuffer.c_str( ), (int)m_SendBuffer.size( ), MSG_NOSIGNAL );
-
-		if( s > 0 )
-		{
-			// success! only some of the data may have been sent, remove it from the buffer
-
-			m_SendBuffer = m_SendBuffer.substr( s );
-			m_LastSend = GetTime( );
-		}
-		else if( s == SOCKET_ERROR && GetLastError( ) != EWOULDBLOCK )
-		{
-			// send error
-
-			m_HasError = true;
-			m_Error = GetLastError( );
-			Print( "[TCPSOCKET] error (send) - " + GetErrorString( ) );
-			return;
-		}
-	}
-}
-
-void CTCPServer :: Disconnect( )
-{
-	if( m_Socket != INVALID_SOCKET )
-		shutdown( m_Socket, SHUT_RDWR );
-
-	m_Connected = false;
-}
-
-void CTCPServer :: SetNoDelay( )
-{
-	int OptVal = 1;
-	setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
-}
-
-BYTEARRAY CTCPServer :: GetPort( )
-{
-	return UTIL_CreateByteArray( m_SIN.sin_port, false );
-}
-
-BYTEARRAY CTCPServer :: GetIP( )
-{
-	return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
-}
-
-string CTCPServer :: GetIPString( )
-{
-	return inet_ntoa( m_SIN.sin_addr );
-}
-
 string CTCPServer :: GetErrorString( )
 {
 	if( !m_HasError )
@@ -1059,26 +916,21 @@ void CTCPServer :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 #endif
 }
 
-void CTCPServer :: Allocate( int type )
-{
-	m_Socket = socket( AF_INET, type, 0 );
-
-	if( m_Socket == INVALID_SOCKET )
-	{
-		m_HasError = true;
-		m_Error = GetLastError( );
-		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
-		return;
-	}
-}
-
 //
 // CUDPSocket
 //
 
-CUDPSocket :: CUDPSocket( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 )
+CUDPSocket :: CUDPSocket( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false )
 {
-	Allocate( SOCK_DGRAM );
+	m_Socket = socket( AF_INET, SOCK_DGRAM, 0 );
+
+        if( m_Socket == INVALID_SOCKET )
+        {
+                m_HasError = true;
+                m_Error = GetLastError( );
+                Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+                return;
+        }
 
 	// enable broadcast support
 
@@ -1272,25 +1124,21 @@ void CUDPSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 #endif
 }
 
-void CUDPSocket :: Allocate( int type )
-{
-	m_Socket = socket( AF_INET, type, 0 );
-
-	if( m_Socket == INVALID_SOCKET )
-	{
-		m_HasError = true;
-		m_Error = GetLastError( );
-		Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
-		return;
-	}
-}
-
 void CUDPSocket :: Reset( )
 {
 	if( m_Socket != INVALID_SOCKET )
 		closesocket( m_Socket );
 
-	m_Socket = INVALID_SOCKET;
+	m_Socket = socket( AF_INET, SOCK_DGRAM, 0 );
+
+        if( m_Socket == INVALID_SOCKET )
+        {
+                m_HasError = true;
+                m_Error = GetLastError( );
+                Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
+                return;
+        }
+
 	memset( &m_SIN, 0, sizeof( m_SIN ) );
 	m_HasError = false;
 	m_Error = 0;

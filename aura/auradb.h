@@ -107,44 +107,17 @@ CREATE TABLE config (
 	value TEXT NOT NULL
 )
 
-CREATE TABLE downloads (
-	id INTEGER PRIMARY KEY,
-	map TEXT NOT NULL,
-	mapsize INTEGER NOT NULL,
-	datetime TEXT NOT NULL,
-	name TEXT NOT NULL,
-	ip TEXT NOT NULL,
-	spoofed INTEGER NOT NULL,
-	spoofedrealm TEXT NOT NULL,
-	downloadtime INTEGER NOT NULL
-)
-
-CREATE TABLE w3mmdplayers (
-	id INTEGER PRIMARY KEY,
-	category TEXT NOT NULL,
-	gameid INTEGER NOT NULL,
-	pid INTEGER NOT NULL,
-	name TEXT NOT NULL,
-	flag TEXT NOT NULL,
-	leaver INTEGER NOT NULL,
-	practicing INTEGER NOT NULL
-)
-
-CREATE TABLE w3mmdvars (
-	id INTEGER PRIMARY KEY,
-	gameid INTEGER NOT NULL,
-	pid INTEGER NOT NULL,
-	varname TEXT NOT NULL,
-	value_int INTEGER DEFAULT NULL,
-	value_real REAL DEFAULT NULL,
-	value_string TEXT DEFAULT NULL
-)
-
 CREATE TEMPORARY TABLE iptocountry (
 	ip1 INTEGER NOT NULL,
 	ip2 INTEGER NOT NULL,
 	country TEXT NOT NULL,
 	PRIMARY KEY ( ip1, ip2 )
+)
+
+CREATE TEMPORARY TABLE rootadmins (
+        id INTEGER PRIMARY KEY,
+	name TEXT NOT NULL,
+	server TEXT NOT NULL DEFAULT ""
 )
 
 CREATE INDEX idx_gameid ON gameplayers ( gameid )
@@ -216,7 +189,11 @@ public:
 	bool Commit( );
 	uint32_t AdminCount( const string &server );
 	bool AdminCheck( const string &server, string user );
+        bool AdminCheck( string user );
+        bool RootAdminCheck( const string &server, string user );
+        bool RootAdminCheck( string user );
 	bool AdminAdd( const string &server, string user );
+        bool RootAdminAdd( const string &server, string user );
 	bool AdminRemove( const string &server, string user );
 	uint32_t BanCount( const string &server );
 	CDBBan *BanCheck( const string &server, string user, const string &ip );

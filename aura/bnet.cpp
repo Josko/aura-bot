@@ -40,7 +40,7 @@ using namespace boost :: filesystem;
 // CBNET
 //
 
-CBNET :: CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, string nRootAdmin, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_RootAdmin( nRootAdmin ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_Deactivated( false ), m_IRC( false )
+CBNET :: CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_Deactivated( false ), m_IRC( false )
 {
 	m_Socket = new CTCPClient( );
 	m_Protocol = new CBNETProtocol( );
@@ -79,8 +79,6 @@ CBNET :: CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKey
 
 	if( m_CDKeyTFT.size( ) != 26 )
 		Print( "[BNET: " + m_ServerAlias + "] warning - your TFT CD key is not 26 characters long and is probably invalid" );
-
-	transform( m_RootAdmin.begin( ), m_RootAdmin.end( ), m_RootAdmin.begin( ), (int(*)(int))tolower );	
 }
 
 CBNET :: ~CBNET( )
@@ -410,7 +408,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 			m_LastNullTime = Time;
 		}
                 
-		// SPAM game every 5 seconds
+		// spam game name every 5 seconds (if enabled)
 		
 		if( m_Spam && Time - m_LastSpamTime > 4 )
 		{
@@ -1975,9 +1973,7 @@ void CBNET :: UnqueueGameRefreshes( )
 		m_OutPackets.pop( );
 
 		if( Packet.size( ) >= 2 && Packet[1] != CBNETProtocol :: SID_STARTADVEX3 )
-		{
 			Packets.push( Packet );
-		}
 	}
 
 	m_OutPackets = Packets;
@@ -1996,25 +1992,10 @@ bool CBNET :: IsAdmin( string name )
 
 bool CBNET :: IsRootAdmin( string name )
 {
-	// m_RootAdmin was already transformed to lower case in the constructor
-
 	transform( name.begin( ), name.end( ), name.begin( ), (int(*)(int))tolower );
 
-	// updated to permit multiple root admins seperated by a space, e.g. "Varlock Kilranin Instinct121"
-	// note: this function gets called frequently so it would be better to parse the root admins just once and store them in a list somewhere
-	// however, it's hardly worth optimizing at this point since the code's already written
-
-	stringstream SS;
-	string s;
-	SS << m_RootAdmin;
-
-	while( !SS.eof( ) )
-	{
-		SS >> s;
-
-		if( name == s )
-			return true;
-	}
+	if( m_Aura->m_DB->RootAdminCheck( m_Server, name ) )
+		return true;
 
 	return false;
 }
@@ -2047,14 +2028,12 @@ void CBNET :: HoldClan( CGame *game )
 	}
 }
 
-void CBNET :: Deactivate()
+void CBNET :: Deactivate( )
 {
-    m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-    m_Socket->Disconnect( );
-
-    m_Deactivated = true;
-    m_WaitingToConnect = true;
-    m_InChat = false;
-    m_LoggedIn = false;
-    m_Spam = false;
+        m_LastDisconnectedTime = GetTime( );
+        m_BNCSUtil->Reset( m_UserName, m_UserPassword );
+        m_Socket->Reset( );
+        m_LoggedIn = false;
+        m_InChat = false;
+        m_WaitingToConnect = true;
 }

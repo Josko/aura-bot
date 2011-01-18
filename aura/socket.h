@@ -115,11 +115,10 @@ public:
 	BYTEARRAY GetPort( );
 	BYTEARRAY GetIP( );
 	string GetIPString( );
+        string GetErrorString( );
 	bool HasError( )						{ return m_HasError; }
-	int GetError( )							{ return m_Error; }
-	string GetErrorString( );
+	int GetError( )							{ return m_Error; }	
 	void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-	void Allocate( int type );
 	void Reset( );
 };
 
@@ -127,20 +126,19 @@ public:
 // CTCPSocket
 //
 
-class CTCPSocket // : public CSocket
+class CTCPSocket
 {
 protected:
         SOCKET m_Socket;
 	struct sockaddr_in m_SIN;
-	bool m_HasError;
-	int m_Error;
+        int m_Error;
+	bool m_HasError;	
 	bool m_Connected;
 
 private:
 	string m_RecvBuffer;
 	string m_SendBuffer;
 	uint32_t m_LastRecv;
-	uint32_t m_LastSend;
 
 public:
 	CTCPSocket( );
@@ -149,22 +147,24 @@ public:
 
         BYTEARRAY GetPort( );
 	BYTEARRAY GetIP( );
+
 	string GetIPString( );
-	bool HasError( )                                                { return m_HasError; }
-	int GetError( )                                                 { return m_Error; }
-	string GetErrorString( );
+        string GetErrorString( );
+        string *GetBytes( )                                         { return &m_RecvBuffer; }
+
+        int GetError( )                                             { return m_Error; }
+        uint32_t GetLastRecv( )                                     { return m_LastRecv; }
+
+	bool HasError( )                                            { return m_HasError; }
+        bool GetConnected( )                                        { return m_Connected; }	
+	
 	void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-	void Allocate( int type );
-	void Reset( );
-	bool GetConnected( )                                        { return m_Connected; }
-	string *GetBytes( )                                         { return &m_RecvBuffer; }
+	void Reset( );	
 	void PutBytes( const string &bytes );
 	void PutBytes( const BYTEARRAY &bytes );
 	void ClearRecvBuffer( )                                     { m_RecvBuffer.clear( ); }
         void SubstrRecvBuffer( unsigned int i )                     { m_RecvBuffer = m_RecvBuffer.substr( i ); }
-	void ClearSendBuffer( )                                     { m_SendBuffer.clear( ); }
-	uint32_t GetLastRecv( )                                     { return m_LastRecv; }
-	uint32_t GetLastSend( )                                     { return m_LastSend; }
+	void ClearSendBuffer( )                                     { m_SendBuffer.clear( ); }	
 	void DoRecv( fd_set *fd );
 	void DoSend( fd_set *send_fd );
 	void Disconnect( );
@@ -175,21 +175,19 @@ public:
 // CTCPClient
 //
 
-class CTCPClient // : public CTCPSocket
+class CTCPClient
 {
 protected:
         SOCKET m_Socket;
-	struct sockaddr_in m_SIN;
-	bool m_HasError;
+	struct sockaddr_in m_SIN;	
 	int m_Error;
+        bool m_HasError;
         bool m_Connected;
 	bool m_Connecting;
 
 private:
 	string m_RecvBuffer;
 	string m_SendBuffer;
-	uint32_t m_LastRecv;
-	uint32_t m_LastSend;
 
 public:
 	CTCPClient( );
@@ -197,78 +195,54 @@ public:
 
         BYTEARRAY GetPort( );
 	BYTEARRAY GetIP( );
+
 	string GetIPString( );
+        string GetErrorString( );
+        string *GetBytes( )                                                                 { return &m_RecvBuffer; }
+
+        bool CheckConnect( );
 	bool HasError( )                                                                    { return m_HasError; }
+        bool GetConnected( )                                                                { return m_Connected; }
+        bool GetConnecting( )                                                               { return m_Connecting; }
+
 	int GetError( )                                                                     { return m_Error; }
-	string GetErrorString( );
+	
 	void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-	void Allocate( int type );
-	void Reset( );
-	bool GetConnected( )                                                                { return m_Connected; }
-	string *GetBytes( )                                                                 { return &m_RecvBuffer; }
+	void Reset( );	
 	void PutBytes( const string &bytes );
 	void PutBytes( const BYTEARRAY &bytes );
 	void ClearRecvBuffer( )                                                             { m_RecvBuffer.clear( ); }
         void SubstrRecvBuffer( unsigned int i )                                             { m_RecvBuffer = m_RecvBuffer.substr( i ); }
 	void ClearSendBuffer( )                                                             { m_SendBuffer.clear( ); }
-	uint32_t GetLastRecv( )                                                             { return m_LastRecv; }
-	uint32_t GetLastSend( )                                                             { return m_LastSend; }
         void FlushRecv( fd_set *fd );
 	void DoRecv( fd_set *fd );
 	void DoSend( fd_set *send_fd );
 	void SetNoDelay( );
         void SetKeepAlive( );
-	void Disconnect( );
-	bool GetConnecting( )                                                               { return m_Connecting; }
-	void Connect( const string &localaddress, const string &address, uint16_t port );
-	bool CheckConnect( );
+	void Disconnect( );	
+	void Connect( const string &localaddress, const string &address, uint16_t port );	
 };
 
 //
 // CTCPServer
 //
 
-class CTCPServer // : public CTCPSocket
+class CTCPServer
 {
 protected:
         SOCKET m_Socket;
-	struct sockaddr_in m_SIN;
-	bool m_HasError;
+	struct sockaddr_in m_SIN;	
 	int m_Error;
-        bool m_Connected;
-
-private:
-	string m_RecvBuffer;
-	string m_SendBuffer;
-	uint32_t m_LastRecv;
-	uint32_t m_LastSend;
+        bool m_HasError;
 
 public:
 	CTCPServer( );
 	~CTCPServer( );
 
-        BYTEARRAY GetPort( );
-	BYTEARRAY GetIP( );
-	string GetIPString( );
 	bool HasError( )					{ return m_HasError; }
 	int GetError( )						{ return m_Error; }
 	string GetErrorString( );
 	void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-	void Allocate( int type );
-	void Reset( );
-	bool GetConnected( )                                { return m_Connected; }
-	string *GetBytes( )                                 { return &m_RecvBuffer; }
-	void PutBytes( const string &bytes );
-	void PutBytes( const BYTEARRAY &bytes );
-	void ClearRecvBuffer( )                             { m_RecvBuffer.clear( ); }
-        void SubstrRecvBuffer( unsigned int i )             { m_RecvBuffer = m_RecvBuffer.substr( i ); }
-	void ClearSendBuffer( )                             { m_SendBuffer.clear( ); }
-	uint32_t GetLastRecv( )                             { return m_LastRecv; }
-	uint32_t GetLastSend( )                             { return m_LastSend; }
-	void DoRecv( fd_set *fd );
-	void DoSend( fd_set *send_fd );
-	void Disconnect( );
-	void SetNoDelay( );
 	bool Listen( const string &address, uint16_t port );
 	CTCPSocket *Accept( fd_set *fd );
 };
@@ -277,15 +251,15 @@ public:
 // CUDPSocket
 //
 
-class CUDPSocket // : public CSocket
+class CUDPSocket
 {
 protected:
         SOCKET m_Socket;
 	struct sockaddr_in m_SIN;
-	bool m_HasError;
+        struct in_addr m_BroadcastTarget;
 	int m_Error;
-	struct in_addr m_BroadcastTarget;
-        
+        bool m_HasError;
+
 public:
 	CUDPSocket( );
 	~CUDPSocket( );

@@ -236,7 +236,6 @@ public:
 	inline void DeleteVirtualHost( );
 	inline void CreateFakePlayer( );
 	inline void DeleteFakePlayers( );
-	inline bool IsAdmin( string name );
 };
 
 #endif

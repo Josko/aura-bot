@@ -279,7 +279,7 @@ int main( )
 // CAura
 //
 
-CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.01" ), m_HostCounter( 1 )
+CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.02" ), m_HostCounter( 1 )
 {
 	vector<string> channels, locals;
 
@@ -317,7 +317,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 	m_SHA = new CSHA1( );	
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
 	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
-	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6114 );
+	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
 	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
 	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
 	
@@ -357,7 +357,21 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 		string UserName = CFG->GetString( Prefix + "username", string( ) );
 		string UserPassword = CFG->GetString( Prefix + "password", string( ) );
 		string FirstChannel = CFG->GetString( Prefix + "firstchannel", "The Void" );
-		string RootAdmin = CFG->GetString( Prefix + "rootadmin", string( ) );
+		string RootAdmins = CFG->GetString( Prefix + "rootadmins", string( ) );
+
+                // add each root admin to the rootadmin table
+                
+                string User;
+                stringstream SS;
+                SS << RootAdmins;
+
+                while( !SS.eof( ) )
+                {
+                        SS >> User;
+
+                        m_DB->RootAdminAdd( Server, User );
+                }
+
 		string BNETCommandTrigger = CFG->GetString( Prefix + "commandtrigger", "!" );
 
 		if( BNETCommandTrigger.empty( ) )
@@ -378,7 +392,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 			Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
 		}
 
-		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, RootAdmin, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
+		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
 	}
 
 	if( m_BNETs.empty( ) )
@@ -466,8 +480,7 @@ inline bool CAura :: Update( unsigned long usecBlock )
 	// take every socket we own and throw it in one giant select statement so we can block on all sockets
 
 	int nfds = 0;
-	fd_set fd;
-	fd_set send_fd;
+	fd_set fd, send_fd;
 	FD_ZERO( &fd );
 	FD_ZERO( &send_fd );	
 
@@ -761,7 +774,7 @@ void CAura :: SetConfigs( CConfig *CFG )
 	m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
 	m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
 	m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
-	m_MaxGames = CFG->GetInt( "bot_maxgames", 10 );
+	m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
 	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
 	m_CommandTrigger = BotCommandTrigger[0];
 	
@@ -1034,3 +1047,12 @@ void CAura :: CreateGame( CMap *map, unsigned char gameState, string gameName, s
 		(*i)->HoldClan( m_CurrentGame );
 	}
 }
+
+bool CAura :: IsAnyAdmin( string name )
+{
+        if( m_DB->AdminCheck( name ) || m_DB->RootAdminCheck( name ) )
+                return true;
+
+        return false;
+}
+

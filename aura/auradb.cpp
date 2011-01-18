@@ -204,6 +204,9 @@ CAuraDB :: CAuraDB( CConfig *CFG ) : m_HasError( false )
 	if( m_DB->Exec( "CREATE TEMPORARY TABLE iptocountry ( ip1 INTEGER NOT NULL, ip2 INTEGER NOT NULL, country TEXT NOT NULL, PRIMARY KEY ( ip1, ip2 ) )" ) != SQLITE_OK )
 		Print( "[SQLITE3] error creating temporary iptocountry table - " + m_DB->GetError( ) );
 
+        if( m_DB->Exec( "CREATE TEMPORARY TABLE rootadmins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
+		Print( "[SQLITE3] error creating temporary rootadmins table - " + m_DB->GetError( ) );
+
 	FromAddStmt = NULL;
 	FromCheckStmt = NULL;
 	BanCheckStmt = NULL;
@@ -292,10 +295,99 @@ bool CAuraDB :: AdminCheck( const string &server, string user )
 	return IsAdmin;
 }
 
+bool CAuraDB :: AdminCheck( string user )
+{
+        bool IsAdmin = false;
+	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
+
+        sqlite3_stmt *Statement;
+        m_DB->Prepare( "SELECT * FROM admins WHERE name=?", (void **)&Statement );
+
+	if( Statement )
+	{
+		sqlite3_bind_text( Statement, 1, user.c_str( ), -1, SQLITE_TRANSIENT );
+
+		int RC = m_DB->Step( Statement );
+
+		// we're just checking to see if the query returned a row, we don't need to check the row data itself
+
+		if( RC == SQLITE_ROW )
+			IsAdmin = true;
+		else if( RC == SQLITE_ERROR )
+			Print( "[SQLITE3] error checking admin [" + user + "] - " + m_DB->GetError( ) );
+
+		m_DB->Reset( Statement );
+	}
+	else
+		Print( "[SQLITE3] prepare error checking admin [" + user + "] - " + m_DB->GetError( ) );
+
+	return IsAdmin;
+}
+
+bool CAuraDB :: RootAdminCheck( const string &server, string user )
+{
+	bool IsRoot = false;
+	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
+
+        sqlite3_stmt *Statement;
+        m_DB->Prepare( "SELECT * FROM rootadmins WHERE server=? AND name=?", (void **)&Statement );
+
+	if( Statement )
+	{
+		sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
+		sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
+
+		int RC = m_DB->Step( Statement );
+
+		// we're just checking to see if the query returned a row, we don't need to check the row data itself
+
+		if( RC == SQLITE_ROW )
+			IsRoot = true;
+		else if( RC == SQLITE_ERROR )
+			Print( "[SQLITE3] error checking admin [" + user + "] - " + m_DB->GetError( ) );
+
+		m_DB->Reset( Statement );
+	}
+	else
+		Print( "[SQLITE3] prepare error checking admin [" + user + "] - " + m_DB->GetError( ) );
+
+	return IsRoot;
+}
+
+bool CAuraDB :: RootAdminCheck( string user )
+{
+        bool IsRoot = false;
+	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
+
+        sqlite3_stmt *Statement;
+        m_DB->Prepare( "SELECT * FROM rootadmins WHERE name=?", (void **)&Statement );
+
+	if( Statement )
+	{
+		sqlite3_bind_text( Statement, 1, user.c_str( ), -1, SQLITE_TRANSIENT );
+
+		int RC = m_DB->Step( Statement );
+
+		// we're just checking to see if the query returned a row, we don't need to check the row data itself
+
+		if( RC == SQLITE_ROW )
+			IsRoot = true;
+		else if( RC == SQLITE_ERROR )
+			Print( "[SQLITE3] error checking admin [" + user + "] - " + m_DB->GetError( ) );
+
+		m_DB->Reset( Statement );
+	}
+	else
+		Print( "[SQLITE3] prepare error checking admin [" + user + "] - " + m_DB->GetError( ) );
+
+	return IsRoot;
+}
+
 bool CAuraDB :: AdminAdd( const string &server, string user )
 {
+        bool Success = false;
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
-	bool Success = false;
+	
 	sqlite3_stmt *Statement;
 	m_DB->Prepare( "INSERT INTO admins ( server, name ) VALUES ( ?, ? )", (void **)&Statement );
 
@@ -314,6 +406,33 @@ bool CAuraDB :: AdminAdd( const string &server, string user )
 	}
 	else
 		Print( "[SQLITE3] prepare error adding admin [" + server + " : " + user + "] - " + m_DB->GetError( ) );
+
+	return Success;
+}
+
+bool CAuraDB :: RootAdminAdd( const string &server, string user )
+{
+        bool Success = false;
+	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
+	
+	sqlite3_stmt *Statement;
+	m_DB->Prepare( "INSERT INTO rootadmins ( server, name ) VALUES ( ?, ? )", (void **)&Statement );
+
+	if( Statement )
+	{
+		sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
+		sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
+		int RC = m_DB->Step( Statement );
+
+		if( RC == SQLITE_DONE )
+			Success = true;
+		else if( RC == SQLITE_ERROR )
+			Print( "[SQLITE3] error adding root admin [" + server + " : " + user + "] - " + m_DB->GetError( ) );
+
+		m_DB->Finalize( Statement );
+	}
+	else
+		Print( "[SQLITE3] prepare error adding root admin [" + server + " : " + user + "] - " + m_DB->GetError( ) );
 
 	return Success;
 }
