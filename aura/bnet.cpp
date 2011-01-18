@@ -47,15 +47,15 @@ CBNET :: CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKey
 	m_BNCSUtil = new CBNCSUtilInterface( nUserName, nUserPassword );
 	
 	if( m_PasswordHashType == "pvpgn" || m_EXEVersion.size( ) == 4 || m_EXEVersionHash.size( ) == 4 )
-        {
-                m_PvPGN = true;
+    {
+    	m_PvPGN = true;
 		m_ReconnectDelay = 90;
-        }
-        else
-        {
-                m_PvPGN = false;
+    }
+    else
+    {
+        m_PvPGN = false;
 		m_ReconnectDelay = 180;
-        }
+    }
 
 	if( !nServerAlias.empty( ) )
 		m_ServerAlias = nServerAlias;
@@ -133,10 +133,10 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		string *RecvBuffer = m_Socket->GetBytes( );
 		BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
 
-                CIncomingGameHost *GameHost = NULL;
-                CIncomingChatEvent *ChatEvent = NULL;
-                vector<CIncomingFriendList *> Friends;
-                vector<CIncomingClanList *> Clans;
+        CIncomingGameHost *GameHost = NULL;
+        CIncomingChatEvent *ChatEvent = NULL;
+        vector<CIncomingFriendList *> Friends;
+        vector<CIncomingClanList *> Clans;
 
 		// a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -704,7 +704,7 @@ void CBNET :: ProcessChatEvent( CIncomingChatEvent *chatEvent )
                                                         if( m_Spam )
                                                         {
                                                             m_Spam = false;
-                                                            Print2( "Allstars spam is auto-off." );
+                                                            Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is auto-off." );
                                                             QueueChatCommand( "/j " + m_FirstChannel );
                                                         }
 						}
@@ -1820,12 +1820,12 @@ void CBNET :: SetSpam( )
     {
         m_SpamChannel = "Allstars";
         m_Spam = true;
-        Print2( "Allstars spam is on." );
+        Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is on." );
     }
     else
     {
         m_Spam = false;
-        Print2( "Allstars spam is off." );
+        Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is off." );
         QueueChatCommand( "/j " + m_FirstChannel );
     }
 }
@@ -1934,8 +1934,7 @@ void CBNET :: QueueGameRefresh( unsigned char state, const string &gameName, str
 		MapGameType |= MAPGAMETYPE_UNKNOWN0;
 
 		if( state == GAME_PRIVATE )
-			MapGameType |= MAPGAMETYPE_PRIVATEGAME;
-			
+			MapGameType |= MAPGAMETYPE_PRIVATEGAME;			
 			
 		if( m_Aura->m_Reconnect )
 		{
@@ -2030,10 +2029,10 @@ void CBNET :: HoldClan( CGame *game )
 
 void CBNET :: Deactivate( )
 {
-        m_LastDisconnectedTime = GetTime( );
-        m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-        m_Socket->Reset( );
-        m_LoggedIn = false;
-        m_InChat = false;
-        m_WaitingToConnect = true;
+	m_LastDisconnectedTime = GetTime( );
+	m_BNCSUtil->Reset( m_UserName, m_UserPassword );
+    m_Socket->Reset( );
+    m_LoggedIn = false;
+    m_InChat = false;
+    m_WaitingToConnect = true;
 }

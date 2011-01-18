@@ -82,8 +82,8 @@ private:
 	bool m_InChat;						// if we've entered chat or not (but we're not necessarily in a chat channel yet)
 	bool m_Deactivated;                                     // if this BNET is deactivated
 	bool m_IRC;                                             // if the incoming event was received from IRC
-        bool m_PvPGN;                                           // if this BNET connection is actually a PvPGN
-        string m_SpamChannel;                                   // the channel we're currently spamming in
+    bool m_PvPGN;                                           // if this BNET connection is actually a PvPGN
+    string m_SpamChannel;                                   // the channel we're currently spamming in
 
 public:
 	CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );
@@ -106,11 +106,11 @@ public:
 	bool GetLoggedIn( )				{ return m_LoggedIn; }
 	bool GetInChat( )				{ return m_InChat; }	
 	uint32_t GetOutPacketsQueued( )			{ return m_OutPackets.size( ); }
-        bool GetSpam( )                                 { return m_Spam; }
-        bool GetPvPGN( )                                { return m_PvPGN; }
+    bool GetSpam( )                                 { return m_Spam; }
+    bool GetPvPGN( )                                { return m_PvPGN; }
 	BYTEARRAY GetUniqueName( );        
 
-        void SetSpam( bool spam )                       { m_Spam = spam; }	
+    void SetSpam( bool spam )                       { m_Spam = spam; }	
 	void SetSpam( );
 
 	// processing functions

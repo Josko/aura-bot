@@ -2147,17 +2147,17 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			//
 
 			else if( ( Command == "unhost" || Command == "uh" ) && !m_CountDownStarted )
-                        {
-                                for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-                                {
+            {
+            	for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+                {
 					if( !(*i)->GetPvPGN( ) && (*i)->GetSpam( ) )
-                                        {
+                    {
 						(*i)->SetSpam( );
-                                        }
-                                }
+                    }
+                }
                                 
 				m_Exiting = true;
-                        }
+            }
 				
 			//
 			// !SPAM
@@ -2166,12 +2166,12 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			else if( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 6 && m_GameState == GAME_PRIVATE )
 			{
 				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-                                {
+                {
 					if( !(*i)->GetPvPGN( ) )
-                                        {
+                    {
 						(*i)->SetSpam( );
-                                        }
-                                }
+                    }
+                }
 			}
 				
 			//
@@ -3570,7 +3570,7 @@ inline void CGame :: EventGameStarted( )
             {
                 (*i)->SetSpam( false );
                 (*i)->SendJoinChannel( (*i)->GetFirstChannel( ) );
-                Print2( "Allstars spam is auto-off." );
+                Print2( "[BNET: " + (*i)->GetServerAlias( ) + "] Allstars spam is auto-off." );
             }
 	}
 
@@ -3581,7 +3581,7 @@ inline void CGame :: EventGameStarted( )
 
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 	{
-		m_DBBans.push_back( new CDBBan( (*i)->GetJoinedRealm( ), (*i)->GetName( ), (*i)->GetExternalIPString( ), string( ), string( ), string( ), string( ) ) );
+            m_DBBans.push_back( new CDBBan( (*i)->GetJoinedRealm( ), (*i)->GetName( ), (*i)->GetExternalIPString( ), string( ), string( ), string( ), string( ) ) );
 	}
 }
 

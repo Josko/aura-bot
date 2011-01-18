@@ -342,14 +342,14 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 		string ServerAlias = CFG->GetString( Prefix + "serveralias", string( ) );
 		string CDKeyROC = CFG->GetString( Prefix + "cdkeyroc", string( ) );
 		string CDKeyTFT = CFG->GetString( Prefix + "cdkeytft", string( ) );
-		string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "USA" );
-		string Country = CFG->GetString( Prefix + "country", "United States" );
+		string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "GER" );
+		string Country = CFG->GetString( Prefix + "country", "Germany" );
 		string Locale = CFG->GetString( Prefix + "locale", "system" );
 		uint32_t LocaleID;
 
 		if( Locale == "system" )
 		{
-			LocaleID = 1033;
+			LocaleID = 1031;
 		}
 		else
 			LocaleID = UTIL_ToUInt32( Locale );
@@ -368,7 +368,6 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
                 while( !SS.eof( ) )
                 {
                         SS >> User;
-
                         m_DB->RootAdminAdd( Server, User );
                 }
 
