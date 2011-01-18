@@ -1,21 +1,21 @@
 Aura
-=============
+====
 
 Aura is a Warcraft III hosting-bot based on GHost++ by Varlock. It's a complete
 overhaul with speed and efficiency in mind and packed with fewer dependencies.
 
 Multi-platform
-------------
+--------------
 
 The bot is guaranteed to run on little-endian Linux (32-bit and 64-bit), Windows (32-bit and 64-bit) and OS X (64-bit Intel CPU) machines.
 
 Boost
-------------
+-----
 
 You will need the [Boost](http://www.boost.org/users/download/) libraries. Specifically
 boost date-time, system and filesystem.
 
-**Windows**
+### Windows
 
 Windows users can build by:
 	
@@ -26,14 +26,14 @@ Windows users can build by:
 Then move the library files from the bin.v2 folder to `~/aura-bot/aura/boost/lib` (create the folder
 if it doesn't exist).
 
-**Linux**
+### Linux
 
 Linux users can usually fetch them from the repo:
 
 * Arch Linux -- `pacman -S boost`
 * Debian/Ubuntu -- `apt-get install libboost-date-time-dev libboost-system-dev libboost-filesystem-dev`
 
-**OS X**
+### OS X
 
 [Xcode](http://developer.apple.com/technologies/xcode.html) is the basic dependency for building anything on OS X.
 Apple's development tool is shipped for free with every Mac located on your system CD/DVD.
@@ -47,9 +47,9 @@ After a successful install open (or reopen) Terminal.app located in /Application
 Building boost will take some time.
 
 Building
-------------
+--------
 
-**Windows**
+### Windows
 
 Windows users should use VS2010 as there are the necessary .sln and .vcxproj files. Before
 building, choose the Release option. The binary shall be generated in the `..\aura-bot\aura\Release` folder.
@@ -57,7 +57,7 @@ Run it from `aura-bot` folder.
 
 note: supplied project settings produce a SSE2-enabled x86 binary.
 
-**Linux**
+### Linux
 
 Linux users will probably need some packages for it to build:
 
@@ -88,7 +88,7 @@ Now you can run Aura by executing `./aura++`.
 
 note: supplied Makefile settings produce a x64 binary (remove the -m64 from CCFLAGS and CXXFLAGS to make it produce a x86 binary).
 
-** OS X**
+### OS X
 
 Most likely you'll need a more recent version of libgmp because Apple ships an older one built for i386 only
 what would result in problems since we are linking x86_64.
@@ -130,7 +130,7 @@ Configuring
 Modify the `aura.cfg` file to configure the bot to your wishes.
 
 Credits
------
+-------
 
 * Varlock -- the author of the GHost++ bot
 * Argon- -- suggestions, code, bug fixes, testing and OS X support
