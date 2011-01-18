@@ -51,7 +51,7 @@ protected:
 	CTCPServer *m_Socket;				// listening socket
 	CDBBan *m_DBBanLast;				// last ban for the !banlast command - this is a pointer to one of the items in m_DBBans
 	vector<CDBBan *> m_DBBans;			// vector of potential ban data for the database
-	CDBGame *m_DBGame;				// potential game data for the database	
+	CDBGame *m_DBGame;				// potential game data for the database
 	CStats *m_Stats;				// class to keep track of game stats such as kills/deaths/assists in dota
 	uint32_t m_GameID;				// GameID stored in the database
 	CGameProtocol *m_Protocol;			// game protocol
@@ -75,7 +75,7 @@ protected:
 	string m_VirtualHostName;			// host's name
 	string m_OwnerName;				// name of the player who owns this game (should be considered an admin)
 	string m_CreatorName;				// name of the player who created this game
-	string m_CreatorServer;				// battle.net server the player who created this game was on	
+	string m_CreatorServer;				// battle.net server the player who created this game was on
 	string m_KickVotePlayer;			// the player to be kicked with the currently running kick vote
 	string m_HCLCommandString;			// the "HostBot Command Library" command string, used to pass a limited amount of data to specially designed maps
 	uint32_t m_RandomSeed;				// the random seed sent to the Warcraft III clients
@@ -197,7 +197,7 @@ public:
 	void EventPlayerPongToHost( CGamePlayer *player );
 
 	// these events are called outside of any iterations
-	
+
 	inline void EventGameStarted( );
 	inline void EventGameLoaded( );
 

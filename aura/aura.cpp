@@ -106,7 +106,7 @@ uint32_t GetTicks( )
         uint64_t elapsednano = current * ( info.numer / info.denom );
 
         // convert ns to ms
-        
+
         return elapsednano / 1000000;
 #else
 	struct timespec t;
@@ -133,20 +133,20 @@ void SignalCatcher( int s )
 void Print( const string &message )
 {
         cout << message << endl;
-        
+
 	if( gAura && gAura->m_IRC )
 		gAura->m_IRC->SendDCC( message );
 }
 
 void Print2( const string &message )
-{	
+{
         cout << message << endl;
-   
+
 	if( gAura->m_IRC )
 	{
 		gAura->m_IRC->SendMessageIRC( message, string( ) );
 		gAura->m_IRC->SendDCC( message );
-	}	
+	}
 }
 
 //
@@ -254,7 +254,7 @@ int main( )
 	// shutdown winsock
 
 	Print( "[AURA] shutting down winsock" );
-	WSACleanup( );	
+	WSACleanup( );
 
 	// shutdown timer
 
@@ -267,7 +267,7 @@ int main( )
 	{
 #ifdef WIN32
 		_spawnl( _P_OVERLAY, "aura.exe", "aura.exe", NULL );
-#else		
+#else
 		execl( "aura++", "aura++", NULL );
 #endif
 	}
@@ -307,23 +307,23 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 	}
 
 	m_IRC = new CIRC( this, CFG->GetString( "irc_server", string( ) ), CFG->GetString( "irc_nickname", string( ) ), CFG->GetString( "irc_username", string( ) ), CFG->GetString( "irc_password", string( ) ), channels, CFG->GetInt( "irc_port", 6667 ), CFG->GetString( "irc_commandtrigger", "!" ), locals );
-	
+
         m_UDPSocket = new CUDPSocket( );
 	m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
 	m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
 	m_GPSProtocol = new CGPSProtocol( );
 	m_CRC = new CCRC32( );
 	m_CRC->Initialize( );
-	m_SHA = new CSHA1( );	
+	m_SHA = new CSHA1( );
 	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
 	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
 	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
 	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
 	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
-	
+
 	Print( "[AURA] opening database" );
 	m_DB = new CAuraDB( CFG );
-	
+
 	SetConfigs( CFG );
 
 	// load the battle.net connections
@@ -360,7 +360,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 		string RootAdmins = CFG->GetString( Prefix + "rootadmins", string( ) );
 
                 // add each root admin to the rootadmin table
-                
+
                 string User;
                 stringstream SS;
                 SS << RootAdmins;
@@ -375,7 +375,7 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 
 		if( BNETCommandTrigger.empty( ) )
 			BNETCommandTrigger = "!";
-		
+
 		unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 24 );
 		BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
 		BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
@@ -405,8 +405,8 @@ CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Cur
 
 	// load the default maps (note: make sure to run ExtractScripts first)
 
-	if( m_DefaultMap.size( ) < 4 || m_DefaultMap.substr( m_DefaultMap.size( ) - 4 ) != ".cfg" )	
-		m_DefaultMap += ".cfg";		
+	if( m_DefaultMap.size( ) < 4 || m_DefaultMap.substr( m_DefaultMap.size( ) - 4 ) != ".cfg" )
+		m_DefaultMap += ".cfg";
 
 	CConfig MapCFG;
 	MapCFG.Read( m_MapCFGPath + m_DefaultMap );
@@ -481,7 +481,7 @@ inline bool CAura :: Update( unsigned long usecBlock )
 	int nfds = 0;
 	fd_set fd, send_fd;
 	FD_ZERO( &fd );
-	FD_ZERO( &send_fd );	
+	FD_ZERO( &send_fd );
 
 	// 1. the current game's server and player sockets
 
@@ -553,9 +553,9 @@ inline bool CAura :: Update( unsigned long usecBlock )
 
 		MILLISLEEP( 200 );
 	}
-	
-	bool BNETExit = false, IRCExit = false;	
-	
+
+	bool BNETExit = false, IRCExit = false;
+
 	// update running games
 
 	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); )
@@ -592,7 +592,7 @@ inline bool CAura :: Update( unsigned long usecBlock )
 		}
 		else if( m_CurrentGame )
 			m_CurrentGame->UpdatePost( &send_fd );
-	}	
+	}
 
 	// update battle.net connections
 
@@ -720,7 +720,7 @@ inline bool CAura :: Update( unsigned long usecBlock )
 
 		(*i)->DoSend( &send_fd );
 		++i;
-	}		
+	}
 
 	return m_Exiting || BNETExit || IRCExit;
 }
@@ -730,7 +730,7 @@ void CAura :: EventBNETGameRefreshFailed( CBNET *bnet )
 	if( m_CurrentGame )
 	{
 		m_CurrentGame->SendAllChat( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
-		
+
 		Print2( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name." );
 
 		// we take the easy route and simply close the lobby if a refresh fails
@@ -776,7 +776,7 @@ void CAura :: SetConfigs( CConfig *CFG )
 	m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
 	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
 	m_CommandTrigger = BotCommandTrigger[0];
-	
+
 	m_MapCFGPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mapcfgpath", string( ) ) );
 	m_MapPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mappath", string( ) ) );
 	m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0Aura" );
@@ -793,7 +793,7 @@ void CAura :: SetConfigs( CConfig *CFG )
 	m_MaxDownloadSpeed = CFG->GetInt( "bot_maxdownloadspeed", 100 );
 	m_LCPings = CFG->GetInt( "bot_lcpings", 1 ) == 0 ? false : true;
 	m_AutoKickPing = CFG->GetInt( "bot_autokickping", 300 );
-	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );	
+	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );
 	m_Latency = CFG->GetInt( "bot_latency", 100 );
 	m_SyncLimit = CFG->GetInt( "bot_synclimit", 50 );
 	m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );

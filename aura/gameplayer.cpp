@@ -50,7 +50,7 @@ BYTEARRAY CPotentialPlayer :: GetExternalIP( )
 {
 	if( m_Socket )
 		return m_Socket->GetIP( );
-		
+
 	unsigned char Zeros[] = { 0, 0, 0, 0 };
 
 	return UTIL_CreateByteArray( Zeros, 4 );
@@ -73,7 +73,7 @@ bool CPotentialPlayer :: Update( void *fd )
 		return false;
 
 	m_Socket->DoRecv( (fd_set *)fd );
-	
+
 	// extract as many packets as possible from the socket's receive buffer and process them
 
 	string *RecvBuffer = m_Socket->GetBytes( );
@@ -115,7 +115,7 @@ bool CPotentialPlayer :: Update( void *fd )
 					break;
 			}
 		}
-	}        
+	}
 
 	// don't call DoSend here because some other players may not have updated yet and may generate a packet for this player
 	// also m_Socket may have been set to NULL during ProcessPackets but we're banking on the fact that m_DeleteMe has been set to true as well so it'll short circuit before dereferencing
@@ -190,7 +190,7 @@ uint32_t CGamePlayer :: GetPing( bool LCPing )
 bool CGamePlayer :: Update( void *fd )
 {
         uint32_t Time = GetTime( );
-	
+
 	// wait 4 seconds after joining before sending the /whois or /w
 	// if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
 
@@ -420,7 +420,7 @@ bool CGamePlayer :: Update( void *fd )
 		Deleting = m_DeleteMe || m_Socket->HasError( ) || !m_Socket->GetConnected( );
 
 	// try to find out why we're requesting deletion
-	// in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set	
+	// in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
 
 	if( m_Socket )
 	{

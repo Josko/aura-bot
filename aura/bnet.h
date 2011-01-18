@@ -42,7 +42,7 @@ public:
 
 private:
 	CTCPClient *m_Socket;					// the connection to battle.net
-	CBNETProtocol *m_Protocol;				// battle.net protocol	
+	CBNETProtocol *m_Protocol;				// battle.net protocol
 	CBNCSUtilInterface *m_BNCSUtil;				// the interface to the bncsutil library (used for logging into battle.net)
 	queue<BYTEARRAY> m_OutPackets;				// queue of outgoing packets to be sent (to prevent getting kicked for flooding)
 	vector<CIncomingFriendList *> m_Friends;		// vector of friends
@@ -104,19 +104,19 @@ public:
 	string GetPasswordHashType( )			{ return m_PasswordHashType; }
 	uint32_t GetHostCounterID( )			{ return m_HostCounterID; }
 	bool GetLoggedIn( )				{ return m_LoggedIn; }
-	bool GetInChat( )				{ return m_InChat; }	
+	bool GetInChat( )				{ return m_InChat; }
 	uint32_t GetOutPacketsQueued( )			{ return m_OutPackets.size( ); }
     bool GetSpam( )                                 { return m_Spam; }
     bool GetPvPGN( )                                { return m_PvPGN; }
-	BYTEARRAY GetUniqueName( );        
+	BYTEARRAY GetUniqueName( );
 
-    void SetSpam( bool spam )                       { m_Spam = spam; }	
+    void SetSpam( bool spam )                       { m_Spam = spam; }
 	void SetSpam( );
 
 	// processing functions
 
 	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-	bool Update( void *fd, void *send_fd );	
+	bool Update( void *fd, void *send_fd );
 	void ProcessChatEvent( CIncomingChatEvent *chatEvent );
 
 	// functions to send packets to battle.net

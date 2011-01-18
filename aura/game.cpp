@@ -118,7 +118,7 @@ CGame :: ~CGame( )
 		delete m_Actions.front( );
 		m_Actions.pop( );
 	}
-	
+
 	// store the CDBGamePlayers in the database
 
 	if( m_GameID )
@@ -222,16 +222,16 @@ string CGame :: GetDescription( )
 string CGame :: GetPlayers( )
 {
 	string Players;
-	
+
 	for( unsigned int i = 0; i < m_Players.size( ); ++i )
 	{
-		if( !m_Players[i]->GetLeftMessageSent( ) )					
+		if( !m_Players[i]->GetLeftMessageSent( ) )
 			Players += m_Players[i]->GetName( ) + ", ";
 	}
 
         if( Players.size( ) > 2 )
             Players = Players.substr( 0, Players.size( ) - 2 );
-		
+
 	return Players;
 }
 
@@ -244,7 +244,7 @@ unsigned int CGame :: SetFD( void *fd, void *send_fd, int *nfds )
 		m_Socket->SetFD( (fd_set *)fd, (fd_set *)send_fd, nfds );
 		++NumFDs;
 	}
-	
+
 	for( vector<CGamePlayer *> :: iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
 	{
 		if( (*i)->GetSocket( ) )
@@ -261,14 +261,14 @@ unsigned int CGame :: SetFD( void *fd, void *send_fd, int *nfds )
 			(*i)->GetSocket( )->SetFD( (fd_set *)fd, (fd_set *)send_fd, nfds );
 			++NumFDs;
 		}
-	}	
+	}
 
 	return NumFDs;
 }
 bool CGame :: Update( void *fd, void *send_fd )
-{	
+{
 	uint32_t Time = GetTime( ), Ticks = GetTicks( );
-	
+
 	// ping every 5 seconds
 	// changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
 	// changed this to ping during the game as well
@@ -305,13 +305,13 @@ bool CGame :: Update( void *fd, void *send_fd )
 			// we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
 			// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
 			// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
-			
-			
+
+
 			// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
 			// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 			uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-			
+
 			m_Aura->m_UDPSocket->Broadcast( 6112, m_Protocol->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter, m_EntryKey ) );
 		}
 
@@ -347,7 +347,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 		else
                         ++i;
 	}
-	
+
 	// keep track of the largest sync counter (the number of keepalive packets received by each player)
 	// if anyone falls behind by more than m_SyncLimit keepalives we start the lag screen
 
@@ -448,11 +448,11 @@ bool CGame :: Update( void *fd, void *send_fd )
 					// start the lag screen
 
 					Send( *i, m_Protocol->SEND_W3GS_START_LAG( m_Players ) );
-				}				
+				}
 
 				// Warcraft III doesn't seem to respond to empty actions
 
-				
+
 				m_LastLagScreenResetTime = Time;
 			}
 
@@ -503,7 +503,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 
 	if( m_GameLoaded && !m_Lagging && Ticks - m_LastActionSentTicks >= m_Latency - m_LastActionLateBy )
 		SendAllActions( );
-		
+
 	// end the game if there aren't any players left
 
 	if( m_Players.empty( ) && ( m_GameLoading || m_GameLoaded ) )
@@ -512,15 +512,15 @@ bool CGame :: Update( void *fd, void *send_fd )
 		{
 			Print( "[GAME: " + m_GameName + "] is over (no players left)" );
 			Print( "[GAME: " + m_GameName + "] saving game data to database" );
-			
+
 			m_Saving = true;
-				
+
 			m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), m_DBGame->GetMap( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
 		}
 		else if( m_GameID )
 			return true;
 	}
-	
+
 	// check if the game is loaded
 
 	if( m_GameLoading )
@@ -542,7 +542,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			m_GameLoaded = true;
 			EventGameLoaded( );
 		}
-	}	
+	}
 
 	// start the gameover timer if there's only one player left
 
@@ -566,7 +566,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 			}
 		}
 	}
-	
+
 	// expire the votekick
 
 	if( !m_KickVotePlayer.empty( ) && Time - m_StartedKickVoteTime >= 60 )
@@ -576,7 +576,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 		m_KickVotePlayer.clear( );
 		m_StartedKickVoteTime = 0;
 	}
-	
+
 	if( m_GameLoaded )
 		return m_Exiting;
 
@@ -714,11 +714,11 @@ bool CGame :: Update( void *fd, void *send_fd )
                                         (*i)->SetSpam( );
                                 }
                         }
-                        
+
 			return true;
 		}
-	}	
-	
+	}
+
 	// create the virtual host player
 
 	if( !m_GameLoading && !m_GameLoaded && GetNumPlayers( ) < 12 )
@@ -741,7 +741,7 @@ bool CGame :: Update( void *fd, void *send_fd )
 		if( NewSocket )
 		{
 			NewSocket->SetNoDelay( );
-			m_Potentials.push_back( new CPotentialPlayer( m_Protocol, this, NewSocket ) );			
+			m_Potentials.push_back( new CPotentialPlayer( m_Protocol, this, NewSocket ) );
 		}
 
 		if( m_Socket->HasError( ) )
@@ -889,7 +889,7 @@ inline void CGame :: SendVirtualHostPlayerInfo( CGamePlayer *player )
 	IP.push_back( 0 );
 	IP.push_back( 0 );
 	IP.push_back( 0 );
-	
+
 	Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( m_VirtualHostPID, m_VirtualHostName, IP, IP ) );
 }
 
@@ -907,7 +907,7 @@ inline void CGame :: SendFakePlayerInfo( CGamePlayer *player )
 	for( vector<unsigned char> :: iterator i = m_FakePlayers.begin( ); i != m_FakePlayers.end( ); ++i )
 	{
 		Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( *i, "Troll[" + UTIL_ToString( *i ) + "]", IP, IP ) );
-	}	
+	}
 }
 
 inline void CGame :: SendAllActions( )
@@ -940,7 +940,7 @@ inline void CGame :: SendAllActions( )
 			}
 		}
 	}
-	
+
 	++m_SyncCounter;
 
 	// we aren't allowed to send more than 1460 bytes in a single packet but it's possible we might have more than that many bytes waiting in the queue
@@ -994,7 +994,7 @@ inline void CGame :: SendAllActions( )
 	}
 	else
 		SendAll( m_Protocol->SEND_W3GS_INCOMING_ACTION( m_Actions, m_Latency ) );
-		
+
 	uint32_t Ticks = GetTicks( );
 	uint32_t ActualSendInterval = Ticks - m_LastActionSentTicks;
 	uint32_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
@@ -1005,7 +1005,7 @@ inline void CGame :: SendAllActions( )
 		// something is going terribly wrong - Aura++ is probably starved of resources
 		// print a message because even though this will take more resources it should provide some information to the administrator for future reference
 		// other solutions - dynamically modify the latency, request higher priority, terminate other games, ???
-		
+
 		// this program is SO FAST, I've yet to see this happen *coolface*
 
 		Print( "[GAME: " + m_GameName + "] warning - the latency is " + UTIL_ToString( m_Latency ) + "ms but the last update was late by " + UTIL_ToString( m_LastActionLateBy ) + "ms" );
@@ -1033,7 +1033,7 @@ void CGame :: EventPlayerDeleted( CGamePlayer *player )
 		SendAll( m_Protocol->SEND_W3GS_STOP_LAG( player ) );
 
 	// tell everyone about the player leaving
-	
+
 	SendAll( m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS( player->GetPID( ), player->GetLeftCode( ) ) );
 
 	// abort the countdown if there was one in progress
@@ -1051,7 +1051,7 @@ void CGame :: EventPlayerDeleted( CGamePlayer *player )
 
 	m_KickVotePlayer.clear( );
 	m_StartedKickVoteTime = 0;
-	
+
 	// record everything we need to know about the player for storing in the database later
 	// since we haven't stored the game yet (it's not over yet!) we can't link the gameplayer to the game
 	// see the destructor for where these CDBGamePlayers are stored in the database
@@ -1260,13 +1260,13 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 				vector<CGameSlot> Slots = m_Map->GetSlots( );
 				potential->Send( m_Protocol->SEND_W3GS_SLOTINFOJOIN( 1, potential->GetSocket( )->GetPort( ), potential->GetExternalIP( ), Slots, 0, m_Map->GetMapLayoutStyle( ), m_Map->GetMapNumPlayers( ) ) );
 				potential->SetDeleteMe( true );
-				
+
 				delete Ban;
 				Ban = NULL;
-				
+
 				return;
 			}
-		}	
+		}
 	}
 
 
@@ -1279,7 +1279,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 	// try to find a slot
 
 	unsigned char SID = 255;
-	
+
 	// try to find an empty slot
 
 	SID = GetEmptySlot( false );
@@ -1289,7 +1289,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 		// a reserved player is trying to join the game but it's full, try to find a reserved slot
 
 		SID = GetEmptySlot( true );
-		
+
 		if( SID != 255 )
 		{
 			CGamePlayer *KickedPlayer = GetPlayerFromSID( SID );
@@ -1326,7 +1326,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 		}
 
 		CGamePlayer *KickedPlayer = GetPlayerFromSID( SID );
-		
+
 		if( KickedPlayer )
 		{
 			KickedPlayer->SetDeleteMe( true );
@@ -1401,7 +1401,7 @@ void CGame :: EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlaye
 
 				m_Slots[SID].SetColour( GetNewColour( ) );
 		}
-	}	
+	}
 
 	// send slot info to the new player
 	// the SLOTINFOJOIN packet also tells the client their assigned PID and that the join was successful
@@ -1491,7 +1491,7 @@ void CGame :: EventPlayerLoaded( CGamePlayer *player )
 {
 	Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] finished loading in " + UTIL_ToString( (float) ( player->GetFinishedLoadingTicks( ) - m_StartedLoadingTicks ) / 1000.f, 2 ) + " seconds" );
 
-	
+
 	SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS( player->GetPID( ) ) );
 }
 
@@ -1506,7 +1506,7 @@ void CGame :: EventPlayerAction( CGamePlayer *player, CIncomingAction *action )
 		Print( "[GAME: " + m_GameName + "] player [" + player->GetName( ) + "] is saving the game" );
 		SendAllChat( m_Aura->m_Language->PlayerIsSavingTheGame( player->GetName( ) ) );
 	}
-	
+
 	// give the stats class a chance to process the action
 
 	if( m_Stats && action->GetAction( )->size( ) >= 6 && m_Stats->ProcessAction( action ) && m_GameOverTime == 0 )
@@ -1646,7 +1646,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 	// todotodo: don't be lazy
 
 	string User = player->GetName( ), Command = command, Payload = payload;
-	
+
 	bool AdminCheck = false, RootAdminCheck = false;
 
 	for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
@@ -1658,7 +1658,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			break;
 		}
 	}
-	
+
 	if( !RootAdminCheck )
 	{
 		for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
@@ -1669,7 +1669,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				break;
 			}
 		}
-	}	
+	}
 
 	if( player->GetSpoofed( ) && ( AdminCheck || RootAdminCheck || IsOwner( User ) ) )
 	{
@@ -1680,7 +1680,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			/*****************
 			* ADMIN COMMANDS *
 			******************/
-			
+
 			//
 			// !PING
 			//
@@ -1742,7 +1742,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				if( Kicked > 0 )
 					SendAllChat( m_Aura->m_Language->KickingPlayersWithPingsGreaterThan( UTIL_ToString( Kicked ), UTIL_ToString( KickPing ) ) );
 			}
-			
+
 			//
 			// !FROM
 			//
@@ -1775,7 +1775,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				if( !Froms.empty( ) )
 					SendAllChat( Froms );
 			}
-						
+
 			//
 			// !BANLAST
 			//
@@ -1784,7 +1784,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				m_Aura->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
 				SendAllChat( m_Aura->m_Language->PlayerWasBannedByPlayer( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), User ) );
-			}			
+			}
 
 			//
 			// !CLOSE (close slot)
@@ -1810,7 +1810,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					else
 						CloseSlot( (unsigned char)( SID - 1 ), true );
 				}
-			}			
+			}
 
 			//
 			// !END
@@ -1820,7 +1820,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			{
 				Print( "[GAME: " + m_GameName + "] is over (admin ended game)" );
 				StopPlayers( "was disconnected (admin ended game)" );
-			}			
+			}
 
 			//
 			// !HCL
@@ -1931,7 +1931,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					else
 						SendAllChat( m_Aura->m_Language->SettingLatencyTo( UTIL_ToString( m_Latency ) ) );
 				}
-			}		
+			}
 
 			//
 			// !OPEN (open slot)
@@ -1986,9 +1986,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
                                                     OpenSlot( (unsigned char) SID, true );
                                         }
 				}
-			}		
+			}
 
-			
+
 
 			//
 			// !PRIV (rehost as private game)
@@ -2064,7 +2064,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				}
 				else
 					SendAllChat( m_Aura->m_Language->UnableToCreateGameNameTooLong( Payload ) );
-			}				
+			}
 
 			//
 			// !START
@@ -2155,14 +2155,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						(*i)->SetSpam( );
                     }
                 }
-                                
+
 				m_Exiting = true;
             }
-				
+
 			//
 			// !SPAM
 			//
-			
+
 			else if( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 6 && m_GameState == GAME_PRIVATE )
 			{
 				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
@@ -2173,7 +2173,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
                     }
                 }
 			}
-				
+
 			//
 			// !HANDICAP
 			//
@@ -2215,7 +2215,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 						}
 					}
 				}
-			}		
+			}
 
 			//
 			// !DOWNLOAD
@@ -2250,7 +2250,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				else
 					SendAllChat( m_Aura->m_Language->UnableToStartDownloadFoundMoreThanOneMatch( Payload ) );
 			}
-			
+
 			//
 			// !DOWNLOADS
 			//
@@ -2275,13 +2275,13 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					m_Aura->m_AllowDownloads = 2;
 				}
 			}
-			
+
 			//
 			// !DROP
 			//
 
 			else if( Command == "drop" && m_GameLoaded )
-				StopLaggers( "lagged out (dropped by admin)" );			
+				StopLaggers( "lagged out (dropped by admin)" );
 
 			//
 			// !MUTE
@@ -2312,7 +2312,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SendAllChat( m_Aura->m_Language->GlobalChatMuted( ) );
 				m_MuteAll = true;
 			}
-				
+
 			//
 			// !ABORT (abort countdown)
 			// !A
@@ -2407,7 +2407,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				}
 			}
 
-			
+
 			//
 			// !CHECK
 			//
@@ -2472,7 +2472,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					}
 					else
 						SendAllChat( m_Aura->m_Language->UserIsNotBanned( (*i)->GetServer( ), Payload ) );
-				}					
+				}
 			}
 
 			//
@@ -2484,7 +2484,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				m_HCLCommandString.clear( );
 				SendAllChat( m_Aura->m_Language->ClearingHCL( ) );
 			}
-				
+
 			//
 			// !STATUS
 			//
@@ -2498,9 +2498,9 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 				message += m_Aura->m_IRC->m_Server + ( !m_Aura->m_IRC->m_WaitingToConnect ? " [Online]" : " [Offline]" );
 
-				SendAllChat( message );		 
+				SendAllChat( message );
 			}
-				
+
 			//
 			// !SENDLAN
 			//
@@ -2541,16 +2541,16 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
 					// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
 
-					
+
 					// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
 					// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
 					uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-					
+
 					m_Aura->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, FixedHostCounter, m_EntryKey ) );
 				}
 			}
-			
+
 			//
 			// !OWNER (set game owner)
 			//
@@ -2573,7 +2573,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				else
 					SendAllChat( m_Aura->m_Language->UnableToSetGameOwner( m_OwnerName ) );
 			}
-				
+
 			//
 			// !SAY
 			//
@@ -2583,7 +2583,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
 					(*i)->QueueChatCommand( Payload );
 			}
-				
+
 			//
 			// !CLOSEALL
 			//
@@ -2701,7 +2701,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					}
 				}
 			}
-				
+
 			//
 			// !FAKEPLAYER
 			//
@@ -2711,7 +2711,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 
 			//
 			// !DELETEFAKE
-				
+
 			else if( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && m_FakePlayers.size( ) && !m_CountDownStarted )
 				DeleteFakePlayers( );
 
@@ -2736,7 +2736,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				Action.push_back( 2 );
 				m_Actions.push( new CIncomingAction( m_FakePlayers[0], CRC, Action ) );
 			}
-				
+
 			//
 			// !SP
 			//
@@ -2746,7 +2746,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SendAllChat( m_Aura->m_Language->ShufflingPlayers( ) );
 				ShuffleSlots( );
 			}
-				
+
 			//
 			// !LOCK
 			//
@@ -2756,7 +2756,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				SendAllChat( m_Aura->m_Language->GameLocked( ) );
 				m_Locked = true;
 			}
-				
+
 			//
 			// !OPENALL
 			//
@@ -2804,7 +2804,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				m_MuteAll = false;
 			}
 
-			
+
 
 			//
 			// !VOTECANCEL
@@ -2848,7 +2848,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				for( vector<CBNET *> :: iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
 					(*i)->QueueChatCommand(  "/whois " + Payload );
 			}
-			
+
 			//
 			// !COMPRACE (computer race change)
 			//
@@ -2960,7 +2960,7 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 					}
 				}
 			}
-			
+
 			//
 			// !VIRTUALHOST
 			//
@@ -3008,16 +3008,16 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			StatsUser = Payload;
 
 		if( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
-		{					
+		{
 			CDBGamePlayerSummary *GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck( StatsUser );
-			
+
 			if( GamePlayerSummary )
 			{
                        		if( player->GetSpoofed( ) && ( m_Aura->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
 					SendAllChat( m_Aura->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float) (GamePlayerSummary->GetAvgLoadingTime( ) / 1000), 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
 				else
 					SendChat( player, m_Aura->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float) (GamePlayerSummary->GetAvgLoadingTime( ) / 1000), 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
-                               
+
                        		delete GamePlayerSummary;
 				GamePlayerSummary = NULL;
 			}
@@ -3036,14 +3036,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 			StatsUser = Payload;
 
 		if( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
-		{					
+		{
 		 	CDBDotAPlayerSummary *DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck( StatsUser );
 
                         if( DotAPlayerSummary )
 			{
 				string Summary = m_Aura->m_Language->HasPlayedDotAGamesWithThisBot(
 			        	StatsUser,
-			       		UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ), 
+			       		UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
 			       		UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
 				        UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
 				        UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
@@ -3063,14 +3063,14 @@ bool CGame :: EventPlayerBotCommand( CGamePlayer *player, string &command, strin
 				        UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
 				        UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
 				        UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-			       		UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 ) 
-			     	);			                 
+			       		UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 )
+			     	);
 
 				if( player->GetSpoofed( ) && ( m_Aura->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
 					SendAllChat( Summary );
 				else
 					SendChat( player, Summary );
-	
+
 				delete DotAPlayerSummary;
 				DotAPlayerSummary = NULL;
 			}
@@ -3552,7 +3552,7 @@ inline void CGame :: EventGameStarted( )
 	// delete the map data
 
 	delete m_Map;
-	m_Map = NULL;	
+	m_Map = NULL;
 
 	// move the game to the games in progress vector
 
@@ -3842,7 +3842,7 @@ inline unsigned char CGame :: GetEmptySlot( bool reserved )
 {
 	if( m_Slots.size( ) > 255 )
 		return 255;
-	
+
 	// look for an empty slot for a new player to occupy
 	// if reserved is true then we're willing to use closed or occupied slots as long as it wouldn't displace a player with a reserved slot
 
@@ -3914,7 +3914,7 @@ inline unsigned char CGame :: GetEmptySlot( unsigned char team, unsigned char PI
 
 			StartSlot = 0;
 		}
-		
+
 		// find an empty slot on the correct team starting from StartSlot
 
 		for( unsigned char i = StartSlot; i < m_Slots.size( ); ++i )
@@ -3985,7 +3985,7 @@ void CGame :: OpenSlot( unsigned char SID, bool kick )
 		}
 
 		CGameSlot Slot = m_Slots[SID];
-		m_Slots[SID] = CGameSlot( 0, 255, SLOTSTATUS_OPEN, 0, Slot.GetTeam( ), Slot.GetColour( ), Slot.GetRace( ) ); 
+		m_Slots[SID] = CGameSlot( 0, 255, SLOTSTATUS_OPEN, 0, Slot.GetTeam( ), Slot.GetColour( ), Slot.GetRace( ) );
 		SendAllSlotInfo( );
 	}
 }
@@ -4007,7 +4007,7 @@ void CGame :: CloseSlot( unsigned char SID, bool kick )
 		}
 
 		CGameSlot Slot = m_Slots[SID];
-		m_Slots[SID] = CGameSlot( 0, 255, SLOTSTATUS_CLOSED, 0, Slot.GetTeam( ), Slot.GetColour( ), Slot.GetRace( ) ); 
+		m_Slots[SID] = CGameSlot( 0, 255, SLOTSTATUS_CLOSED, 0, Slot.GetTeam( ), Slot.GetColour( ), Slot.GetRace( ) );
 		SendAllSlotInfo( );
 	}
 }
@@ -4359,13 +4359,13 @@ inline void CGame :: CreateVirtualHost( )
 		return;
 
 	m_VirtualHostPID = GetNewPID( );
-	
+
 	BYTEARRAY IP;
 	IP.push_back( 0 );
 	IP.push_back( 0 );
 	IP.push_back( 0 );
 	IP.push_back( 0 );
-	
+
 	SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( m_VirtualHostPID, m_VirtualHostName, IP, IP ) );
 }
 
@@ -4397,7 +4397,7 @@ inline void CGame :: CreateFakePlayer( )
 		IP.push_back( 0 );
 		IP.push_back( 0 );
 		IP.push_back( 0 );
-		
+
 		SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( FakePlayerPID, "Troll[" + UTIL_ToString( FakePlayerPID ) + "]", IP, IP ) );
 		m_Slots[SID] = CGameSlot( FakePlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam( ), m_Slots[SID].GetColour( ), m_Slots[SID].GetRace( ) );
 		m_FakePlayers.push_back( FakePlayerPID );
@@ -4421,7 +4421,7 @@ inline void CGame :: DeleteFakePlayers( )
 			}
 		}
 	}
-		
+
 	m_FakePlayers.clear( );
 	SendAllSlotInfo( );
 }

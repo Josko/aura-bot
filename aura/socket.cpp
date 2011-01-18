@@ -606,7 +606,7 @@ void CTCPClient :: DoSend( fd_set *send_fd )
 {
     if( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected || m_SendBuffer.empty( ) )
         return;
-        
+
     if( FD_ISSET( m_Socket, send_fd ) )
     {
         // socket is ready, send it
@@ -1135,6 +1135,15 @@ void CUDPSocket :: Reset( )
         Print( "[SOCKET] error (socket) - " + GetErrorString( ) );
         return;
     }
+
+    // enable broadcast support
+
+    int OptVal = 1;
+    setsockopt( m_Socket, SOL_SOCKET, SO_BROADCAST, (const char *)&OptVal, sizeof( int ) );
+
+    // set default broadcast target
+
+    m_BroadcastTarget.s_addr = INADDR_BROADCAST;
 
     memset( &m_SIN, 0, sizeof( m_SIN ) );
     m_HasError = false;

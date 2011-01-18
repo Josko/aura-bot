@@ -148,7 +148,7 @@ CAuraDB :: CAuraDB( CConfig *CFG ) : m_HasError( false )
 		// MAEK NEW TABLEZ
 
 		Print( "[SQLITE3] couldn't find schema number, create tables" );
-		
+
 		// assume the database is empty
 		// note to self: update the SchemaNumber and the database structure when making a new schema
 
@@ -196,10 +196,10 @@ CAuraDB :: CAuraDB( CConfig *CFG ) : m_HasError( false )
 
 		if( m_DB->Exec( "CREATE INDEX idx_gameid_colour ON dotaplayers ( gameid, colour )" ) != SQLITE_OK )
 			Print( "[SQLITE3] error creating idx_gameid_colour index on dotaplayers table - " + m_DB->GetError( ) );
-		
+
 	}
 	else
-		Print( "[SQLITE3] found schema number [" + SchemaNumber + "]" );	
+		Print( "[SQLITE3] found schema number [" + SchemaNumber + "]" );
 
 	if( m_DB->Exec( "CREATE TEMPORARY TABLE iptocountry ( ip1 INTEGER NOT NULL, ip2 INTEGER NOT NULL, country TEXT NOT NULL, PRIMARY KEY ( ip1, ip2 ) )" ) != SQLITE_OK )
 		Print( "[SQLITE3] error creating temporary iptocountry table - " + m_DB->GetError( ) );
@@ -217,13 +217,13 @@ CAuraDB :: ~CAuraDB( )
 {
 	if( FromAddStmt )
 		m_DB->Finalize( FromAddStmt );
-		
+
 	if( BanCheckStmt )
 		m_DB->Finalize( BanCheckStmt );
-		
+
 	if( FromCheckStmt )
 		m_DB->Finalize( FromCheckStmt );
-		
+
 	if( AdminCheckStmt )
 		m_DB->Finalize( AdminCheckStmt );
 
@@ -269,7 +269,7 @@ bool CAuraDB :: AdminCheck( const string &server, string user )
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	bool IsAdmin = false;
-	
+
 	if( !AdminCheckStmt )
 		m_DB->Prepare( "SELECT * FROM admins WHERE server=? AND name=?", (void **)&AdminCheckStmt );
 
@@ -277,7 +277,7 @@ bool CAuraDB :: AdminCheck( const string &server, string user )
 	{
 		sqlite3_bind_text( (sqlite3_stmt *)AdminCheckStmt, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
 		sqlite3_bind_text( (sqlite3_stmt *)AdminCheckStmt, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
-		
+
 		int RC = m_DB->Step( AdminCheckStmt );
 
 		// we're just checking to see if the query returned a row, we don't need to check the row data itself
@@ -387,7 +387,7 @@ bool CAuraDB :: AdminAdd( const string &server, string user )
 {
         bool Success = false;
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
-	
+
 	sqlite3_stmt *Statement;
 	m_DB->Prepare( "INSERT INTO admins ( server, name ) VALUES ( ?, ? )", (void **)&Statement );
 
@@ -414,7 +414,7 @@ bool CAuraDB :: RootAdminAdd( const string &server, string user )
 {
         bool Success = false;
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
-	
+
 	sqlite3_stmt *Statement;
 	m_DB->Prepare( "INSERT INTO rootadmins ( server, name ) VALUES ( ?, ? )", (void **)&Statement );
 
@@ -491,7 +491,7 @@ CDBBan *CAuraDB :: BanCheck( const string &server, string user, const string &ip
 {
 	transform( user.begin( ), user.end( ), user.begin( ), (int(*)(int))tolower );
 	CDBBan *Ban = NULL;
-	
+
 	if( !BanCheckStmt )
 	{
 		if( ip.empty( ) )
@@ -499,7 +499,7 @@ CDBBan *CAuraDB :: BanCheck( const string &server, string user, const string &ip
 		else
 			m_DB->Prepare( "SELECT name, ip, date, gamename, admin, reason FROM bans WHERE (server=? AND name=?) OR ip=?", (void **)&BanCheckStmt );
 	}
-	
+
 	if( BanCheckStmt )
 	{
 		sqlite3_bind_text( (sqlite3_stmt *)BanCheckStmt, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
@@ -953,7 +953,7 @@ string CAuraDB :: FromCheck( uint32_t ip )
 	// a big thank you to tjado for help with the iptocountry feature
 
 	string From = "??";
-	
+
 	if( !FromCheckStmt )
 		m_DB->Prepare( "SELECT country FROM iptocountry WHERE ip1<=? AND ip2>=?", (void **)&FromCheckStmt );
 
@@ -963,7 +963,7 @@ string CAuraDB :: FromCheck( uint32_t ip )
 
 		sqlite3_bind_int64( (sqlite3_stmt *)FromCheckStmt, 1, ip );
 		sqlite3_bind_int64( (sqlite3_stmt *)FromCheckStmt, 2, ip );
-		
+
 		int RC = m_DB->Step( FromCheckStmt );
 
 		if( RC == SQLITE_ROW )

@@ -60,7 +60,7 @@ public:
 	// processing functions
 
 	bool Update( void *fd );
-        
+
 	// other functions
 
 	void Send( const BYTEARRAY &data );
@@ -79,11 +79,11 @@ public:
 protected:
 	// note: we permit m_Socket to be NULL in this class to allow for the virtual host player which doesn't really exist
 
-	CTCPSocket *m_Socket;	
+	CTCPSocket *m_Socket;
 	bool m_DeleteMe;
 
 private:
-    
+
 	unsigned char m_PID;
 	string m_Name;						// the player's name
 	BYTEARRAY m_InternalIP;					// the player's internal IP address as reported by the player when connecting
@@ -131,7 +131,7 @@ public:
 
          CTCPSocket *GetSocket( )                                       { return m_Socket; }
 	BYTEARRAY GetExternalIP( );
-	string GetExternalIPString( );	
+	string GetExternalIPString( );
 	bool GetDeleteMe( )                                             { return m_DeleteMe; }
 	unsigned char GetPID( )						{ return m_PID; }
 	string GetName( )						{ return m_Name; }
@@ -193,11 +193,11 @@ public:
 	void SetKickVote( bool nKickVote )							{ m_KickVote = nKickVote; }
 	void SetMuted( bool nMuted )								{ m_Muted = nMuted; }
 	void SetLeftMessageSent( bool nLeftMessageSent )					{ m_LeftMessageSent = nLeftMessageSent; }
-	void SetGProxyDisconnectNoticeSent( bool nGProxyDisconnectNoticeSent )			{ m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent; }	
+	void SetGProxyDisconnectNoticeSent( bool nGProxyDisconnectNoticeSent )			{ m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent; }
 
 	// processing functions
 
-	bool Update( void *fd );       
+	bool Update( void *fd );
 
 	void SetSocket( CTCPSocket *nSocket )                                                   { m_Socket = nSocket; }
 	void SetDeleteMe( bool nDeleteMe )                                                      { m_DeleteMe = nDeleteMe; }
