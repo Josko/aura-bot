@@ -96,33 +96,6 @@
 #endif
 
 //
-// CSocket
-//
-
-class CSocket
-{
-protected:
-    SOCKET m_Socket;
-    struct sockaddr_in m_SIN;
-    bool m_HasError;
-    int m_Error;
-
-public:
-    CSocket( );
-    CSocket( SOCKET nSocket, struct sockaddr_in nSIN );
-    ~CSocket( );
-
-    BYTEARRAY GetPort( );
-    BYTEARRAY GetIP( );
-    string GetIPString( );
-    string GetErrorString( );
-    bool HasError( )						{ return m_HasError; }
-    int GetError( )							{ return m_Error; }
-    void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-    void Reset( );
-};
-
-//
 // CTCPSocket
 //
 
@@ -218,7 +191,6 @@ public:
     void DoRecv( fd_set *fd );
     void DoSend( fd_set *send_fd );
     void SetNoDelay( );
-    void SetKeepAlive( );
     void Disconnect( );
     void Connect( const string &localaddress, const string &address, uint16_t port );
 };

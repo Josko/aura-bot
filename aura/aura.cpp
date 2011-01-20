@@ -608,7 +608,9 @@ inline bool CAura :: Update( unsigned long usecBlock )
 		IRCExit = true;
 
 	for( vector<CDCC *> :: iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
-		(*i)->Update( &fd, &send_fd );
+        {
+            (*i)->Update( &fd, &send_fd );
+        }
 
 	// update GProxy++ reliable reconnect sockets
 

@@ -388,20 +388,17 @@ inline void CIRC :: ExtractPackets( )
                         }
                     }
 
-                    bool Existing = false;
-
                     for( vector<CDCC *> :: iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
                     {
                         if( (*i)->m_Nickname == Nickname )
                         {
-                            (*i)->Connect( strIP, Port );
-                            Existing = true;
+                            delete *i;
+                            i = m_DCC.erase( i );
                             break;
                         }
                     }
 
-                    if( !Existing )
-                        m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
+                    m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
                 }
 
                 // remember last packet time
@@ -573,7 +570,7 @@ void CIRC :: SendMessageIRC( const string &message, const string &target )
 CDCC :: CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort )
 {
     m_Socket = new CTCPClient( );
-    m_Socket->SetKeepAlive( );
+    m_Socket->SetNoDelay( );
     m_Socket->Connect( string( ), nIP, nPort );
 
     Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
@@ -612,15 +609,4 @@ void CDCC :: Update( void* fd, void *send_fd )
         Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] connected to " + m_Nickname + "!" );
         m_Socket->DoSend( (fd_set *)send_fd );
     }
-}
-
-void CDCC :: Connect( const string &IP, uint16_t Port )
-{
-    m_Socket->Reset( );
-    m_IP = IP;
-    m_Port = Port;
-
-    Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
-
-    m_Socket->Connect( string( ), m_IP, m_Port );
 }

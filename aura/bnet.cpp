@@ -122,6 +122,21 @@ bool CBNET :: Update( void *fd, void *send_fd )
 	// that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
 	// but it's not a big deal at all, maybe 100ms in the worst possible case (based on a 50ms blocking time)
 
+        if( m_Socket->HasError( ) )
+	{
+		// the socket has an error
+
+		Print2( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
+		Print( "[BNET: " + m_ServerAlias + "] waiting " + UTIL_ToString( m_ReconnectDelay ) + " seconds to reconnect" );
+		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
+		m_Socket->Reset( );
+		m_LastDisconnectedTime = Time;
+		m_LoggedIn = false;
+		m_InChat = false;
+		m_WaitingToConnect = true;
+		return m_Exiting;
+	}
+
 	if( m_Socket->GetConnected( ) )
 	{
 		// the socket is connected and everything appears to be working properly
@@ -133,10 +148,10 @@ bool CBNET :: Update( void *fd, void *send_fd )
 		string *RecvBuffer = m_Socket->GetBytes( );
 		BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
 
-        CIncomingGameHost *GameHost = NULL;
-        CIncomingChatEvent *ChatEvent = NULL;
-        vector<CIncomingFriendList *> Friends;
-        vector<CIncomingClanList *> Clans;
+                CIncomingGameHost *GameHost = NULL;
+                CIncomingChatEvent *ChatEvent = NULL;
+                vector<CIncomingFriendList *> Friends;
+                vector<CIncomingClanList *> Clans;
 
 		// a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -428,22 +443,7 @@ bool CBNET :: Update( void *fd, void *send_fd )
 
 		m_Socket->DoSend( (fd_set *)send_fd );
 		return m_Exiting;
-	}
-
-	if( m_Socket->HasError( ) )
-	{
-		// the socket has an error
-
-		Print2( "[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error" );
-		Print( "[BNET: " + m_ServerAlias + "] waiting " + UTIL_ToString( m_ReconnectDelay ) + " seconds to reconnect" );
-		m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-		m_Socket->Reset( );
-		m_LastDisconnectedTime = Time;
-		m_LoggedIn = false;
-		m_InChat = false;
-		m_WaitingToConnect = true;
-		return m_Exiting;
-	}
+	}	
 
 	if( !m_Socket->GetConnected( ) && !m_Socket->GetConnecting( ) && !m_WaitingToConnect )
 	{

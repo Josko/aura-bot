@@ -28,111 +28,12 @@
 #endif
 
 //
-// CSocket
-//
-
-CSocket :: CSocket( ) : m_Socket( INVALID_SOCKET ), m_HasError( false ), m_Error( 0 )
-{
-    memset( &m_SIN, 0, sizeof( m_SIN ) );
-}
-
-CSocket :: CSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_HasError( false ), m_Error( 0 )
-{
-
-}
-
-CSocket :: ~CSocket( )
-{
-    if( m_Socket != INVALID_SOCKET )
-        closesocket( m_Socket );
-}
-
-BYTEARRAY CSocket :: GetPort( )
-{
-    return UTIL_CreateByteArray( m_SIN.sin_port, false );
-}
-
-BYTEARRAY CSocket :: GetIP( )
-{
-    return UTIL_CreateByteArray( (uint32_t)m_SIN.sin_addr.s_addr, false );
-}
-
-string CSocket :: GetIPString( )
-{
-    return inet_ntoa( m_SIN.sin_addr );
-}
-
-string CSocket :: GetErrorString( )
-{
-    if( !m_HasError )
-        return "NO ERROR";
-
-    switch( m_Error )
-    {
-        case EWOULDBLOCK: return "EWOULDBLOCK";
-        case EINPROGRESS: return "EINPROGRESS";
-        case EALREADY: return "EALREADY";
-        case ENOTSOCK: return "ENOTSOCK";
-        case EDESTADDRREQ: return "EDESTADDRREQ";
-        case EMSGSIZE: return "EMSGSIZE";
-        case EPROTOTYPE: return "EPROTOTYPE";
-        case ENOPROTOOPT: return "ENOPROTOOPT";
-        case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
-        case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
-        case EOPNOTSUPP: return "EOPNOTSUPP";
-        case EPFNOSUPPORT: return "EPFNOSUPPORT";
-        case EAFNOSUPPORT: return "EAFNOSUPPORT";
-        case EADDRINUSE: return "EADDRINUSE";
-        case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
-        case ENETDOWN: return "ENETDOWN";
-        case ENETUNREACH: return "ENETUNREACH";
-        case ENETRESET: return "ENETRESET";
-        case ECONNABORTED: return "ECONNABORTED";
-        case ENOBUFS: return "ENOBUFS";
-        case EISCONN: return "EISCONN";
-        case ENOTCONN: return "ENOTCONN";
-        case ESHUTDOWN: return "ESHUTDOWN";
-        case ETOOMANYREFS: return "ETOOMANYREFS";
-        case ETIMEDOUT: return "ETIMEDOUT";
-        case ECONNREFUSED: return "ECONNREFUSED";
-        case ELOOP: return "ELOOP";
-        case ENAMETOOLONG: return "ENAMETOOLONG";
-        case EHOSTDOWN: return "EHOSTDOWN";
-        case EHOSTUNREACH: return "EHOSTUNREACH";
-        case ENOTEMPTY: return "ENOTEMPTY";
-        case EUSERS: return "EUSERS";
-        case EDQUOT: return "EDQUOT";
-        case ESTALE: return "ESTALE";
-        case EREMOTE: return "EREMOTE";
-        case ECONNRESET: return "Connection reset by peer";
-    }
-
-    return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
-}
-
-void CSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
-{
-    if( m_Socket == INVALID_SOCKET )
-        return;
-
-    FD_SET( m_Socket, fd );
-    FD_SET( m_Socket, send_fd );
-
-#ifndef WIN32
-    if( m_Socket > *nfds )
-        *nfds = m_Socket;
-#endif
-}
-
-//
 // CTCPSocket
 //
 
-CTCPSocket :: CTCPSocket( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_LastRecv( GetTime( ) )
+CTCPSocket :: CTCPSocket( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_LastRecv( GetTime( ) )
 {
     memset( &m_SIN, 0, sizeof( m_SIN ) );
-
-    m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
     if( m_Socket == INVALID_SOCKET )
     {
@@ -363,7 +264,9 @@ void CTCPSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
         return;
 
     FD_SET( m_Socket, fd );
-    FD_SET( m_Socket, send_fd );
+
+    if( !m_SendBuffer.empty( ) )
+        FD_SET( m_Socket, send_fd );
 
 #ifndef WIN32
     if( m_Socket > *nfds )
@@ -375,12 +278,10 @@ void CTCPSocket :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 // CTCPClient
 //
 
-CTCPClient :: CTCPClient( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_Connecting( false )
+CTCPClient :: CTCPClient( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_Connecting( false )
 {
     memset( &m_SIN, 0, sizeof( m_SIN ) );
-
-    m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
-
+    
     if( m_Socket == INVALID_SOCKET )
     {
         m_HasError = true;
@@ -637,32 +538,6 @@ void CTCPClient :: SetNoDelay( )
     setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&OptVal, sizeof( int ) );
 }
 
-void CTCPClient :: SetKeepAlive( )
-{
-    // set the keep alive sending
-
-    int OptVal = 1;
-
-    setsockopt( m_Socket, SOL_SOCKET, SO_KEEPALIVE, (const char *)&OptVal, sizeof( int ) );
-
-    // Windows users need to edit the registry for the following options :(
-    // http://support.microsoft.com/kb/158474
-
-#if !defined( WIN32 ) && !defined(__APPLE__)
-    // set the time after which keep alives are started to be sent, in seconds
-
-    OptVal = 900;
-
-    setsockopt( m_Socket, SOL_TCP, TCP_KEEPIDLE, (const char *)&OptVal, sizeof( int ) );
-
-    // set the interval between two consecutive keep alives, in seconds
-
-    OptVal = 60;
-
-    setsockopt( m_Socket, SOL_TCP, TCP_KEEPINTVL, (const char *)&OptVal, sizeof( int ) );
-#endif
-}
-
 BYTEARRAY CTCPClient :: GetPort( )
 {
     return UTIL_CreateByteArray( m_SIN.sin_port, false );
@@ -732,7 +607,11 @@ void CTCPClient :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
         return;
 
     FD_SET( m_Socket, fd );
-    FD_SET( m_Socket, send_fd );
+
+    // this should prevent CPU usage going 100%
+
+    if( !m_SendBuffer.empty( ) )
+        FD_SET( m_Socket, send_fd );
 
 #ifndef WIN32
     if( m_Socket > *nfds )
@@ -744,11 +623,9 @@ void CTCPClient :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 // CTCPServer
 //
 
-CTCPServer :: CTCPServer( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false )
+CTCPServer :: CTCPServer( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Error( 0 ), m_HasError( false )
 {
     memset( &m_SIN, 0, sizeof( m_SIN ) );
-
-    m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
 
     if( m_Socket == INVALID_SOCKET )
     {
@@ -916,10 +793,8 @@ void CTCPServer :: SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
 // CUDPSocket
 //
 
-CUDPSocket :: CUDPSocket( ) : m_Socket( INVALID_SOCKET ), m_Error( 0 ), m_HasError( false )
+CUDPSocket :: CUDPSocket( ) : m_Socket( socket( AF_INET, SOCK_DGRAM, 0 ) ), m_Error( 0 ), m_HasError( false )
 {
-    m_Socket = socket( AF_INET, SOCK_DGRAM, 0 );
-
     if( m_Socket == INVALID_SOCKET )
     {
         m_HasError = true;
