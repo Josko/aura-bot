@@ -16,7 +16,7 @@
 
    CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
-*/
+ */
 
 #define LF ('\x0A')
 #define CR ('\x0D')
@@ -29,35 +29,35 @@ class CDCC;
 class CIRC
 {
 public:
-	CAura *m_Aura;
-	CTCPClient *m_Socket;
-	vector<CDCC *> m_DCC;
-	vector<string> m_Locals;
-	vector<string> m_Channels;
-	string m_Server;
-	string m_ServerIP;
-	string m_Nickname;
-	string m_NicknameCpy;
-	string m_Username;
-	string m_CommandTrigger;
-	string m_Password;
-	uint16_t m_Port;
-	bool m_Exiting;
-	bool m_WaitingToConnect;
-	bool m_OriginalNick;
-	uint32_t m_LastConnectionAttemptTime;
-	uint32_t m_LastPacketTime;
-	uint32_t m_LastAntiIdleTime;
+  CAura *m_Aura;
+  CTCPClient *m_Socket;
+  vector<CDCC *> m_DCC;
+  vector<string> m_Locals;
+  vector<string> m_Channels;
+  string m_Server;
+  string m_ServerIP;
+  string m_Nickname;
+  string m_NicknameCpy;
+  string m_Username;
+  string m_CommandTrigger;
+  string m_Password;
+  uint16_t m_Port;
+  bool m_Exiting;
+  bool m_WaitingToConnect;
+  bool m_OriginalNick;
+  uint32_t m_LastConnectionAttemptTime;
+  uint32_t m_LastPacketTime;
+  uint32_t m_LastAntiIdleTime;
 
-	CIRC( CAura *nAura, string nServer, string nNickname, string nUsername, string nPassword, vector<string> nChannels, uint16_t nPort, string nCommandTrigger, vector<string> nLocals );
-	~CIRC( );
+  CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, vector<string> *nChannels, uint16_t nPort, const string &nCommandTrigger, vector<string> *nLocals );
+  ~CIRC( );
 
-	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-	bool Update( void *fd, void *send_fd );
-	inline void ExtractPackets( );
-	void SendIRC( const string &message );
-	void SendDCC( const string &message );
-	void SendMessageIRC( const string &message, const string &target );
+  unsigned int SetFD( void *fd, void *send_fd, int *nfds );
+  bool Update( void *fd, void *send_fd );
+  inline void ExtractPackets( );
+  void SendIRC( const string &message );
+  void SendDCC( const string &message );
+  void SendMessageIRC( const string &message, const string &target );
 };
 
 class CAura;
@@ -67,17 +67,17 @@ class CTCPClient;
 class CDCC
 {
 public:
-	CTCPClient *m_Socket;
-	string m_Nickname;
-	CIRC *m_IRC;
-	string m_IP;
-	uint16_t m_Port;
+  CTCPClient *m_Socket;
+  string m_Nickname;
+  CIRC *m_IRC;
+  string m_IP;
+  uint16_t m_Port;
 
-	CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname );
-	~CDCC( );
+  CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname );
+  ~CDCC( );
 
-	unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-	void Update( void *fd, void *send_fd );
-	void Connect( const string &IP, uint16_t Port );
+  unsigned int SetFD( void *fd, void *send_fd, int *nfds );
+  void Update( void *fd, void *send_fd );
+  void Connect( const string &IP, uint16_t Port );
 };
 

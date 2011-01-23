@@ -16,7 +16,7 @@
 
    CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
-*/
+ */
 
 #ifndef STATS_H
 #define STATS_H
@@ -38,18 +38,18 @@ class CAuraDB;
 class CStats
 {
 protected:
-	CGame *m_Game;
-        CDBDotAPlayer *m_Players[12];
-	uint32_t m_Winner;
-	uint32_t m_Min;
-	uint32_t m_Sec;
+  CGame *m_Game;
+  CDBDotAPlayer *m_Players[12];
+  uint32_t m_Winner;
+  uint32_t m_Min;
+  uint32_t m_Sec;
 
 public:
-	CStats( CGame *nGame );
-	~CStats( );
+  CStats( CGame *nGame );
+  ~CStats( );
 
-	bool ProcessAction( CIncomingAction *Action );
-	void Save( CAura *CAura, CAuraDB *DB, uint32_t GameID );
+  bool ProcessAction( CIncomingAction *Action );
+  void Save( CAura *CAura, CAuraDB *DB, uint32_t GameID );
 };
 
 #endif

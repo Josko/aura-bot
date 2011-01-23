@@ -16,7 +16,7 @@
 
    CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
-*/
+ */
 
 #include "aura.h"
 #include "util.h"
@@ -43,15 +43,15 @@
 #include <stormlib/StormLib.h>
 
 #ifdef WIN32
- #include <ws2tcpip.h>
- #include <winsock.h>
- #include <process.h>
+#include <ws2tcpip.h>
+#include <winsock.h>
+#include <process.h>
 #else
- #include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #ifdef __APPLE__
- #include <mach/mach_time.h>
+#include <mach/mach_time.h>
 #endif
 
 CAura *gAura = NULL;
@@ -60,93 +60,93 @@ bool gRestart = false;
 uint32_t GetTime( )
 {
 #ifdef WIN32
-	// don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
-	// don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
-	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
+  // don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
+  // don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
+  // use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
 
-	return timeGetTime( ) / 1000;
+  return timeGetTime( ) / 1000;
 #elif __APPLE__
-        uint64_t current = mach_absolute_time( );
-        static mach_timebase_info_data_t info = { 0, 0 };
+  uint64_t current = mach_absolute_time( );
+  static mach_timebase_info_data_t info = { 0, 0 };
 
-        // get timebase info
+  // get timebase info
 
-        if( info.denom == 0 )
-                mach_timebase_info( &info );
+  if ( info.denom == 0 )
+    mach_timebase_info( &info );
 
-        uint64_t elapsednano = current * ( info.numer / info.denom );
+  uint64_t elapsednano = current * ( info.numer / info.denom );
 
-        // convert ns to s
+  // convert ns to s
 
-        return elapsednano / 1000000000;
+  return elapsednano / 1000000000;
 #else
-	struct timespec t;
-	clock_gettime( CLOCK_MONOTONIC, &t );
-	return t.tv_sec;
+  struct timespec t;
+  clock_gettime( CLOCK_MONOTONIC, &t );
+  return t.tv_sec;
 #endif
 }
 
 uint32_t GetTicks( )
 {
 #ifdef WIN32
-	// don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
-	// don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
-	// use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
+  // don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
+  // don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
+  // use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
 
-	return timeGetTime( );
+  return timeGetTime( );
 #elif __APPLE__
-        uint64_t current = mach_absolute_time( );
-        static mach_timebase_info_data_t info = { 0, 0 };
+  uint64_t current = mach_absolute_time( );
+  static mach_timebase_info_data_t info = { 0, 0 };
 
-        // get timebase info
+  // get timebase info
 
-        if( info.denom == 0 )
-                mach_timebase_info( &info );
+  if ( info.denom == 0 )
+    mach_timebase_info( &info );
 
-        uint64_t elapsednano = current * ( info.numer / info.denom );
+  uint64_t elapsednano = current * ( info.numer / info.denom );
 
-        // convert ns to ms
+  // convert ns to ms
 
-        return elapsednano / 1000000;
+  return elapsednano / 1000000;
 #else
-	struct timespec t;
-	clock_gettime( CLOCK_MONOTONIC, &t );
-	return t.tv_sec * 1000 + t.tv_nsec / 1000000;
+  struct timespec t;
+  clock_gettime( CLOCK_MONOTONIC, &t );
+  return t.tv_sec * 1000 + t.tv_nsec / 1000000;
 #endif
 }
 
-void SignalCatcher( int s )
+static void SignalCatcher( int s )
 {
-	Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
+  Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
 
-	if( gAura )
-	{
-		if( gAura->m_Exiting )
-			exit( 1 );
-		else
-			gAura->m_Exiting = true;
-	}
-	else
-		exit( 1 );
+  if ( gAura )
+  {
+    if ( gAura->m_Exiting )
+      exit( 1 );
+    else
+      gAura->m_Exiting = true;
+  }
+  else
+    exit( 1 );
 }
 
 void Print( const string &message )
 {
-        cout << message << endl;
+  cout << message << endl;
 
-	if( gAura && gAura->m_IRC )
-		gAura->m_IRC->SendDCC( message );
+  if ( gAura && gAura->m_IRC )
+    gAura->m_IRC->SendDCC( message );
 }
 
 void Print2( const string &message )
 {
-        cout << message << endl;
+  cout << message << endl;
 
-	if( gAura->m_IRC )
-	{
-		gAura->m_IRC->SendMessageIRC( message, string( ) );
-		gAura->m_IRC->SendDCC( message );
-	}
+  if ( gAura->m_IRC )
+  {
+    gAura->m_IRC->SendMessageIRC( message, string( ) );
+    gAura->m_IRC->SendDCC( message );
+  }
 }
 
 //
@@ -156,904 +156,929 @@ void Print2( const string &message )
 int main( )
 {
 #ifdef WIN32
-	// hide the window so it doesn't bother anyone
+  // hide the window so it doesn't bother anyone
 
-	ShowWindow( GetConsoleWindow(), SW_HIDE );
+  ShowWindow( GetConsoleWindow( ), SW_HIDE );
 #endif
 
-	srand( (unsigned int) time( NULL ) );
+  srand( (unsigned int) time( NULL ) );
 
-	// read config file
+  // read config file
 
-	CConfig CFG;
-	CFG.Read( "aura.cfg" );
+  CConfig CFG;
+  CFG.Read( "aura.cfg" );
 
-	Print( "[AURA] starting up" );
+  Print( "[AURA] starting up" );
 
-	// signal( SIGABRT, SignalCatcher );
-	signal( SIGINT, SignalCatcher );
+  // signal( SIGABRT, SignalCatcher );
+  signal( SIGINT, SignalCatcher );
 
 #ifndef WIN32
-	// disable SIGPIPE since some systems like OS X don't define MSG_NOSIGNAL
+  // disable SIGPIPE since some systems like OS X don't define MSG_NOSIGNAL
 
-	signal( SIGPIPE, SIG_IGN );
+  signal( SIGPIPE, SIG_IGN );
 #endif
 
 #ifdef WIN32
-	// initialize timer resolution
-	// attempt to set the resolution as low as possible from 1ms to 5ms
+  // initialize timer resolution
+  // attempt to set the resolution as low as possible from 1ms to 5ms
 
-	unsigned int TimerResolution = 0;
+  unsigned int TimerResolution = 0;
 
-	for( unsigned int i = 1; i <= 5; ++i )
-	{
-		if( timeBeginPeriod( i ) == TIMERR_NOERROR )
-		{
-			TimerResolution = i;
-			break;
-		}
-		else if( i < 5 )
-			Print( "[AURA] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
-		else
-		{
-			Print( "[AURA] error setting Windows timer resolution" );
-			return 1;
-		}
-	}
+  for ( unsigned int i = 1; i <= 5; ++i )
+  {
+    if ( timeBeginPeriod( i ) == TIMERR_NOERROR )
+    {
+      TimerResolution = i;
+      break;
+    }
+    else if ( i < 5 )
+      Print( "[AURA] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
+    else
+    {
+      Print( "[AURA] error setting Windows timer resolution" );
+      return 1;
+    }
+  }
 
-	Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
+  Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
 #elif !defined(__APPLE__)
-	// print the timer resolution
+  // print the timer resolution
 
-	struct timespec Resolution;
+  struct timespec Resolution;
 
-	if( clock_getres( CLOCK_MONOTONIC, &Resolution ) == -1 )
-		Print( "[AURA] error getting monotonic timer resolution" );
-	else
-		Print( "[AURA] using monotonic timer with resolution " + UTIL_ToString( (double)( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
+  if ( clock_getres( CLOCK_MONOTONIC, &Resolution ) == -1 )
+    Print( "[AURA] error getting monotonic timer resolution" );
+  else
+    Print( "[AURA] using monotonic timer with resolution " + UTIL_ToString( (double) ( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
 #endif
 
 #ifdef WIN32
-	// initialize winsock
+  // initialize winsock
 
-	Print( "[AURA] starting winsock" );
-	WSADATA wsadata;
+  Print( "[AURA] starting winsock" );
+  WSADATA wsadata;
 
-	if( WSAStartup( MAKEWORD( 2, 2 ), &wsadata ) != 0 )
-	{
-		Print( "[AURA] error starting winsock" );
-		return 1;
-	}
+  if ( WSAStartup( MAKEWORD( 2, 2 ), &wsadata ) != 0 )
+  {
+    Print( "[AURA] error starting winsock" );
+    return 1;
+  }
 
-	// increase process priority
+  // increase process priority
 
-	Print( "[AURA] setting process priority to \"high\"" );
-	SetPriorityClass( GetCurrentProcess( ), HIGH_PRIORITY_CLASS );
+  Print( "[AURA] setting process priority to \"high\"" );
+  SetPriorityClass( GetCurrentProcess( ), HIGH_PRIORITY_CLASS );
 #endif
 
-	// initialize aura
+  // initialize aura
 
-	gAura = new CAura( &CFG );
+  gAura = new CAura( &CFG );
 
-	while( true )
-	{
-		// block for 50ms on all sockets - if you intend to perform any timed actions more frequently you should change this
-		// that said it's likely we'll loop more often than this due to there being data waiting on one of the sockets but there aren't any guarantees
+  // check if it's properly configured
 
-		if( gAura->Update( 50000 ) )
-			break;
-	}
+  if( gAura->GetReady( ) )
+  {
+    // loop
 
-	// shutdown aura
+    while ( true )
+    {
+      if ( gAura->Update( ) )
+        break;
+    }
+  }
+  else
+    Print( "[AURA] check your aura.cfg and configure Aura properly" );
 
-	Print( "[AURA] shutting down" );
-	delete gAura;
-	gAura = NULL;
+  // shutdown aura
+
+  Print( "[AURA] shutting down" );
+  delete gAura;
+  gAura = NULL;
 
 #ifdef WIN32
-	// shutdown winsock
+  // shutdown winsock
 
-	Print( "[AURA] shutting down winsock" );
-	WSACleanup( );
+  Print( "[AURA] shutting down winsock" );
+  WSACleanup( );
 
-	// shutdown timer
+  // shutdown timer
 
-	timeEndPeriod( TimerResolution );
+  timeEndPeriod( TimerResolution );
 #endif
 
-	// restart the program
+  // restart the program
 
-	if( gRestart )
-	{
+  if ( gRestart )
+  {
 #ifdef WIN32
-		_spawnl( _P_OVERLAY, "aura.exe", "aura.exe", NULL );
+    _spawnl( _P_OVERLAY, "aura.exe", "aura.exe", NULL );
 #else
-		execl( "aura++", "aura++", NULL );
+    execl( "aura++", "aura++", NULL );
 #endif
-	}
+  }
 
-	return 0;
+  return 0;
 }
 
 //
 // CAura
 //
 
-CAura :: CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.02" ), m_HostCounter( 1 )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.02" ), m_HostCounter( 1 )
 {
-	vector<string> channels, locals;
+  // get the general configuration variables
 
-	for( int i = 0; i < 10; ++i )
-	{
-		string line;
+  m_Ready = true;
+  m_UDPSocket = new CUDPSocket( );
+  m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
+  m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
+  m_GPSProtocol = new CGPSProtocol( );
+  m_CRC = new CCRC32( );
+  m_CRC->Initialize( );
+  m_SHA = new CSHA1( );
+  m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
+  m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
+  m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
+  m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
+  m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
 
-		if( i == 1 )
-			line = CFG->GetString( "irc_channel", string( ) );
-		else
-			line = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
+  // open the database
 
-		if( !line.empty( ) )
-			channels.push_back( "#" + line );
+  Print( "[AURA] opening database" );
+  m_DB = new CAuraDB( CFG );
 
-		line.clear( );
+  // read the rest of the general configuration
 
-		if( i == 1 )
-			line = CFG->GetString( "dcc_local", string( ) );
-		else
-			line = CFG->GetString( "dcc_local" + UTIL_ToString( i ), string( ) );
+  SetConfigs( CFG );  
 
-		if( !line.empty( ) )
-			locals.push_back( line );
-	}
+  // get irc configuration
 
-	m_IRC = new CIRC( this, CFG->GetString( "irc_server", string( ) ), CFG->GetString( "irc_nickname", string( ) ), CFG->GetString( "irc_username", string( ) ), CFG->GetString( "irc_password", string( ) ), channels, CFG->GetInt( "irc_port", 6667 ), CFG->GetString( "irc_commandtrigger", "!" ), locals );
+  string IRC_Server = CFG->GetString( "irc_server", string( ) );
+  string IRC_NickName = CFG->GetString( "irc_nickname", string( ) );
+  string IRC_UserName = CFG->GetString( "irc_username", string( ) );
+  string IRC_Password = CFG->GetString( "irc_password", string( ) );
+  string IRC_CommandTrigger = CFG->GetString( "irc_commandtrigger", "!" );
+  uint32_t IRC_Port = CFG->GetInt( "irc_port", 6667 );
 
-        m_UDPSocket = new CUDPSocket( );
-	m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
-	m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
-	m_GPSProtocol = new CGPSProtocol( );
-	m_CRC = new CCRC32( );
-	m_CRC->Initialize( );
-	m_SHA = new CSHA1( );
-	m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
-	m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
-	m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
-	m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
-	m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
+  // get the irc channels and dcc local users
 
-	Print( "[AURA] opening database" );
-	m_DB = new CAuraDB( CFG );
+  vector<string> Channels, LocalUsers;
 
-	SetConfigs( CFG );
+  for ( int i = 0; i < 10; ++i )
+  {
+    string Channel;
+    string LocalUser;
 
-	// load the battle.net connections
-	// we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
+    if ( i == 1 )
+    {
+      Channel = CFG->GetString( "irc_channel", string( ) );
+      LocalUser = CFG->GetString( "dcc_local", string( ) );
+    }
+    else
+    {
+      Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
+      LocalUser = CFG->GetString( "dcc_local" + UTIL_ToString( i ), string( ) );
+    }
 
-	for( int i = 1; i < 10; ++i )
-	{
-		string Prefix;
+    if ( Channel.empty( ) && LocalUser.empty( ) )
+      break;
 
-		if( i == 1 )
-			Prefix = "bnet_";
-		else
-			Prefix = "bnet" + UTIL_ToString( i ) + "_";
+    if ( !Channel.empty( ) )
+      Channels.push_back( "#" + Channel );
 
-		string Server = CFG->GetString( Prefix + "server", string( ) );
-		string ServerAlias = CFG->GetString( Prefix + "serveralias", string( ) );
-		string CDKeyROC = CFG->GetString( Prefix + "cdkeyroc", string( ) );
-		string CDKeyTFT = CFG->GetString( Prefix + "cdkeytft", string( ) );
-		string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "DEU" );
-		string Country = CFG->GetString( Prefix + "country", "Germany" );
-		string Locale = CFG->GetString( Prefix + "locale", "system" );
-		uint32_t LocaleID;
+    if ( !LocalUser.empty( ) )
+      LocalUsers.push_back( LocalUser );
+  }
 
-		if( Locale == "system" )
-		{
-			LocaleID = 1031;
-		}
-		else
-			LocaleID = UTIL_ToUInt32( Locale );
+  if ( IRC_Server.empty( ) || IRC_UserName.empty( ) || IRC_NickName.empty( ) || IRC_Port == 0 || IRC_Port >= 65535 )
+  {
+    Print( "[AURA] error - no irc connection found in config file" );
+    m_Ready = false;
+    return;
+  }
+  else
+    m_IRC = new CIRC( this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, &Channels, IRC_Port, IRC_CommandTrigger, &LocalUsers );
 
-		string UserName = CFG->GetString( Prefix + "username", string( ) );
-		string UserPassword = CFG->GetString( Prefix + "password", string( ) );
-		string FirstChannel = CFG->GetString( Prefix + "firstchannel", "The Void" );
-		string RootAdmins = CFG->GetString( Prefix + "rootadmins", string( ) );
+  // load the battle.net connections
+  // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
 
-                // add each root admin to the rootadmin table
+  for ( int i = 1; i < 10; ++i )
+  {
+    string Prefix;
 
-                string User;
-                stringstream SS;
-                SS << RootAdmins;
+    if ( i == 1 )
+      Prefix = "bnet_";
+    else
+      Prefix = "bnet" + UTIL_ToString( i ) + "_";
 
-                while( !SS.eof( ) )
-                {
-                        SS >> User;
-                        m_DB->RootAdminAdd( Server, User );
-                }
+    string Server = CFG->GetString( Prefix + "server", string( ) );
+    string ServerAlias = CFG->GetString( Prefix + "serveralias", string( ) );
+    string CDKeyROC = CFG->GetString( Prefix + "cdkeyroc", string( ) );
+    string CDKeyTFT = CFG->GetString( Prefix + "cdkeytft", string( ) );
+    string CountryAbbrev = CFG->GetString( Prefix + "countryabbrev", "DEU" );
+    string Country = CFG->GetString( Prefix + "country", "Germany" );
+    string Locale = CFG->GetString( Prefix + "locale", "system" );
+    uint32_t LocaleID;
 
-		string BNETCommandTrigger = CFG->GetString( Prefix + "commandtrigger", "!" );
+    if ( Locale == "system" )
+      LocaleID = 1031;
+    else
+      LocaleID = UTIL_ToUInt32( Locale );
 
-		if( BNETCommandTrigger.empty( ) )
-			BNETCommandTrigger = "!";
+    string UserName = CFG->GetString( Prefix + "username", string( ) );
+    string UserPassword = CFG->GetString( Prefix + "password", string( ) );
+    string FirstChannel = CFG->GetString( Prefix + "firstchannel", "The Void" );
+    string RootAdmins = CFG->GetString( Prefix + "rootadmins", string( ) );
 
-		unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 24 );
-		BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
-		BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
-		string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
+    // add each root admin to the rootadmin table
 
-		if( Server.empty( ) )
-			break;
+    string User;
+    stringstream SS;
+    SS << RootAdmins;
 
-		Print( "[AURA] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
+    while ( !SS.eof( ) )
+    {
+      SS >> User;
+      m_DB->RootAdminAdd( Server, User );
+    }
 
-		if( Locale == "system" )
-		{
-			Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
-		}
+    string BNETCommandTrigger = CFG->GetString( Prefix + "commandtrigger", "!" );
+    unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 24 );
+    BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
+    BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
+    string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
 
-		m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
-	}
+    if ( Server.empty( ) )
+      break;
 
-	if( m_BNETs.empty( ) )
-		Print( "[AURA] warning - no battle.net connections found in config file" );
+    Print( "[AURA] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
 
-	// extract common.j and blizzard.j from War3Patch.mpq if we can
-	// these two files are necessary for calculating "map_crc" when loading maps so we make sure to do it before loading the default map
-	// see CMap :: Load for more information
+    if ( Locale == "system" )
+    {
+      Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
+    }
 
-	ExtractScripts( );
+    m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
+  }
 
-	// load the default maps (note: make sure to run ExtractScripts first)
+  if ( m_BNETs.empty( ) )
+  {
+    Print( "[AURA] warning - no battle.net connections found in config file" );
+  }
 
-	if( m_DefaultMap.size( ) < 4 || m_DefaultMap.substr( m_DefaultMap.size( ) - 4 ) != ".cfg" )
-		m_DefaultMap += ".cfg";
+  // extract common.j and blizzard.j from War3Patch.mpq if we can
+  // these two files are necessary for calculating "map_crc" when loading maps so we make sure to do it before loading the default map
+  // see CMap :: Load for more information
 
-	CConfig MapCFG;
-	MapCFG.Read( m_MapCFGPath + m_DefaultMap );
-	m_Map = new CMap( this, &MapCFG, m_MapCFGPath + m_DefaultMap );
+  ExtractScripts( );
 
-	// load the iptocountry data
+  // load the default maps (note: make sure to run ExtractScripts first)
 
-	LoadIPToCountryData( );
+  if ( m_DefaultMap.size( ) < 4 || m_DefaultMap.substr( m_DefaultMap.size( ) - 4 ) != ".cfg" )
+    m_DefaultMap += ".cfg";
 
-	Print( "[AURA] Aura++ Version " + m_Version );
+  CConfig MapCFG;
+  MapCFG.Read( m_MapCFGPath + m_DefaultMap );
+  m_Map = new CMap( this, &MapCFG, m_MapCFGPath + m_DefaultMap );
+
+  // load the iptocountry data
+
+  LoadIPToCountryData( );
+
+  Print( "[AURA] Aura++ Version " + m_Version );
 }
 
-CAura :: ~CAura( )
+CAura::~CAura( )
 {
-	delete m_UDPSocket;
-	delete m_ReconnectSocket;
+  delete m_UDPSocket;
+  delete m_ReconnectSocket;
 
-	for( vector<CTCPSocket *> :: iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
-		delete *i;
+  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
+    delete *i;
 
-	delete m_GPSProtocol;
-	delete m_CRC;
-	delete m_SHA;
+  delete m_GPSProtocol;
+  delete m_CRC;
+  delete m_SHA;
 
-	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		delete *i;
+  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    delete *i;
 
-	delete m_CurrentGame;
+  delete m_CurrentGame;
 
-	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
-		delete *i;
+  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+    delete *i;
 
-	delete m_DB;
-	delete m_Language;
-	delete m_Map;
-	delete m_IRC;
+  delete m_DB;
+  delete m_Language;
+  delete m_Map;
+  delete m_IRC;
 }
 
-inline bool CAura :: Update( unsigned long usecBlock )
+inline bool CAura::Update( )
 {
-	// create the GProxy++ reconnect listener
+  // create the GProxy++ reconnect listener
 
-	if( m_Reconnect )
-	{
-		if( !m_ReconnectSocket )
-		{
-			m_ReconnectSocket = new CTCPServer( );
+  if ( m_Reconnect )
+  {
+    if ( !m_ReconnectSocket )
+    {
+      m_ReconnectSocket = new CTCPServer( );
 
-			if( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
-				Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
-			else
-			{
-				Print( "[AURA] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
-				delete m_ReconnectSocket;
-				m_ReconnectSocket = NULL;
-				m_Reconnect = false;
-			}
-		}
-		else if( m_ReconnectSocket->HasError( ) )
-		{
-			Print( "[AURA] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
-			delete m_ReconnectSocket;
-			m_ReconnectSocket = NULL;
-			m_Reconnect = false;
-		}
-	}
+      if ( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
+        Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+      else
+      {
+        Print( "[AURA] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+        delete m_ReconnectSocket;
+        m_ReconnectSocket = NULL;
+        m_Reconnect = false;
+      }
+    }
+    else if ( m_ReconnectSocket->HasError( ) )
+    {
+      Print( "[AURA] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
+      delete m_ReconnectSocket;
+      m_ReconnectSocket = NULL;
+      m_Reconnect = false;
+    }
+  }
 
-	unsigned int NumFDs = 0;
+  unsigned int NumFDs = 0;
 
-	// take every socket we own and throw it in one giant select statement so we can block on all sockets
+  // take every socket we own and throw it in one giant select statement so we can block on all sockets
 
-	int nfds = 0;
-	fd_set fd, send_fd;
-	FD_ZERO( &fd );
-	FD_ZERO( &send_fd );
+  int nfds = 0;
+  fd_set fd, send_fd;
+  FD_ZERO( &fd );
+  FD_ZERO( &send_fd );
 
-	// 1. the current game's server and player sockets
+  // 1. the current game's server and player sockets
 
-	if( m_CurrentGame )
-		NumFDs += m_CurrentGame->SetFD( &fd, &send_fd, &nfds );
+  if ( m_CurrentGame )
+    NumFDs += m_CurrentGame->SetFD( &fd, &send_fd, &nfds );
 
-	// 2. all running games' player sockets
+  // 2. all running games' player sockets
 
-	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
-		NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
+  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
 
-	// 3. all battle.net sockets
+  // 3. all battle.net sockets
 
-	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
+  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
 
-	// 4. IRC and DCC
+  // 4. irc
 
-	NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );
+  NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );
 
-	for( vector<CDCC *> :: iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
-		NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
+  // 5. dcc
 
-	// 5. the GProxy++ reconnect socket(s)
+  for ( vector<CDCC *> ::iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
+    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
 
-	if( m_Reconnect && m_ReconnectSocket )
-	{
-		m_ReconnectSocket->SetFD( &fd, &send_fd, &nfds );
-		++NumFDs;
-	}
+  // 6. the GProxy++ reconnect socket(s)
 
-	for( vector<CTCPSocket *> :: iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
-	{
-		(*i)->SetFD( &fd, &send_fd, &nfds );
-		++NumFDs;
-	}
+  if ( m_Reconnect && m_ReconnectSocket )
+  {
+    m_ReconnectSocket->SetFD( &fd, &send_fd, &nfds );
+    ++NumFDs;
+  }
 
-	// before we call select we need to determine how long to block for
-	// previously we just blocked for a maximum of the passed usecBlock microseconds
-	// however, in an effort to make game updates happen closer to the desired latency setting we now use a dynamic block interval
-	// note: we still use the passed usecBlock as a hard maximum
+  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
+  {
+    ( *i )->SetFD( &fd, &send_fd, &nfds );
+    ++NumFDs;
+  }
 
-	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
-	{
-		if( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
-			usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
-	}
+  // before we call select we need to determine how long to block for
+  // 50 ms is the hard maximum
 
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = usecBlock;
+  unsigned long usecBlock = 50000;
 
-	struct timeval send_tv;
-	send_tv.tv_sec = 0;
-	send_tv.tv_usec = 0;
+  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+  {
+    if ( ( *i )->GetNextTimedActionTicks( ) * 1000 < usecBlock )
+      usecBlock = ( *i )->GetNextTimedActionTicks( ) * 1000;
+  }
+
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = usecBlock;
+
+  struct timeval send_tv;
+  send_tv.tv_sec = 0;
+  send_tv.tv_usec = 0;
 
 #ifdef WIN32
-	select( 1, &fd, NULL, NULL, &tv );
-	select( 1, NULL, &send_fd, NULL, &send_tv );
+  select( 1, &fd, NULL, NULL, &tv );
+  select( 1, NULL, &send_fd, NULL, &send_tv );
 #else
-	select( nfds + 1, &fd, NULL, NULL, &tv );
-	select( nfds + 1, NULL, &send_fd, NULL, &send_tv );
+  select( nfds + 1, &fd, NULL, NULL, &tv );
+  select( nfds + 1, NULL, &send_fd, NULL, &send_tv );
 #endif
 
-	if( NumFDs == 0 )
-	{
-		// we don't have any sockets (i.e. we aren't connected to battle.net maybe due to a lost connection and there aren't any games running)
-		// select will return immediately and we'll chew up the CPU if we let it loop so just sleep for 200ms to kill some time
+  if ( NumFDs == 0 )
+  {
+    // we don't have any sockets (i.e. we aren't connected to battle.net and irc maybe due to a lost connection and there aren't any games running)
+    // select will return immediately and we'll chew up the CPU if we let it loop so just sleep for 200ms to kill some time
 
-		MILLISLEEP( 200 );
-	}
+    MILLISLEEP( 200 );
+  }
 
-	bool BNETExit = false, IRCExit = false;
+  bool BNETExit = false, IRCExit = false;
 
-	// update running games
+  // update running games
 
-	for( vector<CGame *> :: iterator i = m_Games.begin( ); i != m_Games.end( ); )
-	{
-		if( (*i)->Update( &fd, &send_fd ) )
-		{
-			Print2( "[AURA] deleting game [" + (*i)->GetGameName( ) + "]" );
-			EventGameDeleted( *i );
-			delete *i;
-			i = m_Games.erase( i );
-		}
-		else
-		{
-			(*i)->UpdatePost( &send_fd );
-			++i;
-		}
-	}
+  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); )
+  {
+    if ( ( *i )->Update( &fd, &send_fd ) )
+    {
+      Print2( "[AURA] deleting game [" + ( *i )->GetGameName( ) + "]" );
+      EventGameDeleted( *i );
+      delete *i;
+      i = m_Games.erase( i );
+    }
+    else
+    {
+      ( *i )->UpdatePost( &send_fd );
+      ++i;
+    }
+  }
 
-	// update current game
+  // update current game
 
-	if( m_CurrentGame )
-	{
-		if( m_CurrentGame->Update( &fd, &send_fd ) )
-		{
-			Print2( "[AURA] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
-			delete m_CurrentGame;
-			m_CurrentGame = NULL;
+  if ( m_CurrentGame )
+  {
+    if ( m_CurrentGame->Update( &fd, &send_fd ) )
+    {
+      Print2( "[AURA] deleting current game [" + m_CurrentGame->GetGameName( ) + "]" );
+      delete m_CurrentGame;
+      m_CurrentGame = NULL;
 
-			for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-			{
-				(*i)->QueueGameUncreate( );
-				(*i)->QueueEnterChat( );
-			}
-		}
-		else if( m_CurrentGame )
-			m_CurrentGame->UpdatePost( &send_fd );
-	}
+      for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+      {
+        ( *i )->QueueGameUncreate( );
+        ( *i )->QueueEnterChat( );
+      }
+    }
+    else if ( m_CurrentGame )
+      m_CurrentGame->UpdatePost( &send_fd );
+  }
 
-	// update battle.net connections
+  // update battle.net connections
 
-	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-	{
-		if( (*i)->Update( &fd, &send_fd ) )
-			BNETExit = true;
-	}
+  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  {
+    if ( ( *i )->Update( &fd, &send_fd ) )
+      BNETExit = true;
+  }
 
-	// update IRC and DCC
+  // update irc
 
-	if( m_IRC->Update( &fd, &send_fd ) )
-		IRCExit = true;
+  if ( m_IRC->Update( &fd, &send_fd ) )
+    IRCExit = true;
 
-	for( vector<CDCC *> :: iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
+  // update dcc
+
+  for ( vector<CDCC *> ::iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
+  {
+    ( *i )->Update( &fd, &send_fd );
+  }
+
+  // update GProxy++ reliable reconnect sockets
+
+  if ( m_Reconnect && m_ReconnectSocket )
+  {
+    CTCPSocket *NewSocket = m_ReconnectSocket->Accept( &fd );
+
+    if ( NewSocket )
+      m_ReconnectSockets.push_back( NewSocket );
+  }
+
+  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
+  {
+    if ( ( *i )->HasError( ) || !( *i )->GetConnected( ) || GetTime( ) - ( *i )->GetLastRecv( ) >= 12 )
+    {
+      delete *i;
+      i = m_ReconnectSockets.erase( i );
+      continue;
+    }
+
+    ( *i )->DoRecv( &fd );
+    string *RecvBuffer = ( *i )->GetBytes( );
+    BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
+
+    // a packet is at least 4 bytes
+
+    if ( Bytes.size( ) >= 4 )
+    {
+      if ( Bytes[0] == GPS_HEADER_CONSTANT )
+      {
+        // bytes 2 and 3 contain the length of the packet
+
+        uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+
+        if ( Length >= 4 )
         {
-            (*i)->Update( &fd, &send_fd );
+          if ( Bytes.size( ) >= Length )
+          {
+            if ( Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13 )
+            {
+              unsigned char PID = Bytes[4];
+              uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
+              uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
+
+              // look for a matching player in a running game
+
+              CGamePlayer *Match = NULL;
+
+              for ( vector<CGame *> ::iterator j = m_Games.begin( ); j != m_Games.end( ); ++j )
+              {
+                if ( ( *j )->GetGameLoaded( ) )
+                {
+                  CGamePlayer *Player = ( *j )->GetPlayerFromPID( PID );
+
+                  if ( Player && Player->GetGProxy( ) && Player->GetGProxyReconnectKey( ) == ReconnectKey )
+                  {
+                    Match = Player;
+                    break;
+                  }
+                }
+              }
+
+              if ( Match )
+              {
+                // reconnect successful!
+
+                *RecvBuffer = RecvBuffer->substr( Length );
+                Match->EventGProxyReconnect( *i, LastPacket );
+                i = m_ReconnectSockets.erase( i );
+                continue;
+              }
+              else
+              {
+                ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+                ( *i )->DoSend( &send_fd );
+                delete *i;
+                i = m_ReconnectSockets.erase( i );
+                continue;
+              }
+            }
+            else
+            {
+              ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
+              ( *i )->DoSend( &send_fd );
+              delete *i;
+              i = m_ReconnectSockets.erase( i );
+              continue;
+            }
+          }
         }
+        else
+        {
+          ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
+          ( *i )->DoSend( &send_fd );
+          delete *i;
+          i = m_ReconnectSockets.erase( i );
+          continue;
+        }
+      }
+      else
+      {
+        ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
+        ( *i )->DoSend( &send_fd );
+        delete *i;
+        i = m_ReconnectSockets.erase( i );
+        continue;
+      }
+    }
 
-	// update GProxy++ reliable reconnect sockets
+    ( *i )->DoSend( &send_fd );
+    ++i;
+  }
 
-	if( m_Reconnect && m_ReconnectSocket )
-	{
-		CTCPSocket *NewSocket = m_ReconnectSocket->Accept( &fd );
-
-		if( NewSocket )
-			m_ReconnectSockets.push_back( NewSocket );
-	}
-
-	for( vector<CTCPSocket *> :: iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
-	{
-		if( (*i)->HasError( ) || !(*i)->GetConnected( ) || GetTime( ) - (*i)->GetLastRecv( ) >= 12 )
-		{
-			delete *i;
-			i = m_ReconnectSockets.erase( i );
-			continue;
-		}
-
-		(*i)->DoRecv( &fd );
-		string *RecvBuffer = (*i)->GetBytes( );
-		BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *)RecvBuffer->c_str( ), RecvBuffer->size( ) );
-
-		// a packet is at least 4 bytes
-
-		if( Bytes.size( ) >= 4 )
-		{
-			if( Bytes[0] == GPS_HEADER_CONSTANT )
-			{
-				// bytes 2 and 3 contain the length of the packet
-
-				uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
-
-				if( Length >= 4 )
-				{
-					if( Bytes.size( ) >= Length )
-					{
-						if( Bytes[1] == CGPSProtocol :: GPS_RECONNECT && Length == 13 )
-						{
-							unsigned char PID = Bytes[4];
-							uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
-							uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
-
-							// look for a matching player in a running game
-
-							CGamePlayer *Match = NULL;
-
-							for( vector<CGame *> :: iterator j = m_Games.begin( ); j != m_Games.end( ); ++j )
-							{
-								if( (*j)->GetGameLoaded( ) )
-								{
-									CGamePlayer *Player = (*j)->GetPlayerFromPID( PID );
-
-									if( Player && Player->GetGProxy( ) && Player->GetGProxyReconnectKey( ) == ReconnectKey )
-									{
-										Match = Player;
-										break;
-									}
-								}
-							}
-
-							if( Match )
-							{
-								// reconnect successful!
-
-								*RecvBuffer = RecvBuffer->substr( Length );
-								Match->EventGProxyReconnect( *i, LastPacket );
-								i = m_ReconnectSockets.erase( i );
-								continue;
-							}
-							else
-							{
-								(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
-								(*i)->DoSend( &send_fd );
-								delete *i;
-								i = m_ReconnectSockets.erase( i );
-								continue;
-							}
-						}
-						else
-						{
-							(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
-							(*i)->DoSend( &send_fd );
-							delete *i;
-							i = m_ReconnectSockets.erase( i );
-							continue;
-						}
-					}
-				}
-				else
-				{
-					(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
-					(*i)->DoSend( &send_fd );
-					delete *i;
-					i = m_ReconnectSockets.erase( i );
-					continue;
-				}
-			}
-			else
-			{
-				(*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
-				(*i)->DoSend( &send_fd );
-				delete *i;
-				i = m_ReconnectSockets.erase( i );
-				continue;
-			}
-		}
-
-		(*i)->DoSend( &send_fd );
-		++i;
-	}
-
-	return m_Exiting || BNETExit || IRCExit;
+  return m_Exiting || BNETExit || IRCExit;
 }
 
-void CAura :: EventBNETGameRefreshFailed( CBNET *bnet )
+void CAura::EventBNETGameRefreshFailed( CBNET *bnet )
 {
-	if( m_CurrentGame )
-	{
-		m_CurrentGame->SendAllChat( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
+  if ( m_CurrentGame )
+  {
+    m_CurrentGame->SendAllChat( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
 
-		Print2( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name." );
+    Print2( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name." );
 
-		// we take the easy route and simply close the lobby if a refresh fails
-		// it's possible at least one refresh succeeded and therefore the game is still joinable on at least one battle.net (plus on the local network) but we don't keep track of that
-		// we only close the game if it has no players since we support game rehosting (via !priv and !pub in the lobby)
+    // we take the easy route and simply close the lobby if a refresh fails
+    // it's possible at least one refresh succeeded and therefore the game is still joinable on at least one battle.net (plus on the local network) but we don't keep track of that
+    // we only close the game if it has no players since we support game rehosting (via !priv and !pub in the lobby)
 
-		if( m_CurrentGame->GetNumHumanPlayers( ) == 0 )
-			m_CurrentGame->SetExiting( true );
+    if ( m_CurrentGame->GetNumHumanPlayers( ) == 0 )
+      m_CurrentGame->SetExiting( true );
 
-		m_CurrentGame->SetRefreshError( true );
-	}
+    m_CurrentGame->SetRefreshError( true );
+  }
 }
 
-void CAura :: EventGameDeleted( CGame *game )
+void CAura::EventGameDeleted( CGame *game )
 {
-	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-	{
-		(*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
+  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  {
+    ( *i )->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
 
-		if( (*i)->GetServer( ) == game->GetCreatorServer( ) )
-			(*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, false );
-	}
+    if ( ( *i )->GetServer( ) == game->GetCreatorServer( ) )
+      ( *i )->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, false );
+  }
 }
 
-void CAura :: ReloadConfigs( )
+void CAura::ReloadConfigs( )
 {
-	CConfig CFG;
-	CFG.Read( "aura.cfg" );
-	SetConfigs( &CFG );
+  CConfig CFG;
+  CFG.Read( "aura.cfg" );
+  SetConfigs( &CFG );
 }
 
-void CAura :: SetConfigs( CConfig *CFG )
+void CAura::SetConfigs( CConfig *CFG )
 {
-	// this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
-	// it just set the easily reloadable values
+  // this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
+  // it just set the easily reloadable values
 
-	m_LanguageFile = CFG->GetString( "bot_language", "language.cfg" );
-	delete m_Language;
-	m_Language = new CLanguage( m_LanguageFile );
-	m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
-	m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
-	m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
-	m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
-	string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
-	m_CommandTrigger = BotCommandTrigger[0];
+  m_LanguageFile = CFG->GetString( "bot_language", "language.cfg" );
+  delete m_Language;
+  m_Language = new CLanguage( m_LanguageFile );
+  m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
+  m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
+  m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
+  m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
+  string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
+  m_CommandTrigger = BotCommandTrigger[0];
 
-	m_MapCFGPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mapcfgpath", string( ) ) );
-	m_MapPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mappath", string( ) ) );
-	m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0Aura" );
+  m_MapCFGPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mapcfgpath", string( ) ) );
+  m_MapPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mappath", string( ) ) );
+  m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0Aura" );
 
-	if( m_VirtualHostName.size( ) > 15 )
-	{
-		m_VirtualHostName = "|cFF4080C0Aura";
-		Print( "[AURA] warning - bot_virtualhostname is longer than 15 characters, using default virtual host name" );
-	}
+  if ( m_VirtualHostName.size( ) > 15 )
+  {
+    m_VirtualHostName = "|cFF4080C0Aura";
+    Print( "[AURA] warning - bot_virtualhostname is longer than 15 characters, using default virtual host name" );
+  }
 
-	m_AutoLock = CFG->GetInt( "bot_autolock", 0 ) == 0 ? false : true;
-	m_AllowDownloads = CFG->GetInt( "bot_allowdownloads", 0 );
-	m_MaxDownloaders = CFG->GetInt( "bot_maxdownloaders", 3 );
-	m_MaxDownloadSpeed = CFG->GetInt( "bot_maxdownloadspeed", 100 );
-	m_LCPings = CFG->GetInt( "bot_lcpings", 1 ) == 0 ? false : true;
-	m_AutoKickPing = CFG->GetInt( "bot_autokickping", 300 );
-	m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );
-	m_Latency = CFG->GetInt( "bot_latency", 100 );
-	m_SyncLimit = CFG->GetInt( "bot_synclimit", 50 );
-	m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );
+  m_AutoLock = CFG->GetInt( "bot_autolock", 0 ) == 0 ? false : true;
+  m_AllowDownloads = CFG->GetInt( "bot_allowdownloads", 0 );
+  m_MaxDownloaders = CFG->GetInt( "bot_maxdownloaders", 3 );
+  m_MaxDownloadSpeed = CFG->GetInt( "bot_maxdownloadspeed", 100 );
+  m_LCPings = CFG->GetInt( "bot_lcpings", 1 ) == 0 ? false : true;
+  m_AutoKickPing = CFG->GetInt( "bot_autokickping", 300 );
+  m_LobbyTimeLimit = CFG->GetInt( "bot_lobbytimelimit", 2 );
+  m_Latency = CFG->GetInt( "bot_latency", 100 );
+  m_SyncLimit = CFG->GetInt( "bot_synclimit", 50 );
+  m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );
 
-	if( m_VoteKickPercentage > 100 )
-	{
-		m_VoteKickPercentage = 100;
-	}
+  if ( m_VoteKickPercentage > 100 )
+  {
+    m_VoteKickPercentage = 100;
+  }
 }
 
-void CAura :: ExtractScripts( )
+inline void CAura::ExtractScripts( )
 {
-	string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
-	HANDLE PatchMPQ;
+  string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
+  HANDLE PatchMPQ;
 
-	if( SFileOpenArchive( PatchMPQFileName.c_str( ), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ ) )
-	{
-		Print( "[AURA] loading MPQ file [" + PatchMPQFileName + "]" );
-		HANDLE SubFile;
+  if ( SFileOpenArchive( PatchMPQFileName.c_str( ), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ ) )
+  {
+    Print( "[AURA] loading MPQ file [" + PatchMPQFileName + "]" );
+    HANDLE SubFile;
 
-		// common.j
+    // common.j
 
-		if( SFileOpenFileEx( PatchMPQ, "Scripts\\common.j", 0, &SubFile ) )
-		{
-			uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
+    if ( SFileOpenFileEx( PatchMPQ, "Scripts\\common.j", 0, &SubFile ) )
+    {
+      uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
 
-			if( FileLength > 0 && FileLength != 0xFFFFFFFF )
-			{
-				char *SubFileData = new char[FileLength];
-				DWORD BytesRead = 0;
+      if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
+      {
+        char *SubFileData = new char[FileLength];
+        DWORD BytesRead = 0;
 
-				if( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
-				{
-					Print( "[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]" );
-					UTIL_FileWrite( m_MapCFGPath + "common.j", (unsigned char *)SubFileData, BytesRead );
-				}
-				else
-					Print( "[AURA] warning - unable to extract Scripts\\common.j from MPQ file" );
+        if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
+        {
+          Print( "[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]" );
+          UTIL_FileWrite( m_MapCFGPath + "common.j", (unsigned char *) SubFileData, BytesRead );
+        }
+        else
+          Print( "[AURA] warning - unable to extract Scripts\\common.j from MPQ file" );
 
-				delete [] SubFileData;
-			}
+        delete [] SubFileData;
+      }
 
-			SFileCloseFile( SubFile );
-		}
-		else
-			Print( "[AURA] couldn't find Scripts\\common.j in MPQ file" );
+      SFileCloseFile( SubFile );
+    }
+    else
+      Print( "[AURA] couldn't find Scripts\\common.j in MPQ file" );
 
-		// blizzard.j
+    // blizzard.j
 
-		if( SFileOpenFileEx( PatchMPQ, "Scripts\\blizzard.j", 0, &SubFile ) )
-		{
-			uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
+    if ( SFileOpenFileEx( PatchMPQ, "Scripts\\blizzard.j", 0, &SubFile ) )
+    {
+      uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
 
-			if( FileLength > 0 && FileLength != 0xFFFFFFFF )
-			{
-				char *SubFileData = new char[FileLength];
-				DWORD BytesRead = 0;
+      if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
+      {
+        char *SubFileData = new char[FileLength];
+        DWORD BytesRead = 0;
 
-				if( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
-				{
-					Print( "[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]" );
-					UTIL_FileWrite( m_MapCFGPath + "blizzard.j", (unsigned char *)SubFileData, BytesRead );
-				}
-				else
-					Print( "[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file" );
+        if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
+        {
+          Print( "[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]" );
+          UTIL_FileWrite( m_MapCFGPath + "blizzard.j", (unsigned char *) SubFileData, BytesRead );
+        }
+        else
+          Print( "[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file" );
 
-				delete [] SubFileData;
-			}
+        delete [] SubFileData;
+      }
 
-			SFileCloseFile( SubFile );
-		}
-		else
-			Print( "[AURA] couldn't find Scripts\\blizzard.j in MPQ file" );
+      SFileCloseFile( SubFile );
+    }
+    else
+      Print( "[AURA] couldn't find Scripts\\blizzard.j in MPQ file" );
 
-		SFileCloseArchive( PatchMPQ );
-	}
-	else
-		Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
+    SFileCloseArchive( PatchMPQ );
+  }
+  else
+    Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
 }
 
-inline void CAura :: LoadIPToCountryData( )
+inline void CAura::LoadIPToCountryData( )
 {
-	ifstream in;
-	in.open( "ip-to-country.csv" );
+  ifstream in;
+  in.open( "ip-to-country.csv" );
 
-	if( in.fail( ) )
-		Print( "[AURA] warning - unable to read file [ip-to-country.csv], iptocountry data not loaded" );
-	else
-	{
-		Print( "[AURA] started loading [ip-to-country.csv]" );
+  if ( in.fail( ) )
+    Print( "[AURA] warning - unable to read file [ip-to-country.csv], iptocountry data not loaded" );
+  else
+  {
+    Print( "[AURA] started loading [ip-to-country.csv]" );
 
-		// the begin and commit statements are optimizations
-		// we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
-		// todotodo: handle begin/commit failures a bit more gracefully
+    // the begin and commit statements are optimizations
+    // we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
+    // todotodo: handle begin/commit failures a bit more gracefully
 
-		if( !m_DB->Begin( ) )
-			Print( "[AURA] warning - failed to begin database transaction, iptocountry data not loaded" );
-		else
-		{
-			unsigned char Percent = 0;
-			string Line, IP1, IP2, Country;
-			CSVParser parser;
+    if ( !m_DB->Begin( ) )
+      Print( "[AURA] warning - failed to begin database transaction, iptocountry data not loaded" );
+    else
+    {
+      unsigned char Percent = 0;
+      string Line, IP1, IP2, Country;
+      CSVParser parser;
 
-			// get length of file for the progress meter
+      // get length of file for the progress meter
 
-			in.seekg( 0, ios :: end );
-			uint32_t FileLength = in.tellg( );
-			in.seekg( 0, ios :: beg );
+      in.seekg( 0, ios::end );
+      uint32_t FileLength = in.tellg( );
+      in.seekg( 0, ios::beg );
 
-			while( !in.eof( ) )
-			{
-				getline( in, Line );
+      while ( !in.eof( ) )
+      {
+        getline( in, Line );
 
-				if( Line.empty( ) )
-					continue;
+        if ( Line.empty( ) )
+          continue;
 
-				parser << Line;
-				parser >> IP1;
-				parser >> IP2;
-				parser >> Country;
-				m_DB->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
+        parser << Line;
+        parser >> IP1;
+        parser >> IP2;
+        parser >> Country;
+        m_DB->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
 
-				// it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
-				// so let's print a progress meter just to keep the user from getting worried
+        // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
+        // so let's print a progress meter just to keep the user from getting worried
 
-				unsigned char NewPercent = (unsigned char)( (float)in.tellg( ) / FileLength * 100 );
+        unsigned char NewPercent = (unsigned char) ( (float) in.tellg( ) / FileLength * 100 );
 
-				if( NewPercent != Percent && NewPercent % 10 == 0 )
-				{
-					Percent = NewPercent;
-					Print( "[AURA] iptocountry data: " + UTIL_ToString( Percent ) + "% loaded" );
-				}
-			}
+        if ( NewPercent != Percent && NewPercent % 10 == 0 )
+        {
+          Percent = NewPercent;
+          Print( "[AURA] iptocountry data: " + UTIL_ToString( Percent ) + "% loaded" );
+        }
+      }
 
-			if( !m_DB->Commit( ) )
-				Print( "[AURA] warning - failed to commit database transaction, iptocountry data not loaded" );
-			else
-				Print( "[AURA] finished loading [ip-to-country.csv]" );
-		}
+      if ( !m_DB->Commit( ) )
+        Print( "[AURA] warning - failed to commit database transaction, iptocountry data not loaded" );
+      else
+        Print( "[AURA] finished loading [ip-to-country.csv]" );
+    }
 
-		in.close( );
-	}
+    in.close( );
+  }
 }
 
-void CAura :: CreateGame( CMap *map, unsigned char gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper )
+void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper )
 {
-	if( !m_Enabled )
-	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, false );
-		}
+  if ( !m_Enabled )
+  {
+    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    {
+      if ( ( *i )->GetServer( ) == creatorServer )
+        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, false );
+    }
 
-		return;
-	}
+    return;
+  }
 
-	if( gameName.size( ) > 31 )
-	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, false );
-		}
+  if ( gameName.size( ) > 31 )
+  {
+    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    {
+      if ( ( *i )->GetServer( ) == creatorServer )
+        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, false );
+    }
 
-		return;
-	}
+    return;
+  }
 
-	if( !map->GetValid( ) )
-	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, false );
-		}
+  if ( !map->GetValid( ) )
+  {
+    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    {
+      if ( ( *i )->GetServer( ) == creatorServer )
+        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, false );
+    }
 
-		return;
-	}
+    return;
+  }
 
-	if( m_CurrentGame )
-	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, false );
-		}
+  if ( m_CurrentGame )
+  {
+    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    {
+      if ( ( *i )->GetServer( ) == creatorServer )
+        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, false );
+    }
 
-		return;
-	}
+    return;
+  }
 
-	if( m_Games.size( ) >= m_MaxGames )
-	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			if( (*i)->GetServer( ) == creatorServer )
-				(*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, false );
-		}
+  if ( m_Games.size( ) >= m_MaxGames )
+  {
+    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    {
+      if ( ( *i )->GetServer( ) == creatorServer )
+        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, false );
+    }
 
-		return;
-	}
+    return;
+  }
 
-	Print2( "[AURA] creating game [" + gameName + "]" );
+  Print2( "[AURA] creating game [" + gameName + "]" );
 
-	m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
+  m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
 
-	// todotodo: check if listening failed and report the error to the user
+  // todotodo: check if listening failed and report the error to the user
 
-	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-	{
-		if( whisper && (*i)->GetServer( ) == creatorServer )
-		{
-			// note that we send this whisper only on the creator server
+  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  {
+    if ( whisper && ( *i )->GetServer( ) == creatorServer )
+    {
+      // note that we send this whisper only on the creator server
 
-			if( gameState == GAME_PRIVATE )
-				(*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, false );
-			else if( gameState == GAME_PUBLIC )
-				(*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, false );
-		}
-		else
-		{
-			// note that we send this chat message on all other bnet servers
+      if ( gameState == GAME_PRIVATE )
+        ( *i )->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, false );
+      else if ( gameState == GAME_PUBLIC )
+        ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, false );
+    }
+    else
+    {
+      // note that we send this chat message on all other bnet servers
 
-			if( gameState == GAME_PRIVATE )
-				(*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
-			else if( gameState == GAME_PUBLIC )
-				(*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
-		}
+      if ( gameState == GAME_PRIVATE )
+        ( *i )->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
+      else if ( gameState == GAME_PUBLIC )
+        ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
+    }
 
-		(*i)->QueueGameCreate( gameState, gameName, string( ), map, m_CurrentGame->GetHostCounter( ) );
-	}
+    ( *i )->QueueGameCreate( gameState, gameName, string( ), map, m_CurrentGame->GetHostCounter( ) );
+  }
 
-	// if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
-	// unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game
-	// so don't rejoin the chat if we're using PVPGN
+  // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
+  // unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game
+  // so don't rejoin the chat if we're using PVPGN
 
-	if( gameState == GAME_PRIVATE )
-	{
-		for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-		{
-			if( !(*i)->GetPvPGN( ) )
-				(*i)->QueueEnterChat( );
-		}
-	}
+  if ( gameState == GAME_PRIVATE )
+  {
+    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    {
+      if ( !( *i )->GetPvPGN( ) )
+        ( *i )->QueueEnterChat( );
+    }
+  }
 
-	// hold friends and/or clan members
+  // hold friends and/or clan members
 
-	for( vector<CBNET *> :: iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-	{
-		(*i)->HoldFriends( m_CurrentGame );
-		(*i)->HoldClan( m_CurrentGame );
-	}
+  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  {
+    ( *i )->HoldFriends( m_CurrentGame );
+    ( *i )->HoldClan( m_CurrentGame );
+  }
 }
-
-bool CAura :: IsAnyAdmin( string name )
-{
-        if( m_DB->AdminCheck( name ) || m_DB->RootAdminCheck( name ) )
-                return true;
-
-        return false;
-}
-
