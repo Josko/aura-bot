@@ -38,72 +38,72 @@ public:
 
   enum Protocol
   {
-    SID_NULL = 0, // 0x0
-    SID_STOPADV = 2, // 0x2
-    SID_GETADVLISTEX = 9, // 0x9
-    SID_ENTERCHAT = 10, // 0xA
-    SID_JOINCHANNEL = 12, // 0xC
-    SID_CHATCOMMAND = 14, // 0xE
-    SID_CHATEVENT = 15, // 0xF
-    SID_CHECKAD = 21, // 0x15
-    SID_STARTADVEX3 = 28, // 0x1C
-    SID_DISPLAYAD = 33, // 0x21
-    SID_NOTIFYJOIN = 34, // 0x22
-    SID_PING = 37, // 0x25
-    SID_LOGONRESPONSE = 41, // 0x29
-    SID_NETGAMEPORT = 69, // 0x45
-    SID_AUTH_INFO = 80, // 0x50
-    SID_AUTH_CHECK = 81, // 0x51
-    SID_AUTH_ACCOUNTLOGON = 83, // 0x53
-    SID_AUTH_ACCOUNTLOGONPROOF = 84, // 0x54
-    SID_WARDEN = 94, // 0x5E
-    SID_FRIENDSLIST = 101, // 0x65
-    SID_FRIENDSUPDATE = 102, // 0x66
-    SID_CLANMEMBERLIST = 125, // 0x7D
-    SID_CLANMEMBERSTATUSCHANGE = 127 // 0x7F
+    SID_NULL                    = 0,    // 0x0
+    SID_STOPADV                 = 2,    // 0x2
+    SID_GETADVLISTEX            = 9,    // 0x9
+    SID_ENTERCHAT               = 10,   // 0xA
+    SID_JOINCHANNEL             = 12,   // 0xC
+    SID_CHATCOMMAND             = 14,   // 0xE
+    SID_CHATEVENT               = 15,   // 0xF
+    SID_CHECKAD                 = 21,   // 0x15
+    SID_STARTADVEX3             = 28,   // 0x1C
+    SID_DISPLAYAD               = 33,   // 0x21
+    SID_NOTIFYJOIN              = 34,   // 0x22
+    SID_PING                    = 37,   // 0x25
+    SID_LOGONRESPONSE           = 41,   // 0x29
+    SID_NETGAMEPORT             = 69,   // 0x45
+    SID_AUTH_INFO               = 80,   // 0x50
+    SID_AUTH_CHECK              = 81,   // 0x51
+    SID_AUTH_ACCOUNTLOGON       = 83,   // 0x53
+    SID_AUTH_ACCOUNTLOGONPROOF  = 84,   // 0x54
+    SID_WARDEN                  = 94,   // 0x5E
+    SID_FRIENDSLIST             = 101,  // 0x65
+    SID_FRIENDSUPDATE           = 102,  // 0x66
+    SID_CLANMEMBERLIST          = 125,  // 0x7D
+    SID_CLANMEMBERSTATUSCHANGE  = 127   // 0x7F
   };
 
   enum KeyResult
   {
     KR_GOOD = 0,
     KR_OLD_GAME_VERSION = 256,
-    KR_INVALID_VERSION = 257,
-    KR_ROC_KEY_IN_USE = 513,
-    KR_TFT_KEY_IN_USE = 529
+    KR_INVALID_VERSION  = 257,
+    KR_ROC_KEY_IN_USE   = 513,
+    KR_TFT_KEY_IN_USE   = 529
   };
 
   enum IncomingChatEvent
   {
-    EID_SHOWUSER = 1, // received when you join a channel (includes users in the channel and their information)
-    EID_JOIN = 2, // received when someone joins the channel you're currently in
-    EID_LEAVE = 3, // received when someone leaves the channel you're currently in
-    EID_WHISPER = 4, // received a whisper message
-    EID_TALK = 5, // received when someone talks in the channel you're currently in
-    EID_BROADCAST = 6, // server broadcast
-    EID_CHANNEL = 7, // received when you join a channel (includes the channel's name, flags)
-    EID_USERFLAGS = 9, // user flags updates
-    EID_WHISPERSENT = 10, // sent a whisper message
-    EID_CHANNELFULL = 13, // channel is full
+    EID_SHOWUSER            = 1,  // received when you join a channel (includes users in the channel and their information)
+    EID_JOIN                = 2,  // received when someone joins the channel you're currently in
+    EID_LEAVE               = 3,  // received when someone leaves the channel you're currently in
+    EID_WHISPER             = 4,  // received a whisper message
+    EID_TALK                = 5,  // received when someone talks in the channel you're currently in
+    EID_BROADCAST           = 6,  // server broadcast
+    EID_CHANNEL             = 7,  // received when you join a channel (includes the channel's name, flags)
+    EID_USERFLAGS           = 9,  // user flags updates
+    EID_WHISPERSENT         = 10, // sent a whisper message
+    EID_CHANNELFULL         = 13, // channel is full
     EID_CHANNELDOESNOTEXIST = 14, // channel does not exist
-    EID_CHANNELRESTRICTED = 15, // channel is restricted
-    EID_INFO = 18, // broadcast/information message
-    EID_ERROR = 19, // error message
-    EID_EMOTE = 23, // emote
-    EID_IRC = -1
+    EID_CHANNELRESTRICTED   = 15, // channel is restricted
+    EID_INFO                = 18, // broadcast/information message
+    EID_ERROR               = 19, // error message
+    EID_EMOTE               = 23, // emote
+    EID_IRC                 = -1
   };
 
 private:
-  BYTEARRAY m_ClientToken; // set in constructor
-  BYTEARRAY m_LogonType; // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_ServerToken; // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_MPQFileTime; // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_IX86VerFileName; // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_ValueStringFormula; // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_KeyState; // set in RECEIVE_SID_AUTH_CHECK
-  BYTEARRAY m_KeyStateDescription; // set in RECEIVE_SID_AUTH_CHECK
-  BYTEARRAY m_Salt; // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
-  BYTEARRAY m_ServerPublicKey; // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
-  BYTEARRAY m_UniqueName; // set in RECEIVE_SID_ENTERCHAT
+  BYTEARRAY m_ClientToken;          // set in constructor
+  BYTEARRAY m_LogonType;            // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_ServerToken;          // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_MPQFileTime;          // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_IX86VerFileName;      // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_ValueStringFormula;   // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_KeyState;             // set in RECEIVE_SID_AUTH_CHECK
+  BYTEARRAY m_KeyStateDescription;  // set in RECEIVE_SID_AUTH_CHECK
+  BYTEARRAY m_Salt;                 // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
+  BYTEARRAY m_ServerPublicKey;      // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
+  BYTEARRAY m_UniqueName;           // set in RECEIVE_SID_ENTERCHAT
 
 public:
   CBNETProtocol( );
@@ -242,12 +242,13 @@ public:
   {
     return m_IP;
   }
-  string GetIPString( );
 
   uint16_t GetPort( )
   {
     return m_Port;
   }
+
+  string GetIPString( );
 
   string GetGameName( )
   {
@@ -326,6 +327,7 @@ public:
   {
     return m_Location;
   }
+  
   string GetDescription( );
 
 private:
@@ -353,6 +355,7 @@ public:
   {
     return m_Name;
   }
+  
   string GetRank( );
   string GetStatus( );
   string GetDescription( );

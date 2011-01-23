@@ -29,14 +29,14 @@ class CBNCSUtilInterface
 {
 private:
   void *m_NLS;
-  BYTEARRAY m_EXEVersion; // set in HELP_SID_AUTH_CHECK
-  BYTEARRAY m_EXEVersionHash; // set in HELP_SID_AUTH_CHECK
-  string m_EXEInfo; // set in HELP_SID_AUTH_CHECK
-  BYTEARRAY m_KeyInfoROC; // set in HELP_SID_AUTH_CHECK
-  BYTEARRAY m_KeyInfoTFT; // set in HELP_SID_AUTH_CHECK
-  BYTEARRAY m_ClientKey; // set in HELP_SID_AUTH_ACCOUNTLOGON
-  BYTEARRAY m_M1; // set in HELP_SID_AUTH_ACCOUNTLOGONPROOF
-  BYTEARRAY m_PvPGNPasswordHash; // set in HELP_PvPGNPasswordHash
+  BYTEARRAY m_EXEVersion;         // set in HELP_SID_AUTH_CHECK
+  BYTEARRAY m_EXEVersionHash;     // set in HELP_SID_AUTH_CHECK
+  string m_EXEInfo;               // set in HELP_SID_AUTH_CHECK
+  BYTEARRAY m_KeyInfoROC;         // set in HELP_SID_AUTH_CHECK
+  BYTEARRAY m_KeyInfoTFT;         // set in HELP_SID_AUTH_CHECK
+  BYTEARRAY m_ClientKey;          // set in HELP_SID_AUTH_ACCOUNTLOGON
+  BYTEARRAY m_M1;                 // set in HELP_SID_AUTH_ACCOUNTLOGONPROOF
+  BYTEARRAY m_PvPGNPasswordHash;  // set in HELP_PvPGNPasswordHash
 
 public:
   CBNCSUtilInterface( const string &userName, const string &userPassword );

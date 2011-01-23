@@ -48,17 +48,17 @@ CIncomingJoinPlayer *CGameProtocol::RECEIVE_W3GS_REQJOIN( BYTEARRAY data )
   // DEBUG_Print( "RECEIVED W3GS_REQJOIN" );
   // DEBUG_Print( data );
 
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 4 bytes					-> Host Counter (Game ID)
-  // 4 bytes					-> Entry Key (used in LAN)
-  // 1 byte					-> ???
-  // 2 bytes					-> Listen Port
-  // 4 bytes					-> Peer Key
+  // 2 bytes                    -> Header
+  // 2 bytes                    -> Length
+  // 4 bytes                    -> Host Counter (Game ID)
+  // 4 bytes                    -> Entry Key (used in LAN)
+  // 1 byte                     -> ???
+  // 2 bytes                    -> Listen Port
+  // 4 bytes                    -> Peer Key
   // null terminated string			-> Name
-  // 4 bytes					-> ???
-  // 2 bytes					-> InternalPort (???)
-  // 4 bytes					-> InternalIP
+  // 4 bytes                    -> ???
+  // 2 bytes                    -> InternalPort (???)
+  // 4 bytes                    -> InternalIP
 
   if ( ValidateLength( data ) && data.size( ) >= 20 )
   {
@@ -110,9 +110,9 @@ CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY data, un
   // DEBUG_Print( "RECEIVED W3GS_OUTGOING_ACTION" );
   // DEBUG_Print( data );
 
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 4 bytes					-> CRC
+  // 2 bytes                -> Header
+  // 2 bytes                -> Length
+  // 4 bytes                -> CRC
   // remainder of packet		-> Action
 
   if ( PID != 255 && ValidateLength( data ) && data.size( ) >= 8 )
@@ -132,7 +132,7 @@ uint32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY data )
 
   // 2 bytes					-> Header
   // 2 bytes					-> Length
-  // 1 byte					-> ???
+  // 1 byte           -> ???
   // 4 bytes					-> CheckSum??? (used in replays)
 
   if ( ValidateLength( data ) && data.size( ) == 9 )
@@ -146,26 +146,26 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data )
   // DEBUG_Print( "RECEIVED W3GS_CHAT_TO_HOST" );
   // DEBUG_Print( data );
 
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 1 byte					-> Total
+  // 2 bytes              -> Header
+  // 2 bytes              -> Length
+  // 1 byte               -> Total
   // for( 1 .. Total )
-  //		1 byte				-> ToPID
-  // 1 byte					-> FromPID
-  // 1 byte					-> Flag
+  //		1 byte            -> ToPID
+  // 1 byte               -> FromPID
+  // 1 byte               -> Flag
   // if( Flag == 16 )
-  //		null term string		-> Message
+  //		null term string	-> Message
   // elseif( Flag == 17 )
-  //		1 byte				-> Team
+  //		1 byte            -> Team
   // elseif( Flag == 18 )
-  //		1 byte				-> Colour
+  //		1 byte            -> Colour
   // elseif( Flag == 19 )
-  //		1 byte				-> Race
+  //		1 byte            -> Race
   // elseif( Flag == 20 )
-  //		1 byte				-> Handicap
+  //		1 byte            -> Handicap
   // elseif( Flag == 32 )
-  //		4 bytes				-> ExtraFlags
-  //		null term string		-> Message
+  //		4 bytes           -> ExtraFlags
+  //		null term string	-> Message
 
   if ( ValidateLength( data ) )
   {
@@ -245,7 +245,7 @@ CIncomingMapSize *CGameProtocol::RECEIVE_W3GS_MAPSIZE( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
   // 4 bytes					-> ???
-  // 1 byte					-> SizeFlag (1 = have map, 3 = continue download)
+  // 1 byte           -> SizeFlag (1 = have map, 3 = continue download)
   // 4 bytes					-> MapSize
 
   if ( ValidateLength( data ) && data.size( ) >= 13 )
@@ -261,8 +261,8 @@ uint32_t CGameProtocol::RECEIVE_W3GS_MAPPARTOK( BYTEARRAY data )
 
   // 2 bytes					-> Header
   // 2 bytes					-> Length
-  // 1 byte					-> SenderPID
-  // 1 byte					-> ReceiverPID
+  // 1 byte           -> SenderPID
+  // 1 byte           -> ReceiverPID
   // 4 bytes					-> ???
   // 4 bytes					-> MapSize
 
@@ -304,6 +304,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PING_FROM_HOST( )
   packet.push_back( 0 ); // packet length will be assigned later
   UTIL_AppendByteArray( packet, GetTicks( ), false ); // ping value
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_PING_FROM_HOST" );
   // DEBUG_Print( packet );
   return packet;
@@ -350,6 +351,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN( uint32_t reason )
   packet.push_back( 0 ); // packet length will be assigned later
   UTIL_AppendByteArray( packet, reason, false ); // reason
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_REJECTJOIN" );
   // DEBUG_Print( packet );
   return packet;

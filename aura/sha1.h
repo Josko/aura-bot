@@ -19,7 +19,7 @@
 #ifndef ___SHA1_H___
 #define ___SHA1_H___
 
-#include <stdio.h> // Needed for file access
+#include <stdio.h>  // Needed for file access
 #include <memory.h> // Needed for memset and memcpy
 #include <string.h> // Needed for strcat and strcpy
 

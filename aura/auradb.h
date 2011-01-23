@@ -151,6 +151,7 @@ public:
   {
     return &m_Row;
   }
+  
   string GetError( );
 
   int Prepare( const string &query, void **Statement );
