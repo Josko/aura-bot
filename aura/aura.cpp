@@ -330,7 +330,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
     string Channel;
     string LocalUser;
 
-    if ( i == 1 )
+    if ( i == 0 )
     {
       Channel = CFG->GetString( "irc_channel", string( ) );
       LocalUser = CFG->GetString( "dcc_local", string( ) );
