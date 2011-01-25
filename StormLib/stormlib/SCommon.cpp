@@ -1115,7 +1115,12 @@ int SaveMPQTables(TMPQArchive * ha)
         BSWAP_ARRAY32_UNSIGNED((DWORD *)pbBuffer, dwBytes / sizeof(DWORD));
 
         // Set the file pointer to the offset of the hash table and write it
+#if __APPLE__
         SetFilePointer(ha->hFile, ha->HashTablePos.LowPart, (PLONG)&ha->HashTablePos.HighPart, FILE_BEGIN);
+#else
+		SetFilePointer(ha->hFile, ha->HashTablePos.LowPart, &ha->HashTablePos.HighPart, FILE_BEGIN);
+#endif
+
         WriteFile(ha->hFile, pbBuffer, dwBytes, &dwWritten, NULL);
         if(dwWritten != dwBytes)
             nError = ERROR_DISK_FULL;

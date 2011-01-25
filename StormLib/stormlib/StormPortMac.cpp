@@ -172,7 +172,7 @@ void SetLastError(int err)
 /********************************************************************
 *	 GetLastError
 ********************************************************************/
-int GetLastError()
+int GetLastErrorStorm()
 {
 	return globalerr;
 }

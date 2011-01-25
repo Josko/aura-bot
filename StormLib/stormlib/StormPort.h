@@ -241,7 +241,8 @@
   extern int globalerr;
   
   void  SetLastError(int err);
-  int   GetLastError();
+ #define GetLastError() GetLastErrorStorm()
+  int   GetLastErrorStorm();
   char *ErrString(int err);
 
   // Emulation of functions for file I/O available in Win32
@@ -281,8 +282,15 @@
     extern unsigned long SwapULong(unsigned long);
     extern short SwapShort(unsigned short);
     extern long SwapLong(unsigned long);
+
+#if __APPLE__
     extern void ConvertUnsignedLongBuffer(unsigned long *buffer, unsigned long nbLongs);
     extern void ConvertUnsignedShortBuffer(unsigned short *buffer, unsigned long nbShorts);
+#else
+	extern void ConvertUnsignedLongBuffer(DWORD *buffer, unsigned long nbLongs );
+	extern void ConvertUnsignedShortBuffer(USHORT *buffer, unsigned long nbShorts );
+#endif
+
     extern void ConvertTMPQShunt(void *shunt);
     extern void ConvertTMPQHeader(void *header);
     #define    BSWAP_INT16_UNSIGNED(a)          SwapUShort((a))

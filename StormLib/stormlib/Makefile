@@ -17,12 +17,16 @@
 # updated on October 6, 2008 by Trevor Hogan #
 ##############################################
 
+#################################################
+# updated on January 6, 2010 by Julian "Argon-" #
+#################################################
+
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
-C++ = g++
+CXX = g++
 CC = gcc
 DFLAGS = -D__SYS_ZLIB
-OFLAGS =
+OFLAGS = -O2
 LFLAGS = -lbz2 -lz
 CFLAGS = -fPIC
 CFLAGS += $(OFLAGS) $(DFLAGS)
@@ -38,25 +42,27 @@ OBJS = SCommon.o SCompression.o SFileCompactArchive.o \
 COBJS = pklib/crc32.o pklib/explode.o pklib/implode.o
 
 ifeq ($(SYSTEM),Darwin)
-OBJS += StormPortMac.o
-LFLAGS += -dynamiclib -framework CoreServices
-LIB = libStorm.dylib
+	CXX = /usr/bin/g++
+	CC = /usr/bin/gcc
+	OBJS += StormPortMac.o
+	LFLAGS += -dynamiclib -framework CoreServices
+	LIB = libStorm.dylib
 else
-OBJS += StormPortLinux.o
-LFLAGS += -shared
-LIB = libStorm.so
+	OBJS += StormPortLinux.o
+	LFLAGS += -shared
+	LIB = libStorm.so
 endif
 
 all: $(OBJS) $(COBJS) $(LIB)
 
 $(LIB): $(OBJS) $(COBJS)
-	$(C++) -o $(LIB) $(OBJS) $(COBJS) $(LFLAGS)
+	$(CXX) -o $(LIB) $(OBJS) $(COBJS) $(LFLAGS)
 
 clean:
 	rm -f $(OBJS) $(COBJS) $(LIB)
 
 $(OBJS): %.o: %.cpp
-	$(C++) -o $@ $(CFLAGS) -c $<
+	$(CXX) -o $@ $(CFLAGS) -c $<
 
 $(COBJS): %.o: %.c
 	$(CC) -o $@ $(CFLAGS) -c $<
@@ -66,9 +72,8 @@ $(LIB): $(OBJS) $(COBJS)
 all: $(LIB)
 
 install: $(LIB)
-	install $(LIB) /usr/local/lib
 	install $(LIB) /usr/lib
-	mkdir -p /usr/local/include/StormLib
-	cp StormLib.h /usr/local/include/StormLib
-	cp StormPort.h /usr/local/include/StormLib
+	mkdir -p /usr/include/StormLib
+	cp StormLib.h /usr/include/StormLib
+	cp StormPort.h /usr/include/StormLib
 	ldconfig
