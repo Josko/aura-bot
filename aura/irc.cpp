@@ -435,7 +435,7 @@ inline void CIRC::ExtractPackets( )
 
         // PING :blabla
 
-        for ( i = 6; Recv[i] != CR; ++i )
+        for ( i = 5; Recv[i] != CR; ++i )
           Packet += Recv[i];
 
         SendIRC( "PONG :" + Packet );
