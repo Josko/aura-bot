@@ -562,42 +562,42 @@ string CTCPClient::GetErrorString( )
 
   switch ( m_Error )
   {
-    case EWOULDBLOCK: return "EWOULDBLOCK";
-    case EINPROGRESS: return "EINPROGRESS";
-    case EALREADY: return "EALREADY";
-    case ENOTSOCK: return "ENOTSOCK";
-    case EDESTADDRREQ: return "EDESTADDRREQ";
-    case EMSGSIZE: return "EMSGSIZE";
-    case EPROTOTYPE: return "EPROTOTYPE";
-    case ENOPROTOOPT: return "ENOPROTOOPT";
-    case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
-    case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
-    case EOPNOTSUPP: return "EOPNOTSUPP";
-    case EPFNOSUPPORT: return "EPFNOSUPPORT";
-    case EAFNOSUPPORT: return "EAFNOSUPPORT";
-    case EADDRINUSE: return "EADDRINUSE";
-    case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
-    case ENETDOWN: return "ENETDOWN";
-    case ENETUNREACH: return "ENETUNREACH";
-    case ENETRESET: return "ENETRESET";
-    case ECONNABORTED: return "ECONNABORTED";
-    case ENOBUFS: return "ENOBUFS";
-    case EISCONN: return "EISCONN";
-    case ENOTCONN: return "ENOTCONN";
-    case ESHUTDOWN: return "ESHUTDOWN";
-    case ETOOMANYREFS: return "ETOOMANYREFS";
-    case ETIMEDOUT: return "ETIMEDOUT";
-    case ECONNREFUSED: return "ECONNREFUSED";
-    case ELOOP: return "ELOOP";
-    case ENAMETOOLONG: return "ENAMETOOLONG";
-    case EHOSTDOWN: return "EHOSTDOWN";
-    case EHOSTUNREACH: return "EHOSTUNREACH";
-    case ENOTEMPTY: return "ENOTEMPTY";
-    case EUSERS: return "EUSERS";
-    case EDQUOT: return "EDQUOT";
-    case ESTALE: return "ESTALE";
-    case EREMOTE: return "EREMOTE";
-    case ECONNRESET: return "Connection reset by peer";
+    case EWOULDBLOCK:       return "EWOULDBLOCK";
+    case EINPROGRESS:       return "EINPROGRESS";
+    case EALREADY:          return "EALREADY";
+    case ENOTSOCK:          return "ENOTSOCK";
+    case EDESTADDRREQ:      return "EDESTADDRREQ";
+    case EMSGSIZE:          return "EMSGSIZE";
+    case EPROTOTYPE:        return "EPROTOTYPE";
+    case ENOPROTOOPT:       return "ENOPROTOOPT";
+    case EPROTONOSUPPORT:   return "EPROTONOSUPPORT";
+    case ESOCKTNOSUPPORT:   return "ESOCKTNOSUPPORT";
+    case EOPNOTSUPP:        return "EOPNOTSUPP";
+    case EPFNOSUPPORT:      return "EPFNOSUPPORT";
+    case EAFNOSUPPORT:      return "EAFNOSUPPORT";
+    case EADDRINUSE:        return "EADDRINUSE";
+    case EADDRNOTAVAIL:     return "EADDRNOTAVAIL";
+    case ENETDOWN:          return "ENETDOWN";
+    case ENETUNREACH:       return "ENETUNREACH";
+    case ENETRESET:         return "ENETRESET";
+    case ECONNABORTED:      return "ECONNABORTED";
+    case ENOBUFS:           return "ENOBUFS";
+    case EISCONN:           return "EISCONN";
+    case ENOTCONN:          return "ENOTCONN";
+    case ESHUTDOWN:         return "ESHUTDOWN";
+    case ETOOMANYREFS:      return "ETOOMANYREFS";
+    case ETIMEDOUT:         return "ETIMEDOUT";
+    case ECONNREFUSED:      return "ECONNREFUSED";
+    case ELOOP:             return "ELOOP";
+    case ENAMETOOLONG:      return "ENAMETOOLONG";
+    case EHOSTDOWN:         return "EHOSTDOWN";
+    case EHOSTUNREACH:      return "EHOSTUNREACH";
+    case ENOTEMPTY:         return "ENOTEMPTY";
+    case EUSERS:            return "EUSERS";
+    case EDQUOT:            return "EDQUOT";
+    case ESTALE:            return "ESTALE";
+    case EREMOTE:           return "EREMOTE";
+    case ECONNRESET:        return "Connection reset by peer";
   }
 
   return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
@@ -609,11 +609,7 @@ void CTCPClient::SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
     return;
 
   FD_SET( m_Socket, fd );
-
-  // this should prevent CPU usage going 100%
-
-  if ( !m_SendBuffer.empty( ) )
-    FD_SET( m_Socket, send_fd );
+  FD_SET( m_Socket, send_fd );
 
 #ifndef WIN32
   if ( m_Socket > *nfds )
@@ -736,42 +732,42 @@ string CTCPServer::GetErrorString( )
 
   switch ( m_Error )
   {
-    case EWOULDBLOCK: return "EWOULDBLOCK";
-    case EINPROGRESS: return "EINPROGRESS";
-    case EALREADY: return "EALREADY";
-    case ENOTSOCK: return "ENOTSOCK";
-    case EDESTADDRREQ: return "EDESTADDRREQ";
-    case EMSGSIZE: return "EMSGSIZE";
-    case EPROTOTYPE: return "EPROTOTYPE";
-    case ENOPROTOOPT: return "ENOPROTOOPT";
-    case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
-    case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
-    case EOPNOTSUPP: return "EOPNOTSUPP";
-    case EPFNOSUPPORT: return "EPFNOSUPPORT";
-    case EAFNOSUPPORT: return "EAFNOSUPPORT";
-    case EADDRINUSE: return "EADDRINUSE";
-    case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
-    case ENETDOWN: return "ENETDOWN";
-    case ENETUNREACH: return "ENETUNREACH";
-    case ENETRESET: return "ENETRESET";
-    case ECONNABORTED: return "ECONNABORTED";
-    case ENOBUFS: return "ENOBUFS";
-    case EISCONN: return "EISCONN";
-    case ENOTCONN: return "ENOTCONN";
-    case ESHUTDOWN: return "ESHUTDOWN";
-    case ETOOMANYREFS: return "ETOOMANYREFS";
-    case ETIMEDOUT: return "ETIMEDOUT";
-    case ECONNREFUSED: return "ECONNREFUSED";
-    case ELOOP: return "ELOOP";
-    case ENAMETOOLONG: return "ENAMETOOLONG";
-    case EHOSTDOWN: return "EHOSTDOWN";
-    case EHOSTUNREACH: return "EHOSTUNREACH";
-    case ENOTEMPTY: return "ENOTEMPTY";
-    case EUSERS: return "EUSERS";
-    case EDQUOT: return "EDQUOT";
-    case ESTALE: return "ESTALE";
-    case EREMOTE: return "EREMOTE";
-    case ECONNRESET: return "Connection reset by peer";
+    case EWOULDBLOCK:       return "EWOULDBLOCK";
+    case EINPROGRESS:       return "EINPROGRESS";
+    case EALREADY:          return "EALREADY";
+    case ENOTSOCK:          return "ENOTSOCK";
+    case EDESTADDRREQ:      return "EDESTADDRREQ";
+    case EMSGSIZE:          return "EMSGSIZE";
+    case EPROTOTYPE:        return "EPROTOTYPE";
+    case ENOPROTOOPT:       return "ENOPROTOOPT";
+    case EPROTONOSUPPORT:   return "EPROTONOSUPPORT";
+    case ESOCKTNOSUPPORT:   return "ESOCKTNOSUPPORT";
+    case EOPNOTSUPP:        return "EOPNOTSUPP";
+    case EPFNOSUPPORT:      return "EPFNOSUPPORT";
+    case EAFNOSUPPORT:      return "EAFNOSUPPORT";
+    case EADDRINUSE:        return "EADDRINUSE";
+    case EADDRNOTAVAIL:     return "EADDRNOTAVAIL";
+    case ENETDOWN:          return "ENETDOWN";
+    case ENETUNREACH:       return "ENETUNREACH";
+    case ENETRESET:         return "ENETRESET";
+    case ECONNABORTED:      return "ECONNABORTED";
+    case ENOBUFS:           return "ENOBUFS";
+    case EISCONN:           return "EISCONN";
+    case ENOTCONN:          return "ENOTCONN";
+    case ESHUTDOWN:         return "ESHUTDOWN";
+    case ETOOMANYREFS:      return "ETOOMANYREFS";
+    case ETIMEDOUT:         return "ETIMEDOUT";
+    case ECONNREFUSED:      return "ECONNREFUSED";
+    case ELOOP:             return "ELOOP";
+    case ENAMETOOLONG:      return "ENAMETOOLONG";
+    case EHOSTDOWN:         return "EHOSTDOWN";
+    case EHOSTUNREACH:      return "EHOSTUNREACH";
+    case ENOTEMPTY:         return "ENOTEMPTY";
+    case EUSERS:            return "EUSERS";
+    case EDQUOT:            return "EDQUOT";
+    case ESTALE:            return "ESTALE";
+    case EREMOTE:           return "EREMOTE";
+    case ECONNRESET:        return "Connection reset by peer";
   }
 
   return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
@@ -943,42 +939,42 @@ string CUDPSocket::GetErrorString( )
 
   switch ( m_Error )
   {
-    case EWOULDBLOCK: return "EWOULDBLOCK";
-    case EINPROGRESS: return "EINPROGRESS";
-    case EALREADY: return "EALREADY";
-    case ENOTSOCK: return "ENOTSOCK";
-    case EDESTADDRREQ: return "EDESTADDRREQ";
-    case EMSGSIZE: return "EMSGSIZE";
-    case EPROTOTYPE: return "EPROTOTYPE";
-    case ENOPROTOOPT: return "ENOPROTOOPT";
-    case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
-    case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
-    case EOPNOTSUPP: return "EOPNOTSUPP";
-    case EPFNOSUPPORT: return "EPFNOSUPPORT";
-    case EAFNOSUPPORT: return "EAFNOSUPPORT";
-    case EADDRINUSE: return "EADDRINUSE";
-    case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
-    case ENETDOWN: return "ENETDOWN";
-    case ENETUNREACH: return "ENETUNREACH";
-    case ENETRESET: return "ENETRESET";
-    case ECONNABORTED: return "ECONNABORTED";
-    case ENOBUFS: return "ENOBUFS";
-    case EISCONN: return "EISCONN";
-    case ENOTCONN: return "ENOTCONN";
-    case ESHUTDOWN: return "ESHUTDOWN";
-    case ETOOMANYREFS: return "ETOOMANYREFS";
-    case ETIMEDOUT: return "ETIMEDOUT";
-    case ECONNREFUSED: return "ECONNREFUSED";
-    case ELOOP: return "ELOOP";
-    case ENAMETOOLONG: return "ENAMETOOLONG";
-    case EHOSTDOWN: return "EHOSTDOWN";
-    case EHOSTUNREACH: return "EHOSTUNREACH";
-    case ENOTEMPTY: return "ENOTEMPTY";
-    case EUSERS: return "EUSERS";
-    case EDQUOT: return "EDQUOT";
-    case ESTALE: return "ESTALE";
-    case EREMOTE: return "EREMOTE";
-    case ECONNRESET: return "Connection reset by peer";
+    case EWOULDBLOCK:       return "EWOULDBLOCK";
+    case EINPROGRESS:       return "EINPROGRESS";
+    case EALREADY:          return "EALREADY";
+    case ENOTSOCK:          return "ENOTSOCK";
+    case EDESTADDRREQ:      return "EDESTADDRREQ";
+    case EMSGSIZE:          return "EMSGSIZE";
+    case EPROTOTYPE:        return "EPROTOTYPE";
+    case ENOPROTOOPT:       return "ENOPROTOOPT";
+    case EPROTONOSUPPORT:   return "EPROTONOSUPPORT";
+    case ESOCKTNOSUPPORT:   return "ESOCKTNOSUPPORT";
+    case EOPNOTSUPP:        return "EOPNOTSUPP";
+    case EPFNOSUPPORT:      return "EPFNOSUPPORT";
+    case EAFNOSUPPORT:      return "EAFNOSUPPORT";
+    case EADDRINUSE:        return "EADDRINUSE";
+    case EADDRNOTAVAIL:     return "EADDRNOTAVAIL";
+    case ENETDOWN:          return "ENETDOWN";
+    case ENETUNREACH:       return "ENETUNREACH";
+    case ENETRESET:         return "ENETRESET";
+    case ECONNABORTED:      return "ECONNABORTED";
+    case ENOBUFS:           return "ENOBUFS";
+    case EISCONN:           return "EISCONN";
+    case ENOTCONN:          return "ENOTCONN";
+    case ESHUTDOWN:         return "ESHUTDOWN";
+    case ETOOMANYREFS:      return "ETOOMANYREFS";
+    case ETIMEDOUT:         return "ETIMEDOUT";
+    case ECONNREFUSED:      return "ECONNREFUSED";
+    case ELOOP:             return "ELOOP";
+    case ENAMETOOLONG:      return "ENAMETOOLONG";
+    case EHOSTDOWN:         return "EHOSTDOWN";
+    case EHOSTUNREACH:      return "EHOSTUNREACH";
+    case ENOTEMPTY:         return "ENOTEMPTY";
+    case EUSERS:            return "EUSERS";
+    case EDQUOT:            return "EDQUOT";
+    case ESTALE:            return "ESTALE";
+    case EREMOTE:           return "EREMOTE";
+    case ECONNRESET:        return "Connection reset by peer";
   }
 
   return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";

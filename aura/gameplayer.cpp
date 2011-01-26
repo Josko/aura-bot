@@ -189,36 +189,6 @@ uint32_t CGamePlayer::GetPing( bool LCPing )
 
 bool CGamePlayer::Update( void *fd )
 {
-  // try to find out why we're requesting deletion
-  // in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
-
-  if ( m_Socket )
-  {
-    if ( m_Socket->HasError( ) )
-    {
-      m_Game->EventPlayerDisconnectSocketError( this );
-      m_Socket->Reset( );
-
-      if ( m_GProxy && m_Game->GetGameLoaded( ) )
-        return false;
-      else
-        return true;
-    }
-    else if ( !m_Socket->GetConnected( ) )
-    {
-      m_Game->EventPlayerDisconnectConnectionClosed( this );
-      m_Socket->Reset( );
-
-      if ( m_GProxy && m_Game->GetGameLoaded( ) )
-        return false;
-      else
-        return true;
-    }
-  }
-
-  if ( m_DeleteMe )
-    return true;
-
   uint32_t Time = GetTime( );
 
   // wait 4 seconds after joining before sending the /whois or /w
@@ -260,7 +230,8 @@ bool CGamePlayer::Update( void *fd )
     m_LastGProxyAckTime = Time;
   }
 
-  m_Socket->DoRecv( (fd_set *) fd );
+  if( m_Socket )
+    m_Socket->DoRecv( (fd_set *) fd );
 
   // extract as many packets as possible from the socket's receive buffer and process them
 
@@ -439,6 +410,33 @@ bool CGamePlayer::Update( void *fd )
     }
   }
 
+  // try to find out why we're requesting deletion
+  // in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
+
+  if ( m_Socket )
+  {
+    if ( m_Socket->HasError( ) )
+    {
+      m_Game->EventPlayerDisconnectSocketError( this );
+      m_Socket->Reset( );
+
+      if ( m_GProxy && m_Game->GetGameLoaded( ) )
+        return false;
+      else
+        return true;
+    }
+    else if ( !m_Socket->GetConnected( ) )
+    {
+      m_Game->EventPlayerDisconnectConnectionClosed( this );
+      m_Socket->Reset( );
+
+      if ( m_GProxy && m_Game->GetGameLoaded( ) )
+        return false;
+      else
+        return true;
+    }
+  }
+  
   return m_DeleteMe;
 }
 

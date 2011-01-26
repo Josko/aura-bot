@@ -259,12 +259,21 @@ inline void CIRC::ExtractPackets( )
           {
             bool Root = Hostname.substr( 0, 6 ) == "Aurani" || Hostname.substr( 0, 8 ) == "h4x0rz88";
 
+            //
+            // !NICK
+            //
+
             if ( Command == "nick" && Root )
             {
               SendIRC( "NICK :" + Payload );
               m_Nickname = Payload;
               m_OriginalNick = false;
             }
+
+            //
+            // !DCCLIST
+            //
+
             else if ( Command == "dcclist" )
             {
               string on, off;
@@ -280,6 +289,11 @@ inline void CIRC::ExtractPackets( )
               SendMessageIRC( "ON: " + on, string( ) );
               SendMessageIRC( "OFF: " + off, string( ) );
             }
+
+            //
+            // !BNETOFF
+            //
+
             else if ( Command == "bnetoff" )
             {
               if ( Payload.empty( ) )
@@ -303,6 +317,11 @@ inline void CIRC::ExtractPackets( )
                 }
               }
             }
+
+            //
+            // !BNETON
+            //
+
             else if ( Command == "bneton" )
             {
               if ( Payload.empty( ) )
@@ -416,11 +435,7 @@ inline void CIRC::ExtractPackets( )
 
         // PING :blabla
 
-        // skip until :
-
-        for ( ++i; Recv[i] != ':'; ++i );
-
-        for ( ++i; Recv[i] != CR; ++i )
+        for ( i = 6; Recv[i] != CR; ++i )
           Packet += Recv[i];
 
         SendIRC( "PONG :" + Packet );
@@ -550,11 +565,11 @@ void CIRC::SendMessageIRC( const string &message, const string &target )
 {
   if ( m_Socket->GetConnected( ) )
   {
-    if ( !target.empty( ) )
-      m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
-    else
+    if ( target.empty( ) )
       for ( vector<string> ::iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
         m_Socket->PutBytes( "PRIVMSG " + ( *i ) + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
+    else
+      m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
   }
 }
 
@@ -591,7 +606,7 @@ unsigned int CDCC::SetFD( void *fd, void *send_fd, int *nfds )
 
 void CDCC::Update( void* fd, void *send_fd )
 {
-  if ( m_Socket->HasError( ) )
+  if ( m_Socket->HasError( ) || ( !m_Socket->GetConnected( ) && !m_Socket->GetConnecting( ) ) )
   {
     m_Socket->Reset( );
   }
