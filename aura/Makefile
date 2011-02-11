@@ -43,7 +43,7 @@ clean:
 	rm -f $(OBJS) $(COBJS) $(PROGS)	
 
 install: $(PROGS)
-	mv $(PROGS) ../$(PROGS)
+	cp $(PROGS) ../$(PROGS)
 
 $(OBJS): %.o: %.cpp
 	$(CXX) -o $@ $(CXXFLAGS) -c $<

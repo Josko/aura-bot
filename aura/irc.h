@@ -18,6 +18,9 @@
 
  */
 
+#include "socket.h"
+
+
 #define LF ('\x0A')
 #define CR ('\x0D')
 #define SOH ('\x01')
@@ -66,18 +69,51 @@ class CTCPClient;
 
 class CDCC
 {
-public:
+protected:
   CTCPClient *m_Socket;
   string m_Nickname;
   CIRC *m_IRC;
   string m_IP;
   uint16_t m_Port;
+  bool m_DeleteMe;
+
+public:
 
   CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname );
   ~CDCC( );
 
-  unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-  void Update( void *fd, void *send_fd );
+  void SetFD( void *fd, void *send_fd, int *nfds );
+  bool Update( void *fd, void *send_fd );
   void Connect( const string &IP, uint16_t Port );
+
+  bool GetDeleteMe( )
+  {
+    return m_DeleteMe;
+  }
+
+  string GetNickname( )
+  {
+    return m_Nickname;
+  }
+
+  uint16_t GetPort( )
+  {
+    return m_Port;
+  }
+
+  bool GetConnected( )
+  {
+    return m_Socket->GetConnected( );
+  }
+
+  bool GetError( )
+  {
+    return m_Socket->GetError( );
+  }
+
+  void PutBytes( const string &message )
+  {
+    m_Socket->PutBytes( message );
+  }
 };
 

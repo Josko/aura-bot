@@ -44,18 +44,38 @@ CIRC::~CIRC( )
 
 unsigned int CIRC::SetFD( void *fd, void *send_fd, int *nfds )
 {
+  unsigned int NumFDs = 0;
+  
   if ( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
   {
     m_Socket->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
-    return 1;
+    ++NumFDs;
   }
 
-  return 0;
+  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
+  {
+    if ( !( *i )->GetError( ) && ( *i )->GetConnected( ) )
+    {
+      ( *i )->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
+      ++NumFDs;
+    }
+  }
+
+  return NumFDs;
 }
 
 bool CIRC::Update( void *fd, void *send_fd )
 {
   uint32_t Time = GetTime( );
+
+  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
+  {
+    if( ( *i )->Update( &fd, &send_fd ) )
+    {
+      delete *i;
+      i = m_DCC.erase( i );
+    }
+  }
 
   if ( m_Socket->HasError( ) )
   {
@@ -206,7 +226,7 @@ inline void CIRC::ExtractPackets( )
 
         // get hostname
 
-        for (; j < PreviousToken.size( ); ++j )
+        for ( ++j; j < PreviousToken.size( ); ++j )
           Hostname += PreviousToken[j];
 
         // skip channel
@@ -257,7 +277,10 @@ inline void CIRC::ExtractPackets( )
 
           if ( Message[0] == m_CommandTrigger[0] )
           {
-            bool Root = Hostname.substr( 0, 6 ) == "Aurani" || Hostname.substr( 0, 8 ) == "h4x0rz88";
+            bool Root = false;
+
+            if( Hostname.size( ) >= 6 )
+              Root = ( Hostname.substr( 0, 6 ) == "Aurani" ) || ( Hostname.substr( 0, 8 ) == "h4x0rz88" );
 
             //
             // !NICK
@@ -280,12 +303,12 @@ inline void CIRC::ExtractPackets( )
 
               for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
               {
-                if ( ( *i )->m_Socket->GetConnected( ) )
-                  on += ( *i )->m_Nickname + "[" + UTIL_ToString( ( *i )->m_Port ) + "] ";
+                if ( ( *i )->GetConnected( ) )
+                  on += ( *i )->GetNickname( ) + "[" + UTIL_ToString( ( *i )->GetPort( ) ) + "] ";
                 else
-                  off += ( *i )->m_Nickname + "[" + UTIL_ToString( ( *i )->m_Port ) + "] ";
+                  off += ( *i )->GetNickname( ) + "[" + UTIL_ToString( ( *i )->GetPort( ) ) + "] ";
               }
-
+              
               SendMessageIRC( "ON: " + on, string( ) );
               SendMessageIRC( "OFF: " + off, string( ) );
             }
@@ -392,12 +415,12 @@ inline void CIRC::ExtractPackets( )
 
             for ( int i = 0; i <= 3; ++i )
             {
-              stringstream ss;
-              ss << (unsigned long) IP / divider;
+              stringstream SS;
 
+              SS << (unsigned long) IP / divider;
               IP %= divider;
               divider /= 256;
-              strIP += ss.str( );
+              strIP += SS.str( );
 
               if ( i != 3 )
                 strIP += '.';
@@ -406,7 +429,7 @@ inline void CIRC::ExtractPackets( )
 
           for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
           {
-            if ( ( *i )->m_Nickname == Nickname )
+            if ( ( *i )->GetNickname( ) == Nickname )
             {
               delete *i;
               i = m_DCC.erase( i );
@@ -435,12 +458,14 @@ inline void CIRC::ExtractPackets( )
 
         // PING :blabla
 
-        for ( i = 6; Recv[i] != CR; ++i )
+        for ( ++i; Recv[i] != ':'; ++i );
+
+        for ( ++i; Recv[i] != CR; ++i )
           Packet += Recv[i];
 
         SendIRC( "PONG :" + Packet );
 
-        i += 2;
+        ++i;
 
         // remember last packet time
 
@@ -557,8 +582,8 @@ void CIRC::SendIRC( const string &message )
 void CIRC::SendDCC( const string &message )
 {
   for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-    if ( ( *i )->m_Socket->GetConnected( ) )
-      ( *i )->m_Socket->PutBytes( message + LF );
+    if ( ( *i )->GetConnected( ) )
+      ( *i )->PutBytes( message + LF );
 }
 
 void CIRC::SendMessageIRC( const string &message, const string &target )
@@ -579,7 +604,7 @@ void CIRC::SendMessageIRC( const string &message, const string &target )
 
 // Used for establishing a DCC Chat connection to other clients and sending large amounts of data
 
-CDCC::CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort )
+CDCC::CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ), m_DeleteMe( false )
 {
   m_Socket = new CTCPClient( );
   m_Socket->SetNoDelay( );
@@ -593,22 +618,17 @@ CDCC::~CDCC( )
   delete m_Socket;
 }
 
-unsigned int CDCC::SetFD( void *fd, void *send_fd, int *nfds )
+void CDCC::SetFD( void *fd, void *send_fd, int *nfds )
 {
-  if ( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
-  {
     m_Socket->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
-    return 1;
-  }
-
-  return 0;
 }
 
-void CDCC::Update( void* fd, void *send_fd )
+bool CDCC::Update( void* fd, void *send_fd )
 {
-  if ( m_Socket->HasError( ) || ( !m_Socket->GetConnected( ) && !m_Socket->GetConnecting( ) ) )
+  if ( m_Socket->HasError( ) )
   {
     m_Socket->Reset( );
+    return true;
   }
   else if ( m_Socket->GetConnected( ) )
   {
@@ -621,4 +641,6 @@ void CDCC::Update( void* fd, void *send_fd )
     Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] connected to " + m_Nickname + "!" );
     m_Socket->DoSend( (fd_set *) send_fd );
   }
+
+  return false;
 }

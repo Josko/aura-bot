@@ -285,7 +285,7 @@ int main( )
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.02" ), m_HostCounter( 1 )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.03" ), m_HostCounter( 1 )
 {
   // get the general configuration variables
 
@@ -325,12 +325,12 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
 
   vector<string> Channels, LocalUsers;
 
-  for ( int i = 0; i < 10; ++i )
+  for ( int i = 1; i <= 10; ++i )
   {
     string Channel;
     string LocalUser;
 
-    if ( i == 0 )
+    if ( i == 1 )
     {
       Channel = CFG->GetString( "irc_channel", string( ) );
       LocalUser = CFG->GetString( "dcc_local", string( ) );
@@ -340,6 +340,8 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
       Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
       LocalUser = CFG->GetString( "dcc_local" + UTIL_ToString( i ), string( ) );
     }
+
+    Print( "CHANNEL: " + Channel );
 
     if ( Channel.empty( ) && LocalUser.empty( ) )
       break;
@@ -528,16 +530,11 @@ inline bool CAura::Update( )
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
 
-  // 4. irc
+  // 4. irc and dcc sockets
 
   NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );
 
-  // 5. dcc
-
-  for ( vector<CDCC *> ::iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
-    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
-
-  // 6. the GProxy++ reconnect socket(s)
+  // 5. the GProxy++ reconnect socket(s)
 
   if ( m_Reconnect && m_ReconnectSocket )
   {
@@ -586,7 +583,7 @@ inline bool CAura::Update( )
     MILLISLEEP( 200 );
   }
 
-  bool BNETExit = false, IRCExit = false;
+  bool Exit = false;
 
   // update running games
 
@@ -631,21 +628,14 @@ inline bool CAura::Update( )
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     if ( ( *i )->Update( &fd, &send_fd ) )
-      BNETExit = true;
+      Exit = true;
   }
 
-  // update irc
+  // update irc and dcc
 
   if ( m_IRC->Update( &fd, &send_fd ) )
-    IRCExit = true;
-
-  // update dcc
-
-  for ( vector<CDCC *> ::iterator i = m_IRC->m_DCC.begin( ); i != m_IRC->m_DCC.end( ); ++i )
-  {
-    ( *i )->Update( &fd, &send_fd );
-  }
-
+    Exit = true;
+  
   // update GProxy++ reliable reconnect sockets
 
   if ( m_Reconnect && m_ReconnectSocket )
@@ -758,7 +748,7 @@ inline bool CAura::Update( )
     ++i;
   }
 
-  return m_Exiting || BNETExit || IRCExit;
+  return m_Exiting || Exit;
 }
 
 void CAura::EventBNETGameRefreshFailed( CBNET *bnet )

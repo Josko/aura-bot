@@ -609,9 +609,7 @@ void CTCPClient::SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
     return;
 
   FD_SET( m_Socket, fd );
-
-  if( !m_SendBuffer.empty( ) )
-    FD_SET( m_Socket, send_fd );
+  FD_SET( m_Socket, send_fd );
 
 #ifndef WIN32
   if ( m_Socket > *nfds )
