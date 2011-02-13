@@ -5,7 +5,7 @@ CXX = g++
 CCFLAGS = -m64
 CXXFLAGS = -m64 -Wall -Wextra
 DFLAGS = 
-OFLAGS = -O2
+OFLAGS = -O3
 LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
 
 ifeq ($(SYSTEM),Darwin)
