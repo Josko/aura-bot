@@ -341,8 +341,6 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
       LocalUser = CFG->GetString( "dcc_local" + UTIL_ToString( i ), string( ) );
     }
 
-    Print( "CHANNEL: " + Channel );
-
     if ( Channel.empty( ) && LocalUser.empty( ) )
       break;
 

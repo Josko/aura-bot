@@ -45,12 +45,16 @@ CIRC::~CIRC( )
 unsigned int CIRC::SetFD( void *fd, void *send_fd, int *nfds )
 {
   unsigned int NumFDs = 0;
+
+  // irc socket
   
   if ( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
   {
     m_Socket->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
     ++NumFDs;
   }
+
+  // dcc sockets
 
   for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
   {
@@ -68,13 +72,15 @@ bool CIRC::Update( void *fd, void *send_fd )
 {
   uint32_t Time = GetTime( );
 
-  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
+  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); )
   {
     if( ( *i )->Update( &fd, &send_fd ) )
-    {
+    {      
       delete *i;
       i = m_DCC.erase( i );
     }
+    else
+      ++i;
   }
 
   if ( m_Socket->HasError( ) )
@@ -402,8 +408,8 @@ inline void CIRC::ExtractPackets( )
           {
             if ( Nickname == ( *i ) )
             {
-              strIP = "127.0.0.1";
               Local = true;
+              strIP = "127.0.0.1";
               break;
             }
           }
@@ -430,9 +436,9 @@ inline void CIRC::ExtractPackets( )
           for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
           {
             if ( ( *i )->GetNickname( ) == Nickname )
-            {
+            {              
               delete *i;
-              i = m_DCC.erase( i );
+              m_DCC.erase( i );
               break;
             }
           }
