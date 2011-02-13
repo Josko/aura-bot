@@ -305,18 +305,14 @@ inline void CIRC::ExtractPackets( )
 
             else if ( Command == "dcclist" )
             {
-              string on, off;
+              string Users;
 
               for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
               {
-                if ( ( *i )->GetConnected( ) )
-                  on += ( *i )->GetNickname( ) + "[" + UTIL_ToString( ( *i )->GetPort( ) ) + "] ";
-                else
-                  off += ( *i )->GetNickname( ) + "[" + UTIL_ToString( ( *i )->GetPort( ) ) + "] ";
+                Users += ( *i )->GetNickname( ) + "[" + UTIL_ToString( ( *i )->GetPort( ) ) + "] ";
               }
               
-              SendMessageIRC( "ON: " + on, string( ) );
-              SendMessageIRC( "OFF: " + off, string( ) );
+              SendMessageIRC( "Connected DCCs: " + Users, string( ) );
             }
 
             //
