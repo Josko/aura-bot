@@ -97,7 +97,7 @@ uint32_t CSQLITE3::LastRowID( )
 // CAuraDB
 //
 
-CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false )
+CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), FromCheckStmt( NULL ), BanCheckStmt( NULL ), AdminCheckStmt( NULL ), RootAdminCheckStmt( NULL )
 {
   m_File = CFG->GetString( "db_sqlite3_file", "aura.dbs" );
   Print( "[SQLITE3] version " + string( SQLITE_VERSION ) );
@@ -206,12 +206,6 @@ CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false )
 
   if ( m_DB->Exec( "CREATE TEMPORARY TABLE rootadmins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
     Print( "[SQLITE3] error creating temporary rootadmins table - " + m_DB->GetError( ) );
-
-  FromAddStmt = NULL;
-  FromCheckStmt = NULL;
-  BanCheckStmt = NULL;
-  AdminCheckStmt = NULL;
-  RootAdminCheckStmt = NULL;
 }
 
 CAuraDB::~CAuraDB( )

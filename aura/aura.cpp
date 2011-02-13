@@ -285,11 +285,10 @@ int main( )
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.03" ), m_HostCounter( 1 )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.03" ), m_HostCounter( 1 ), m_Ready( true )
 {
   // get the general configuration variables
-
-  m_Ready = true;
+  
   m_UDPSocket = new CUDPSocket( );
   m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
   m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
