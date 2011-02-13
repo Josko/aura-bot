@@ -1988,5 +1988,5 @@ void CBNET::Deactivate( )
   m_Socket->Reset( );
   m_LoggedIn = false;
   m_InChat = false;
-  m_WaitingToConnect = true;
+  m_WaitingToConnect = false;
 }

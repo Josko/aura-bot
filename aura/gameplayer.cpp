@@ -40,9 +40,9 @@ CPotentialPlayer::CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCP
 
 CPotentialPlayer::~CPotentialPlayer( )
 {
-  if ( m_Socket )
+  if( m_Socket )
     delete m_Socket;
-
+  
   delete m_IncomingJoinPlayer;
 }
 
@@ -69,7 +69,7 @@ bool CPotentialPlayer::Update( void *fd )
   if ( m_DeleteMe )
     return true;
 
-  if ( !m_Socket )
+  if( !m_Socket )
     return false;
 
   m_Socket->DoRecv( (fd_set *) fd );
@@ -125,7 +125,7 @@ bool CPotentialPlayer::Update( void *fd )
 
 void CPotentialPlayer::Send( const BYTEARRAY &data )
 {
-  if ( m_Socket )
+  if( m_Socket )
     m_Socket->PutBytes( data );
 }
 
@@ -145,26 +145,17 @@ CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const
 
 CGamePlayer::~CGamePlayer( )
 {
-  if ( m_Socket )
     delete m_Socket;
 }
 
 BYTEARRAY CGamePlayer::GetExternalIP( )
 {
-  if ( m_Socket )
     return m_Socket->GetIP( );
-
-  unsigned char Zeros[] = { 0, 0, 0, 0 };
-
-  return UTIL_CreateByteArray( Zeros, 4 );
 }
 
 string CGamePlayer::GetExternalIPString( )
 {
-  if ( m_Socket )
     return m_Socket->GetIPString( );
-
-  return string( );
 }
 
 uint32_t CGamePlayer::GetPing( bool LCPing )
@@ -217,21 +208,18 @@ bool CGamePlayer::Update( void *fd )
   // this works because in the lobby we send pings every 5 seconds and expect a response to each one
   // and in the game the Warcraft 3 client sends keepalives frequently (at least once per second it looks like)
 
-  if ( m_Socket && Time - m_Socket->GetLastRecv( ) >= 35 )
+  if ( Time - m_Socket->GetLastRecv( ) >= 35 )
     m_Game->EventPlayerDisconnectTimedOut( this );
 
   // GProxy++ acks
 
   if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
   {
-    if ( m_Socket )
-      m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
-
+    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
     m_LastGProxyAckTime = Time;
   }
 
-  if( m_Socket )
-    m_Socket->DoRecv( (fd_set *) fd );
+  m_Socket->DoRecv( (fd_set *) fd );
 
   // extract as many packets as possible from the socket's receive buffer and process them
 
@@ -413,29 +401,26 @@ bool CGamePlayer::Update( void *fd )
   // try to find out why we're requesting deletion
   // in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
 
-  if ( m_Socket )
+  if ( m_Socket->HasError( ) )
   {
-    if ( m_Socket->HasError( ) )
-    {
-      m_Game->EventPlayerDisconnectSocketError( this );
-      m_Socket->Reset( );
+    m_Game->EventPlayerDisconnectSocketError( this );
+    m_Socket->Reset( );
 
-      if ( m_GProxy && m_Game->GetGameLoaded( ) )
-        return false;
-      else
-        return true;
-    }
-    else if ( !m_Socket->GetConnected( ) )
-    {
-      m_Game->EventPlayerDisconnectConnectionClosed( this );
-      m_Socket->Reset( );
-
-      if ( m_GProxy && m_Game->GetGameLoaded( ) )
-        return false;
-      else
-        return true;
-    }
+    if ( m_GProxy && m_Game->GetGameLoaded( ) )
+      return false;
+    else
+      return true;
   }
+  else if ( !m_Socket->GetConnected( ) )
+  {
+    m_Game->EventPlayerDisconnectConnectionClosed( this );
+    m_Socket->Reset( );
+
+    if ( m_GProxy && m_Game->GetGameLoaded( ) )
+      return false;
+    else
+      return true;
+  }  
   
   return m_DeleteMe;
 }
@@ -451,8 +436,7 @@ void CGamePlayer::Send( const BYTEARRAY &data )
   if ( m_GProxy && m_Game->GetGameLoaded( ) )
     m_GProxyBuffer.push( data );
 
-  if ( m_Socket )
-    m_Socket->PutBytes( data );
+  m_Socket->PutBytes( data );
 }
 
 void CGamePlayer::EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket )

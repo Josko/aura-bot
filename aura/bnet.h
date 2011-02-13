@@ -189,6 +189,7 @@ public:
   {
     m_Spam = spam;
   }
+  
   void SetSpam( );
 
   // processing functions
@@ -219,6 +220,7 @@ public:
   {
     m_Deactivated = false;
     m_Spam = false;
+    m_WaitingToConnect = true;
   }
   
   bool IsAdmin( string name );

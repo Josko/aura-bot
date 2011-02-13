@@ -249,16 +249,13 @@ unsigned int CGame::SetFD( void *fd, void *send_fd, int *nfds )
 
   for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
   {
-    if ( ( *i )->GetSocket( ) )
-    {
       ( *i )->GetSocket( )->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
       ++NumFDs;
-    }
   }
 
   for ( vector<CPotentialPlayer *> ::iterator i = m_Potentials.begin( ); i != m_Potentials.end( ); ++i )
   {
-    if ( ( *i )->GetSocket( ) )
+    if( ( *i )->GetSocket( ) )
     {
       ( *i )->GetSocket( )->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
       ++NumFDs;
@@ -341,7 +338,7 @@ bool CGame::Update( void *fd, void *send_fd )
     {
       // flush the socket (e.g. in case a rejection message is queued)
 
-      if ( ( *i )->GetSocket( ) )
+      if( ( *i )->GetSocket( ) )
         ( *i )->GetSocket( )->DoSend( (fd_set *) send_fd );
 
       delete *i;
@@ -762,13 +759,12 @@ void CGame::UpdatePost( void *send_fd )
 
   for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
   {
-    if ( ( *i )->GetSocket( ) )
-      ( *i )->GetSocket( )->DoSend( (fd_set *) send_fd );
+    ( *i )->GetSocket( )->DoSend( (fd_set *) send_fd );
   }
 
   for ( vector<CPotentialPlayer *> ::iterator i = m_Potentials.begin( ); i != m_Potentials.end( ); ++i )
   {
-    if ( ( *i )->GetSocket( ) )
+    if( m_Socket )
       ( *i )->GetSocket( )->DoSend( (fd_set *) send_fd );
   }
 }
@@ -1422,8 +1418,7 @@ void CGame::EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer 
     {
       // send info about the new player to every other player
 
-      if ( ( *i )->GetSocket( ) )
-        ( *i )->Send( m_Protocol->SEND_W3GS_PLAYERINFO( Player->GetPID( ), Player->GetName( ), Player->GetExternalIP( ), Player->GetInternalIP( ) ) );
+      ( *i )->Send( m_Protocol->SEND_W3GS_PLAYERINFO( Player->GetPID( ), Player->GetName( ), Player->GetExternalIP( ), Player->GetInternalIP( ) ) );
 
       // send info about every other player to the new player
       Player->Send( m_Protocol->SEND_W3GS_PLAYERINFO( ( *i )->GetPID( ), ( *i )->GetName( ), ( *i )->GetExternalIP( ), ( *i )->GetInternalIP( ) ) );
