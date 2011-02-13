@@ -57,7 +57,7 @@ public:
 
   unsigned int SetFD( void *fd, void *send_fd, int *nfds );
   bool Update( void *fd, void *send_fd );
-  inline void ExtractPackets( );
+  void ExtractPackets( );
   void SendIRC( const string &message );
   void SendDCC( const string &message );
   void SendMessageIRC( const string &message, const string &target );

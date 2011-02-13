@@ -135,7 +135,7 @@ BYTEARRAY CGPSProtocol::SEND_GPSS_REJECT( uint32_t reason )
 // OTHER FUNCTIONS //
 /////////////////////
 
-inline bool CGPSProtocol::AssignLength( BYTEARRAY &content )
+bool CGPSProtocol::AssignLength( BYTEARRAY &content )
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
@@ -152,7 +152,7 @@ inline bool CGPSProtocol::AssignLength( BYTEARRAY &content )
   return false;
 }
 
-inline bool CGPSProtocol::ValidateLength( BYTEARRAY &content )
+bool CGPSProtocol::ValidateLength( BYTEARRAY &content )
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 

@@ -192,7 +192,7 @@ bool CIRC::Update( void *fd, void *send_fd )
   return m_Exiting;
 }
 
-inline void CIRC::ExtractPackets( )
+void CIRC::ExtractPackets( )
 {
   string Token, PreviousToken, Recv = *( m_Socket->GetBytes( ) );
   uint32_t Time = GetTime( );

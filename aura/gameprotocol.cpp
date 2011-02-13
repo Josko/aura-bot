@@ -871,7 +871,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> ac
 // OTHER FUNCTIONS //
 /////////////////////
 
-inline bool CGameProtocol::AssignLength( BYTEARRAY &content )
+bool CGameProtocol::AssignLength( BYTEARRAY &content )
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
@@ -888,7 +888,7 @@ inline bool CGameProtocol::AssignLength( BYTEARRAY &content )
   return false;
 }
 
-inline bool CGameProtocol::ValidateLength( BYTEARRAY &content )
+bool CGameProtocol::ValidateLength( BYTEARRAY &content )
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
@@ -908,7 +908,7 @@ inline bool CGameProtocol::ValidateLength( BYTEARRAY &content )
   return false;
 }
 
-inline BYTEARRAY CGameProtocol::EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots )
+BYTEARRAY CGameProtocol::EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots )
 {
   BYTEARRAY SlotInfo;
   SlotInfo.push_back( (unsigned char) slots.size( ) ); // number of slots

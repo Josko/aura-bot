@@ -93,7 +93,7 @@ public:
 
   // processing functions
 
-  inline bool Update( );
+  bool Update( );
 
   // events
 
@@ -104,8 +104,8 @@ public:
 
   void ReloadConfigs( );
   void SetConfigs( CConfig *CFG );
-  inline void ExtractScripts( );
-  inline void LoadIPToCountryData( );
+  void ExtractScripts( );
+  void LoadIPToCountryData( );
   void CreateGame( CMap *map, unsigned char gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper );
   bool GetReady( )
   {

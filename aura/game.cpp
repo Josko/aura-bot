@@ -773,24 +773,24 @@ void CGame::UpdatePost( void *send_fd )
   }
 }
 
-inline void CGame::Send( CGamePlayer *player, const BYTEARRAY &data )
+void CGame::Send( CGamePlayer *player, const BYTEARRAY &data )
 {
   if ( player )
     player->Send( data );
 }
 
-inline void CGame::Send( unsigned char PID, const BYTEARRAY &data )
+void CGame::Send( unsigned char PID, const BYTEARRAY &data )
 {
   Send( GetPlayerFromPID( PID ), data );
 }
 
-inline void CGame::Send( const BYTEARRAY &PIDs, const BYTEARRAY &data )
+void CGame::Send( const BYTEARRAY &PIDs, const BYTEARRAY &data )
 {
   for ( unsigned int i = 0; i < PIDs.size( ); ++i )
     Send( PIDs[i], data );
 }
 
-inline void CGame::SendAll( const BYTEARRAY &data )
+void CGame::SendAll( const BYTEARRAY &data )
 {
   for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
     ( *i )->Send( data );
@@ -873,7 +873,7 @@ void CGame::SendAllChat( const string &message )
   SendAllChat( GetHostPID( ), message );
 }
 
-inline void CGame::SendAllSlotInfo( )
+void CGame::SendAllSlotInfo( )
 {
   if ( !m_GameLoading && !m_GameLoaded )
   {
@@ -882,7 +882,7 @@ inline void CGame::SendAllSlotInfo( )
   }
 }
 
-inline void CGame::SendVirtualHostPlayerInfo( CGamePlayer *player )
+void CGame::SendVirtualHostPlayerInfo( CGamePlayer *player )
 {
   if ( m_VirtualHostPID == 255 )
     return;
@@ -896,7 +896,7 @@ inline void CGame::SendVirtualHostPlayerInfo( CGamePlayer *player )
   Send( player, m_Protocol->SEND_W3GS_PLAYERINFO( m_VirtualHostPID, m_VirtualHostName, IP, IP ) );
 }
 
-inline void CGame::SendFakePlayerInfo( CGamePlayer *player )
+void CGame::SendFakePlayerInfo( CGamePlayer *player )
 {
   if ( m_FakePlayers.empty( ) )
     return;
@@ -913,7 +913,7 @@ inline void CGame::SendFakePlayerInfo( CGamePlayer *player )
   }
 }
 
-inline void CGame::SendAllActions( )
+void CGame::SendAllActions( )
 {
   bool UsingGProxy = false;
 
@@ -3442,7 +3442,7 @@ void CGame::EventPlayerPongToHost( CGamePlayer *player )
   }
 }
 
-inline void CGame::EventGameStarted( )
+void CGame::EventGameStarted( )
 {
   Print( "[GAME: " + m_GameName + "] started loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
@@ -3586,7 +3586,7 @@ inline void CGame::EventGameStarted( )
   }
 }
 
-inline void CGame::EventGameLoaded( )
+void CGame::EventGameLoaded( )
 {
   Print( "[GAME: " + m_GameName + "] finished loading with " + UTIL_ToString( GetNumHumanPlayers( ) ) + " players" );
 
@@ -3714,7 +3714,7 @@ CGamePlayer *CGame::GetPlayerFromColour( unsigned char colour )
   return NULL;
 }
 
-inline unsigned char CGame::GetNewPID( )
+unsigned char CGame::GetNewPID( )
 {
   // find an unused PID for a new player to use
 
@@ -3755,7 +3755,7 @@ inline unsigned char CGame::GetNewPID( )
   return 255;
 }
 
-inline unsigned char CGame::GetNewColour( )
+unsigned char CGame::GetNewColour( )
 {
   // find an unused colour for a player to use
 
@@ -3839,7 +3839,7 @@ unsigned char CGame::GetHostPID( )
   return 255;
 }
 
-inline unsigned char CGame::GetEmptySlot( bool reserved )
+unsigned char CGame::GetEmptySlot( bool reserved )
 {
   if ( m_Slots.size( ) > 255 )
     return 255;
@@ -3897,7 +3897,7 @@ inline unsigned char CGame::GetEmptySlot( bool reserved )
   return 255;
 }
 
-inline unsigned char CGame::GetEmptySlot( unsigned char team, unsigned char PID )
+unsigned char CGame::GetEmptySlot( unsigned char team, unsigned char PID )
 {
   if ( m_Slots.size( ) > 255 )
     return 255;
@@ -4341,7 +4341,7 @@ void CGame::StopPlayers( const string &reason )
   }
 }
 
-inline void CGame::StopLaggers( const string &reason )
+void CGame::StopLaggers( const string &reason )
 {
   for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
   {
@@ -4354,7 +4354,7 @@ inline void CGame::StopLaggers( const string &reason )
   }
 }
 
-inline void CGame::CreateVirtualHost( )
+void CGame::CreateVirtualHost( )
 {
   if ( m_VirtualHostPID != 255 )
     return;
@@ -4370,7 +4370,7 @@ inline void CGame::CreateVirtualHost( )
   SendAll( m_Protocol->SEND_W3GS_PLAYERINFO( m_VirtualHostPID, m_VirtualHostName, IP, IP ) );
 }
 
-inline void CGame::DeleteVirtualHost( )
+void CGame::DeleteVirtualHost( )
 {
   if ( m_VirtualHostPID == 255 )
     return;
@@ -4379,7 +4379,7 @@ inline void CGame::DeleteVirtualHost( )
   m_VirtualHostPID = 255;
 }
 
-inline void CGame::CreateFakePlayer( )
+void CGame::CreateFakePlayer( )
 {
   if ( m_FakePlayers.size( ) > 10 )
     return;
@@ -4406,7 +4406,7 @@ inline void CGame::CreateFakePlayer( )
   }
 }
 
-inline void CGame::DeleteFakePlayers( )
+void CGame::DeleteFakePlayers( )
 {
   if ( m_FakePlayers.empty( ) )
     return;

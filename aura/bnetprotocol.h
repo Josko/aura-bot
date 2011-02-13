@@ -218,8 +218,8 @@ public:
   // other functions
 
 private:
-  inline bool AssignLength( BYTEARRAY &content );
-  inline bool ValidateLength( BYTEARRAY &content );
+  bool AssignLength( BYTEARRAY &content );
+  bool ValidateLength( BYTEARRAY &content );
 };
 
 //

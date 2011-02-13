@@ -475,7 +475,7 @@ CAura::~CAura( )
   delete m_IRC;
 }
 
-inline bool CAura::Update( )
+bool CAura::Update( )
 {
   // create the GProxy++ reconnect listener
 
@@ -828,7 +828,7 @@ void CAura::SetConfigs( CConfig *CFG )
   }
 }
 
-inline void CAura::ExtractScripts( )
+void CAura::ExtractScripts( )
 {
   string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
   HANDLE PatchMPQ;
@@ -898,7 +898,7 @@ inline void CAura::ExtractScripts( )
     Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
 }
 
-inline void CAura::LoadIPToCountryData( )
+void CAura::LoadIPToCountryData( )
 {
   ifstream in;
   in.open( "ip-to-country.csv" );

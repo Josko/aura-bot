@@ -146,9 +146,9 @@ public:
   // other functions
 
 private:
-  inline bool AssignLength( BYTEARRAY &content );
-  inline bool ValidateLength( BYTEARRAY &content );
-  inline BYTEARRAY EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots );
+  bool AssignLength( BYTEARRAY &content );
+  bool ValidateLength( BYTEARRAY &content );
+  BYTEARRAY EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots );
 };
 
 //
