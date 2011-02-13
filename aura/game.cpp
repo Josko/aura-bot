@@ -255,7 +255,7 @@ unsigned int CGame::SetFD( void *fd, void *send_fd, int *nfds )
 
   for ( vector<CPotentialPlayer *> ::iterator i = m_Potentials.begin( ); i != m_Potentials.end( ); ++i )
   {
-    if( ( *i )->GetSocket( ) )
+    if ( ( *i )->GetSocket( ) )
     {
       ( *i )->GetSocket( )->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
       ++NumFDs;
@@ -338,7 +338,7 @@ bool CGame::Update( void *fd, void *send_fd )
     {
       // flush the socket (e.g. in case a rejection message is queued)
 
-      if( ( *i )->GetSocket( ) )
+      if ( ( *i )->GetSocket( ) )
         ( *i )->GetSocket( )->DoSend( (fd_set *) send_fd );
 
       delete *i;
@@ -764,7 +764,7 @@ void CGame::UpdatePost( void *send_fd )
 
   for ( vector<CPotentialPlayer *> ::iterator i = m_Potentials.begin( ); i != m_Potentials.end( ); ++i )
   {
-    if( m_Socket )
+    if ( ( *i )->GetSocket( ) )
       ( *i )->GetSocket( )->DoSend( (fd_set *) send_fd );
   }
 }
