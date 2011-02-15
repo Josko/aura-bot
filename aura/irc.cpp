@@ -195,7 +195,7 @@ void CIRC::ExtractPackets( )
     // out: PONG :2748459196
     // respond to the packet sent by the server
 
-    if( pak_iter->substr( 0, 4 ) == "PING" )
+    if ( pak_iter->substr( 0, 4 ) == "PING" )
     {
       SendIRC( "PONG :" + pak_iter->substr( 6 ) );
       continue;
@@ -205,7 +205,7 @@ void CIRC::ExtractPackets( )
     // in: NOTICE AUTH :*** Checking Ident
     // print the message on console
 
-    if( pak_iter->substr( 0, 6 ) == "NOTICE" )
+    if ( pak_iter->substr( 0, 6 ) == "NOTICE" )
     {
       Print( "[IRC: " + m_Server + "] " + *pak_iter );
       continue;
@@ -221,8 +221,14 @@ void CIRC::ExtractPackets( )
     // in:  :nickname!~username@hostname PRIVMSG #channel :message
     // print the message, check if it's a command then execute if it is
 
-    if( Tokens.size( ) > 3 && Tokens[1] == "PRIVMSG" )
+    if ( Tokens.size( ) > 3 && Tokens[1] == "PRIVMSG" )
     {
+      // don't bother parsing if the message is very short (1 character)
+      // since it's surely not a command
+      
+      if ( Tokens[3].size( ) < 3 )
+        continue;
+      
       string Nickname, Hostname;
 
       // get the nickname
@@ -263,7 +269,7 @@ void CIRC::ExtractPackets( )
       
       // check if the message isn't a irc command
 
-      if( Tokens[3][1] != m_CommandTrigger || Tokens[3].size( ) < 3 )
+      if( Tokens[3][1] != m_CommandTrigger )
         continue;
       
       // extract command and payload
@@ -285,10 +291,6 @@ void CIRC::ExtractPackets( )
         Command = Message.substr( 1 );
 
       transform( Command.begin( ), Command.end( ), Command.begin( ), (int(*)(int))tolower );
-      
-      //////////////
-      // COMMANDS //
-      //////////////
       
       //
       // !NICK
@@ -357,24 +359,31 @@ void CIRC::ExtractPackets( )
       continue;
     }    
   }
+  
+  // clear the whole buffer
+  // TODO: delete only full packets we've processed and leave partial ones in buffer
 
   m_Socket->ClearRecvBuffer( );
 }
 
 void CIRC::SendIRC( const string &message )
 {
+  // max message length is 512 bytes including the trailing CRLF
+  
   if ( m_Socket->GetConnected( ) )
     m_Socket->PutBytes( message + LF );
 }
 
 void CIRC::SendMessageIRC( const string &message, const string &target )
 {
+  // max message length is 512 bytes including the trailing CRLF
+  
   if ( m_Socket->GetConnected( ) )
   {
     if ( target.empty( ) )
       for ( vector<string> ::iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
-        m_Socket->PutBytes( "PRIVMSG " + ( *i ) + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
+        m_Socket->PutBytes( "PRIVMSG " + ( *i ) + " :" + ( message.size( ) > 450 ? message.substr( 0, 450 ) : message ) + LF );
     else
-      m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
+      m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 450 ? message.substr( 0, 450 ) : message ) + LF );
   }
 }

@@ -40,7 +40,6 @@ class CLanguage;
 class CMap;
 class CConfig;
 class CIRC;
-class CDCC;
 
 class CAura
 {

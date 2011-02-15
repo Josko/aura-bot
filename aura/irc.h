@@ -22,12 +22,9 @@
 #define IRC_H
 
 #define LF ('\x0A')
-#define CR ('\x0D')
-#define SOH ('\x01')
 
 class CAura;
 class CTCPClient;
-class CDCC;
 
 class CIRC
 {

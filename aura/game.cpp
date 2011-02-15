@@ -93,7 +93,7 @@ CGame::CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameS
     Print( "[GAME: " + m_GameName + "] listening on port " + UTIL_ToString( m_HostPort ) );
   else
   {
-    Print( "[GAME: " + m_GameName + "] error listening on port " + UTIL_ToString( m_HostPort ) );
+    Print2( "[GAME: " + m_GameName + "] error listening on port " + UTIL_ToString( m_HostPort ) );    
     m_Exiting = true;
   }
 
@@ -284,7 +284,6 @@ bool CGame::Update( void *fd, void *send_fd )
     // we also broadcast the game to the local network every 5 seconds so we hijack this timer for our nefarious purposes
     // however we only want to broadcast if the countdown hasn't started
     // see the !sendlan code later in this file for some more information about how this works
-    // todotodo: should we send a game cancel message somewhere? we'll need to implement a host counter for it to work
 
     if ( !m_CountDownStarted )
     {
@@ -305,7 +304,6 @@ bool CGame::Update( void *fd, void *send_fd )
       // we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
       // so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
       // the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
-
 
       // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
       // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
@@ -1641,8 +1639,6 @@ void CGame::EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *cha
 
 bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload )
 {
-  // todotodo: don't be lazy
-
   string User = player->GetName( ), Command = command, Payload = payload;
 
   bool AdminCheck = false, RootAdminCheck = false;

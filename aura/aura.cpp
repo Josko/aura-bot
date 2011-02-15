@@ -322,13 +322,9 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
     string Channel;
 
     if ( i == 1 )
-    {
       Channel = CFG->GetString( "irc_channel", string( ) );
-    }
     else
-    {
-      Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );      
-    }
+      Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
 
     if ( Channel.empty( ) )
       break;
@@ -338,7 +334,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
 
   if ( IRC_Server.empty( ) || IRC_UserName.empty( ) || IRC_NickName.empty( ) || IRC_Port == 0 || IRC_Port >= 65535 )
   {
-    Print( "[AURA] error - no irc connection found in config file" );
+    Print( "[AURA] error - irc connection not found in config file" );
     m_Ready = false;
     return;
   }
@@ -400,9 +396,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
     Print( "[AURA] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
 
     if ( Locale == "system" )
-    {
       Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
-    }
 
     m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
   }
@@ -816,12 +810,12 @@ void CAura::SetConfigs( CConfig *CFG )
 void CAura::ExtractScripts( )
 {
   string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
-  HANDLE PatchMPQ;
+  void  *PatchMPQ;
 
   if ( SFileOpenArchive( PatchMPQFileName.c_str( ), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ ) )
   {
     Print( "[AURA] loading MPQ file [" + PatchMPQFileName + "]" );
-    HANDLE SubFile;
+    void *SubFile;
 
     // common.j
 
@@ -832,7 +826,7 @@ void CAura::ExtractScripts( )
       if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
       {
         char *SubFileData = new char[FileLength];
-        DWORD BytesRead = 0;
+        uint32_t BytesRead = 0;
 
         if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
         {
@@ -859,7 +853,7 @@ void CAura::ExtractScripts( )
       if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
       {
         char *SubFileData = new char[FileLength];
-        DWORD BytesRead = 0;
+        uint32_t BytesRead = 0;
 
         if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
         {
@@ -896,7 +890,6 @@ void CAura::LoadIPToCountryData( )
 
     // the begin and commit statements are optimizations
     // we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
-    // todotodo: handle begin/commit failures a bit more gracefully
 
     if ( !m_DB->Begin( ) )
       Print( "[AURA] warning - failed to begin database transaction, iptocountry data not loaded" );
@@ -1007,8 +1000,6 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   Print2( "[AURA] creating game [" + gameName + "]" );
 
   m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
-
-  // todotodo: check if listening failed and report the error to the user
 
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {

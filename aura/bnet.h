@@ -33,7 +33,6 @@ class CIncomingClanList;
 class CIncomingChatEvent;
 class CDBBan;
 class CIRC;
-class CDCC;
 
 class CBNET
 {
