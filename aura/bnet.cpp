@@ -665,9 +665,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
         }
-          //
-          // !SPAM
-          //
+        
+        //
+        // !SPAM
+        //
 
         else if ( Command == "spam" && m_Aura->m_CurrentGame && m_Aura->m_CurrentGame->GetGameName( ).size( ) < 6 )
         {
@@ -675,9 +676,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             if ( !( *i )->GetPvPGN( ) )
               ( *i )->SetSpam( );
         }
-          //
-          // !UNHOST
-          //
+        
+        //
+        // !UNHOST
+        //
 
         else if ( Command == "unhost" || Command == "uh" )
         {
@@ -706,23 +708,24 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->UnableToUnhostGameNoGameInLobby( ), User, Whisper, m_IRC );
         }
-          //
-          // !PUB (host public game)
-          //
+        
+        //
+        // !PUB (host public game)
+        //
 
         else if ( Command == "pub" && !Payload.empty( ) )
           m_Aura->CreateGame( m_Aura->m_Map, GAME_PUBLIC, Payload, User, User, m_Server, Whisper );
 
-          //
-          // !PRIV (host private game)
-          //
+        //
+        // !PRIV (host private game)
+        //
 
         else if ( Command == "priv" && !Payload.empty( ) )
           m_Aura->CreateGame( m_Aura->m_Map, GAME_PRIVATE, Payload, User, User, m_Server, Whisper );
 
-          //
-          // !LOAD (load config file)
-          //
+        //
+        // !LOAD (load config file)
+        //
 
         else if ( Command == "load" )
         {
@@ -797,9 +800,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
         }
-          //
-          // !ADDADMIN
-          //
+        
+        //
+        // !ADDADMIN
+        //
 
         else if ( Command == "addadmin" && !Payload.empty( ) )
         {
@@ -815,10 +819,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !ADDBAN
-          // !BAN
-          //
+        
+        //
+        // !ADDBAN
+        // !BAN
+        //
 
         else if ( ( Command == "addban" || Command == "ban" ) && !Payload.empty( ) )
         {
@@ -853,16 +858,17 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->ErrorBanningUser( m_Server, Victim ), User, Whisper, m_IRC );
         }
-          //
-          // !CHANNEL (change channel)
-          //
+        
+        //
+        // !CHANNEL (change channel)
+        //
 
         else if ( Command == "channel" && !Payload.empty( ) )
           QueueChatCommand( "/join " + Payload );
 
-          //
-          // !CHECKADMIN
-          //
+        //
+        // !CHECKADMIN
+        //
 
         else if ( Command == "checkadmin" && !Payload.empty( ) )
         {
@@ -876,9 +882,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !CHECKBAN
-          //
+        
+        //
+        // !CHECKBAN
+        //
 
         else if ( Command == "checkban" && !Payload.empty( ) )
         {
@@ -892,9 +899,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           delete Ban;
           Ban = NULL;
         }
-          //
-          // !CLOSE (close slot)
-          //
+        
+        //
+        // !CLOSE (close slot)
+        //
 
         else if ( Command == "close" && !Payload.empty( ) && m_Aura->m_CurrentGame )
         {
@@ -922,9 +930,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !CLOSEALL
-          //
+        
+        //
+        // !CLOSEALL
+        //
 
         else if ( Command == "closeall" && m_Aura->m_CurrentGame )
         {
@@ -933,9 +942,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !COUNTADMINS
-          //
+        
+        //
+        // !COUNTADMINS
+        //
 
         else if ( Command == "countadmins" )
         {
@@ -953,9 +963,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !COUNTBANS
-          //
+        
+        //
+        // !COUNTBANS
+        //
 
         else if ( Command == "countbans" )
         {
@@ -969,9 +980,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             QueueChatCommand( m_Aura->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
         }
         
-          //
-          // !DELADMIN
-          //
+        //
+        // !DELADMIN
+        //
 
         else if ( Command == "deladmin" && !Payload.empty( ) )
         {
@@ -987,10 +998,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !DELBAN
-          // !UNBAN
-          //
+        
+        //
+        // !DELBAN
+        // !UNBAN
+        //
 
         else if ( ( Command == "delban" || Command == "unban" ) && !Payload.empty( ) )
         {
@@ -999,9 +1011,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->ErrorUnbanningUser( Payload ), User, Whisper, m_IRC );
         }
-          //
-          // !DOWNLOADS
-          //
+        
+        //
+        // !DOWNLOADS
+        // !DLS
+        //
 
         else if ( ( Command == "downloads" || Command == "dls" ) )
         {
@@ -1035,9 +1049,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             m_Aura->m_AllowDownloads = 2;
           }
         }
-          //
-          // !END
-          //
+        
+        //
+        // !END
+        //
 
         else if ( Command == "end" && !Payload.empty( ) )
         {
@@ -1061,9 +1076,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
         }
-          //
-          // !HOLD (hold a slot for someone)
-          //
+        
+        //
+        // !HOLD (hold a slot for someone)
+        //
 
         else if ( Command == "hold" && !Payload.empty( ) && m_Aura->m_CurrentGame )
         {
@@ -1089,9 +1105,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
         }
-          //
-          // !COUNTMAPS
-          //
+        
+        //
+        // !COUNTMAPS
+        // !COUNTMAP
+        //
 
         else if ( Command == "countmaps" || Command == "countmap" )
         {
@@ -1109,9 +1127,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           QueueChatCommand( "There are currently [" + UTIL_ToString( Count ) + "] maps.", User, Whisper, m_IRC );
         }
-          //
-          // !COUNTCFG(s)
-          //
+        
+        //
+        // !COUNTCFG
+        // !COUNTCFGS
+        //
 
         else if ( Command == "countcfg" || Command == "countcfgs" )
         {
@@ -1129,9 +1149,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           QueueChatCommand( "There are currently [" + UTIL_ToString( Count ) + "] cfgs.", User, Whisper, m_IRC );
         }
-          //
-          // !DELETECFG
-          //
+        
+        //
+        // !DELETECFG
+        //
 
         else if ( Command == "deletecfg" && IsRootAdmin( User ) && !Payload.empty( ) )
         {
@@ -1154,9 +1175,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
         }
-          //
-          // !DELETEMAP
-          //
+        
+        //
+        // !DELETEMAP
+        //
 
         else if ( Command == "deletemap" && IsRootAdmin( User ) && !Payload.empty( ) )
         {
@@ -1179,9 +1201,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
         }
-          //
-          // !OPEN (open slot)
-          //
+        
+        //
+        // !OPEN (open slot)
+        //
 
         else if ( Command == "open" && !Payload.empty( ) && m_Aura->m_CurrentGame )
         {
@@ -1209,9 +1232,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !OPENALL
-          //
+        
+        //
+        // !OPENALL
+        //
 
         else if ( Command == "openall" && m_Aura->m_CurrentGame )
         {
@@ -1220,9 +1244,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !PRIVBY (host private game by other player)
-          //
+        
+        //
+        // !PRIVBY (host private game by other player)
+        //
 
         else if ( Command == "privby" && !Payload.empty( ) )
         {
@@ -1240,9 +1265,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             m_Aura->CreateGame( m_Aura->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper );
           }
         }
-          //
-          // !PUBBY (host public game by other player)
-          //
+        
+        //
+        // !PUBBY (host public game by other player)
+        //
 
         else if ( Command == "pubby" && !Payload.empty( ) )
         {
@@ -1260,9 +1286,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             m_Aura->CreateGame( m_Aura->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper );
           }
         }
-          //
-          // !RELOAD
-          //
+        
+        //
+        // !RELOAD
+        //
 
         else if ( Command == "reload" )
         {
@@ -1274,18 +1301,20 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !SAY
-          //
+        
+        //
+        // !SAY
+        //
 
         else if ( Command == "say" && !Payload.empty( ) )
         {
           if ( IsRootAdmin( User ) || Payload[0] != '/' )
             QueueChatCommand( Payload );
         }
-          //
-          // !SAYGAME
-          //
+        
+        //
+        // !SAYGAME
+        //
 
         else if ( Command == "saygame" && !Payload.empty( ) )
         {
@@ -1324,9 +1353,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !SAYGAMES
-          //
+        
+        //
+        // !SAYGAMES
+        //
 
         else if ( Command == "saygames" && !Payload.empty( ) )
         {
@@ -1347,9 +1377,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               ( *i )->SendAllChat( "ADMIN (" + User + "): " + Payload );
           }
         }
-          //
-          // !SP
-          //
+        
+        //
+        // !SP
+        //
 
         else if ( Command == "sp" && m_Aura->m_CurrentGame && !m_Aura->m_CurrentGame->GetCountDownStarted( ) )
         {
@@ -1361,9 +1392,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !START
-          //
+        
+        //
+        // !START
+        // !S
+        //
 
         else if ( ( Command == "start" || Command == "s" ) && m_Aura->m_CurrentGame && !m_Aura->m_CurrentGame->GetCountDownStarted( ) && m_Aura->m_CurrentGame->GetNumHumanPlayers( ) > 0 )
         {
@@ -1380,9 +1413,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !SWAP (swap slots)
-          //
+        
+        //
+        // !SWAP (swap slots)
+        //
 
         else if ( Command == "swap" && !Payload.empty( ) && m_Aura->m_CurrentGame )
         {
@@ -1413,9 +1447,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
         }
-          //
-          // !RESTART
-          //
+        
+        //
+        // !RESTART
+        //
 
         else if ( Command == "restart" )
         {
@@ -1432,9 +1467,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             QueueChatCommand( "Games in progress, use !restart force", User, Whisper, m_IRC );
         }
 
-          //
-          // !W
-          //
+        //
+        // !W
+        //
 
         else if ( Command == "w" && !Payload.empty( ) )
         {
@@ -1454,9 +1489,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               ( *i )->QueueChatCommand( Message, Name, true, false );
           }
         }
-          //
-          // !DISABLE
-          //
+        
+        //
+        // !DISABLE
+        //
 
         else if ( Command == "disable" )
         {
@@ -1468,9 +1504,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !ENABLE
-          //
+        
+        //
+        // !ENABLE
+        //
 
         else if ( Command == "enable" )
         {
@@ -1482,28 +1519,31 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
         }
-          //
-          // !GETCLAN
-          //
+        
+        //
+        // !GETCLAN
+        //
 
         else if ( Command == "getclan" )
         {
           SendGetClanList( );
           QueueChatCommand( m_Aura->m_Language->UpdatingClanList( ), User, Whisper, m_IRC );
         }
-          //
-          // !GETFRIENDS
-          //
+        
+        //
+        // !GETFRIENDS
+        //
 
         else if ( Command == "getfriends" )
         {
           SendGetFriendsList( );
           QueueChatCommand( m_Aura->m_Language->UpdatingFriendsList( ), User, Whisper, m_IRC );
         }
-          //
-          // !EXIT
-          // !QUIT
-          //
+        
+        //
+        // !EXIT
+        // !QUIT
+        //
 
         else if ( Command == "exit" || Command == "quit" )
         {
@@ -1563,9 +1603,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             GamePlayerSummary = NULL;
           }
         }
-          //
-          // !GETGAME
-          //
+        
+        //
+        // !GETGAME
+        // !G
+        //
 
         else if ( ( Command == "getgame" || Command == "g" ) && !Payload.empty( ) )
         {
@@ -1576,9 +1618,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
         }
-          //
-          // !GETGAMES
-          //
+        
+        //
+        // !GETGAMES
+        // !G
+        //
 
         else if ( ( Command == "getgames" || Command == "g" ) && Payload.empty( ) )
         {
@@ -1587,9 +1631,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->ThereIsNoGameInTheLobby( UTIL_ToString( m_Aura->m_Games.size( ) ), UTIL_ToString( m_Aura->m_MaxGames ) ), User, Whisper, m_IRC );
         }
-          //
-          // !GETPLAYERS
-          //
+        
+        //
+        // !GETPLAYERS
+        // !GP
+        //
 
         else if ( ( Command == "gp" || Command == "getplayers" ) && !Payload.empty( ) )
         {
@@ -1601,9 +1647,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
 
         }
-          //
-          // !STATSDOTA
-          //
+        
+        //
+        // !STATSDOTA
+        // !SD
+        //
 
         else if ( Command == "statsdota" || Command == "sd" )
         {
@@ -1654,9 +1702,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               QueueChatCommand( m_Aura->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
           }
         }
-          //
-          // !STATUS
-          //
+        
+        //
+        // !STATUS
+        //
 
         else if ( Command == "status" && m_Aura->m_BNETs.size( ) )
         {
@@ -1671,9 +1720,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           QueueChatCommand( message, User, Whisper, m_IRC );
         }
-          //
-          // !VERSION
-          //
+        
+        //
+        // !VERSION
+        //
 
         else if ( Command == "version" )
         {
