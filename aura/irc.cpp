@@ -361,7 +361,7 @@ void CIRC::ExtractPackets( )
   }
   
   // clear the whole buffer
-  // TODO: delete only full packets we've processed and leave partial ones in buffer
+  //TODO: delete only full packets we've processed and leave partial ones in buffer
 
   m_Socket->ClearRecvBuffer( );
 }

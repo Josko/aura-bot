@@ -826,7 +826,7 @@ void CAura::ExtractScripts( )
       if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
       {
         char *SubFileData = new char[FileLength];
-        uint32_t BytesRead = 0;
+        DWORD BytesRead = 0;
 
         if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
         {
@@ -853,7 +853,7 @@ void CAura::ExtractScripts( )
       if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
       {
         char *SubFileData = new char[FileLength];
-        uint32_t BytesRead = 0;
+        DWORD BytesRead = 0;
 
         if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
         {
