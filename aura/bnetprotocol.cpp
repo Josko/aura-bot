@@ -977,7 +977,7 @@ string CIncomingGameHost::GetIPString( )
 // CIncomingChatEvent
 //
 
-CIncomingChatEvent::CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, string nUser, string nMessage ) : m_ChatEvent( nChatEvent ), m_User( nUser ), m_Message( nMessage )
+CIncomingChatEvent::CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage ) : m_ChatEvent( nChatEvent ), m_User( nUser ), m_Message( nMessage )
 {
 
 }
@@ -991,7 +991,7 @@ CIncomingChatEvent::~CIncomingChatEvent( )
 // CIncomingFriendList
 //
 
-CIncomingFriendList::CIncomingFriendList( string nAccount, unsigned char nStatus, unsigned char nArea, string nLocation ) : m_Account( nAccount ), m_Status( nStatus ), m_Area( nArea ), m_Location( nLocation )
+CIncomingFriendList::CIncomingFriendList( const string &nAccount, unsigned char nStatus, unsigned char nArea, const string &nLocation ) : m_Account( nAccount ), m_Status( nStatus ), m_Area( nArea ), m_Location( nLocation )
 {
 
 }
@@ -1045,7 +1045,7 @@ string CIncomingFriendList::ExtractArea( unsigned char area )
   return "<Unknown>";
 }
 
-string CIncomingFriendList::ExtractLocation( string location )
+string CIncomingFriendList::ExtractLocation( const string &location )
 {
   string Result;
 
@@ -1062,7 +1062,7 @@ string CIncomingFriendList::ExtractLocation( string location )
 // CIncomingClanList
 //
 
-CIncomingClanList::CIncomingClanList( string nName, unsigned char nRank, unsigned char nStatus ) : m_Name( nName ), m_Rank( nRank ), m_Status( nStatus )
+CIncomingClanList::CIncomingClanList( const string &nName, unsigned char nRank, unsigned char nStatus ) : m_Name( nName ), m_Rank( nRank ), m_Status( nStatus )
 {
 
 }

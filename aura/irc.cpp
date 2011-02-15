@@ -25,11 +25,13 @@
 #include "bnetprotocol.h"
 #include "bnet.h"
 
+#include <boost/tokenizer.hpp>
+
 //////////////
 //// CIRC ////
 //////////////
 
-CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, vector<string> *nChannels, uint16_t nPort, const string &nCommandTrigger, vector<string> *nLocals ) : m_Aura( nAura ), m_Locals( *nLocals ), m_Channels( *nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ), m_LastAntiIdleTime( GetTime( ) )
+CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, vector<string> *nChannels, uint16_t nPort, char nCommandTrigger ) : m_Aura( nAura ), m_Channels( *nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ), m_LastAntiIdleTime( GetTime( ) )
 {
   m_Socket = new CTCPClient( );
 }
@@ -37,51 +39,24 @@ CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const 
 CIRC::~CIRC( )
 {
   delete m_Socket;
-
-  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-    delete *i;
 }
 
 unsigned int CIRC::SetFD( void *fd, void *send_fd, int *nfds )
 {
-  unsigned int NumFDs = 0;
-
   // irc socket
-  
+
   if ( !m_Socket->HasError( ) && m_Socket->GetConnected( ) )
   {
     m_Socket->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
-    ++NumFDs;
+    return 0;
   }
 
-  // dcc sockets
-
-  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-  {
-    if ( !( *i )->GetError( ) && ( *i )->GetConnected( ) )
-    {
-      ( *i )->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
-      ++NumFDs;
-    }
-  }
-
-  return NumFDs;
+  return 1;
 }
 
 bool CIRC::Update( void *fd, void *send_fd )
 {
   uint32_t Time = GetTime( );
-
-  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); )
-  {
-    if( ( *i )->Update( &fd, &send_fd ) )
-    {      
-      delete *i;
-      i = m_DCC.erase( i );
-    }
-    else
-      ++i;
-  }
 
   if ( m_Socket->HasError( ) )
   {
@@ -194,382 +169,193 @@ bool CIRC::Update( void *fd, void *send_fd )
 
 void CIRC::ExtractPackets( )
 {
-  string Token, PreviousToken, Recv = *( m_Socket->GetBytes( ) );
   uint32_t Time = GetTime( );
-  unsigned int i;
+  string *Recv = m_Socket->GetBytes( );
 
-  /* loop through whole recv buffer */
+  // separate packets using the CRLF delimiter
 
-  for ( i = 0; i < Recv.size( ); ++i )
+  typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+
+#ifdef WIN32
+  boost::char_separator<char> Packet_separator( "\n" );
+#else
+  boost::char_separator<char> Packet_separator( "\n\r" );
+#endif
+
+  tokenizer Packets( *Recv, Packet_separator );
+
+  for ( tokenizer :: iterator pak_iter = Packets.begin( ); pak_iter != Packets.end( ); ++pak_iter )
   {
-    // add chars to token
+    // track timeouts
 
-    if ( Recv[i] != ' ' && Recv[i] != CR && Recv[i] != LF )
+    m_LastPacketTime = Time;
+
+    // ping packet
+    // in:  PING :2748459196
+    // out: PONG :2748459196
+    // respond to the packet sent by the server
+
+    if( pak_iter->substr( 0, 4 ) == "PING" )
     {
-      Token += Recv[i];
+      SendIRC( "PONG :" + pak_iter->substr( 6 ) );
+      continue;
     }
-    else if ( Recv[i] == ' ' || Recv[i] == LF )
+
+    // notice packet
+    // in: NOTICE AUTH :*** Checking Ident
+    // print the message on console
+
+    if( pak_iter->substr( 0, 6 ) == "NOTICE" )
     {
-      // end of token, examine
+      Print( "[IRC: " + m_Server + "] " + *pak_iter );
+      continue;
+    }    
 
-      if ( Token == "PRIVMSG" )
+    // now we need to further tokenize each packet
+    // the delimiter is space
+    // we use a std::vector so we can check its number of tokens
+
+    vector<string> Tokens = UTIL_Tokenize( *pak_iter, ' ' );
+    
+    // privmsg packet
+    // in:  :nickname!~username@hostname PRIVMSG #channel :message
+    // print the message, check if it's a command then execute if it is
+
+    if( Tokens.size( ) > 3 && Tokens[1] == "PRIVMSG" )
+    {
+      string Nickname, Hostname;
+
+      // get the nickname
+
+      unsigned int i = 1;
+
+      for ( ; Tokens[0][i] != '!'; ++i )
+        Nickname += Tokens[0][i];
+
+      // skip the username
+
+      for ( ; Tokens[0][i] != '@'; ++i );
+
+      // get the hostname
+
+      for ( ++i; i < Tokens[0].size( ); ++i )
+        Hostname += Tokens[0][i];
+
+      // get the channel
+
+      // string Channel = Tokens[2];
+
+      // get the message
+
+      string Message = pak_iter->substr( Tokens[0].size( ) + Tokens[1].size( ) + Tokens[2].size( ) + 4 );
+      
+      // relay messages to bnets
+      
+      for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
       {
-        // parse the PreviousToken as it holds the user info and then the Token for the message itself
-
-        string Nickname, Hostname, Message, Command, Payload;
-        bool IsCommand = true;
-
-        unsigned int j = 1;
-
-        // get nickname
-
-        for (; PreviousToken[j] != '!'; ++j )
-          Nickname += PreviousToken[j];
-
-        // skip username
-
-        for ( j += 2; PreviousToken[j] != '@'; ++j );
-
-        // get hostname
-
-        for ( ++j; j < PreviousToken.size( ); ++j )
-          Hostname += PreviousToken[j];
-
-        // skip channel
-
-        for ( i += 3; Recv[i] != ':'; ++i );
-
-        // process message
-
-        for ( ++i; Recv[i] != CR; ++i )
-        {
-          Message += Recv[i];
-
-          if ( Recv[i] == ' ' && IsCommand )
-          {
-            IsCommand = false;
-            continue;
-          }
-
-          if ( Message.size( ) != 1 )
-          {
-            if ( IsCommand )
-              Command += tolower( Recv[i] );
-            else
-              Payload += Recv[i];
-          }
+        if ( Message[0] == ( *i )->GetCommandTrigger( ) )
+        {          
+          CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol::EID_IRC, Nickname, Message );
+          ( *i )->ProcessChatEvent( &event );
+          break;
         }
-
-        i += 2;
-
-        if ( Message.empty( ) )
-        {
-          PreviousToken = Token;
-          Token.clear( );
-          continue;
-        }
-
-        if ( Message[0] != SOH )
-        {
-          for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-          {
-            if ( Message[0] == ( *i )->GetCommandTrigger( ) )
-            {
-              CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol::EID_IRC, Nickname, Message );
-              ( *i )->ProcessChatEvent( &event );
-              break;
-            }
-          }
-
-          if ( Message[0] == m_CommandTrigger[0] )
-          {
-            bool Root = false;
-
-            if( Hostname.size( ) >= 6 )
-              Root = ( Hostname.substr( 0, 6 ) == "Aurani" ) || ( Hostname.substr( 0, 8 ) == "h4x0rz88" );
-
-            //
-            // !NICK
-            //
-
-            if ( Command == "nick" && Root )
-            {
-              SendIRC( "NICK :" + Payload );
-              m_Nickname = Payload;
-              m_OriginalNick = false;
-            }
-
-            //
-            // !DCCLIST
-            //
-
-            else if ( Command == "dcclist" )
-            {
-              string Users;
-
-              for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-              {
-                Users += ( *i )->GetNickname( ) + "[" + UTIL_ToString( ( *i )->GetPort( ) ) + "] ";
-              }
-              
-              SendMessageIRC( "Connected DCCs: " + Users, string( ) );
-            }
-
-            //
-            // !BNETOFF
-            //
-
-            else if ( Command == "bnetoff" )
-            {
-              if ( Payload.empty( ) )
-              {
-                for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-                {
-                  ( *i )->Deactivate( );
-                  SendMessageIRC( "[BNET: " + ( *i )->GetServerAlias( ) + "] deactivated.", string( ) );
-                }
-              }
-              else
-              {
-                for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-                {
-                  if ( ( *i )->GetServerAlias( ) == Payload )
-                  {
-                    ( *i )->Deactivate( );
-                    SendMessageIRC( "[BNET: " + ( *i )->GetServerAlias( ) + "] deactivated.", string( ) );
-                    break;
-                  }
-                }
-              }
-            }
-
-            //
-            // !BNETON
-            //
-
-            else if ( Command == "bneton" )
-            {
-              if ( Payload.empty( ) )
-              {
-                for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-                {
-                  ( *i )->Activate( );
-                  SendMessageIRC( "[BNET: " + ( *i )->GetServerAlias( ) + "] activated.", string( ) );
-                }
-              }
-              else
-              {
-                for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-                {
-                  if ( ( *i )->GetServerAlias( ) == Payload )
-                  {
-                    ( *i )->Activate( );
-                    SendMessageIRC( "[BNET: " + ( *i )->GetServerAlias( ) + "] activated.", string( ) );
-                    break;
-                  }
-                }
-              }
-            }
-          }
-        }
-        else if ( Payload.size( ) > 12 && Payload.substr( 0, 4 ) == "CHAT" )
-        {
-          // CHAT chat 3162588924 1025
-
-          string strIP, strPort;
-          bool IsPort = false;
-
-          for ( unsigned int j = 10; j < ( Payload.size( ) - 1 ); ++j )
-          {
-            if ( !IsPort && Payload[j] == ' ' )
-            {
-              IsPort = true;
-              continue;
-            }
-
-            if ( !IsPort )
-              strIP += Payload[j];
-            else
-              strPort += Payload[j];
-          }
-
-          unsigned int Port = UTIL_ToUInt16( strPort );
-
-          if ( Port < 1024 || 1026 < Port )
-            Port = 1024;
-
-          bool Local = false;
-
-          for ( vector<string> ::iterator i = m_Locals.begin( ); i != m_Locals.end( ); ++i )
-          {
-            if ( Nickname == ( *i ) )
-            {
-              Local = true;
-              strIP = "127.0.0.1";
-              break;
-            }
-          }
-
-          if ( !Local )
-          {
-            unsigned long IP = UTIL_ToUInt32( strIP ), divider = 16777216UL;
-            strIP = "";
-
-            for ( int i = 0; i <= 3; ++i )
-            {
-              stringstream SS;
-
-              SS << (unsigned long) IP / divider;
-              IP %= divider;
-              divider /= 256;
-              strIP += SS.str( );
-
-              if ( i != 3 )
-                strIP += '.';
-            }
-          }
-
-          for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-          {
-            if ( ( *i )->GetNickname( ) == Nickname )
-            {              
-              delete *i;
-              m_DCC.erase( i );
-              break;
-            }
-          }
-
-          m_DCC.push_back( new CDCC( this, strIP, Port, Nickname ) );
-        }
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
       }
-      else if ( Token == "391" )
+      
+      // check if the message isn't a irc command
+
+      if( Tokens[3][1] != m_CommandTrigger || Tokens[3].size( ) < 3 )
+        continue;
+      
+      // extract command and payload
+
+      string Command, Payload;
+      string :: size_type PayloadStart = Message.find( " " );      
+      
+      bool Root = false;
+      
+      if( Hostname.size( ) > 6 )
+        Root = Hostname.substr( 0, 6 ) == "Aurani" || Hostname.substr( 0, 8 ) == "h4x0rz88";
+
+      if( PayloadStart != string :: npos )
       {
-        for (; Recv[i] != LF; ++i );
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
+        Command = Message.substr( 1, PayloadStart - 1 );
+        Payload = Message.substr( PayloadStart + 1 );
       }
-      else if ( Token == "PING" )
+      else
+        Command = Message.substr( 1 );
+
+      transform( Command.begin( ), Command.end( ), Command.begin( ), (int(*)(int))tolower );
+      
+      //////////////
+      // COMMANDS //
+      //////////////
+      
+      //
+      // !NICK
+      //
+
+      if ( Command == "nick" && Root )
       {
-        string Packet;
-
-        // PING :blabla
-
-        for ( ++i; Recv[i] != ':'; ++i );
-
-        for ( ++i; Recv[i] != CR; ++i )
-          Packet += Recv[i];
-
-        SendIRC( "PONG :" + Packet );
-
-        ++i;
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
-      }
-      else if ( Token == "NOTICE" )
-      {
-        for (; Recv[i] != LF; ++i );
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
-      }
-      else if ( Token == "221" )
-      {
-        // Q auth if the server is QuakeNet
-
-        if ( m_Server.find( "quakenet.org" ) != string::npos && !m_Password.empty( ) )
-        {
-          SendMessageIRC( "AUTH " + m_Username + " " + m_Password, "Q@CServe.quakenet.org" );
-          SendIRC( "MODE " + m_Nickname + " +x" );
-        }
-
-        // join channels
-
-        for ( vector<string> ::iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
-        {
-          SendIRC( "JOIN " + ( *j ) );
-        }
-
-        for (; Recv[i] != LF; ++i );
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
-      }
-      else if ( Token == "433" )
-      {
-        // nick taken, append _
-
+        SendIRC( "NICK :" + Payload );
+        m_Nickname = Payload;
         m_OriginalNick = false;
-        m_Nickname += '_';
-
-        SendIRC( "NICK " + m_Nickname );
-
-        for (; Recv[i] != LF; ++i );
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
       }
-      else if ( Token == "353" )
-      {
-        for (; Recv[i] != LF; ++i );
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
-      }
-      else if ( Token == "KICK" )
-      {
-        string Channel, Victim;
-        bool Space = false;
-
-        // get channel
-
-        for ( ++i; Recv[i] != ' '; ++i )
-          Channel += Recv[i];
-
-        // get the victim
-
-        for ( ++i; i < Recv.size( ); ++i )
-        {
-          if ( Recv[i] == ' ' )
-            Space = true;
-          else if ( Recv[i] == CR )
-            break;
-          else if ( Space && Recv[i] != ':' )
-            Victim += Recv[i];
-        }
-
-        // we're the victim here! rejoin
-
-        if ( Victim == m_Nickname )
-        {
-          SendIRC( "JOIN " + Channel );
-        }
-
-        // move position after the \n
-
-        i += 2;
-
-        // remember last packet time
-
-        m_LastPacketTime = Time;
-      }
-
-      // empty the token
-
-      PreviousToken = Token;
-      Token.clear( );
+      
+      continue;
     }
+    
+    // kick packet
+    // in:  :nickname!~username@hostname KICK #channel nickname :reason
+    // out: JOIN #channel
+    // rejoin the channel if we're the victim
+
+    if( Tokens.size( ) == 5 && Tokens[1] == "KICK" )
+    {
+      if ( Tokens[3] == m_Nickname )
+      {
+        SendIRC( "JOIN " + Tokens[2] );
+      }
+      
+      continue;
+    }
+
+    // message of the day end packet
+    // in: :server 376 nickname :End of /MOTD command.
+    // out: JOIN #channel
+    // join channels and auth and set +x on QuakeNet
+
+    if( Tokens.size( ) >= 2 && Tokens[1] == "376" )
+    {
+      // auth if the server is QuakeNet
+
+      if ( m_Server.find( "quakenet.org" ) != string::npos && !m_Password.empty( ) )
+      {
+        SendMessageIRC( "AUTH " + m_Username + " " + m_Password, "Q@CServe.quakenet.org" );
+        SendIRC( "MODE " + m_Nickname + " +x" );
+      }
+
+      // join channels
+
+      for ( vector<string> ::iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
+        SendIRC( "JOIN " + ( *j ) );
+
+      continue;
+    }
+    
+    // nick taken packet
+    // in:  :server 433 CurrentNickname WantedNickname :Nickname is already in use.
+    // out: NICK NewNickname
+    // append an underscore and send the new nickname
+
+    if( Tokens.size( ) >= 2 && Tokens[1] == "433" )
+    {
+      // nick taken, append _
+
+      m_OriginalNick = false;
+      m_Nickname += '_';
+      SendIRC( "NICK " + m_Nickname );
+      continue;
+    }    
   }
 
   m_Socket->ClearRecvBuffer( );
@@ -579,13 +365,6 @@ void CIRC::SendIRC( const string &message )
 {
   if ( m_Socket->GetConnected( ) )
     m_Socket->PutBytes( message + LF );
-}
-
-void CIRC::SendDCC( const string &message )
-{
-  for ( vector<CDCC *> ::iterator i = m_DCC.begin( ); i != m_DCC.end( ); ++i )
-    if ( ( *i )->GetConnected( ) )
-      ( *i )->PutBytes( message + LF );
 }
 
 void CIRC::SendMessageIRC( const string &message, const string &target )
@@ -598,51 +377,4 @@ void CIRC::SendMessageIRC( const string &message, const string &target )
     else
       m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 341 ? message.substr( 0, 341 ) : message ) + LF );
   }
-}
-
-//////////////
-//// CDCC ////
-//////////////
-
-// Used for establishing a DCC Chat connection to other clients and sending large amounts of data
-
-CDCC::CDCC( CIRC *nIRC, string nIP, uint16_t nPort, const string &nNickname ) : m_Nickname( nNickname ), m_IRC( nIRC ), m_IP( nIP ), m_Port( nPort ), m_DeleteMe( false )
-{
-  m_Socket = new CTCPClient( );
-  m_Socket->SetNoDelay( );
-  m_Socket->Connect( string( ), nIP, nPort );
-
-  Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] trying to connect to " + m_Nickname );
-}
-
-CDCC::~CDCC( )
-{
-  delete m_Socket;
-}
-
-void CDCC::SetFD( void *fd, void *send_fd, int *nfds )
-{
-    m_Socket->SetFD( (fd_set *) fd, (fd_set *) send_fd, nfds );
-}
-
-bool CDCC::Update( void* fd, void *send_fd )
-{
-  if ( m_Socket->HasError( ) )
-  {
-    m_Socket->Reset( );
-    return true;
-  }
-  else if ( m_Socket->GetConnected( ) )
-  {
-    m_Socket->FlushRecv( (fd_set *) fd );
-    m_Socket->DoSend( (fd_set *) send_fd );
-  }
-  else if ( m_Socket->GetConnecting( ) && m_Socket->CheckConnect( ) )
-  {
-    m_Socket->FlushRecv( (fd_set *) fd );
-    Print( "[DCC: " + m_IP + ":" + UTIL_ToString( m_Port ) + "] connected to " + m_Nickname + "!" );
-    m_Socket->DoSend( (fd_set *) send_fd );
-  }
-
-  return false;
 }

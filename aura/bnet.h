@@ -79,8 +79,7 @@ private:
   bool m_FirstConnect;                      // if we haven't tried to connect to battle.net yet
   bool m_WaitingToConnect;                  // if we're waiting to reconnect to battle.net after being disconnected
   bool m_LoggedIn;                          // if we've logged into battle.net or not
-  bool m_InChat;                            // if we've entered chat or not (but we're not necessarily in a chat channel yet)
-  bool m_Deactivated;                       // if this BNET is deactivated
+  bool m_InChat;                            // if we've entered chat or not (but we're not necessarily in a chat channel yet
   bool m_IRC;                               // if the incoming event was received from IRC
   bool m_PvPGN;                             // if this BNET connection is actually a PvPGN
   string m_SpamChannel;                     // the channel we're currently spamming in
@@ -213,15 +212,6 @@ public:
   void UnqueueGameRefreshes( );
 
   // other functions
-
-  void Deactivate( );
-
-  void Activate( )
-  {
-    m_Deactivated = false;
-    m_Spam = false;
-    m_WaitingToConnect = true;
-  }
   
   bool IsAdmin( string name );
   bool IsRootAdmin( string name );

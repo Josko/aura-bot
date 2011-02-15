@@ -40,7 +40,7 @@ using namespace boost::filesystem;
 // CBNET
 //
 
-CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_Deactivated( false ), m_IRC( false )
+CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_IRC( false )
 {
   m_Socket = new CTCPClient( );
   m_Protocol = new CBNETProtocol( );
@@ -112,9 +112,6 @@ unsigned int CBNET::SetFD( void *fd, void *send_fd, int *nfds )
 
 bool CBNET::Update( void *fd, void *send_fd )
 {
-  if ( m_Deactivated )
-    return m_Exiting;
-
   uint32_t Ticks = GetTicks( ), Time = GetTime( );
 
   // we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
@@ -971,6 +968,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           else
             QueueChatCommand( m_Aura->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
         }
+        
           //
           // !DELADMIN
           //
@@ -1979,14 +1977,4 @@ void CBNET::HoldClan( CGame *game )
     for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
       game->AddToReserved( ( *i )->GetName( ) );
   }
-}
-
-void CBNET::Deactivate( )
-{
-  m_LastDisconnectedTime = GetTime( );
-  m_BNCSUtil->Reset( m_UserName, m_UserPassword );
-  m_Socket->Reset( );
-  m_LoggedIn = false;
-  m_InChat = false;
-  m_WaitingToConnect = false;
 }

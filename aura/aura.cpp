@@ -133,9 +133,6 @@ static void SignalCatcher( int s )
 void Print( const string &message )
 {
   cout << message << endl;
-
-  if ( gAura && gAura->m_IRC )
-    gAura->m_IRC->SendDCC( message );
 }
 
 void Print2( const string &message )
@@ -143,10 +140,7 @@ void Print2( const string &message )
   cout << message << endl;
 
   if ( gAura->m_IRC )
-  {
     gAura->m_IRC->SendMessageIRC( message, string( ) );
-    gAura->m_IRC->SendDCC( message );
-  }
 }
 
 //
@@ -241,10 +235,9 @@ int main( )
   {
     // loop
 
-    while ( true )
+    while ( !gAura->Update( ) )
     {
-      if ( gAura->Update( ) )
-        break;
+      // loop until gAura->Update( ) returns true
     }
   }
   else
@@ -285,10 +278,10 @@ int main( )
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.03" ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.04" ), m_HostCounter( 1 ), m_Ready( true )
 {
   // get the general configuration variables
-  
+
   m_UDPSocket = new CUDPSocket( );
   m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
   m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
@@ -309,7 +302,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
 
   // read the rest of the general configuration
 
-  SetConfigs( CFG );  
+  SetConfigs( CFG );
 
   // get irc configuration
 
@@ -320,34 +313,27 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
   string IRC_CommandTrigger = CFG->GetString( "irc_commandtrigger", "!" );
   uint32_t IRC_Port = CFG->GetInt( "irc_port", 6667 );
 
-  // get the irc channels and dcc local users
+  // get the irc channels
 
-  vector<string> Channels, LocalUsers;
+  vector<string> Channels;
 
   for ( int i = 1; i <= 10; ++i )
   {
     string Channel;
-    string LocalUser;
 
     if ( i == 1 )
     {
       Channel = CFG->GetString( "irc_channel", string( ) );
-      LocalUser = CFG->GetString( "dcc_local", string( ) );
     }
     else
     {
-      Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
-      LocalUser = CFG->GetString( "dcc_local" + UTIL_ToString( i ), string( ) );
+      Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );      
     }
 
-    if ( Channel.empty( ) && LocalUser.empty( ) )
+    if ( Channel.empty( ) )
       break;
-
-    if ( !Channel.empty( ) )
+    else
       Channels.push_back( "#" + Channel );
-
-    if ( !LocalUser.empty( ) )
-      LocalUsers.push_back( LocalUser );
   }
 
   if ( IRC_Server.empty( ) || IRC_UserName.empty( ) || IRC_NickName.empty( ) || IRC_Port == 0 || IRC_Port >= 65535 )
@@ -357,7 +343,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
     return;
   }
   else
-    m_IRC = new CIRC( this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, &Channels, IRC_Port, IRC_CommandTrigger, &LocalUsers );
+    m_IRC = new CIRC( this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, &Channels, IRC_Port, IRC_CommandTrigger[0] );
 
   // load the battle.net connections
   // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
@@ -527,7 +513,7 @@ bool CAura::Update( )
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
 
-  // 4. irc and dcc sockets
+  // 4. irc socket
 
   NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );
 
@@ -628,11 +614,11 @@ bool CAura::Update( )
       Exit = true;
   }
 
-  // update irc and dcc
+  // update irc
 
   if ( m_IRC->Update( &fd, &send_fd ) )
     Exit = true;
-  
+
   // update GProxy++ reliable reconnect sockets
 
   if ( m_Reconnect && m_ReconnectSocket )

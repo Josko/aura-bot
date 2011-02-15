@@ -273,7 +273,7 @@ private:
   string m_Message;
 
 public:
-  CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, string nUser, string nMessage );
+  CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage );
   ~CIncomingChatEvent( );
 
   CBNETProtocol::IncomingChatEvent GetChatEvent( )
@@ -305,7 +305,7 @@ private:
   string m_Location;
 
 public:
-  CIncomingFriendList( string nAccount, unsigned char nStatus, unsigned char nArea, string nLocation );
+  CIncomingFriendList( const string &nAccount, unsigned char nStatus, unsigned char nArea, const string &nLocation );
   ~CIncomingFriendList( );
 
   string GetAccount( )
@@ -333,7 +333,7 @@ public:
 private:
   string ExtractStatus( unsigned char status );
   string ExtractArea( unsigned char area );
-  string ExtractLocation( string location );
+  string ExtractLocation( const string &location );
 };
 
 //
@@ -348,7 +348,7 @@ private:
   unsigned char m_Status;
 
 public:
-  CIncomingClanList( string nName, unsigned char nRank, unsigned char nStatus );
+  CIncomingClanList( const string &nName, unsigned char nRank, unsigned char nStatus );
   ~CIncomingClanList( );
 
   string GetName( )
