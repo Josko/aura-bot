@@ -149,12 +149,6 @@ void Print2( const string &message )
 
 int main( )
 {
-#ifdef WIN32
-  // hide the window so it doesn't bother anyone
-
-  ShowWindow( GetConsoleWindow( ), SW_HIDE );
-#endif
-
   srand( (unsigned int) time( NULL ) );
 
   // read config file

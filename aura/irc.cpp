@@ -175,12 +175,8 @@ void CIRC::ExtractPackets( )
   // separate packets using the CRLF delimiter
 
   typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
-
-#ifdef WIN32
-  boost::char_separator<char> Packet_separator( "\n" );
-#else
+  
   boost::char_separator<char> Packet_separator( "\n\r" );
-#endif
 
   tokenizer Packets( *Recv, Packet_separator );
 
