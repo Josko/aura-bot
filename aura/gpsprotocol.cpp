@@ -151,23 +151,3 @@ bool CGPSProtocol::AssignLength( BYTEARRAY &content )
 
   return false;
 }
-
-bool CGPSProtocol::ValidateLength( BYTEARRAY &content )
-{
-  // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
-
-  uint16_t Length;
-  BYTEARRAY LengthBytes;
-
-  if ( content.size( ) >= 4 && content.size( ) <= 65535 )
-  {
-    LengthBytes.push_back( content[2] );
-    LengthBytes.push_back( content[3] );
-    Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
-
-    if ( Length == content.size( ) )
-      return true;
-  }
-
-  return false;
-}

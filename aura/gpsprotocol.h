@@ -60,7 +60,6 @@ public:
 
 private:
   bool AssignLength( BYTEARRAY &content );
-  bool ValidateLength( BYTEARRAY &content );
 };
 
 #endif

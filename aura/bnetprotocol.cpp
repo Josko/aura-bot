@@ -799,12 +799,12 @@ BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO( unsigned char ver, uint32_t localeI
 
 BYTEARRAY CBNETProtocol::SEND_SID_AUTH_CHECK( BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, string exeInfo, string keyOwnerName )
 {
-  uint32_t NumKeys = 2;
-
   BYTEARRAY packet;
 
   if ( clientToken.size( ) == 4 && exeVersion.size( ) == 4 && exeVersionHash.size( ) == 4 )
   {
+    uint32_t NumKeys = 2;
+    
     packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
     packet.push_back( SID_AUTH_CHECK ); // SID_AUTH_CHECK
     packet.push_back( 0 ); // packet length will be assigned later

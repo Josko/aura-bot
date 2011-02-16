@@ -2594,7 +2594,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         // extract the slot and the skill
         // e.g. "1 2" -> slot: "1", skill: "2"
 
-        uint32_t Slot, Skill = 1;
+        uint32_t Slot;
         stringstream SS;
         SS << Payload;
         SS >> Slot;
@@ -2603,6 +2603,8 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           Print( "[GAME: " + m_GameName + "] bad input #1 to comp command" );
         else
         {
+          uint32_t Skill;
+          
           if ( !SS.eof( ) )
             SS >> Skill;
 
