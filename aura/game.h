@@ -69,7 +69,6 @@ protected:
   unsigned char m_GameState;                // game state, public or private
   unsigned char m_VirtualHostPID;           // host's PID
   vector<unsigned char> m_FakePlayers;      // the fake player's PIDs (if present)
-  unsigned char m_GProxyEmptyActions;       // empty actions used for gproxy protocol
   string m_GameName;                        // game name
   string m_LastGameName;                    // last game name (the previous game name before it was rehosted)
   string m_VirtualHostName;                 // host's name
@@ -127,11 +126,6 @@ public:
   unsigned char GetGameState( )
   {
     return m_GameState;
-  }
-
-  unsigned char GetGProxyEmptyActions( )
-  {
-    return m_GProxyEmptyActions;
   }
 
   string GetGameName( )
@@ -252,7 +246,7 @@ public:
   void EventPlayerDisconnectSocketError( CGamePlayer *player );
   void EventPlayerDisconnectConnectionClosed( CGamePlayer *player );
   void EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer );
-  void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
+  void EventPlayerLeft( CGamePlayer *player );
   void EventPlayerLoaded( CGamePlayer *player );
   void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
   void EventPlayerKeepAlive( CGamePlayer *player );

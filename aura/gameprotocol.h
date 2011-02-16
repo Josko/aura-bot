@@ -42,7 +42,6 @@
 #define PLAYERLEAVE_DRAW           10
 #define PLAYERLEAVE_OBSERVER       11
 #define PLAYERLEAVE_LOBBY          13
-#define PLAYERLEAVE_GPROXY        100
 
 #define REJECTJOIN_FULL             9
 #define REJECTJOIN_STARTED         10

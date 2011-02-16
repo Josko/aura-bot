@@ -1937,22 +1937,8 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, strin
 
     if ( state == GAME_PRIVATE )
       MapGameType |= MAPGAMETYPE_PRIVATEGAME;
-
-    if ( m_Aura->m_Reconnect )
-    {
-      // use an invalid map width/height to indicate reconnectable games
-
-      BYTEARRAY MapWidth;
-      MapWidth.push_back( 192 );
-      MapWidth.push_back( 7 );
-      BYTEARRAY MapHeight;
-      MapHeight.push_back( 192 );
-      MapHeight.push_back( 7 );
-
-      m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), MapWidth, MapHeight, gameName, hostName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
-    }
-    else
-      m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, hostName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
+    
+    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, hostName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
   }
 }
 
