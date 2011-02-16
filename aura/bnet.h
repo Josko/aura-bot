@@ -79,7 +79,7 @@ private:
   bool m_WaitingToConnect;                  // if we're waiting to reconnect to battle.net after being disconnected
   bool m_LoggedIn;                          // if we've logged into battle.net or not
   bool m_InChat;                            // if we've entered chat or not (but we're not necessarily in a chat channel yet
-  bool m_IRC;                               // if the incoming event was received from IRC
+  string m_IRC;                             // IRC channel we're sending the message to
   bool m_PvPGN;                             // if this BNET connection is actually a PvPGN
   string m_SpamChannel;                     // the channel we're currently spamming in
 
@@ -203,7 +203,7 @@ public:
   void SendGetClanList( );
   void QueueEnterChat( );
   void QueueChatCommand( const string &chatCommand );
-  void QueueChatCommand( const string &chatCommand, const string &user, bool whisper, bool irc );
+  void QueueChatCommand( const string &chatCommand, const string &user, bool whisper, const string &irc );
   void QueueGameCreate( unsigned char state, const string &gameName, const string &hostName, CMap *map, uint32_t hostCounter );
   void QueueGameRefresh( unsigned char state, const string &gameName, string hostName, CMap *map, uint32_t hostCounter );
   void QueueGameUncreate( );

@@ -193,7 +193,7 @@ bool CGamePlayer::Update( void *fd )
         if ( m_Game->GetGameState( ) == GAME_PUBLIC || ( *i )->GetPvPGN( ) )
           ( *i )->QueueChatCommand( "/whois " + m_Name );
         else if ( m_Game->GetGameState( ) == GAME_PRIVATE )
-          ( *i )->QueueChatCommand( m_Game->m_Aura->m_Language->SpoofCheckByReplying( ), m_Name, true, false );
+          ( *i )->QueueChatCommand( m_Game->m_Aura->m_Language->SpoofCheckByReplying( ), m_Name, true, string( ) );
       }
     }
 

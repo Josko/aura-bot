@@ -40,7 +40,7 @@ using namespace boost::filesystem;
 // CBNET
 //
 
-CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_IRC( false )
+CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false )
 {
   m_Socket = new CTCPClient( );
   m_Protocol = new CBNETProtocol( );
@@ -543,7 +543,17 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
     }
   }
 
-  m_IRC = ( Event == CBNETProtocol::EID_IRC );
+  if ( Event == CBNETProtocol::EID_IRC )
+  {
+    // extract the irc channel
+    
+    string::size_type ChannelEnd = Message.find( '\r' );   
+    
+    m_IRC = Message.substr( 0, ChannelEnd );
+    Message = Message.substr( ChannelEnd + 1 );
+  }
+  else
+    m_IRC.clear( );
 
   if ( Event == CBNETProtocol::EID_WHISPER || Event == CBNETProtocol::EID_TALK || Event == CBNETProtocol::EID_IRC )
   {
@@ -560,12 +570,12 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
       // e.g. "!say hello world" -> command: "say", payload: "hello world"
 
       string Command, Payload;
-      string::size_type PayloadStart = Message.find( " " );
+      string::size_type PayloadStart = Message.find( ' ' );
 
       if ( PayloadStart != string::npos )
       {
         Command = Message.substr( 1, PayloadStart - 1 );
-        Payload = Message.substr( PayloadStart + 1 );
+        Payload = Message.substr( PayloadStart );
       }
       else
         Command = Message.substr( 1 );
@@ -1486,7 +1496,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             Message = Payload.substr( MessageStart + 1 );
 
             for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-              ( *i )->QueueChatCommand( Message, Name, true, false );
+              ( *i )->QueueChatCommand( Message, Name, true, string( ) );
           }
         }
         
@@ -1877,16 +1887,16 @@ void CBNET::QueueChatCommand( const string &chatCommand )
     Print( "[BNET: " + m_ServerAlias + "] too many (" + UTIL_ToString( m_OutPackets.size( ) ) + ") packets queued, discarding" );
 }
 
-void CBNET::QueueChatCommand( const string &chatCommand, const string &user, bool whisper, bool irc )
+void CBNET::QueueChatCommand( const string &chatCommand, const string &user, bool whisper, const string &irc )
 {
   if ( chatCommand.empty( ) )
     return;
 
   // if the destination is IRC send it there
 
-  if ( irc )
+  if ( !irc.empty( ) )
   {
-    m_Aura->m_IRC->SendMessageIRC( chatCommand, string( ) );
+    m_Aura->m_IRC->SendMessageIRC( chatCommand, irc );
     return;
   }
 
