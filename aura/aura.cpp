@@ -138,9 +138,8 @@ void Print( const string &message )
 void Print2( const string &message )
 {
   cout << message << endl;
-
-  if ( gAura->m_IRC )
-    gAura->m_IRC->SendMessageIRC( message, string( ) );
+          
+  gAura->m_IRC->SendMessageIRC( message, string( ) );
 }
 
 //
