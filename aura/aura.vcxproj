@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;winmm.lib;zdll.lib;StormLibRAS.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\zlib\lib;..\mysql\lib\opt;..\boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\zlib\lib;..\boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
@@ -86,7 +86,6 @@
     <ClCompile Include="gameslot.cpp" />
     <ClCompile Include="aura.cpp" />
     <ClCompile Include="auradb.cpp" />
-    <ClCompile Include="gpsprotocol.cpp" />
     <ClCompile Include="irc.cpp" />
     <ClCompile Include="language.cpp" />
     <ClCompile Include="map.cpp" />
@@ -109,7 +108,6 @@
     <ClInclude Include="gameslot.h" />
     <ClInclude Include="aura.h" />
     <ClInclude Include="auradb.h" />
-    <ClInclude Include="gpsprotocol.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="irc.h" />
     <ClInclude Include="language.h" />

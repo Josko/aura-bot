@@ -50,10 +50,7 @@
     </ClCompile>
     <ClCompile Include="auradb.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gpsprotocol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    </ClCompile>  
     <ClCompile Include="language.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -115,10 +112,7 @@
     </ClInclude>
     <ClInclude Include="auradb.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gpsprotocol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    </ClInclude> 
     <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
