@@ -414,7 +414,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
 
   LoadIPToCountryData( );
 
-  Print( "[AURA] Aura++ Version " + m_Version );
+  Print( "[AURA] Aura++ Version " + m_Version + " - without GProxy++ support " );
 }
 
 CAura::~CAura( )
