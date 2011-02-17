@@ -547,10 +547,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
   {
     // extract the irc channel
     
-    string::size_type ChannelEnd = Message.find( '\r' );   
+    string::size_type MessageStart = Message.find( ' ' ); 
     
-    m_IRC = Message.substr( 0, ChannelEnd );
-    Message = Message.substr( ChannelEnd + 1 );
+    m_IRC = Message.substr( 0, MessageStart );
+    Message = Message.substr( MessageStart + 1 );
   }
   else
     m_IRC.clear( );
@@ -575,7 +575,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
       if ( PayloadStart != string::npos )
       {
         Command = Message.substr( 1, PayloadStart - 1 );
-        Payload = Message.substr( PayloadStart );
+        Payload = Message.substr( PayloadStart + 1 );
       }
       else
         Command = Message.substr( 1 );
