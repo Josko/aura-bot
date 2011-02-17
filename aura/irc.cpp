@@ -257,7 +257,7 @@ void CIRC::ExtractPackets( )
       {
         if ( Message[0] == ( *i )->GetCommandTrigger( ) )
         {          
-          CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol::EID_IRC, Nickname, Channel + '\r' + Message );
+          CIncomingChatEvent event = CIncomingChatEvent( CBNETProtocol::EID_IRC, Nickname, Channel + " " + Message );
           ( *i )->ProcessChatEvent( &event );
           break;
         }
