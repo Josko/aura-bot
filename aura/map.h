@@ -117,12 +117,11 @@ private:
   string m_MapDefaultHCL;         // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
   string m_MapLocalPath;          // config value: map local path
   string m_MapData;               // the map data itself, for sending the map to players
-  uint32_t m_MapNumPlayers;
-  uint32_t m_MapNumTeams;
+  uint32_t m_MapNumPlayers;       // config value: max map number of players
+  uint32_t m_MapNumTeams;         // config value: max map number of teams
   vector<CGameSlot> m_Slots;
 
 public:
-  CMap( CAura *nAura );
   CMap( CAura *nAura, CConfig *CFG, const string &nCFGFile );
   ~CMap( );
 

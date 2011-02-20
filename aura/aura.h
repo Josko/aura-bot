@@ -28,7 +28,6 @@
 //
 
 class CUDPSocket;
-class CTCPServer;
 class CTCPSocket;
 class CCRC32;
 class CSHA1;
@@ -100,10 +99,7 @@ public:
   void LoadIPToCountryData( );
   void CreateGame( CMap *map, unsigned char gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper );
   
-  bool GetReady( )
-  {
-    return m_Ready;
-  }
+  bool GetReady( )                          { return m_Ready; }
 };
 
 #endif

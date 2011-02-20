@@ -89,7 +89,7 @@ public:
 // CGamePlayer
 //
 
-class CGamePlayer // : public CPotentialPlayer
+class CGamePlayer
 {
 public:
   CGameProtocol *m_Protocol;
@@ -135,7 +135,6 @@ private:
   bool m_LeftMessageSent;                   // if the playerleave message has been sent or not
 
 public:
-  CGamePlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
   CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
   ~CGamePlayer( );
 
