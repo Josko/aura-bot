@@ -80,7 +80,6 @@ private:
   string m_IRC;                             // IRC channel we're sending the message to
   bool m_PvPGN;                             // if this BNET connection is actually a PvPGN
   string m_SpamChannel;                     // the channel we're currently spamming in
-  string m_UniqueName;                      // the unique name we're using as hostname for game refreshes/creation
 
 public:
   CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );

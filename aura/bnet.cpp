@@ -40,7 +40,7 @@ using namespace boost::filesystem;
 // CBNET
 //
 
-CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_UniqueName( nUserName )
+CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false )
 {
   m_Socket = new CTCPClient( );
   m_Protocol = new CBNETProtocol( );
@@ -180,7 +180,6 @@ bool CBNET::Update( void *fd, void *send_fd )
                   Print( "[BNET: " + m_ServerAlias + "] joining channel [" + m_FirstChannel + "]" );
                   m_InChat = true;
                   m_Socket->PutBytes( m_Protocol->SEND_SID_JOINCHANNEL( m_FirstChannel ) );
-                  m_UniqueName = string( m_Protocol->GetUniqueName( ).begin( ), m_Protocol->GetUniqueName( ).end( ) );
                 }
 
                 break;
@@ -1907,6 +1906,8 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, CMap 
 {
   if ( m_LoggedIn && map )
   {
+    BYTEARRAY UniqueName = m_Protocol->GetUniqueName( );
+
     // construct a fixed host counter which will be used to identify players from this realm
     // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
     // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
@@ -1920,7 +1921,7 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, CMap 
     if ( state == GAME_PRIVATE )
       MapGameType |= MAPGAMETYPE_PRIVATEGAME;
     
-    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, m_UniqueName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
+    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, string( UniqueName.begin( ), UniqueName.end( ) ), 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
   }
 }
 
