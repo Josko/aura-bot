@@ -88,31 +88,28 @@ bool CPotentialPlayer::Update( void *fd )
 
       uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
-      if ( Length >= 4 )
+      if ( Length >= 4 && Bytes.size( ) >= Length )
       {
-        if ( Bytes.size( ) >= Length )
+        if ( Bytes[0] == W3GS_HEADER_CONSTANT && Bytes[1] == CGameProtocol::W3GS_REQJOIN )
         {
-          if ( Bytes[0] == W3GS_HEADER_CONSTANT && Bytes[1] == CGameProtocol::W3GS_REQJOIN )
-          {
-            delete m_IncomingJoinPlayer;
-            m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+          delete m_IncomingJoinPlayer;
+          m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
 
-            if ( m_IncomingJoinPlayer )
-              m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
+          if ( m_IncomingJoinPlayer )
+            m_Game->EventPlayerJoined( this, m_IncomingJoinPlayer );
 
-            // this is the packet which interests us for now, the remaining is left for CGamePlayer
-
-            *RecvBuffer = RecvBuffer->substr( Length );
-            Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
-            break;
-          }
+          // this is the packet which interests us for now, the remainder is left for CGamePlayer
 
           *RecvBuffer = RecvBuffer->substr( Length );
           Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
-        }
-        else
           break;
+        }
+
+        *RecvBuffer = RecvBuffer->substr( Length );
+        Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
       }
+      else
+        break;
     }
   }
 
@@ -220,7 +217,7 @@ bool CGamePlayer::Update( void *fd )
   CIncomingAction *Action = NULL;
   CIncomingChatPlayer *ChatPlayer = NULL;
   CIncomingMapSize *MapSize = NULL;
-  uint32_t CheckSum = 0, Pong = 0;
+  uint32_t Pong = 0;
 
   while ( Bytes.size( ) >= 4 )
   {
@@ -230,113 +227,108 @@ bool CGamePlayer::Update( void *fd )
 
       uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
-      if ( Length >= 4 )
+      if ( Length >= 4 && Bytes.size( ) >= Length )
       {
-        if ( Bytes.size( ) >= Length )
+        // byte 1 contains the packet ID
+
+        switch ( Bytes[1] )
         {
-          // m_Packets.push( new CCommandPacket( Bytes[0], Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
+          case CGameProtocol::W3GS_LEAVEGAME:
+            m_Game->EventPlayerLeft( this );
+            break;
 
-          switch ( Bytes[1] )
-          {
-            case CGameProtocol::W3GS_LEAVEGAME:
-              m_Game->EventPlayerLeft( this );
-              break;
-
-            case CGameProtocol::W3GS_GAMELOADED_SELF:
-              if ( m_Protocol->RECEIVE_W3GS_GAMELOADED_SELF( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+          case CGameProtocol::W3GS_GAMELOADED_SELF:
+            if ( m_Protocol->RECEIVE_W3GS_GAMELOADED_SELF( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+            {
+              if ( !m_FinishedLoading )
               {
-                if ( !m_FinishedLoading )
+                m_FinishedLoading = true;
+                m_FinishedLoadingTicks = GetTicks( );
+                m_Game->EventPlayerLoaded( this );
+              }
+            }
+
+            break;
+
+          case CGameProtocol::W3GS_OUTGOING_ACTION:
+            Action = m_Protocol->RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_PID );
+
+            if ( Action )
+              m_Game->EventPlayerAction( this, Action );
+
+            // don't delete Action here because the game is going to store it in a queue and delete it later
+
+            break;
+
+          case CGameProtocol::W3GS_OUTGOING_KEEPALIVE:
+            m_CheckSums.push( m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
+            ++m_SyncCounter;
+            m_Game->EventPlayerKeepAlive( this );
+            break;
+
+          case CGameProtocol::W3GS_CHAT_TO_HOST:
+            ChatPlayer = m_Protocol->RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+
+            if ( ChatPlayer )
+              m_Game->EventPlayerChatToHost( this, ChatPlayer );
+
+            delete ChatPlayer;
+            ChatPlayer = NULL;
+            break;
+
+          case CGameProtocol::W3GS_DROPREQ:
+            if ( !m_DropVote )
+            {
+              m_DropVote = true;
+              m_Game->EventPlayerDropRequest( this );
+            }
+
+            break;
+
+          case CGameProtocol::W3GS_MAPSIZE:
+            MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+
+            if ( MapSize )
+              m_Game->EventPlayerMapSize( this, MapSize );
+
+            delete MapSize;
+            MapSize = NULL;
+            break;
+
+          case CGameProtocol::W3GS_PONG_TO_HOST:
+            Pong = m_Protocol->RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+
+            // we discard pong values of 1
+            // the client sends one of these when connecting plus we return 1 on error to kill two birds with one stone
+
+            if ( Pong != 1 )
+            {
+              // we also discard pong values when we're downloading because they're almost certainly inaccurate
+              // this statement also gives the player a 5 second grace period after downloading the map to allow queued (i.e. delayed) ping packets to be ignored
+
+              if ( !m_DownloadStarted || ( m_DownloadFinished && GetTime( ) - m_FinishedDownloadingTime >= 5 ) )
+              {
+                // we also discard pong values when anyone else is downloading if we're configured to
+
+                if ( !m_Game->IsDownloading( ) )
                 {
-                  m_FinishedLoading = true;
-                  m_FinishedLoadingTicks = GetTicks( );
-                  m_Game->EventPlayerLoaded( this );
+                  m_Pings.push_back( GetTicks( ) - Pong );
+
+                  if ( m_Pings.size( ) > 20 )
+                    m_Pings.erase( m_Pings.begin( ) );
                 }
               }
+            }
 
-              break;
-
-            case CGameProtocol::W3GS_OUTGOING_ACTION:
-              Action = m_Protocol->RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ), m_PID );
-
-              if ( Action )
-                m_Game->EventPlayerAction( this, Action );
-
-              // don't delete Action here because the game is going to store it in a queue and delete it later
-
-              break;
-
-            case CGameProtocol::W3GS_OUTGOING_KEEPALIVE:
-              CheckSum = m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-              m_CheckSums.push( CheckSum );
-              ++m_SyncCounter;
-              m_Game->EventPlayerKeepAlive( this );
-              break;
-
-            case CGameProtocol::W3GS_CHAT_TO_HOST:
-              ChatPlayer = m_Protocol->RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-
-              if ( ChatPlayer )
-                m_Game->EventPlayerChatToHost( this, ChatPlayer );
-
-              delete ChatPlayer;
-              ChatPlayer = NULL;
-              break;
-
-            case CGameProtocol::W3GS_DROPREQ:
-              if ( !m_DropVote )
-              {
-                m_DropVote = true;
-                m_Game->EventPlayerDropRequest( this );
-              }
-
-              break;
-
-            case CGameProtocol::W3GS_MAPSIZE:
-              MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-
-              if ( MapSize )
-                m_Game->EventPlayerMapSize( this, MapSize );
-
-              delete MapSize;
-              MapSize = NULL;
-              break;
-
-            case CGameProtocol::W3GS_PONG_TO_HOST:
-              Pong = m_Protocol->RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-
-              // we discard pong values of 1
-              // the client sends one of these when connecting plus we return 1 on error to kill two birds with one stone
-
-              if ( Pong != 1 )
-              {
-                // we also discard pong values when we're downloading because they're almost certainly inaccurate
-                // this statement also gives the player a 5 second grace period after downloading the map to allow queued (i.e. delayed) ping packets to be ignored
-
-                if ( !m_DownloadStarted || ( m_DownloadFinished && GetTime( ) - m_FinishedDownloadingTime >= 5 ) )
-                {
-                  // we also discard pong values when anyone else is downloading if we're configured to
-
-                  if ( !m_Game->IsDownloading( ) )
-                  {
-                    m_Pings.push_back( GetTicks( ) - Pong );
-
-                    if ( m_Pings.size( ) > 20 )
-                      m_Pings.erase( m_Pings.begin( ) );
-                  }
-                }
-              }
-
-              m_Game->EventPlayerPongToHost( this );
-              break;
-          }
-
-          *RecvBuffer = RecvBuffer->substr( Length );
-          Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+            m_Game->EventPlayerPongToHost( this );
+            break;
         }
-        else
-          break;
-      }
 
+        *RecvBuffer = RecvBuffer->substr( Length );
+        Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+      }
+      else
+        break;
     }
   }
 

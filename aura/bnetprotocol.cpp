@@ -131,28 +131,9 @@ CIncomingChatEvent *CBNETProtocol::RECEIVE_SID_CHATEVENT( BYTEARRAY data )
     BYTEARRAY User = UTIL_ExtractCString( data, 28 );
     BYTEARRAY Message = UTIL_ExtractCString( data, User.size( ) + 29 );
 
-    switch ( UTIL_ByteArrayToUInt32( EventID, false ) )
-    {
-      case CBNETProtocol::EID_SHOWUSER:
-      case CBNETProtocol::EID_JOIN:
-      case CBNETProtocol::EID_LEAVE:
-      case CBNETProtocol::EID_WHISPER:
-      case CBNETProtocol::EID_TALK:
-      case CBNETProtocol::EID_BROADCAST:
-      case CBNETProtocol::EID_CHANNEL:
-      case CBNETProtocol::EID_USERFLAGS:
-      case CBNETProtocol::EID_WHISPERSENT:
-      case CBNETProtocol::EID_CHANNELFULL:
-      case CBNETProtocol::EID_CHANNELDOESNOTEXIST:
-      case CBNETProtocol::EID_CHANNELRESTRICTED:
-      case CBNETProtocol::EID_INFO:
-      case CBNETProtocol::EID_ERROR:
-      case CBNETProtocol::EID_EMOTE:
-        return new CIncomingChatEvent( ( CBNETProtocol::IncomingChatEvent )UTIL_ByteArrayToUInt32( EventID, false ),
+    return new CIncomingChatEvent( ( CBNETProtocol::IncomingChatEvent )UTIL_ByteArrayToUInt32( EventID, false ),
                 string( User.begin( ), User.end( ) ),
                 string( Message.begin( ), Message.end( ) ) );
-    }
-
   }
 
   return NULL;
@@ -320,22 +301,7 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY data )
   return false;
 }
 
-BYTEARRAY CBNETProtocol::RECEIVE_SID_WARDEN( BYTEARRAY data )
-{
-  // DEBUG_Print( "RECEIVED SID_WARDEN" );
-  // DEBUG_PRINT( data );
-
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // n bytes					-> Data
-
-  if ( ValidateLength( data ) && data.size( ) >= 4 )
-    return BYTEARRAY( data.begin( ) + 4, data.end( ) );
-
-  return BYTEARRAY( );
-}
-
-vector<CIncomingFriendList *> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
+vector<string> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
 {
   // DEBUG_Print( "RECEIVED SID_FRIENDSLIST" );
   // DEBUG_Print( data );
@@ -350,7 +316,7 @@ vector<CIncomingFriendList *> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY 
   //		4 bytes				-> ???
   //		null term string	-> Location
 
-  vector<CIncomingFriendList *> Friends;
+  vector<string> Friends;
 
   if ( ValidateLength( data ) && data.size( ) >= 5 )
   {
@@ -359,33 +325,21 @@ vector<CIncomingFriendList *> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY 
 
     while ( Total > 0 )
     {
-      Total--;
+      --Total;
 
       if ( data.size( ) < i + 1 )
         break;
 
       BYTEARRAY Account = UTIL_ExtractCString( data, i );
-      i += Account.size( ) + 1;
 
-      if ( data.size( ) < i + 7 )
-        break;
-
-      unsigned char Status = data[i];
-      unsigned char Area = data[i + 1];
-      i += 6;
-      BYTEARRAY Location = UTIL_ExtractCString( data, i );
-      i += Location.size( ) + 1;
-      Friends.push_back( new CIncomingFriendList( string( Account.begin( ), Account.end( ) ),
-              Status,
-              Area,
-              string( Location.begin( ), Location.end( ) ) ) );
+      Friends.push_back( string( Account.begin( ), Account.end( ) ) );
     }
   }
 
   return Friends;
 }
 
-vector<CIncomingClanList *> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
+vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
 {
   // DEBUG_Print( "RECEIVED SID_CLANMEMBERLIST" );
   // DEBUG_Print( data );
@@ -400,7 +354,7 @@ vector<CIncomingClanList *> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY
   //		1 byte				-> Status
   //		null term string	-> Location
 
-  vector<CIncomingClanList *> ClanList;
+  vector<string> ClanList;
 
   if ( ValidateLength( data ) && data.size( ) >= 9 )
   {
@@ -409,65 +363,17 @@ vector<CIncomingClanList *> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY
 
     while ( Total > 0 )
     {
-      Total--;
+      --Total;
 
       if ( data.size( ) < i + 1 )
         break;
 
       BYTEARRAY Name = UTIL_ExtractCString( data, i );
-      i += Name.size( ) + 1;
-
-      if ( data.size( ) < i + 3 )
-        break;
-
-      unsigned char Rank = data[i];
-      unsigned char Status = data[i + 1];
-      i += 2;
-
-      // in the original VB source the location string is read but discarded, so that's what I do here
-
-      BYTEARRAY Location = UTIL_ExtractCString( data, i );
-      i += Location.size( ) + 1;
-      ClanList.push_back( new CIncomingClanList( string( Name.begin( ), Name.end( ) ),
-              Rank,
-              Status ) );
+      ClanList.push_back( string( Name.begin( ), Name.end( ) ) );
     }
   }
 
   return ClanList;
-}
-
-CIncomingClanList *CBNETProtocol::RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRAY data )
-{
-  // DEBUG_Print( "RECEIVED SID_CLANMEMBERSTATUSCHANGE" );
-  // DEBUG_Print( data );
-
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // null terminated string	-> Name
-  // 1 byte					-> Rank
-  // 1 byte					-> Status
-  // null terminated string	-> Location
-
-  if ( ValidateLength( data ) && data.size( ) >= 5 )
-  {
-    BYTEARRAY Name = UTIL_ExtractCString( data, 4 );
-
-    if ( data.size( ) >= Name.size( ) + 7 )
-    {
-      unsigned char Rank = data[Name.size( ) + 5];
-      unsigned char Status = data[Name.size( ) + 6];
-
-      // in the original VB source the location string is read but discarded, so that's what I do here
-
-      BYTEARRAY Location = UTIL_ExtractCString( data, Name.size( ) + 7 );
-      return new CIncomingClanList( string( Name.begin( ), Name.end( ) ),
-              Rank,
-              Status );
-    }
-  }
-
-  return NULL;
 }
 
 ////////////////////
@@ -985,120 +891,4 @@ CIncomingChatEvent::CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEv
 CIncomingChatEvent::~CIncomingChatEvent( )
 {
 
-}
-
-//
-// CIncomingFriendList
-//
-
-CIncomingFriendList::CIncomingFriendList( const string &nAccount, unsigned char nStatus, unsigned char nArea, const string &nLocation ) : m_Account( nAccount ), m_Status( nStatus ), m_Area( nArea ), m_Location( nLocation )
-{
-
-}
-
-CIncomingFriendList::~CIncomingFriendList( )
-{
-
-}
-
-string CIncomingFriendList::GetDescription( )
-{
-  string Description;
-  Description += GetAccount( ) + "\n";
-  Description += ExtractStatus( GetStatus( ) ) + "\n";
-  Description += ExtractArea( GetArea( ) ) + "\n";
-  Description += ExtractLocation( GetLocation( ) ) + "\n\n";
-  return Description;
-}
-
-string CIncomingFriendList::ExtractStatus( unsigned char status )
-{
-  string Result;
-
-  if ( status & 1 )
-    Result += "<Mutual>";
-
-  if ( status & 2 )
-    Result += "<DND>";
-
-  if ( status & 4 )
-    Result += "<Away>";
-
-  if ( Result.empty( ) )
-    Result = "<None>";
-
-  return Result;
-}
-
-string CIncomingFriendList::ExtractArea( unsigned char area )
-{
-  switch ( area )
-  {
-    case 0: return "<Offline>";
-    case 1: return "<No Channel>";
-    case 2: return "<In Channel>";
-    case 3: return "<Public Game>";
-    case 4: return "<Private Game>";
-    case 5: return "<Private Game>";
-  }
-
-  return "<Unknown>";
-}
-
-string CIncomingFriendList::ExtractLocation( const string &location )
-{
-  string Result;
-
-  if ( location.substr( 0, 4 ) == "PX3W" )
-    Result = location.substr( 4 );
-
-  if ( Result.empty( ) )
-    Result = ".";
-
-  return Result;
-}
-
-//
-// CIncomingClanList
-//
-
-CIncomingClanList::CIncomingClanList( const string &nName, unsigned char nRank, unsigned char nStatus ) : m_Name( nName ), m_Rank( nRank ), m_Status( nStatus )
-{
-
-}
-
-CIncomingClanList::~CIncomingClanList( )
-{
-
-}
-
-string CIncomingClanList::GetRank( )
-{
-  switch ( m_Rank )
-  {
-    case 0: return "Recruit";
-    case 1: return "Peon";
-    case 2: return "Grunt";
-    case 3: return "Shaman";
-    case 4: return "Chieftain";
-  }
-
-  return "Rank Unknown";
-}
-
-string CIncomingClanList::GetStatus( )
-{
-  if ( m_Status == 0 )
-    return "Offline";
-  else
-    return "Online";
-}
-
-string CIncomingClanList::GetDescription( )
-{
-  string Description;
-  Description += GetName( ) + "\n";
-  Description += GetStatus( ) + "\n";
-  Description += GetRank( ) + "\n\n";
-  return Description;
 }

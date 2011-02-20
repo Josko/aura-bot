@@ -40,7 +40,7 @@ using namespace boost::filesystem;
 // CBNET
 //
 
-CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false )
+CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID ) : m_Aura( nAura ), m_Exiting( false ), m_Spam( false ), m_Server( nServer ), m_CDKeyROC( nCDKeyROC ), m_CDKeyTFT( nCDKeyTFT ), m_CountryAbbrev( nCountryAbbrev ), m_Country( nCountry ), m_LocaleID( nLocaleID ), m_UserName( nUserName ), m_UserPassword( nUserPassword ), m_FirstChannel( nFirstChannel ), m_CommandTrigger( nCommandTrigger ), m_War3Version( nWar3Version ), m_EXEVersion( nEXEVersion ), m_EXEVersionHash( nEXEVersionHash ), m_PasswordHashType( nPasswordHashType ), m_HostCounterID( nHostCounterID ), m_LastDisconnectedTime( 0 ), m_LastConnectionAttemptTime( 0 ), m_LastNullTime( 0 ), m_LastOutPacketTicks( 0 ), m_LastOutPacketSize( 0 ), m_LastAdminRefreshTime( GetTime( ) ), m_LastBanRefreshTime( GetTime( ) ), m_LastSpamTime( 0 ), m_FirstConnect( true ), m_WaitingToConnect( true ), m_LoggedIn( false ), m_InChat( false ), m_UniqueName( nUserName )
 {
   m_Socket = new CTCPClient( );
   m_Protocol = new CBNETProtocol( );
@@ -54,7 +54,7 @@ CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyRO
   else
   {
     m_PvPGN = false;
-    m_ReconnectDelay = 180;
+    m_ReconnectDelay = 240;
   }
 
   if ( !nServerAlias.empty( ) )
@@ -86,17 +86,6 @@ CBNET::~CBNET( )
   delete m_Socket;
   delete m_Protocol;
   delete m_BNCSUtil;
-
-  for ( vector<CIncomingFriendList *> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-    delete *i;
-
-  for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
-    delete *i;
-}
-
-BYTEARRAY CBNET::GetUniqueName( )
-{
-  return m_Protocol->GetUniqueName( );
 }
 
 unsigned int CBNET::SetFD( void *fd, void *send_fd, int *nfds )
@@ -146,8 +135,6 @@ bool CBNET::Update( void *fd, void *send_fd )
 
     CIncomingGameHost *GameHost = NULL;
     CIncomingChatEvent *ChatEvent = NULL;
-    vector<CIncomingFriendList *> Friends;
-    vector<CIncomingClanList *> Clans;
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -193,6 +180,7 @@ bool CBNET::Update( void *fd, void *send_fd )
                   Print( "[BNET: " + m_ServerAlias + "] joining channel [" + m_FirstChannel + "]" );
                   m_InChat = true;
                   m_Socket->PutBytes( m_Protocol->SEND_SID_JOINCHANNEL( m_FirstChannel ) );
+                  m_UniqueName = string( m_Protocol->GetUniqueName( ).begin( ), m_Protocol->GetUniqueName( ).end( ) );
                 }
 
                 break;
@@ -361,21 +349,11 @@ bool CBNET::Update( void *fd, void *send_fd )
                 break;
 
               case CBNETProtocol::SID_FRIENDSLIST:
-                Friends = m_Protocol->RECEIVE_SID_FRIENDSLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-
-                for ( vector<CIncomingFriendList *> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-                  delete *i;
-
-                m_Friends = Friends;
+                m_Friends = m_Protocol->RECEIVE_SID_FRIENDSLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
                 break;
 
               case CBNETProtocol::SID_CLANMEMBERLIST:
-                Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-
-                for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
-                  delete *i;
-
-                m_Clans = Clans;
+                m_Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
                 break;
             }
 
@@ -1910,7 +1888,7 @@ void CBNET::QueueChatCommand( const string &chatCommand, const string &user, boo
     QueueChatCommand( chatCommand );
 }
 
-void CBNET::QueueGameCreate( unsigned char state, const string &gameName, const string &hostName, CMap *map, uint32_t hostCounter )
+void CBNET::QueueGameCreate( unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter )
 {
   if ( m_LoggedIn && map )
   {
@@ -1921,18 +1899,12 @@ void CBNET::QueueGameCreate( unsigned char state, const string &gameName, const 
 
     // a game creation message is just a game refresh message with upTime = 0
 
-    QueueGameRefresh( state, gameName, hostName, map, hostCounter );
+    QueueGameRefresh( state, gameName, map, hostCounter );
   }
 }
 
-void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, string hostName, CMap *map, uint32_t hostCounter )
+void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter )
 {
-  if ( hostName.empty( ) )
-  {
-    BYTEARRAY UniqueName = m_Protocol->GetUniqueName( );
-    hostName = string( UniqueName.begin( ), UniqueName.end( ) );
-  }
-
   if ( m_LoggedIn && map )
   {
     // construct a fixed host counter which will be used to identify players from this realm
@@ -1948,7 +1920,7 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, strin
     if ( state == GAME_PRIVATE )
       MapGameType |= MAPGAMETYPE_PRIVATEGAME;
     
-    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, hostName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
+    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, m_UniqueName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
   }
 }
 
@@ -2011,8 +1983,8 @@ void CBNET::HoldFriends( CGame *game )
 {
   if ( game )
   {
-    for ( vector<CIncomingFriendList *> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-      game->AddToReserved( ( *i )->GetAccount( ) );
+    for ( vector<string> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
+      game->AddToReserved( *i  );
   }
 }
 
@@ -2020,7 +1992,7 @@ void CBNET::HoldClan( CGame *game )
 {
   if ( game )
   {
-    for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
-      game->AddToReserved( ( *i )->GetName( ) );
+    for ( vector<string> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
+      game->AddToReserved( *i );
   }
 }

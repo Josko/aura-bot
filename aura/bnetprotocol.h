@@ -29,8 +29,6 @@
 
 class CIncomingGameHost;
 class CIncomingChatEvent;
-class CIncomingFriendList;
-class CIncomingClanList;
 
 class CBNETProtocol
 {
@@ -89,7 +87,7 @@ public:
     EID_INFO                = 18, // broadcast/information message
     EID_ERROR               = 19, // error message
     EID_EMOTE               = 23, // emote
-    EID_IRC                 = -1
+    EID_IRC                 = -1  // internal flag only
   };
 
 private:
@@ -109,70 +107,19 @@ public:
   CBNETProtocol( );
   ~CBNETProtocol( );
 
-  BYTEARRAY GetClientToken( )
-  {
-    return m_ClientToken;
-  }
-
-  BYTEARRAY GetLogonType( )
-  {
-    return m_LogonType;
-  }
-
-  BYTEARRAY GetServerToken( )
-  {
-    return m_ServerToken;
-  }
-
-  BYTEARRAY GetMPQFileTime( )
-  {
-    return m_MPQFileTime;
-  }
-
-  BYTEARRAY GetIX86VerFileName( )
-  {
-    return m_IX86VerFileName;
-  }
-
-  string GetIX86VerFileNameString( )
-  {
-    return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) );
-  }
-
-  BYTEARRAY GetValueStringFormula( )
-  {
-    return m_ValueStringFormula;
-  }
-
-  string GetValueStringFormulaString( )
-  {
-    return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) );
-  }
-
-  BYTEARRAY GetKeyState( )
-  {
-    return m_KeyState;
-  }
-
-  string GetKeyStateDescription( )
-  {
-    return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) );
-  }
-
-  BYTEARRAY GetSalt( )
-  {
-    return m_Salt;
-  }
-
-  BYTEARRAY GetServerPublicKey( )
-  {
-    return m_ServerPublicKey;
-  }
-
-  BYTEARRAY GetUniqueName( )
-  {
-    return m_UniqueName;
-  }
+  BYTEARRAY GetClientToken( )             { return m_ClientToken; }
+  BYTEARRAY GetLogonType( )               { return m_LogonType; }
+  BYTEARRAY GetServerToken( )             { return m_ServerToken; }
+  BYTEARRAY GetMPQFileTime( )             { return m_MPQFileTime; }
+  BYTEARRAY GetIX86VerFileName( )         { return m_IX86VerFileName; }
+  string GetIX86VerFileNameString( )      { return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
+  BYTEARRAY GetValueStringFormula( )      { return m_ValueStringFormula; }
+  string GetValueStringFormulaString( )   { return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
+  BYTEARRAY GetKeyState( )                { return m_KeyState; }
+  string GetKeyStateDescription( )        { return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
+  BYTEARRAY GetSalt( )                    { return m_Salt; }
+  BYTEARRAY GetServerPublicKey( )         { return m_ServerPublicKey; }
+  BYTEARRAY GetUniqueName( )              { return m_UniqueName; }
 
   // receive functions
 
@@ -188,10 +135,8 @@ public:
   bool RECEIVE_SID_AUTH_CHECK( BYTEARRAY data );
   bool RECEIVE_SID_AUTH_ACCOUNTLOGON( BYTEARRAY data );
   bool RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY data );
-  BYTEARRAY RECEIVE_SID_WARDEN( BYTEARRAY data );
-  vector<CIncomingFriendList *> RECEIVE_SID_FRIENDSLIST( BYTEARRAY data );
-  vector<CIncomingClanList *> RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data );
-  CIncomingClanList *RECEIVE_SID_CLANMEMBERSTATUSCHANGE( BYTEARRAY data );
+  vector<string> RECEIVE_SID_FRIENDSLIST( BYTEARRAY data );
+  vector<string> RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data );
 
   // send functions
 
@@ -238,27 +183,11 @@ public:
   CIncomingGameHost( BYTEARRAY &nIP, uint16_t nPort, string nGameName, BYTEARRAY &nHostCounter );
   ~CIncomingGameHost( );
 
-  BYTEARRAY GetIP( )
-  {
-    return m_IP;
-  }
-
-  uint16_t GetPort( )
-  {
-    return m_Port;
-  }
-
   string GetIPString( );
-
-  string GetGameName( )
-  {
-    return m_GameName;
-  }
-
-  BYTEARRAY GetHostCounter( )
-  {
-    return m_HostCounter;
-  }
+  BYTEARRAY GetIP( )          { return m_IP; }
+  uint16_t GetPort( )         { return m_Port; }
+  string GetGameName( )       { return m_GameName; }
+  BYTEARRAY GetHostCounter( ) { return m_HostCounter; }
 };
 
 //
@@ -276,89 +205,9 @@ public:
   CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage );
   ~CIncomingChatEvent( );
 
-  CBNETProtocol::IncomingChatEvent GetChatEvent( )
-  {
-    return m_ChatEvent;
-  }
-
-  string GetUser( )
-  {
-    return m_User;
-  }
-
-  string GetMessage( )
-  {
-    return m_Message;
-  }
-};
-
-//
-// CIncomingFriendList
-//
-
-class CIncomingFriendList
-{
-private:
-  string m_Account;
-  unsigned char m_Status;
-  unsigned char m_Area;
-  string m_Location;
-
-public:
-  CIncomingFriendList( const string &nAccount, unsigned char nStatus, unsigned char nArea, const string &nLocation );
-  ~CIncomingFriendList( );
-
-  string GetAccount( )
-  {
-    return m_Account;
-  }
-
-  unsigned char GetStatus( )
-  {
-    return m_Status;
-  }
-
-  unsigned char GetArea( )
-  {
-    return m_Area;
-  }
-
-  string GetLocation( )
-  {
-    return m_Location;
-  }
-  
-  string GetDescription( );
-
-private:
-  string ExtractStatus( unsigned char status );
-  string ExtractArea( unsigned char area );
-  string ExtractLocation( const string &location );
-};
-
-//
-// CIncomingClanList
-//
-
-class CIncomingClanList
-{
-private:
-  string m_Name;
-  unsigned char m_Rank;
-  unsigned char m_Status;
-
-public:
-  CIncomingClanList( const string &nName, unsigned char nRank, unsigned char nStatus );
-  ~CIncomingClanList( );
-
-  string GetName( )
-  {
-    return m_Name;
-  }
-  
-  string GetRank( );
-  string GetStatus( );
-  string GetDescription( );
+  CBNETProtocol::IncomingChatEvent GetChatEvent( )    { return m_ChatEvent; }
+  string GetUser( )                                   { return m_User; }
+  string GetMessage( )                                { return m_Message; }
 };
 
 #endif

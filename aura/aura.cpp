@@ -293,7 +293,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
 
   SetConfigs( CFG );
 
-  // get irc configuration
+  // get the irc configuration
 
   string IRC_Server = CFG->GetString( "irc_server", string( ) );
   string IRC_NickName = CFG->GetString( "irc_nickname", string( ) );
@@ -851,7 +851,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
         ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
     }
 
-    ( *i )->QueueGameCreate( gameState, gameName, string( ), map, m_CurrentGame->GetHostCounter( ) );
+    ( *i )->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
   }
 
   // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately

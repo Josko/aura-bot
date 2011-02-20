@@ -548,7 +548,7 @@ bool CGame::Update( void *fd, void *send_fd )
 
       if ( ( *i )->GetOutPacketsQueued( ) <= 1 )
       {
-        ( *i )->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
+        ( *i )->QueueGameRefresh( m_GameState, m_GameName, m_Map, m_HostCounter );
       }
     }
 
@@ -1872,7 +1872,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
 
             // we need to send the game creation message now because private games are not refreshed
 
-            ( *i )->QueueGameCreate( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
+            ( *i )->QueueGameCreate( m_GameState, m_GameName, m_Map, m_HostCounter );
 
             if ( !( *i )->GetPvPGN( ) )
               ( *i )->QueueEnterChat( );
