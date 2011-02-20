@@ -54,7 +54,7 @@ CBNET::CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyRO
   else
   {
     m_PvPGN = false;
-    m_ReconnectDelay = 180;
+    m_ReconnectDelay = 240;
   }
 
   if ( !nServerAlias.empty( ) )
