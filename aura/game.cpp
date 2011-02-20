@@ -68,7 +68,6 @@ CGame::CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameS
   m_Socket = new CTCPServer( );
   m_Protocol = new CGameProtocol( m_Aura );
   m_Map = new CMap( *nMap );
-  m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
 
   // start listening for connections
 
@@ -124,8 +123,6 @@ CGame::~CGame( )
 
   for ( vector<CDBBan *> ::iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
     delete *i;
-
-  delete m_DBGame;
 
   for ( vector<CDBGamePlayer *> ::iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); ++i )
     delete *i;
@@ -471,7 +468,7 @@ bool CGame::Update( void *fd, void *send_fd )
 
       m_Saving = true;
 
-      m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), m_DBGame->GetMap( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
+      m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), m_Map->GetMapPath( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
     }
     else if ( m_GameID )
       return true;

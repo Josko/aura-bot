@@ -785,6 +785,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_FRIENDSLIST( )
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( 0 ); // packet length will be assigned later
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_FRIENDSLIST" );
   // DEBUG_Print( packet );
   return packet;
@@ -801,6 +802,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_CLANMEMBERLIST( )
   packet.push_back( 0 ); // packet length will be assigned later
   UTIL_AppendByteArray( packet, Cookie, 4 ); // cookie
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_CLANMEMBERLIST" );
   // DEBUG_Print( packet );
   return packet;
@@ -831,14 +833,13 @@ bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  uint16_t Length;
   BYTEARRAY LengthBytes;
 
   if ( content.size( ) >= 4 && content.size( ) <= 65535 )
   {
     LengthBytes.push_back( content[2] );
     LengthBytes.push_back( content[3] );
-    Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
+    uint16_t Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
 
     if ( Length == content.size( ) )
       return true;

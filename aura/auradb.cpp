@@ -1032,20 +1032,6 @@ CDBBan::~CDBBan( )
 }
 
 //
-// CDBGame
-//
-
-CDBGame::CDBGame( uint32_t nID, const string &nServer, const string &nMap, const string &nDateTime, const string &nGameName, const string &nOwnerName, uint32_t nDuration ) : m_ID( nID ), m_Server( nServer ), m_Map( nMap ), m_DateTime( nDateTime ), m_GameName( nGameName ), m_OwnerName( nOwnerName ), m_Duration( nDuration )
-{
-
-}
-
-CDBGame::~CDBGame( )
-{
-
-}
-
-//
 // CDBGamePlayer
 //
 
@@ -1069,20 +1055,6 @@ CDBGamePlayerSummary::CDBGamePlayerSummary( const string &nServer, const string 
 }
 
 CDBGamePlayerSummary::~CDBGamePlayerSummary( )
-{
-
-}
-
-//
-// CDBDotAGame
-//
-
-CDBDotAGame::CDBDotAGame( uint32_t nID, uint32_t nGameID, uint32_t nWinner, uint32_t nMin, uint32_t nSec ) : m_ID( nID ), m_GameID( nGameID ), m_Winner( nWinner ), m_Min( nMin ), m_Sec( nSec )
-{
-
-}
-
-CDBDotAGame::~CDBDotAGame( )
 {
 
 }

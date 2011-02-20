@@ -285,66 +285,6 @@ public:
 };
 
 //
-// CDBGame
-//
-
-class CDBGame
-{
-private:
-  uint32_t m_ID;
-  string m_Server;
-  string m_Map;
-  string m_DateTime;
-  string m_GameName;
-  string m_OwnerName;
-  uint32_t m_Duration;
-
-public:
-  CDBGame( uint32_t nID, const string &nServer, const string &nMap, const string &nDateTime, const string &nGameName, const string &nOwnerName, uint32_t nDuration );
-  ~CDBGame( );
-
-  uint32_t GetID( )
-  {
-    return m_ID;
-  }
-
-  string GetServer( )
-  {
-    return m_Server;
-  }
-
-  string GetMap( )
-  {
-    return m_Map;
-  }
-
-  string GetDateTime( )
-  {
-    return m_DateTime;
-  }
-
-  string GetGameName( )
-  {
-    return m_GameName;
-  }
-
-  string GetOwnerName( )
-  {
-    return m_OwnerName;
-  }
-
-  uint32_t GetDuration( )
-  {
-    return m_Duration;
-  }
-
-  void SetDuration( uint32_t nDuration )
-  {
-    m_Duration = nDuration;
-  }
-};
-
-//
 // CDBGamePlayer
 //
 
@@ -538,49 +478,6 @@ public:
   uint32_t GetMaxDuration( )
   {
     return m_MaxDuration;
-  }
-};
-
-//
-// CDBDotAGame
-//
-
-class CDBDotAGame
-{
-private:
-  uint32_t m_ID;
-  uint32_t m_GameID;
-  uint32_t m_Winner;
-  uint32_t m_Min;
-  uint32_t m_Sec;
-
-public:
-  CDBDotAGame( uint32_t nID, uint32_t nGameID, uint32_t nWinner, uint32_t nMin, uint32_t nSec );
-  ~CDBDotAGame( );
-
-  uint32_t GetID( )
-  {
-    return m_ID;
-  }
-
-  uint32_t GetGameID( )
-  {
-    return m_GameID;
-  }
-
-  uint32_t GetWinner( )
-  {
-    return m_Winner;
-  }
-
-  uint32_t GetMin( )
-  {
-    return m_Min;
-  }
-
-  uint32_t GetSec( )
-  {
-    return m_Sec;
   }
 };
 
