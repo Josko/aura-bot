@@ -145,7 +145,7 @@ public:
   // other functions
 
 private:
-  bool AssignLength( BYTEARRAY &content );
+  void AssignLength( BYTEARRAY &content );
   bool ValidateLength( BYTEARRAY &content );
   BYTEARRAY EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots );
 };

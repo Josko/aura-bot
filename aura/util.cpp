@@ -225,7 +225,7 @@ BYTEARRAY UTIL_ExtractNumbers( const string &s, unsigned int count )
 
     SS >> c;
 
-    // todotodo: if c > 255 handle the error instead of truncating
+    // TODO: if c > 255 handle the error instead of truncating
 
     result.push_back( (unsigned char) c );
   }
@@ -246,7 +246,7 @@ BYTEARRAY UTIL_ExtractHexNumbers( string &s )
   {
     SS >> hex >> c;
 
-    // todotodo: if c > 255 handle the error instead of truncating
+    // TODO: if c > 255 handle the error instead of truncating
 
     result.push_back( (unsigned char) c );
   }
@@ -335,7 +335,7 @@ string UTIL_ToHexString( uint32_t i )
   return result;
 }
 
-// todotodo: these UTIL_ToXXX functions don't fail gracefully, they just return garbage (in the uint case usually just -1 casted to an unsigned type it looks like)
+// TODO: these UTIL_ToXXX functions don't fail gracefully, they just return garbage (in the uint case usually just -1 casted to an unsigned type it looks like)
 
 uint16_t UTIL_ToUInt16( string &s )
 {

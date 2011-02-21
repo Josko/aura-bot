@@ -1043,7 +1043,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( Command == "end" && !Payload.empty( ) )
         {
-          // todotodo: what if a game ends just as you're typing this command and the numbering changes?
+          // TODO: what if a game ends just as you're typing this command and the numbering changes?
 
           uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
@@ -1694,7 +1694,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         // !STATUS
         //
 
-        else if ( Command == "status" && m_Aura->m_BNETs.size( ) )
+        else if ( Command == "status" )
         {
           string message = "Status: ";
 
@@ -1937,7 +1937,7 @@ void CBNET::UnqueueGameRefreshes( )
 
   while ( !m_OutPackets.empty( ) )
   {
-    // todotodo: it's very inefficient to have to copy all these packets while searching the queue
+    // TODO: it's very inefficient to have to copy all these packets while searching the queue
 
     BYTEARRAY Packet = m_OutPackets.front( );
     m_OutPackets.pop( );

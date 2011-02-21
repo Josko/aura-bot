@@ -695,7 +695,7 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
   m_MapFilterSize = CFG->GetInt( "map_filter_size", MAPFILTER_SIZE_LARGE );
   m_MapFilterObs = CFG->GetInt( "map_filter_obs", MAPFILTER_OBS_NONE );
 
-  // todotodo: it might be possible for MapOptions to legitimately be zero so this is not a valid way of checking if it wasn't parsed out earlier
+  // TODO: it might be possible for MapOptions to legitimately be zero so this is not a valid way of checking if it wasn't parsed out earlier
 
   if ( MapOptions == 0 )
     MapOptions = CFG->GetInt( "map_options", 0 );
@@ -806,7 +806,7 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
 
 void CMap::CheckValid( )
 {
-  // todotodo: should this code fix any errors it sees rather than just warning the user?
+  // TODO: should this code fix any errors it sees rather than just warning the user?
 
   if ( m_MapPath.empty( ) || m_MapPath.length( ) > 53 )
   {
@@ -866,8 +866,8 @@ void CMap::CheckValid( )
     Print( "[MAP] invalid map_observers detected" );
   }
 
-  // todotodo: m_MapFlags
-  // todotodo: m_MapFilterMaker, m_MapFilterType, m_MapFilterSize, m_MapFilterObs
+  // TODO: m_MapFlags
+  // TODO: m_MapFilterMaker, m_MapFilterType, m_MapFilterSize, m_MapFilterObs
 
   if ( m_MapWidth.size( ) != 2 )
   {

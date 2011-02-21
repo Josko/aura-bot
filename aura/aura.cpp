@@ -239,7 +239,6 @@ int main( )
 
   Print( "[AURA] shutting down" );
   delete gAura;
-  gAura = NULL;
 
 #ifdef WIN32
   // shutdown winsock

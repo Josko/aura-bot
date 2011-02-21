@@ -384,6 +384,7 @@ BYTEARRAY CBNETProtocol::SEND_PROTOCOL_INITIALIZE_SELECTOR( )
 {
   BYTEARRAY packet;
   packet.push_back( 1 );
+
   // DEBUG_Print( "SENT PROTOCOL_INITIALIZE_SELECTOR" );
   // DEBUG_Print( packet );
   return packet;
@@ -397,6 +398,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_NULL( )
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( 0 ); // packet length will be assigned later
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_NULL" );
   // DEBUG_Print( packet );
   return packet;
@@ -410,6 +412,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_STOPADV( )
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( 0 ); // packet length will be assigned later
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_STOPADV" );
   // DEBUG_Print( packet );
   return packet;
@@ -435,6 +438,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_GETADVLISTEX( string gameName )
   packet.push_back( 0 ); // Game Password is NULL
   packet.push_back( 0 ); // Game Stats is NULL
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_GETADVLISTEX" );
   // DEBUG_Print( packet );
   return packet;
@@ -450,6 +454,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_ENTERCHAT( )
   packet.push_back( 0 ); // Account Name is NULL on Warcraft III/The Frozen Throne
   packet.push_back( 0 ); // Stat String is NULL on CDKEY'd products
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_ENTERCHAT" );
   // DEBUG_Print( packet );
   return packet;
@@ -473,6 +478,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_JOINCHANNEL( string channel )
 
   UTIL_AppendByteArrayFast( packet, channel );
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_JOINCHANNEL" );
   // DEBUG_Print( packet );
   return packet;
@@ -487,6 +493,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_CHATCOMMAND( string command )
   packet.push_back( 0 ); // packet length will be assigned later
   UTIL_AppendByteArrayFast( packet, command ); // Message
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_CHATCOMMAND" );
   // DEBUG_Print( packet );
   return packet;
@@ -506,6 +513,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_CHECKAD( )
   UTIL_AppendByteArray( packet, Zeros, 4 ); // ???
   UTIL_AppendByteArray( packet, Zeros, 4 ); // ???
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_CHECKAD" );
   // DEBUG_Print( packet );
   return packet;
@@ -513,31 +521,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_CHECKAD( )
 
 BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3( unsigned char state, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, BYTEARRAY mapSHA1, uint32_t hostCounter )
 {
-  // todotodo: sort out how GameType works, the documentation is horrendous
-
-  /*
-
-  Game type tag: (read W3GS_GAMEINFO for this field)
-   0x00000001 - Custom
-   0x00000009 - Blizzard/Ladder
-  Map author: (mask 0x00006000) can be combined
-   *0x00002000 - Blizzard
-   0x00004000 - Custom
-  Battle type: (mask 0x00018000) cant be combined
-   0x00000000 - Battle
-   *0x00010000 - Scenario
-  Map size: (mask 0x000E0000) can be combined with 2 nearest values
-   0x00020000 - Small
-   0x00040000 - Medium
-   *0x00080000 - Huge
-  Observers: (mask 0x00700000) cant be combined
-   0x00100000 - Allowed observers
-   0x00200000 - Observers on defeat
-   *0x00400000 - No observers
-  Flags:
-   0x00000800 - Private game flag (not used in game list)
-
-   */
+  // TODO: sort out how GameType works, the documentation is horrendous
 
   unsigned char Unknown[] = { 255, 3, 0, 0 };
   unsigned char CustomGame[] = { 0, 0, 0, 0 };
@@ -612,6 +596,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_NOTIFYJOIN( string gameName )
   UTIL_AppendByteArrayFast( packet, gameName ); // Game Name
   packet.push_back( 0 ); // Game Password is NULL
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_NOTIFYJOIN" );
   // DEBUG_Print( packet );
   return packet;
@@ -640,7 +625,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_PING( BYTEARRAY pingValue )
 
 BYTEARRAY CBNETProtocol::SEND_SID_LOGONRESPONSE( BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, string accountName )
 {
-  // todotodo: check that the passed BYTEARRAY sizes are correct (don't know what they should be right now so I can't do this today)
+  // TODO: check that the passed BYTEARRAY sizes are correct (don't know what they should be right now so I can't do this today)
 
   BYTEARRAY packet;
   packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
@@ -652,6 +637,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_LOGONRESPONSE( BYTEARRAY clientToken, BYTEARRA
   UTIL_AppendByteArrayFast( packet, passwordHash ); // Password Hash
   UTIL_AppendByteArrayFast( packet, accountName ); // Account Name
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_LOGONRESPONSE" );
   // DEBUG_Print( packet );
   return packet;
@@ -666,6 +652,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_NETGAMEPORT( uint16_t serverPort )
   packet.push_back( 0 ); // packet length will be assigned later
   UTIL_AppendByteArray( packet, serverPort, false ); // local game server port
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_NETGAMEPORT" );
   // DEBUG_Print( packet );
   return packet;
@@ -698,6 +685,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO( unsigned char ver, uint32_t localeI
   UTIL_AppendByteArrayFast( packet, countryAbbrev ); // Country Abbreviation
   UTIL_AppendByteArrayFast( packet, country ); // Country
   AssignLength( packet );
+
   // DEBUG_Print( "SENT SID_AUTH_INFO" );
   // DEBUG_Print( packet );
   return packet;
@@ -812,21 +800,15 @@ BYTEARRAY CBNETProtocol::SEND_SID_CLANMEMBERLIST( )
 // OTHER FUNCTIONS //
 /////////////////////
 
-bool CBNETProtocol::AssignLength( BYTEARRAY &content )
+void CBNETProtocol::AssignLength( BYTEARRAY &content )
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
   BYTEARRAY LengthBytes;
 
-  if ( content.size( ) >= 4 && content.size( ) <= 65535 )
-  {
-    LengthBytes = UTIL_CreateByteArray( (uint16_t) content.size( ), false );
-    content[2] = LengthBytes[0];
-    content[3] = LengthBytes[1];
-    return true;
-  }
-
-  return false;
+  LengthBytes = UTIL_CreateByteArray( (uint16_t) content.size( ), false );
+  content[2] = LengthBytes[0];
+  content[3] = LengthBytes[1];
 }
 
 bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
@@ -835,15 +817,12 @@ bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
 
   BYTEARRAY LengthBytes;
 
-  if ( content.size( ) >= 4 && content.size( ) <= 65535 )
-  {
-    LengthBytes.push_back( content[2] );
-    LengthBytes.push_back( content[3] );
-    uint16_t Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
+  LengthBytes.push_back( content[2] );
+  LengthBytes.push_back( content[3] );
+  uint16_t Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
 
-    if ( Length == content.size( ) )
-      return true;
-  }
+  if ( Length == content.size( ) )
+    return true;
 
   return false;
 }

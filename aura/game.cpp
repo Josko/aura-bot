@@ -260,7 +260,7 @@ bool CGame::Update( void *fd, void *send_fd )
   {
     // note: we must send pings to players who are downloading the map because Warcraft III disconnects from the lobby if it doesn't receive a ping every ~90 seconds
     // so if the player takes longer than 90 seconds to download the map they would be disconnected unless we keep sending pings
-    // todotodo: ignore pings received from players who have recently finished downloading the map
+    // TODO: ignore pings received from players who have recently finished downloading the map
 
     SendAll( m_Protocol->SEND_W3GS_PING_FROM_HOST( ) );
 
@@ -468,7 +468,9 @@ bool CGame::Update( void *fd, void *send_fd )
 
       m_Saving = true;
 
-      m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), m_Map->GetMapPath( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
+      // TODO: pass the real map path
+
+      m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), string( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
     }
     else if ( m_GameID )
       return true;
@@ -499,7 +501,7 @@ bool CGame::Update( void *fd, void *send_fd )
 
   // start the gameover timer if there's only one player left
 
-  if ( m_Players.size( ) == 1 && m_FakePlayers.size( ) == 0 && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
+  if ( m_Players.size( ) == 1 && m_FakePlayers.empty( ) && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
   {
     Print( "[GAME: " + m_GameName + "] gameover timer started (one player left)" );
     m_GameOverTime = Time;
@@ -984,7 +986,7 @@ void CGame::EventPlayerDeleted( CGamePlayer *player )
 
   if ( m_GameLoading || m_GameLoaded )
   {
-    // todotodo: since we store players that crash during loading it's possible that the stats classes could have no information on them
+    // TODO: since we store players that crash during loading it's possible that the stats classes could have no information on them
     // that could result in a DBGamePlayer without a corresponding DBDotAPlayer - just be aware of the possibility
 
     unsigned char SID = GetSIDFromPID( player->GetPID( ) );
@@ -2340,7 +2342,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         // !STATUS
         //
 
-      else if ( Command == "status" && m_Aura->m_BNETs.size( ) )
+      else if ( Command == "status" )
       {
         string message = "Status: ";
 
@@ -2565,14 +2567,14 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         //
         // !DELETEFAKE
 
-      else if ( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && m_FakePlayers.size( ) && !m_CountDownStarted )
+      else if ( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && !m_FakePlayers.empty( ) && !m_CountDownStarted )
         DeleteFakePlayers( );
 
         //
         // !FPPAUSE
         //
 
-      else if ( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && m_FakePlayers.size( ) )
+      else if ( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && !m_FakePlayers.empty( ) )
       {
         BYTEARRAY CRC, Action;
         Action.push_back( 1 );
@@ -3166,7 +3168,7 @@ void CGame::EventPlayerChangeHandicap( CGamePlayer *player, unsigned char handic
 
 void CGame::EventPlayerDropRequest( CGamePlayer *player )
 {
-  // todotodo: check that we've waited the full 45 seconds
+  // TODO: check that we've waited the full 45 seconds
 
   if ( m_Lagging )
   {
@@ -3667,7 +3669,7 @@ unsigned char CGame::GetHostPID( )
 
   // try to find the fakeplayer next
 
-  if ( m_FakePlayers.size( ) )
+  if ( !m_FakePlayers.empty( ) )
     return m_FakePlayers[0];
 
   // try to find the owner player next
