@@ -327,10 +327,17 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
     {
       --Total;
 
-      if ( data.size( ) < i + 1 )
-        break;
+      if( data.size( ) < i + 1 )
+              break;
 
       BYTEARRAY Account = UTIL_ExtractCString( data, i );
+      i += Account.size( ) + 1;
+
+      if( data.size( ) < i + 7 )
+        break;
+
+      i += 6;
+      i += UTIL_ExtractCString( data, i ).size( ) + 1;
 
       Friends.push_back( string( Account.begin( ), Account.end( ) ) );
     }
@@ -365,10 +372,20 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
     {
       --Total;
 
-      if ( data.size( ) < i + 1 )
-        break;
+      if( data.size( ) < i + 1 )
+              break;
 
       BYTEARRAY Name = UTIL_ExtractCString( data, i );
+      i += Name.size( ) + 1;
+
+      if( data.size( ) < i + 3 )
+        break;
+
+      i += 2;
+
+      // in the original VB source the location string is read but discarded, so that's what I do here
+
+      i += UTIL_ExtractCString( data, i ).size( ) + 1;
       ClanList.push_back( string( Name.begin( ), Name.end( ) ) );
     }
   }
@@ -462,9 +479,6 @@ BYTEARRAY CBNETProtocol::SEND_SID_ENTERCHAT( )
 
 BYTEARRAY CBNETProtocol::SEND_SID_JOINCHANNEL( string channel )
 {
-  unsigned char NoCreateJoin[] = { 2, 0, 0, 0 };
-  unsigned char FirstJoin[] = { 1, 0, 0, 0 };
-
   BYTEARRAY packet;
   packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
   packet.push_back( SID_JOINCHANNEL ); // SID_JOINCHANNEL
@@ -472,9 +486,15 @@ BYTEARRAY CBNETProtocol::SEND_SID_JOINCHANNEL( string channel )
   packet.push_back( 0 ); // packet length will be assigned later
 
   if ( channel.size( ) > 0 )
+  {
+    unsigned char NoCreateJoin[] = { 2, 0, 0, 0 };
     UTIL_AppendByteArray( packet, NoCreateJoin, 4 ); // flags for no create join
+  }
   else
+  {
+    unsigned char FirstJoin[] = { 1, 0, 0, 0 };
     UTIL_AppendByteArray( packet, FirstJoin, 4 ); // flags for first join
+  }
 
   UTIL_AppendByteArrayFast( packet, channel );
   AssignLength( packet );
@@ -819,9 +839,8 @@ bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
 
   LengthBytes.push_back( content[2] );
   LengthBytes.push_back( content[3] );
-  uint16_t Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
 
-  if ( Length == content.size( ) )
+  if ( UTIL_ByteArrayToUInt16( LengthBytes, false ) == content.size( ) )
     return true;
 
   return false;

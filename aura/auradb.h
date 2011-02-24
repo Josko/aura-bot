@@ -18,8 +18,8 @@
 
  */
 
-#ifndef AURADB_H
-#define AURADB_H
+#ifndef AURADB_H_
+#define AURADB_H_
 
 /**************
  *** SCHEMA ***

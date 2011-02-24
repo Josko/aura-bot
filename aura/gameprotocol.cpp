@@ -607,27 +607,6 @@ BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG( CGamePlayer *player )
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SEARCHGAME( unsigned char war3Version )
-{
-  unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
-  unsigned char Version[] = { war3Version, 0, 0, 0 };
-  unsigned char Unknown[] = { 0, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_SEARCHGAME ); // W3GS_SEARCHGAME
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  UTIL_AppendByteArray( packet, ProductID_TFT, 4 ); // Product ID (TFT)
-
-  UTIL_AppendByteArray( packet, Version, 4 ); // Version
-  UTIL_AppendByteArray( packet, Unknown, 4 ); // ???
-  AssignLength( packet );
-  // DEBUG_Print( "SENT W3GS_SEARCHGAME" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
 BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey )
 {
   unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
@@ -890,9 +869,8 @@ bool CGameProtocol::ValidateLength( BYTEARRAY &content )
 
   LengthBytes.push_back( content[2] );
   LengthBytes.push_back( content[3] );
-  uint16_t Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
 
-  if ( Length == content.size( ) )
+  if ( UTIL_ByteArrayToUInt16( LengthBytes, false ) == content.size( ) )
     return true;
 
   return false;

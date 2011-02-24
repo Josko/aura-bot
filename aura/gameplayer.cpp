@@ -88,7 +88,7 @@ bool CPotentialPlayer::Update( void *fd )
 
       uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
-      if ( Length >= 4 && Bytes.size( ) >= Length )
+      if ( Bytes.size( ) >= Length )
       {
         if ( Bytes[0] == W3GS_HEADER_CONSTANT && Bytes[1] == CGameProtocol::W3GS_REQJOIN )
         {
@@ -222,7 +222,7 @@ bool CGamePlayer::Update( void *fd )
 
       uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
-      if ( Length >= 4 && Bytes.size( ) >= Length )
+      if ( Bytes.size( ) >= Length )
       {
         // byte 1 contains the packet ID
 

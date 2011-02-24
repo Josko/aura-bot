@@ -18,8 +18,8 @@
 
  */
 
-#ifndef AURA_H
-#define AURA_H
+#ifndef AURA_H_
+#define AURA_H_
 
 #include "includes.h"
 

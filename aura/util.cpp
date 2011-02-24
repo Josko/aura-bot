@@ -317,7 +317,7 @@ string UTIL_ToString( float f, int digits )
   return result;
 }
 
-string UTIL_ToString( double d, int digits )
+string UTIL_ToString( const double d, int digits )
 {
   string result;
   stringstream SS;
@@ -406,7 +406,7 @@ bool UTIL_FileExists( string &file )
   return false;
 }
 
-string UTIL_FileRead( string file, uint32_t start, uint32_t length )
+string UTIL_FileRead( const string &file, uint32_t start, uint32_t length )
 {
   ifstream IS;
   IS.open( file.c_str( ), ios::binary );
@@ -440,7 +440,7 @@ string UTIL_FileRead( string file, uint32_t start, uint32_t length )
   return BufferString;
 }
 
-string UTIL_FileRead( string file )
+string UTIL_FileRead( const string &file )
 {
   ifstream IS;
   IS.open( file.c_str( ), ios::binary );
@@ -471,7 +471,7 @@ string UTIL_FileRead( string file )
     return string( );
 }
 
-bool UTIL_FileWrite( string file, unsigned char *data, uint32_t length )
+bool UTIL_FileWrite( const string &file, unsigned char *data, uint32_t length )
 {
   ofstream OS;
   OS.open( file.c_str( ), ios::binary );
@@ -489,20 +489,7 @@ bool UTIL_FileWrite( string file, unsigned char *data, uint32_t length )
   return true;
 }
 
-string UTIL_FileSafeName( string fileName )
-{
-  string::size_type BadStart = fileName.find_first_of( "\\/:*?<>|" );
-
-  while ( BadStart != string::npos )
-  {
-    fileName.replace( BadStart, 1, 1, '_' );
-    BadStart = fileName.find_first_of( "\\/:*?<>|" );
-  }
-
-  return fileName;
-}
-
-string UTIL_AddPathSeperator( string path )
+string UTIL_AddPathSeperator( const string &path )
 {
   if ( path.empty( ) )
     return string( );
@@ -565,53 +552,6 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
   return Result;
 }
 
-bool UTIL_IsLanIP( BYTEARRAY &ip )
-{
-  if ( ip.size( ) != 4 )
-    return false;
-
-  // thanks to LuCasn for this function
-
-  // 127.0.0.1
-  if ( ip[0] == 127 && ip[1] == 0 && ip[2] == 0 && ip[3] == 1 )
-    return true;
-
-  // 10.x.x.x
-  if ( ip[0] == 10 )
-    return true;
-
-  // 172.16.0.0-172.31.255.255
-  if ( ip[0] == 172 && ip[1] >= 16 && ip[1] <= 31 )
-    return true;
-
-  // 192.168.x.x
-  if ( ip[0] == 192 && ip[1] == 168 )
-    return true;
-
-  // RFC 3330 and RFC 3927 automatic address range
-  if ( ip[0] == 169 && ip[1] == 254 )
-    return true;
-
-  return false;
-}
-
-bool UTIL_IsLocalIP( BYTEARRAY &ip, vector<BYTEARRAY> &localIPs )
-{
-  if ( ip.size( ) != 4 )
-    return false;
-
-  for ( vector<BYTEARRAY> ::iterator i = localIPs.begin( ); i != localIPs.end( ); ++i )
-  {
-    if ( ( *i ).size( ) != 4 )
-      continue;
-
-    if ( ip[0] == ( *i )[0] && ip[1] == ( *i )[1] && ip[2] == ( *i )[2] && ip[3] == ( *i )[3] )
-      return true;
-  }
-
-  return false;
-}
-
 void UTIL_Replace( string &Text, const string &Key, const string &Value )
 {
   // don't allow any infinite loops
@@ -651,14 +591,4 @@ vector<string> UTIL_Tokenize( const string &s, char delim )
     Tokens.push_back( Token );
 
   return Tokens;
-}
-
-uint32_t UTIL_Factorial( uint32_t x )
-{
-  uint32_t Factorial = 1;
-
-  for ( uint32_t i = 2; i <= x; ++i )
-    Factorial *= i;
-
-  return Factorial;
 }
