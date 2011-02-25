@@ -86,17 +86,6 @@ CBNET::~CBNET( )
   delete m_Socket;
   delete m_Protocol;
   delete m_BNCSUtil;
-
-  for ( vector<CIncomingFriendList *> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-    delete *i;
-
-  for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
-    delete *i;
-}
-
-BYTEARRAY CBNET::GetUniqueName( )
-{
-  return m_Protocol->GetUniqueName( );
 }
 
 unsigned int CBNET::SetFD( void *fd, void *send_fd, int *nfds )
@@ -146,8 +135,6 @@ bool CBNET::Update( void *fd, void *send_fd )
 
     CIncomingGameHost *GameHost = NULL;
     CIncomingChatEvent *ChatEvent = NULL;
-    vector<CIncomingFriendList *> Friends;
-    vector<CIncomingClanList *> Clans;
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -161,237 +148,224 @@ bool CBNET::Update( void *fd, void *send_fd )
 
         uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
-        if ( Length >= 4 )
+        if ( Bytes.size( ) >= Length )
         {
-          if ( Bytes.size( ) >= Length )
+          // m_Packets.push( new CCommandPacket( BNET_HEADER_CONSTANT, Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
+
+          switch ( Bytes[1] )
           {
-            // m_Packets.push( new CCommandPacket( BNET_HEADER_CONSTANT, Bytes[1], BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) );
+            case CBNETProtocol::SID_NULL:
+              // warning: we do not respond to NULL packets with a NULL packet of our own
+              // this is because PVPGN servers are programmed to respond to NULL packets so it will create a vicious cycle of useless traffic
+              // official battle.net servers do not respond to NULL packets
 
-            switch ( Bytes[1] )
-            {
-              case CBNETProtocol::SID_NULL:
-                // warning: we do not respond to NULL packets with a NULL packet of our own
-                // this is because PVPGN servers are programmed to respond to NULL packets so it will create a vicious cycle of useless traffic
-                // official battle.net servers do not respond to NULL packets
+              m_Protocol->RECEIVE_SID_NULL( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+              break;
 
-                m_Protocol->RECEIVE_SID_NULL( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-                break;
+            case CBNETProtocol::SID_GETADVLISTEX:
+              GameHost = m_Protocol->RECEIVE_SID_GETADVLISTEX( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
 
-              case CBNETProtocol::SID_GETADVLISTEX:
-                GameHost = m_Protocol->RECEIVE_SID_GETADVLISTEX( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+              if ( GameHost )
+                Print( "[BNET: " + m_ServerAlias + "] joining game [" + GameHost->GetGameName( ) + "]" );
 
-                if ( GameHost )
-                  Print( "[BNET: " + m_ServerAlias + "] joining game [" + GameHost->GetGameName( ) + "]" );
+              delete GameHost;
+              GameHost = NULL;
+              break;
 
-                delete GameHost;
-                GameHost = NULL;
-                break;
+            case CBNETProtocol::SID_ENTERCHAT:
+              if ( m_Protocol->RECEIVE_SID_ENTERCHAT( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              {
+                Print( "[BNET: " + m_ServerAlias + "] joining channel [" + m_FirstChannel + "]" );
+                m_InChat = true;
+                m_Socket->PutBytes( m_Protocol->SEND_SID_JOINCHANNEL( m_FirstChannel ) );
+              }
 
-              case CBNETProtocol::SID_ENTERCHAT:
-                if ( m_Protocol->RECEIVE_SID_ENTERCHAT( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              break;
+
+            case CBNETProtocol::SID_CHATEVENT:
+              ChatEvent = m_Protocol->RECEIVE_SID_CHATEVENT( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+
+              if ( ChatEvent )
+                ProcessChatEvent( ChatEvent );
+
+              delete ChatEvent;
+              ChatEvent = NULL;
+              break;
+
+            case CBNETProtocol::SID_CHECKAD:
+              m_Protocol->RECEIVE_SID_CHECKAD( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+              break;
+
+            case CBNETProtocol::SID_STARTADVEX3:
+              if ( m_Protocol->RECEIVE_SID_STARTADVEX3( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              {
+                m_InChat = false;
+              }
+              else
+              {
+                Print( "[BNET: " + m_ServerAlias + "] startadvex3 failed" );
+                m_Aura->EventBNETGameRefreshFailed( this );
+              }
+
+              break;
+
+            case CBNETProtocol::SID_PING:
+              m_Socket->PutBytes( m_Protocol->SEND_SID_PING( m_Protocol->RECEIVE_SID_PING( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) ) );
+              break;
+
+            case CBNETProtocol::SID_AUTH_INFO:
+              if ( m_Protocol->RECEIVE_SID_AUTH_INFO( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              {
+                if ( m_BNCSUtil->HELP_SID_AUTH_CHECK( m_Aura->m_Warcraft3Path, m_CDKeyROC, m_CDKeyTFT, m_Protocol->GetValueStringFormulaString( ), m_Protocol->GetIX86VerFileNameString( ), m_Protocol->GetClientToken( ), m_Protocol->GetServerToken( ) ) )
                 {
-                  Print( "[BNET: " + m_ServerAlias + "] joining channel [" + m_FirstChannel + "]" );
-                  m_InChat = true;
-                  m_Socket->PutBytes( m_Protocol->SEND_SID_JOINCHANNEL( m_FirstChannel ) );
-                }
+                  // override the exe information generated by bncsutil if specified in the config file
+                  // apparently this is useful for pvpgn users
 
-                break;
+                  if ( m_EXEVersion.size( ) == 4 )
+                  {
+                    Print( "[BNET: " + m_ServerAlias + "] using custom exe version bnet_custom_exeversion = " + UTIL_ToString( m_EXEVersion[0] ) + " " + UTIL_ToString( m_EXEVersion[1] ) + " " + UTIL_ToString( m_EXEVersion[2] ) + " " + UTIL_ToString( m_EXEVersion[3] ) );
+                    m_BNCSUtil->SetEXEVersion( m_EXEVersion );
+                  }
 
-              case CBNETProtocol::SID_CHATEVENT:
-                ChatEvent = m_Protocol->RECEIVE_SID_CHATEVENT( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+                  if ( m_EXEVersionHash.size( ) == 4 )
+                  {
+                    Print( "[BNET: " + m_ServerAlias + "] using custom exe version hash bnet_custom_exeversionhash = " + UTIL_ToString( m_EXEVersionHash[0] ) + " " + UTIL_ToString( m_EXEVersionHash[1] ) + " " + UTIL_ToString( m_EXEVersionHash[2] ) + " " + UTIL_ToString( m_EXEVersionHash[3] ) );
+                    m_BNCSUtil->SetEXEVersionHash( m_EXEVersionHash );
+                  }
 
-                if ( ChatEvent )
-                  ProcessChatEvent( ChatEvent );
+                  Print( "[BNET: " + m_ServerAlias + "] attempting to auth as Warcraft III: The Frozen Throne" );
 
-                delete ChatEvent;
-                ChatEvent = NULL;
-                break;
+                  m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_CHECK( m_Protocol->GetClientToken( ), m_BNCSUtil->GetEXEVersion( ), m_BNCSUtil->GetEXEVersionHash( ), m_BNCSUtil->GetKeyInfoROC( ), m_BNCSUtil->GetKeyInfoTFT( ), m_BNCSUtil->GetEXEInfo( ), "Aura" ) );
 
-              case CBNETProtocol::SID_CHECKAD:
-                m_Protocol->RECEIVE_SID_CHECKAD( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-                break;
-
-              case CBNETProtocol::SID_STARTADVEX3:
-                if ( m_Protocol->RECEIVE_SID_STARTADVEX3( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
-                {
-                  m_InChat = false;
                 }
                 else
                 {
-                  Print( "[BNET: " + m_ServerAlias + "] startadvex3 failed" );
-                  m_Aura->EventBNETGameRefreshFailed( this );
-                }
-
-                break;
-
-              case CBNETProtocol::SID_PING:
-                m_Socket->PutBytes( m_Protocol->SEND_SID_PING( m_Protocol->RECEIVE_SID_PING( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) ) );
-                break;
-
-              case CBNETProtocol::SID_AUTH_INFO:
-                if ( m_Protocol->RECEIVE_SID_AUTH_INFO( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
-                {
-                  if ( m_BNCSUtil->HELP_SID_AUTH_CHECK( m_Aura->m_Warcraft3Path, m_CDKeyROC, m_CDKeyTFT, m_Protocol->GetValueStringFormulaString( ), m_Protocol->GetIX86VerFileNameString( ), m_Protocol->GetClientToken( ), m_Protocol->GetServerToken( ) ) )
-                  {
-                    // override the exe information generated by bncsutil if specified in the config file
-                    // apparently this is useful for pvpgn users
-
-                    if ( m_EXEVersion.size( ) == 4 )
-                    {
-                      Print( "[BNET: " + m_ServerAlias + "] using custom exe version bnet_custom_exeversion = " + UTIL_ToString( m_EXEVersion[0] ) + " " + UTIL_ToString( m_EXEVersion[1] ) + " " + UTIL_ToString( m_EXEVersion[2] ) + " " + UTIL_ToString( m_EXEVersion[3] ) );
-                      m_BNCSUtil->SetEXEVersion( m_EXEVersion );
-                    }
-
-                    if ( m_EXEVersionHash.size( ) == 4 )
-                    {
-                      Print( "[BNET: " + m_ServerAlias + "] using custom exe version hash bnet_custom_exeversionhash = " + UTIL_ToString( m_EXEVersionHash[0] ) + " " + UTIL_ToString( m_EXEVersionHash[1] ) + " " + UTIL_ToString( m_EXEVersionHash[2] ) + " " + UTIL_ToString( m_EXEVersionHash[3] ) );
-                      m_BNCSUtil->SetEXEVersionHash( m_EXEVersionHash );
-                    }
-
-                    Print( "[BNET: " + m_ServerAlias + "] attempting to auth as Warcraft III: The Frozen Throne" );
-
-                    m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_CHECK( m_Protocol->GetClientToken( ), m_BNCSUtil->GetEXEVersion( ), m_BNCSUtil->GetEXEVersionHash( ), m_BNCSUtil->GetKeyInfoROC( ), m_BNCSUtil->GetKeyInfoTFT( ), m_BNCSUtil->GetEXEInfo( ), "Aura" ) );
-
-                  }
-                  else
-                  {
-                    Print( "[BNET: " + m_ServerAlias + "] logon failed - bncsutil key hash failed (check your Warcraft 3 path and cd keys), disconnecting" );
-                    m_Socket->Disconnect( );
-                  }
-                }
-
-                break;
-
-              case CBNETProtocol::SID_AUTH_CHECK:
-                if ( m_Protocol->RECEIVE_SID_AUTH_CHECK( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
-                {
-                  // cd keys accepted
-
-                  Print( "[BNET: " + m_ServerAlias + "] cd keys accepted" );
-                  m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGON( );
-                  m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGON( m_BNCSUtil->GetClientKey( ), m_UserName ) );
-                }
-                else
-                {
-                  // cd keys not accepted
-
-                  switch ( UTIL_ByteArrayToUInt32( m_Protocol->GetKeyState( ), false ) )
-                  {
-                    case CBNETProtocol::KR_ROC_KEY_IN_USE:
-                      Print( "[BNET: " + m_ServerAlias + "] logon failed - ROC CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
-                      break;
-                    case CBNETProtocol::KR_TFT_KEY_IN_USE:
-                      Print( "[BNET: " + m_ServerAlias + "] logon failed - TFT CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
-                      break;
-                    case CBNETProtocol::KR_OLD_GAME_VERSION:
-                      Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is too old, disconnecting" );
-                      break;
-                    case CBNETProtocol::KR_INVALID_VERSION:
-                      Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is invalid, disconnecting" );
-                      break;
-                    default:
-                      Print( "[BNET: " + m_ServerAlias + "] logon failed - cd keys not accepted, disconnecting" );
-                      break;
-                  }
-
+                  Print( "[BNET: " + m_ServerAlias + "] logon failed - bncsutil key hash failed (check your Warcraft 3 path and cd keys), disconnecting" );
                   m_Socket->Disconnect( );
                 }
+              }
 
-                break;
+              break;
 
-              case CBNETProtocol::SID_AUTH_ACCOUNTLOGON:
-                if ( m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGON( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+            case CBNETProtocol::SID_AUTH_CHECK:
+              if ( m_Protocol->RECEIVE_SID_AUTH_CHECK( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              {
+                // cd keys accepted
+
+                Print( "[BNET: " + m_ServerAlias + "] cd keys accepted" );
+                m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGON( );
+                m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGON( m_BNCSUtil->GetClientKey( ), m_UserName ) );
+              }
+              else
+              {
+                // cd keys not accepted
+
+                switch ( UTIL_ByteArrayToUInt32( m_Protocol->GetKeyState( ), false ) )
                 {
-                  Print( "[BNET: " + m_ServerAlias + "] username [" + m_UserName + "] accepted" );
+                  case CBNETProtocol::KR_ROC_KEY_IN_USE:
+                    Print( "[BNET: " + m_ServerAlias + "] logon failed - ROC CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
+                    break;
+                  case CBNETProtocol::KR_TFT_KEY_IN_USE:
+                    Print( "[BNET: " + m_ServerAlias + "] logon failed - TFT CD key in use by user [" + m_Protocol->GetKeyStateDescription( ) + "], disconnecting" );
+                    break;
+                  case CBNETProtocol::KR_OLD_GAME_VERSION:
+                    Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is too old, disconnecting" );
+                    break;
+                  case CBNETProtocol::KR_INVALID_VERSION:
+                    Print( "[BNET: " + m_ServerAlias + "] logon failed - game version is invalid, disconnecting" );
+                    break;
+                  default:
+                    Print( "[BNET: " + m_ServerAlias + "] logon failed - cd keys not accepted, disconnecting" );
+                    break;
+                }
 
-                  if ( m_PasswordHashType == "pvpgn" )
-                  {
-                    // pvpgn logon
+                m_Socket->Disconnect( );
+              }
 
-                    Print( "[BNET: " + m_ServerAlias + "] using pvpgn logon type (for pvpgn servers only)" );
-                    m_BNCSUtil->HELP_PvPGNPasswordHash( m_UserPassword );
-                    m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF( m_BNCSUtil->GetPvPGNPasswordHash( ) ) );
-                  }
-                  else
-                  {
-                    // battle.net logon
+              break;
 
-                    Print( "[BNET: " + m_ServerAlias + "] using battle.net logon type (for official battle.net servers only)" );
-                    m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGONPROOF( m_Protocol->GetSalt( ), m_Protocol->GetServerPublicKey( ) );
-                    m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF( m_BNCSUtil->GetM1( ) ) );
-                  }
+            case CBNETProtocol::SID_AUTH_ACCOUNTLOGON:
+              if ( m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGON( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              {
+                Print( "[BNET: " + m_ServerAlias + "] username [" + m_UserName + "] accepted" );
+
+                if ( m_PasswordHashType == "pvpgn" )
+                {
+                  // pvpgn logon
+
+                  Print( "[BNET: " + m_ServerAlias + "] using pvpgn logon type (for pvpgn servers only)" );
+                  m_BNCSUtil->HELP_PvPGNPasswordHash( m_UserPassword );
+                  m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF( m_BNCSUtil->GetPvPGNPasswordHash( ) ) );
                 }
                 else
                 {
-                  Print( "[BNET: " + m_ServerAlias + "] logon failed - invalid username, disconnecting" );
-                  m_Socket->Disconnect( );
+                  // battle.net logon
+
+                  Print( "[BNET: " + m_ServerAlias + "] using battle.net logon type (for official battle.net servers only)" );
+                  m_BNCSUtil->HELP_SID_AUTH_ACCOUNTLOGONPROOF( m_Protocol->GetSalt( ), m_Protocol->GetServerPublicKey( ) );
+                  m_Socket->PutBytes( m_Protocol->SEND_SID_AUTH_ACCOUNTLOGONPROOF( m_BNCSUtil->GetM1( ) ) );
                 }
+              }
+              else
+              {
+                Print( "[BNET: " + m_ServerAlias + "] logon failed - invalid username, disconnecting" );
+                m_Socket->Disconnect( );
+              }
 
-                break;
+              break;
 
-              case CBNETProtocol::SID_AUTH_ACCOUNTLOGONPROOF:
-                if ( m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
-                {
-                  // logon successful
+            case CBNETProtocol::SID_AUTH_ACCOUNTLOGONPROOF:
+              if ( m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) ) )
+              {
+                // logon successful
 
-                  Print( "[BNET: " + m_ServerAlias + "] logon successful" );
-                  m_LoggedIn = true;
-                  m_Socket->PutBytes( m_Protocol->SEND_SID_NETGAMEPORT( m_Aura->m_HostPort ) );
-                  m_Socket->PutBytes( m_Protocol->SEND_SID_ENTERCHAT( ) );
-                  m_Socket->PutBytes( m_Protocol->SEND_SID_FRIENDSLIST( ) );
-                  m_Socket->PutBytes( m_Protocol->SEND_SID_CLANMEMBERLIST( ) );
-                }
-                else
-                {
-                  Print( "[BNET: " + m_ServerAlias + "] logon failed - invalid password, disconnecting" );
+                Print( "[BNET: " + m_ServerAlias + "] logon successful" );
+                m_LoggedIn = true;
+                m_Socket->PutBytes( m_Protocol->SEND_SID_NETGAMEPORT( m_Aura->m_HostPort ) );
+                m_Socket->PutBytes( m_Protocol->SEND_SID_ENTERCHAT( ) );
+                m_Socket->PutBytes( m_Protocol->SEND_SID_FRIENDSLIST( ) );
+                m_Socket->PutBytes( m_Protocol->SEND_SID_CLANMEMBERLIST( ) );
+              }
+              else
+              {
+                Print( "[BNET: " + m_ServerAlias + "] logon failed - invalid password, disconnecting" );
 
-                  // try to figure out if the user might be using the wrong logon type since too many people are confused by this
+                // try to figure out if the user might be using the wrong logon type since too many people are confused by this
 
-                  string Server = m_Server;
-                  transform( Server.begin( ), Server.end( ), Server.begin( ), (int(* )(int) )tolower );
+                string Server = m_Server;
+                transform( Server.begin( ), Server.end( ), Server.begin( ), (int(* )(int) )tolower );
 
-                  if ( m_PvPGN && ( Server == "useast.battle.net" || Server == "uswest.battle.net" || Server == "asia.battle.net" || Server == "europe.battle.net" ) )
-                    Print( "[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section" );
-                  else if ( !m_PvPGN && ( Server != "useast.battle.net" && Server != "uswest.battle.net" && Server != "asia.battle.net" && Server != "europe.battle.net" ) )
-                    Print( "[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's \"battle.net custom data\" section" );
+                if ( m_PvPGN && ( Server == "useast.battle.net" || Server == "uswest.battle.net" || Server == "asia.battle.net" || Server == "europe.battle.net" ) )
+                  Print( "[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section" );
+                else if ( !m_PvPGN && ( Server != "useast.battle.net" && Server != "uswest.battle.net" && Server != "asia.battle.net" && Server != "europe.battle.net" ) )
+                  Print( "[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's \"battle.net custom data\" section" );
 
-                  m_Socket->Disconnect( );
-                }
+                m_Socket->Disconnect( );
+              }
 
-                break;
+              break;
 
-              case CBNETProtocol::SID_FRIENDSLIST:
-                Friends = m_Protocol->RECEIVE_SID_FRIENDSLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+            case CBNETProtocol::SID_FRIENDSLIST:
+              m_Friends = m_Protocol->RECEIVE_SID_FRIENDSLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+              break;
 
-                for ( vector<CIncomingFriendList *> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-                  delete *i;
-
-                m_Friends = Friends;
-                break;
-
-              case CBNETProtocol::SID_CLANMEMBERLIST:
-                Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
-
-                for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
-                  delete *i;
-
-                m_Clans = Clans;
-                break;
-            }
-
-            *RecvBuffer = RecvBuffer->substr( Length );
-            Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
+            case CBNETProtocol::SID_CLANMEMBERLIST:
+              m_Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY( Bytes.begin( ), Bytes.begin( ) + Length ) );
+              break;
           }
-          else
-            break;
+
+          *RecvBuffer = RecvBuffer->substr( Length );
+          Bytes = BYTEARRAY( Bytes.begin( ) + Length, Bytes.end( ) );
         }
+        else
+          break;
       }
     }
 
     // check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
     // this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.5 seconds if it was "medium", and 4 seconds if it was "big"
 
-    uint32_t WaitTicks = 0;
+    uint32_t WaitTicks;
 
     if ( m_LastOutPacketSize < 10 )
       WaitTicks = 1150;
@@ -547,7 +521,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
   {
     // extract the irc channel
     
-    string::size_type MessageStart = Message.find( ' ' ); 
+    string::size_type MessageStart = Message.find( " " );
     
     m_IRC = Message.substr( 0, MessageStart );
     Message = Message.substr( MessageStart + 1 );
@@ -570,7 +544,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
       // e.g. "!say hello world" -> command: "say", payload: "hello world"
 
       string Command, Payload;
-      string::size_type PayloadStart = Message.find( ' ' );
+      string::size_type PayloadStart = Message.find( " " );
 
       if ( PayloadStart != string::npos )
       {
@@ -668,9 +642,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                   QueueChatCommand( m_Aura->m_Language->FoundMaps( FoundMaps ), User, Whisper, m_IRC );
               }
             }
-            catch ( const exception &ex )
+            catch ( const exception &e )
             {
-              Print( "[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + ex.what( ) + "]" );
+              Print( "[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + e.what( ) + "]" );
               QueueChatCommand( m_Aura->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
             }
           }
@@ -803,9 +777,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                   QueueChatCommand( m_Aura->m_Language->FoundMapConfigs( FoundMapConfigs ), User, Whisper, m_IRC );
               }
             }
-            catch ( const exception &ex )
+            catch ( const exception &e )
             {
-              Print( "[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + ex.what( ) + "]" );
+              Print( "[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + e.what( ) + "]" );
               QueueChatCommand( m_Aura->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
             }
           }
@@ -1066,7 +1040,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( Command == "end" && !Payload.empty( ) )
         {
-          // todotodo: what if a game ends just as you're typing this command and the numbering changes?
+          // TODO: what if a game ends just as you're typing this command and the numbering changes?
 
           uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
@@ -1264,8 +1238,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           // extract the owner and the game name
           // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
 
-          string Owner;
-          string GameName;
+          string Owner, GameName;
           string::size_type GameNameStart = Payload.find( " " );
 
           if ( GameNameStart != string::npos )
@@ -1285,8 +1258,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           // extract the owner and the game name
           // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
 
-          string Owner;
-          string GameName;
+          string Owner, GameName;
           string::size_type GameNameStart = Payload.find( " " );
 
           if ( GameNameStart != string::npos )
@@ -1717,7 +1689,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         // !STATUS
         //
 
-        else if ( Command == "status" && m_Aura->m_BNETs.size( ) )
+        else if ( Command == "status" )
         {
           string message = "Status: ";
 
@@ -1910,7 +1882,7 @@ void CBNET::QueueChatCommand( const string &chatCommand, const string &user, boo
     QueueChatCommand( chatCommand );
 }
 
-void CBNET::QueueGameCreate( unsigned char state, const string &gameName, const string &hostName, CMap *map, uint32_t hostCounter )
+void CBNET::QueueGameCreate( unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter )
 {
   if ( m_LoggedIn && map )
   {
@@ -1921,20 +1893,16 @@ void CBNET::QueueGameCreate( unsigned char state, const string &gameName, const 
 
     // a game creation message is just a game refresh message with upTime = 0
 
-    QueueGameRefresh( state, gameName, hostName, map, hostCounter );
+    QueueGameRefresh( state, gameName, map, hostCounter );
   }
 }
 
-void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, string hostName, CMap *map, uint32_t hostCounter )
+void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter )
 {
-  if ( hostName.empty( ) )
-  {
-    BYTEARRAY UniqueName = m_Protocol->GetUniqueName( );
-    hostName = string( UniqueName.begin( ), UniqueName.end( ) );
-  }
-
   if ( m_LoggedIn && map )
   {
+    BYTEARRAY UniqueName = m_Protocol->GetUniqueName( );
+
     // construct a fixed host counter which will be used to identify players from this realm
     // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
     // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
@@ -1947,22 +1915,8 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, strin
 
     if ( state == GAME_PRIVATE )
       MapGameType |= MAPGAMETYPE_PRIVATEGAME;
-
-    if ( m_Aura->m_Reconnect )
-    {
-      // use an invalid map width/height to indicate reconnectable games
-
-      BYTEARRAY MapWidth;
-      MapWidth.push_back( 192 );
-      MapWidth.push_back( 7 );
-      BYTEARRAY MapHeight;
-      MapHeight.push_back( 192 );
-      MapHeight.push_back( 7 );
-
-      m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), MapWidth, MapHeight, gameName, hostName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
-    }
-    else
-      m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, hostName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
+    
+    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, string( UniqueName.begin( ), UniqueName.end( ) ), 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
   }
 }
 
@@ -1978,7 +1932,7 @@ void CBNET::UnqueueGameRefreshes( )
 
   while ( !m_OutPackets.empty( ) )
   {
-    // todotodo: it's very inefficient to have to copy all these packets while searching the queue
+    // TODO: it's very inefficient to have to copy all these packets while searching the queue
 
     BYTEARRAY Packet = m_OutPackets.front( );
     m_OutPackets.pop( );
@@ -2023,18 +1977,12 @@ CDBBan *CBNET::IsBannedName( string name )
 
 void CBNET::HoldFriends( CGame *game )
 {
-  if ( game )
-  {
-    for ( vector<CIncomingFriendList *> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-      game->AddToReserved( ( *i )->GetAccount( ) );
-  }
+  for ( vector<string> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
+    game->AddToReserved( *i  );
 }
 
 void CBNET::HoldClan( CGame *game )
 {
-  if ( game )
-  {
-    for ( vector<CIncomingClanList *> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
-      game->AddToReserved( ( *i )->GetName( ) );
-  }
+  for ( vector<string> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
+    game->AddToReserved( *i );
 }

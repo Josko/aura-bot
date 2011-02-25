@@ -42,7 +42,6 @@
 #define PLAYERLEAVE_DRAW           10
 #define PLAYERLEAVE_OBSERVER       11
 #define PLAYERLEAVE_LOBBY          13
-#define PLAYERLEAVE_GPROXY        100
 
 #define REJECTJOIN_FULL             9
 #define REJECTJOIN_STARTED         10
@@ -134,7 +133,6 @@ public:
   BYTEARRAY SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, string message );
   BYTEARRAY SEND_W3GS_START_LAG( vector<CGamePlayer *> players );
   BYTEARRAY SEND_W3GS_STOP_LAG( CGamePlayer *player );
-  BYTEARRAY SEND_W3GS_SEARCHGAME( unsigned char war3Version );
   BYTEARRAY SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey );
   BYTEARRAY SEND_W3GS_CREATEGAME( unsigned char war3Version );
   BYTEARRAY SEND_W3GS_REFRESHGAME( uint32_t players, uint32_t playerSlots );
@@ -146,7 +144,7 @@ public:
   // other functions
 
 private:
-  bool AssignLength( BYTEARRAY &content );
+  void AssignLength( BYTEARRAY &content );
   bool ValidateLength( BYTEARRAY &content );
   BYTEARRAY EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots );
 };

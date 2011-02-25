@@ -31,7 +31,6 @@
 #include "map.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
-#include "gpsprotocol.h"
 #include "game.h"
 #include "irc.h"
 
@@ -240,7 +239,6 @@ int main( )
 
   Print( "[AURA] shutting down" );
   delete gAura;
-  gAura = NULL;
 
 #ifdef WIN32
   // shutdown winsock
@@ -271,20 +269,17 @@ int main( )
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.04" ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.05" ), m_HostCounter( 1 ), m_Ready( true )
 {
   // get the general configuration variables
 
   m_UDPSocket = new CUDPSocket( );
   m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
   m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
-  m_GPSProtocol = new CGPSProtocol( );
   m_CRC = new CCRC32( );
   m_CRC->Initialize( );
   m_SHA = new CSHA1( );
   m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
-  m_Reconnect = CFG->GetInt( "bot_reconnect", 1 ) == 0 ? false : true;
-  m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
   m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
   m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
 
@@ -297,7 +292,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
 
   SetConfigs( CFG );
 
-  // get irc configuration
+  // get the irc configuration
 
   string IRC_Server = CFG->GetString( "irc_server", string( ) );
   string IRC_NickName = CFG->GetString( "irc_nickname", string( ) );
@@ -418,18 +413,12 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_ReconnectSocket( NULL ), m_Curre
 
   LoadIPToCountryData( );
 
-  Print( "[AURA] Aura++ Version " + m_Version );
+  Print( "[AURA] Aura++ Version " + m_Version + " - without GProxy++ support " );
 }
 
 CAura::~CAura( )
 {
   delete m_UDPSocket;
-  delete m_ReconnectSocket;
-
-  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
-    delete *i;
-
-  delete m_GPSProtocol;
   delete m_CRC;
   delete m_SHA;
 
@@ -448,34 +437,7 @@ CAura::~CAura( )
 }
 
 bool CAura::Update( )
-{
-  // create the GProxy++ reconnect listener
-
-  if ( m_Reconnect )
-  {
-    if ( !m_ReconnectSocket )
-    {
-      m_ReconnectSocket = new CTCPServer( );
-
-      if ( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
-        Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
-      else
-      {
-        Print( "[AURA] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
-        delete m_ReconnectSocket;
-        m_ReconnectSocket = NULL;
-        m_Reconnect = false;
-      }
-    }
-    else if ( m_ReconnectSocket->HasError( ) )
-    {
-      Print( "[AURA] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" );
-      delete m_ReconnectSocket;
-      m_ReconnectSocket = NULL;
-      m_Reconnect = false;
-    }
-  }
-
+{  
   unsigned int NumFDs = 0;
 
   // take every socket we own and throw it in one giant select statement so we can block on all sockets
@@ -502,21 +464,7 @@ bool CAura::Update( )
 
   // 4. irc socket
 
-  NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );
-
-  // 5. the GProxy++ reconnect socket(s)
-
-  if ( m_Reconnect && m_ReconnectSocket )
-  {
-    m_ReconnectSocket->SetFD( &fd, &send_fd, &nfds );
-    ++NumFDs;
-  }
-
-  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
-  {
-    ( *i )->SetFD( &fd, &send_fd, &nfds );
-    ++NumFDs;
-  }
+  NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );  
 
   // before we call select we need to determine how long to block for
   // 50 ms is the hard maximum
@@ -604,119 +552,7 @@ bool CAura::Update( )
   // update irc
 
   if ( m_IRC->Update( &fd, &send_fd ) )
-    Exit = true;
-
-  // update GProxy++ reliable reconnect sockets
-
-  if ( m_Reconnect && m_ReconnectSocket )
-  {
-    CTCPSocket *NewSocket = m_ReconnectSocket->Accept( &fd );
-
-    if ( NewSocket )
-      m_ReconnectSockets.push_back( NewSocket );
-  }
-
-  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
-  {
-    if ( ( *i )->HasError( ) || !( *i )->GetConnected( ) || GetTime( ) - ( *i )->GetLastRecv( ) >= 12 )
-    {
-      delete *i;
-      i = m_ReconnectSockets.erase( i );
-      continue;
-    }
-
-    ( *i )->DoRecv( &fd );
-    string *RecvBuffer = ( *i )->GetBytes( );
-    BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
-
-    // a packet is at least 4 bytes
-
-    if ( Bytes.size( ) >= 4 )
-    {
-      if ( Bytes[0] == GPS_HEADER_CONSTANT )
-      {
-        // bytes 2 and 3 contain the length of the packet
-
-        uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
-
-        if ( Length >= 4 )
-        {
-          if ( Bytes.size( ) >= Length )
-          {
-            if ( Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13 )
-            {
-              unsigned char PID = Bytes[4];
-              uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
-              uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
-
-              // look for a matching player in a running game
-
-              CGamePlayer *Match = NULL;
-
-              for ( vector<CGame *> ::iterator j = m_Games.begin( ); j != m_Games.end( ); ++j )
-              {
-                if ( ( *j )->GetGameLoaded( ) )
-                {
-                  CGamePlayer *Player = ( *j )->GetPlayerFromPID( PID );
-
-                  if ( Player && Player->GetGProxy( ) && Player->GetGProxyReconnectKey( ) == ReconnectKey )
-                  {
-                    Match = Player;
-                    break;
-                  }
-                }
-              }
-
-              if ( Match )
-              {
-                // reconnect successful!
-
-                *RecvBuffer = RecvBuffer->substr( Length );
-                Match->EventGProxyReconnect( *i, LastPacket );
-                i = m_ReconnectSockets.erase( i );
-                continue;
-              }
-              else
-              {
-                ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
-                ( *i )->DoSend( &send_fd );
-                delete *i;
-                i = m_ReconnectSockets.erase( i );
-                continue;
-              }
-            }
-            else
-            {
-              ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
-              ( *i )->DoSend( &send_fd );
-              delete *i;
-              i = m_ReconnectSockets.erase( i );
-              continue;
-            }
-          }
-        }
-        else
-        {
-          ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
-          ( *i )->DoSend( &send_fd );
-          delete *i;
-          i = m_ReconnectSockets.erase( i );
-          continue;
-        }
-      }
-      else
-      {
-        ( *i )->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
-        ( *i )->DoSend( &send_fd );
-        delete *i;
-        i = m_ReconnectSockets.erase( i );
-        continue;
-      }
-    }
-
-    ( *i )->DoSend( &send_fd );
-    ++i;
-  }
+    Exit = true;  
 
   return m_Exiting || Exit;
 }
@@ -768,7 +604,6 @@ void CAura::SetConfigs( CConfig *CFG )
   m_Language = new CLanguage( m_LanguageFile );
   m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
   m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
-  m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
   m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
   string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
   m_CommandTrigger = BotCommandTrigger[0];
@@ -1015,7 +850,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
         ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
     }
 
-    ( *i )->QueueGameCreate( gameState, gameName, string( ), map, m_CurrentGame->GetHostCounter( ) );
+    ( *i )->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
   }
 
   // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately

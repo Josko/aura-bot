@@ -18,8 +18,8 @@
 
  */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef UTIL_H_
+#define UTIL_H_
 
 // byte arrays
 
@@ -64,11 +64,10 @@ string UTIL_MSToString( uint32_t ms );
 // files
 
 bool UTIL_FileExists( string &file );
-string UTIL_FileRead( string file, uint32_t start, uint32_t length );
-string UTIL_FileRead( string file );
-bool UTIL_FileWrite( string file, unsigned char *data, uint32_t length );
-string UTIL_FileSafeName( string fileName );
-string UTIL_AddPathSeperator( string path );
+string UTIL_FileRead( const string &file, uint32_t start, uint32_t length );
+string UTIL_FileRead( const string &file );
+bool UTIL_FileWrite( const string &file, unsigned char *data, uint32_t length );
+string UTIL_AddPathSeperator( const string &path );
 
 // stat strings
 
@@ -77,16 +76,7 @@ BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data );
 
 // other
 
-bool UTIL_IsLanIP( BYTEARRAY &ip );
-bool UTIL_IsLocalIP( BYTEARRAY &ip, vector<BYTEARRAY> &localIPs );
 void UTIL_Replace( string &Text, const string &Key, const string &Value );
 vector<string> UTIL_Tokenize( const string &s, char delim );
-
-// math
-
-uint32_t UTIL_Factorial( uint32_t x );
-
-#define nCr(n, r) (UTIL_Factorial(n) / UTIL_Factorial((n)-(r)) / UTIL_Factorial(r))
-#define nPr(n, r) (UTIL_Factorial(n) / UTIL_Factorial((n)-(r)))
 
 #endif

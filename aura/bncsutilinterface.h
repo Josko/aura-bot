@@ -18,8 +18,8 @@
 
  */
 
-#ifndef BNCSUTIL_INTERFACE_H
-#define BNCSUTIL_INTERFACE_H
+#ifndef BNCSUTIL_INTERFACE_H_
+#define BNCSUTIL_INTERFACE_H_
 
 //
 // CBNCSUtilInterface

@@ -63,26 +63,11 @@ public:
 // CGame
 //
 
-CGame::CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : m_Aura( nAura ), m_DBBanLast( NULL ), m_GameID( 0 ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GProxyEmptyActions( 0 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nAura->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nAura->m_HostCounter++ ), m_EntryKey( rand( ) ), m_Latency( nAura->m_Latency ), m_SyncLimit( nAura->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ), m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_Lagging( false ), m_Desynced( false )
+CGame::CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) : m_Aura( nAura ), m_DBBanLast( NULL ), m_GameID( 0 ), m_Slots( nMap->GetSlots( ) ), m_Exiting( false ), m_Saving( false ), m_HostPort( nHostPort ), m_GameState( nGameState ), m_VirtualHostPID( 255 ), m_GameName( nGameName ), m_LastGameName( nGameName ), m_VirtualHostName( nAura->m_VirtualHostName ), m_OwnerName( nOwnerName ), m_CreatorName( nCreatorName ), m_CreatorServer( nCreatorServer ), m_HCLCommandString( nMap->GetMapDefaultHCL( ) ), m_RandomSeed( GetTicks( ) ), m_HostCounter( nAura->m_HostCounter++ ), m_EntryKey( rand( ) ), m_Latency( nAura->m_Latency ), m_SyncLimit( nAura->m_SyncLimit ), m_SyncCounter( 0 ), m_GameTicks( 0 ), m_CreationTime( GetTime( ) ), m_LastPingTime( GetTime( ) ), m_LastRefreshTime( GetTime( ) ), m_LastDownloadTicks( GetTime( ) ), m_DownloadCounter( 0 ), m_LastDownloadCounterResetTicks( GetTicks( ) ), m_LastCountDownTicks( 0 ), m_CountDownCounter( 0 ), m_StartedLoadingTicks( 0 ), m_StartPlayers( 0 ), m_LastLagScreenResetTime( 0 ), m_LastActionSentTicks( 0 ), m_LastActionLateBy( 0 ), m_StartedLaggingTime( 0 ), m_LastLagScreenTime( 0 ), m_LastReservedSeen( GetTime( ) ), m_StartedKickVoteTime( 0 ), m_GameOverTime( 0 ), m_LastPlayerLeaveTicks( 0 ), m_SlotInfoChanged( false ), m_Locked( false ), m_RefreshError( false ), m_MuteAll( false ), m_MuteLobby( false ), m_CountDownStarted( false ), m_GameLoading( false ), m_GameLoaded( false ), m_Lagging( false ), m_Desynced( false )
 {
   m_Socket = new CTCPServer( );
   m_Protocol = new CGameProtocol( m_Aura );
   m_Map = new CMap( *nMap );
-  m_DBGame = new CDBGame( 0, string( ), m_Map->GetMapPath( ), string( ), string( ), string( ), 0 );
-
-  // wait time of 1 minute  = 0 empty actions required
-  // wait time of 2 minutes = 1 empty action required
-  // etc...
-
-  if ( m_Aura->m_ReconnectWaitTime )
-  {
-    m_GProxyEmptyActions = m_Aura->m_ReconnectWaitTime - 1;
-
-    // clamp to 9 empty actions (10 minutes)
-
-    if ( m_GProxyEmptyActions > 9 )
-      m_GProxyEmptyActions = 9;
-  }
 
   // start listening for connections
 
@@ -138,8 +123,6 @@ CGame::~CGame( )
 
   for ( vector<CDBBan *> ::iterator i = m_DBBans.begin( ); i != m_DBBans.end( ); ++i )
     delete *i;
-
-  delete m_DBGame;
 
   for ( vector<CDBGamePlayer *> ::iterator i = m_DBGamePlayers.begin( ); i != m_DBGamePlayers.end( ); ++i )
     delete *i;
@@ -277,7 +260,7 @@ bool CGame::Update( void *fd, void *send_fd )
   {
     // note: we must send pings to players who are downloading the map because Warcraft III disconnects from the lobby if it doesn't receive a ping every ~90 seconds
     // so if the player takes longer than 90 seconds to download the map they would be disconnected unless we keep sending pings
-    // todotodo: ignore pings received from players who have recently finished downloading the map
+    // TODO: ignore pings received from players who have recently finished downloading the map
 
     SendAll( m_Protocol->SEND_W3GS_PING_FROM_HOST( ) );
 
@@ -392,29 +375,12 @@ bool CGame::Update( void *fd, void *send_fd )
 
     if ( m_Lagging )
     {
-      bool UsingGProxy = false;
-
-      for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-      {
-        if ( ( *i )->GetGProxy( ) )
-        {
-          UsingGProxy = true;
-          break;
-        }
-      }
-
-      uint32_t WaitTime = 60;
-
-      if ( UsingGProxy )
-        WaitTime = ( m_GProxyEmptyActions + 1 ) * 60;
-
-      if ( Time - m_StartedLaggingTime >= WaitTime )
-        StopLaggers( m_Aura->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( WaitTime ) ) );
+      if ( Time - m_StartedLaggingTime >= 60 )
+        StopLaggers( m_Aura->m_Language->WasAutomaticallyDroppedAfterSeconds( UTIL_ToString( 60 ) ) );
 
       // we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
       // one (easy) solution is to simply drop all the laggers if they lag for more than 60 seconds
       // another solution is to reset the lag screen the same way we reset it when using load-in-game
-      // this is required in order to give GProxy++ clients more time to reconnect
 
       if ( Time - m_LastLagScreenResetTime >= 60 )
       {
@@ -429,17 +395,7 @@ bool CGame::Update( void *fd, void *send_fd )
           }
 
           // send an empty update
-          // this resets the lag screen timer
-
-          if ( UsingGProxy && !( *i )->GetGProxy( ) )
-          {
-            // we must send additional empty actions to non-GProxy++ players
-            // GProxy++ will insert these itself so we don't need to send them to GProxy++ players
-            // empty actions are used to extend the time a player can use when reconnecting
-
-            for ( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
-              Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-          }
+          // this resets the lag screen timer       
 
           Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
 
@@ -449,7 +405,6 @@ bool CGame::Update( void *fd, void *send_fd )
         }
 
         // Warcraft III doesn't seem to respond to empty actions
-
 
         m_LastLagScreenResetTime = Time;
       }
@@ -513,7 +468,9 @@ bool CGame::Update( void *fd, void *send_fd )
 
       m_Saving = true;
 
-      m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), m_DBGame->GetMap( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
+      // TODO: pass the real map path
+
+      m_GameID = m_Aura->m_DB->GameAdd( m_Aura->m_BNETs.size( ) == 1 ? m_Aura->m_BNETs[0]->GetServer( ) : string( ), string( ), m_GameName, m_OwnerName, m_GameTicks / 1000, m_GameState, m_CreatorName, m_CreatorServer );
     }
     else if ( m_GameID )
       return true;
@@ -544,7 +501,7 @@ bool CGame::Update( void *fd, void *send_fd )
 
   // start the gameover timer if there's only one player left
 
-  if ( m_Players.size( ) == 1 && m_FakePlayers.size( ) == 0 && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
+  if ( m_Players.size( ) == 1 && m_FakePlayers.empty( ) && m_GameOverTime == 0 && ( m_GameLoading || m_GameLoaded ) )
   {
     Print( "[GAME: " + m_GameName + "] gameover timer started (one player left)" );
     m_GameOverTime = Time;
@@ -590,7 +547,7 @@ bool CGame::Update( void *fd, void *send_fd )
 
       if ( ( *i )->GetOutPacketsQueued( ) <= 1 )
       {
-        ( *i )->QueueGameRefresh( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
+        ( *i )->QueueGameRefresh( m_GameState, m_GameName, m_Map, m_HostCounter );
       }
     }
 
@@ -909,34 +866,7 @@ void CGame::SendFakePlayerInfo( CGamePlayer *player )
 
 void CGame::SendAllActions( )
 {
-  bool UsingGProxy = false;
-
-  for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-  {
-    if ( ( *i )->GetGProxy( ) )
-    {
-      UsingGProxy = true;
-      break;
-    }
-  }
-
-  m_GameTicks += m_Latency;
-
-  if ( UsingGProxy )
-  {
-    // we must send empty actions to non-GProxy++ players
-    // GProxy++ will insert these itself so we don't need to send them to GProxy++ players
-    // empty actions are used to extend the time a player can use when reconnecting
-
-    for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
-    {
-      if ( !( *i )->GetGProxy( ) )
-      {
-        for ( unsigned char j = 0; j < m_GProxyEmptyActions; ++j )
-          Send( *i, m_Protocol->SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *>( ), 0 ) );
-      }
-    }
-  }
+  m_GameTicks += m_Latency; 
 
   ++m_SyncCounter;
 
@@ -1056,7 +986,7 @@ void CGame::EventPlayerDeleted( CGamePlayer *player )
 
   if ( m_GameLoading || m_GameLoaded )
   {
-    // todotodo: since we store players that crash during loading it's possible that the stats classes could have no information on them
+    // TODO: since we store players that crash during loading it's possible that the stats classes could have no information on them
     // that could result in a DBGamePlayer without a corresponding DBDotAPlayer - just be aware of the possibility
 
     unsigned char SID = GetSIDFromPID( player->GetPID( ) );
@@ -1083,28 +1013,6 @@ void CGame::EventPlayerDeleted( CGamePlayer *player )
 
 void CGame::EventPlayerDisconnectTimedOut( CGamePlayer *player )
 {
-  if ( player->GetGProxy( ) && m_GameLoaded )
-  {
-    if ( !player->GetGProxyDisconnectNoticeSent( ) )
-    {
-      SendAllChat( player->GetName( ) + " " + m_Aura->m_Language->HasLostConnectionTimedOutGProxy( ) + "." );
-      player->SetGProxyDisconnectNoticeSent( true );
-    }
-
-    if ( GetTime( ) - player->GetLastGProxyWaitNoticeSentTime( ) >= 20 )
-    {
-      uint32_t TimeRemaining = ( m_GProxyEmptyActions + 1 ) * 60 - ( GetTime( ) - m_StartedLaggingTime );
-
-      if ( TimeRemaining > ( (uint32_t) m_GProxyEmptyActions + 1 ) * 60 )
-        TimeRemaining = ( m_GProxyEmptyActions + 1 ) * 60;
-
-      SendAllChat( player->GetPID( ), m_Aura->m_Language->WaitForReconnectSecondsRemain( UTIL_ToString( TimeRemaining ) ) );
-      player->SetLastGProxyWaitNoticeSentTime( GetTime( ) );
-    }
-
-    return;
-  }
-
   // not only do we not do any timeouts if the game is lagging, we allow for an additional grace period of 10 seconds
   // this is because Warcraft 3 stops sending packets during the lag screen
   // so when the lag screen finishes we would immediately disconnect everyone if we didn't give them some extra time
@@ -1122,28 +1030,6 @@ void CGame::EventPlayerDisconnectTimedOut( CGamePlayer *player )
 
 void CGame::EventPlayerDisconnectSocketError( CGamePlayer *player )
 {
-  if ( player->GetGProxy( ) && m_GameLoaded )
-  {
-    if ( !player->GetGProxyDisconnectNoticeSent( ) )
-    {
-      SendAllChat( player->GetName( ) + " " + m_Aura->m_Language->HasLostConnectionSocketErrorGProxy( player->GetSocket( )->GetErrorString( ) ) + "." );
-      player->SetGProxyDisconnectNoticeSent( true );
-    }
-
-    if ( GetTime( ) - player->GetLastGProxyWaitNoticeSentTime( ) >= 20 )
-    {
-      uint32_t TimeRemaining = ( m_GProxyEmptyActions + 1 ) * 60 - ( GetTime( ) - m_StartedLaggingTime );
-
-      if ( TimeRemaining > ( (uint32_t) m_GProxyEmptyActions + 1 ) * 60 )
-        TimeRemaining = ( m_GProxyEmptyActions + 1 ) * 60;
-
-      SendAllChat( player->GetPID( ), m_Aura->m_Language->WaitForReconnectSecondsRemain( UTIL_ToString( TimeRemaining ) ) );
-      player->SetLastGProxyWaitNoticeSentTime( GetTime( ) );
-    }
-
-    return;
-  }
-
   player->SetDeleteMe( true );
   player->SetLeftReason( m_Aura->m_Language->HasLostConnectionSocketError( player->GetSocket( )->GetErrorString( ) ) );
   player->SetLeftCode( PLAYERLEAVE_DISCONNECT );
@@ -1154,28 +1040,6 @@ void CGame::EventPlayerDisconnectSocketError( CGamePlayer *player )
 
 void CGame::EventPlayerDisconnectConnectionClosed( CGamePlayer *player )
 {
-  if ( player->GetGProxy( ) && m_GameLoaded )
-  {
-    if ( !player->GetGProxyDisconnectNoticeSent( ) )
-    {
-      SendAllChat( player->GetName( ) + " " + m_Aura->m_Language->HasLostConnectionClosedByRemoteHostGProxy( ) + "." );
-      player->SetGProxyDisconnectNoticeSent( true );
-    }
-
-    if ( GetTime( ) - player->GetLastGProxyWaitNoticeSentTime( ) >= 20 )
-    {
-      uint32_t TimeRemaining = ( m_GProxyEmptyActions + 1 ) * 60 - ( GetTime( ) - m_StartedLaggingTime );
-
-      if ( TimeRemaining > ( (uint32_t) m_GProxyEmptyActions + 1 ) * 60 )
-        TimeRemaining = ( m_GProxyEmptyActions + 1 ) * 60;
-
-      SendAllChat( player->GetPID( ), m_Aura->m_Language->WaitForReconnectSecondsRemain( UTIL_ToString( TimeRemaining ) ) );
-      player->SetLastGProxyWaitNoticeSentTime( GetTime( ) );
-    }
-
-    return;
-  }
-
   player->SetDeleteMe( true );
   player->SetLeftReason( m_Aura->m_Language->HasLostConnectionClosedByRemoteHost( ) );
   player->SetLeftCode( PLAYERLEAVE_DISCONNECT );
@@ -1466,17 +1330,12 @@ void CGame::EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer 
   }
 }
 
-void CGame::EventPlayerLeft( CGamePlayer *player, uint32_t reason )
+void CGame::EventPlayerLeft( CGamePlayer *player )
 {
   // this function is only called when a player leave packet is received, not when there's a socket error, kick, etc...
 
   player->SetDeleteMe( true );
-
-  if ( reason == PLAYERLEAVE_GPROXY )
-    player->SetLeftReason( m_Aura->m_Language->WasUnrecoverablyDroppedFromGProxy( ) );
-  else
-    player->SetLeftReason( m_Aura->m_Language->HasLeftVoluntarily( ) );
-
+  player->SetLeftReason( m_Aura->m_Language->HasLeftVoluntarily( ) );
   player->SetLeftCode( PLAYERLEAVE_LOST );
 
   if ( !m_GameLoading && !m_GameLoaded )
@@ -2012,7 +1871,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
 
             // we need to send the game creation message now because private games are not refreshed
 
-            ( *i )->QueueGameCreate( m_GameState, m_GameName, string( ), m_Map, m_HostCounter );
+            ( *i )->QueueGameCreate( m_GameState, m_GameName, m_Map, m_HostCounter );
 
             if ( !( *i )->GetPvPGN( ) )
               ( *i )->QueueEnterChat( );
@@ -2483,7 +2342,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         // !STATUS
         //
 
-      else if ( Command == "status" && m_Aura->m_BNETs.size( ) )
+      else if ( Command == "status" )
       {
         string message = "Status: ";
 
@@ -2708,14 +2567,14 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         //
         // !DELETEFAKE
 
-      else if ( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && m_FakePlayers.size( ) && !m_CountDownStarted )
+      else if ( ( Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes" ) && !m_FakePlayers.empty( ) && !m_CountDownStarted )
         DeleteFakePlayers( );
 
         //
         // !FPPAUSE
         //
 
-      else if ( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && m_FakePlayers.size( ) )
+      else if ( ( Command == "fppause" || Command == "fpp" ) && m_FakePlayers.size( ) && m_GameLoaded && !m_FakePlayers.empty( ) )
       {
         BYTEARRAY CRC, Action;
         Action.push_back( 1 );
@@ -3309,7 +3168,7 @@ void CGame::EventPlayerChangeHandicap( CGamePlayer *player, unsigned char handic
 
 void CGame::EventPlayerDropRequest( CGamePlayer *player )
 {
-  // todotodo: check that we've waited the full 45 seconds
+  // TODO: check that we've waited the full 45 seconds
 
   if ( m_Lagging )
   {
@@ -3810,7 +3669,7 @@ unsigned char CGame::GetHostPID( )
 
   // try to find the fakeplayer next
 
-  if ( m_FakePlayers.size( ) )
+  if ( !m_FakePlayers.empty( ) )
     return m_FakePlayers[0];
 
   // try to find the owner player next

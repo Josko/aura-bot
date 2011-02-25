@@ -28,8 +28,6 @@
 class CTCPClient;
 class CBNCSUtilInterface;
 class CBNETProtocol;
-class CIncomingFriendList;
-class CIncomingClanList;
 class CIncomingChatEvent;
 class CDBBan;
 class CIRC;
@@ -44,8 +42,8 @@ private:
   CBNETProtocol *m_Protocol;                // battle.net protocol
   CBNCSUtilInterface *m_BNCSUtil;           // the interface to the bncsutil library (used for logging into battle.net)
   queue<BYTEARRAY> m_OutPackets;            // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
-  vector<CIncomingFriendList *> m_Friends;  // vector of friends
-  vector<CIncomingClanList *> m_Clans;      // vector of clan members
+  vector<string> m_Friends;                 // vector of friends
+  vector<string> m_Clans;                   // vector of clan members
   bool m_Exiting;                           // set to true and this class will be deleted next update
   bool m_Spam;                              // spam game in allstars
   string m_Server;                          // battle.net server to connect to
@@ -87,107 +85,27 @@ public:
   CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );
   ~CBNET( );
 
-  bool GetExiting( )
-  {
-    return m_Exiting;
-  }
+  bool GetExiting( )                        { return m_Exiting; }
+  string GetServer( )                       { return m_Server; }
+  string GetServerAlias( )                  { return m_ServerAlias; }
+  string GetCDKeyROC( )                     { return m_CDKeyROC; }
+  string GetCDKeyTFT( )                     { return m_CDKeyTFT; }
+  string GetUserName( )                     { return m_UserName; }
+  string GetUserPassword( )                 { return m_UserPassword; }
+  string GetFirstChannel( )                 { return m_FirstChannel; }
+  string GetCurrentChannel( )               { return m_CurrentChannel; }
+  char GetCommandTrigger( )                 { return m_CommandTrigger; }
+  BYTEARRAY GetEXEVersion( )                { return m_EXEVersion; }
+  BYTEARRAY GetEXEVersionHash( )            { return m_EXEVersionHash; }
+  string GetPasswordHashType( )             { return m_PasswordHashType; }
+  uint32_t GetHostCounterID( )              { return m_HostCounterID; }
+  bool GetLoggedIn( )                       { return m_LoggedIn; }
+  bool GetInChat( )                         { return m_InChat; }
+  uint32_t GetOutPacketsQueued( )           { return m_OutPackets.size( ); }
+  bool GetSpam( )                           { return m_Spam; }
+  bool GetPvPGN( )                          { return m_PvPGN; }
 
-  string GetServer( )
-  {
-    return m_Server;
-  }
-
-  string GetServerAlias( )
-  {
-    return m_ServerAlias;
-  }
-
-  string GetCDKeyROC( )
-  {
-    return m_CDKeyROC;
-  }
-
-  string GetCDKeyTFT( )
-  {
-    return m_CDKeyTFT;
-  }
-
-  string GetUserName( )
-  {
-    return m_UserName;
-  }
-
-  string GetUserPassword( )
-  {
-    return m_UserPassword;
-  }
-
-  string GetFirstChannel( )
-  {
-    return m_FirstChannel;
-  }
-
-  string GetCurrentChannel( )
-  {
-    return m_CurrentChannel;
-  }
-
-  char GetCommandTrigger( )
-  {
-    return m_CommandTrigger;
-  }
-
-  BYTEARRAY GetEXEVersion( )
-  {
-    return m_EXEVersion;
-  }
-
-  BYTEARRAY GetEXEVersionHash( )
-  {
-    return m_EXEVersionHash;
-  }
-
-  string GetPasswordHashType( )
-  {
-    return m_PasswordHashType;
-  }
-
-  uint32_t GetHostCounterID( )
-  {
-    return m_HostCounterID;
-  }
-
-  bool GetLoggedIn( )
-  {
-    return m_LoggedIn;
-  }
-
-  bool GetInChat( )
-  {
-    return m_InChat;
-  }
-
-  uint32_t GetOutPacketsQueued( )
-  {
-    return m_OutPackets.size( );
-  }
-
-  bool GetSpam( )
-  {
-    return m_Spam;
-  }
-
-  bool GetPvPGN( )
-  {
-    return m_PvPGN;
-  }
-  BYTEARRAY GetUniqueName( );
-
-  void SetSpam( bool spam )
-  {
-    m_Spam = spam;
-  }
-  
+  void SetSpam( bool spam )                 { m_Spam = spam; }
   void SetSpam( );
 
   // processing functions
@@ -204,8 +122,8 @@ public:
   void QueueEnterChat( );
   void QueueChatCommand( const string &chatCommand );
   void QueueChatCommand( const string &chatCommand, const string &user, bool whisper, const string &irc );
-  void QueueGameCreate( unsigned char state, const string &gameName, const string &hostName, CMap *map, uint32_t hostCounter );
-  void QueueGameRefresh( unsigned char state, const string &gameName, string hostName, CMap *map, uint32_t hostCounter );
+  void QueueGameCreate( unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter );
+  void QueueGameRefresh( unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter );
   void QueueGameUncreate( );
 
   void UnqueueGameRefreshes( );

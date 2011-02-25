@@ -89,7 +89,7 @@ public:
 // CGamePlayer
 //
 
-class CGamePlayer // : public CPotentialPlayer
+class CGamePlayer
 {
 public:
   CGameProtocol *m_Protocol;
@@ -111,8 +111,6 @@ private:
   string m_LeftReason;                      // the reason the player left the game
   string m_SpoofedRealm;                    // the realm the player last spoof checked on
   string m_JoinedRealm;                     // the realm the player joined on (probable, can be spoofed)
-  uint32_t m_TotalPacketsSent;              // the total number of packets sent to the player
-  uint32_t m_TotalPacketsReceived;          // the total number of packets received from the player
   uint32_t m_LeftCode;                      // the code to be sent in W3GS_PLAYERLEAVE_OTHERS for why this player left the game
   uint32_t m_SyncCounter;                   // the number of keepalive packets received from this player
   uint32_t m_JoinTime;                      // GetTime when the player joined the game (used to delay sending the /whois a few seconds to allow for some lag)
@@ -122,7 +120,6 @@ private:
   uint32_t m_FinishedDownloadingTime;       // GetTime when the player finished downloading the map
   uint32_t m_FinishedLoadingTicks;          // GetTicks when the player finished loading the game
   uint32_t m_StartedLaggingTicks;           // GetTicks when the player started lagging
-  uint32_t m_LastGProxyWaitNoticeSentTime;  // GetTime when the last disconnection notice has been sent when using GProxy++
   bool m_Spoofed;                           // if the player has spoof checked or not
   bool m_Reserved;                          // if the player is reserved (VIP) or not
   bool m_WhoisShouldBeSent;                 // if a battle.net /whois should be sent for this player or not
@@ -136,14 +133,8 @@ private:
   bool m_KickVote;                          // if the player voted to kick a player or not
   bool m_Muted;                             // if the player is muted or not
   bool m_LeftMessageSent;                   // if the playerleave message has been sent or not
-  bool m_GProxy;                            // if the player is using GProxy++
-  bool m_GProxyDisconnectNoticeSent;        // if a disconnection notice has been sent or not when using GProxy++
-  queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++
-  uint32_t m_GProxyReconnectKey;            // the GProxy++ reconnect key
-  uint32_t m_LastGProxyAckTime;             // GetTime when we last acknowledged GProxy++ packet
 
 public:
-  CGamePlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
   CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
   ~CGamePlayer( );
 
@@ -151,7 +142,9 @@ public:
   {
     return m_Socket;
   }
+  
   BYTEARRAY GetExternalIP( );
+  
   string GetExternalIPString( );
 
   bool GetDeleteMe( )
@@ -249,11 +242,6 @@ public:
     return m_StartedLaggingTicks;
   }
 
-  uint32_t GetLastGProxyWaitNoticeSentTime( )
-  {
-    return m_LastGProxyWaitNoticeSentTime;
-  }
-
   bool GetSpoofed( )
   {
     return m_Spoofed;
@@ -319,22 +307,6 @@ public:
     return m_LeftMessageSent;
   }
 
-  bool GetGProxy( )
-  {
-    return m_GProxy;
-  }
-
-  bool GetGProxyDisconnectNoticeSent( )
-  {
-    return m_GProxyDisconnectNoticeSent;
-  }
-
-  uint32_t GetGProxyReconnectKey( )
-  {
-    return m_GProxyReconnectKey;
-  }
-  uint32_t GetPing( bool LCPing );
-
   void SetLeftReason( const string &nLeftReason )
   {
     m_LeftReason = nLeftReason;
@@ -378,11 +350,6 @@ public:
   void SetStartedLaggingTicks( uint32_t nStartedLaggingTicks )
   {
     m_StartedLaggingTicks = nStartedLaggingTicks;
-  }
-
-  void SetLastGProxyWaitNoticeSentTime( uint32_t nLastGProxyWaitNoticeSentTime )
-  {
-    m_LastGProxyWaitNoticeSentTime = nLastGProxyWaitNoticeSentTime;
   }
   
   void SetSpoofed( bool nSpoofed )
@@ -440,11 +407,6 @@ public:
     m_LeftMessageSent = nLeftMessageSent;
   }
 
-  void SetGProxyDisconnectNoticeSent( bool nGProxyDisconnectNoticeSent )
-  {
-    m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent;
-  }
-
   // processing functions
 
   bool Update( void *fd );
@@ -462,7 +424,7 @@ public:
   // other functions
 
   void Send( const BYTEARRAY &data );
-  void EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket );
+  uint32_t GetPing( bool LCPing );
 };
 
 #endif

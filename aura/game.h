@@ -37,7 +37,6 @@ class CIncomingAction;
 class CIncomingChatPlayer;
 class CIncomingMapSize;
 class CDBBan;
-class CDBGame;
 class CDBGamePlayer;
 class CStats;
 class CIRC;
@@ -51,7 +50,6 @@ protected:
   CTCPServer *m_Socket;                     // listening socket
   CDBBan *m_DBBanLast;                      // last ban for the !banlast command - this is a pointer to one of the items in m_DBBans
   vector<CDBBan *> m_DBBans;                // vector of potential ban data for the database
-  CDBGame *m_DBGame;                        // potential game data for the database
   CStats *m_Stats;                          // class to keep track of game stats such as kills/deaths/assists in dota
   uint32_t m_GameID;                        // GameID stored in the database
   CGameProtocol *m_Protocol;                // game protocol
@@ -69,7 +67,6 @@ protected:
   unsigned char m_GameState;                // game state, public or private
   unsigned char m_VirtualHostPID;           // host's PID
   vector<unsigned char> m_FakePlayers;      // the fake player's PIDs (if present)
-  unsigned char m_GProxyEmptyActions;       // empty actions used for gproxy protocol
   string m_GameName;                        // game name
   string m_LastGameName;                    // last game name (the previous game name before it was rehosted)
   string m_VirtualHostName;                 // host's name
@@ -119,95 +116,21 @@ public:
   CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
   ~CGame( );
 
-  uint16_t GetHostPort( )
-  {
-    return m_HostPort;
-  }
-
-  unsigned char GetGameState( )
-  {
-    return m_GameState;
-  }
-
-  unsigned char GetGProxyEmptyActions( )
-  {
-    return m_GProxyEmptyActions;
-  }
-
-  string GetGameName( )
-  {
-    return m_GameName;
-  }
-
-  string GetLastGameName( )
-  {
-    return m_LastGameName;
-  }
-
-  string GetVirtualHostName( )
-  {
-    return m_VirtualHostName;
-  }
-
-  string GetOwnerName( )
-  {
-    return m_OwnerName;
-  }
-
-  string GetCreatorName( )
-  {
-    return m_CreatorName;
-  }
-
-  string GetCreatorServer( )
-  {
-    return m_CreatorServer;
-  }
-
-  uint32_t GetHostCounter( )
-  {
-    return m_HostCounter;
-  }
-
-  uint32_t GetLastLagScreenTime( )
-  {
-    return m_LastLagScreenTime;
-  }
-
-  bool GetLocked( )
-  {
-    return m_Locked;
-  }
-
-  bool GetCountDownStarted( )
-  {
-    return m_CountDownStarted;
-  }
-
-  bool GetGameLoading( )
-  {
-    return m_GameLoading;
-  }
-
-  bool GetGameLoaded( )
-  {
-    return m_GameLoaded;
-  }
-
-  bool GetLagging( )
-  {
-    return m_Lagging;
-  }
-
-  void SetExiting( bool nExiting )
-  {
-    m_Exiting = nExiting;
-  }
-
-  void SetRefreshError( bool nRefreshError )
-  {
-    m_RefreshError = nRefreshError;
-  }
+  uint16_t GetHostPort( )                     { return m_HostPort; }
+  unsigned char GetGameState( )               { return m_GameState; }
+  string GetGameName( )                       { return m_GameName; }
+  string GetLastGameName( )                   { return m_LastGameName; }
+  string GetVirtualHostName( )                { return m_VirtualHostName; }
+  string GetOwnerName( )                      { return m_OwnerName; }
+  string GetCreatorName( )                    { return m_CreatorName; }
+  string GetCreatorServer( )                  { return m_CreatorServer; }
+  uint32_t GetHostCounter( )                  { return m_HostCounter; }
+  uint32_t GetLastLagScreenTime( )            { return m_LastLagScreenTime; }
+  bool GetLocked( )                           { return m_Locked; }
+  bool GetCountDownStarted( )                 { return m_CountDownStarted; }
+  bool GetGameLoading( )                      { return m_GameLoading; }
+  bool GetGameLoaded( )                       { return m_GameLoaded; }
+  bool GetLagging( )                          { return m_Lagging; }
 
   uint32_t GetNextTimedActionTicks( );
   uint32_t GetSlotsOccupied( );
@@ -216,6 +139,9 @@ public:
   uint32_t GetNumHumanPlayers( );
   string GetDescription( );
   string GetPlayers( );
+
+  void SetExiting( bool nExiting )            { m_Exiting = nExiting; }
+  void SetRefreshError( bool nRefreshError )  { m_RefreshError = nRefreshError; }
 
   // processing functions
 
@@ -252,7 +178,7 @@ public:
   void EventPlayerDisconnectSocketError( CGamePlayer *player );
   void EventPlayerDisconnectConnectionClosed( CGamePlayer *player );
   void EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer );
-  void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
+  void EventPlayerLeft( CGamePlayer *player );
   void EventPlayerLoaded( CGamePlayer *player );
   void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
   void EventPlayerKeepAlive( CGamePlayer *player );

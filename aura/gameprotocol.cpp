@@ -607,27 +607,6 @@ BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG( CGamePlayer *player )
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SEARCHGAME( unsigned char war3Version )
-{
-  unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
-  unsigned char Version[] = { war3Version, 0, 0, 0 };
-  unsigned char Unknown[] = { 0, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_SEARCHGAME ); // W3GS_SEARCHGAME
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  UTIL_AppendByteArray( packet, ProductID_TFT, 4 ); // Product ID (TFT)
-
-  UTIL_AppendByteArray( packet, Version, 4 ); // Version
-  UTIL_AppendByteArray( packet, Unknown, 4 ); // ???
-  AssignLength( packet );
-  // DEBUG_Print( "SENT W3GS_SEARCHGAME" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
 BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey )
 {
   unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
@@ -871,39 +850,28 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> ac
 // OTHER FUNCTIONS //
 /////////////////////
 
-bool CGameProtocol::AssignLength( BYTEARRAY &content )
+void CGameProtocol::AssignLength( BYTEARRAY &content )
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
   BYTEARRAY LengthBytes;
 
-  if ( content.size( ) >= 4 && content.size( ) <= 65535 )
-  {
-    LengthBytes = UTIL_CreateByteArray( (uint16_t) content.size( ), false );
-    content[2] = LengthBytes[0];
-    content[3] = LengthBytes[1];
-    return true;
-  }
-
-  return false;
+  LengthBytes = UTIL_CreateByteArray( (uint16_t) content.size( ), false );
+  content[2] = LengthBytes[0];
+  content[3] = LengthBytes[1];
 }
 
 bool CGameProtocol::ValidateLength( BYTEARRAY &content )
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  uint16_t Length;
   BYTEARRAY LengthBytes;
 
-  if ( content.size( ) >= 4 && content.size( ) <= 65535 )
-  {
-    LengthBytes.push_back( content[2] );
-    LengthBytes.push_back( content[3] );
-    Length = UTIL_ByteArrayToUInt16( LengthBytes, false );
+  LengthBytes.push_back( content[2] );
+  LengthBytes.push_back( content[3] );
 
-    if ( Length == content.size( ) )
-      return true;
-  }
+  if ( UTIL_ByteArrayToUInt16( LengthBytes, false ) == content.size( ) )
+    return true;
 
   return false;
 }

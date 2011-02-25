@@ -65,7 +65,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK( string &war3Path, string &keyROC, 
 
   if ( ExistsWar3EXE && ExistsStormDLL && ExistsGameDLL )
   {
-    // todotodo: check getExeInfo return value to ensure 1024 bytes was enough
+    // TODO: check getExeInfo return value to ensure 1024 bytes was enough
 
     char buf[1024];
     uint32_t EXEVersion;
