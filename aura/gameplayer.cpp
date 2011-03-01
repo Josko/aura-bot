@@ -86,7 +86,7 @@ bool CPotentialPlayer::Update( void *fd )
     {
       // bytes 2 and 3 contain the length of the packet
 
-      uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+      uint16_t Length = (uint16_t) ( Bytes[3] << 8 | Bytes[2] );
 
       if ( Bytes.size( ) >= Length )
       {
@@ -220,7 +220,7 @@ bool CGamePlayer::Update( void *fd )
     {
       // bytes 2 and 3 contain the length of the packet
 
-      uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+      uint16_t Length = (uint16_t) ( Bytes[3] << 8 | Bytes[2] );
 
       if ( Bytes.size( ) >= Length )
       {
