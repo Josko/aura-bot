@@ -694,10 +694,7 @@ bool CGame::Update( void *fd, void *send_fd )
     CTCPSocket *NewSocket = m_Socket->Accept( (fd_set *) fd );
 
     if ( NewSocket )
-    {
-      NewSocket->SetNoDelay( );
       m_Potentials.push_back( new CPotentialPlayer( m_Protocol, this, NewSocket ) );
-    }
 
     if ( m_Socket->HasError( ) )
       return true;
@@ -1563,7 +1560,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           {
             Pings += UTIL_ToString( ( *i )->GetPing( m_Aura->m_LCPings ) );
 
-            if ( !m_GameLoading && !m_GameLoaded && !( *i )->GetReserved( ) && KickPing > 0 && ( *i )->GetPing( m_Aura->m_LCPings ) > KickPing )
+            if ( !m_GameLoaded && !m_GameLoading && !( *i )->GetReserved( ) && KickPing > 0 && ( *i )->GetPing( m_Aura->m_LCPings ) > KickPing )
             {
               ( *i )->SetDeleteMe( true );
               ( *i )->SetLeftReason( "was kicked for excessive ping " + UTIL_ToString( ( *i )->GetPing( m_Aura->m_LCPings ) ) + " > " + UTIL_ToString( KickPing ) );

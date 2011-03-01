@@ -813,8 +813,6 @@ void CMap::CheckValid( )
     m_Valid = false;
     Print( "[MAP] invalid map_path detected" );
   }
-  else if ( m_MapPath[0] == '\\' )
-    Print( "[MAP] warning - map_path starts with '\\', any replays saved by Aura++ will not be playable in Warcraft III" );
 
   if ( m_MapPath.find( '/' ) != string::npos )
     Print( "[MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\\'" );

@@ -55,6 +55,11 @@ CTCPSocket::CTCPSocket( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Err
 #else
   fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
+
+  // disable Nagle's algorithm
+
+  int OptVal = 1;
+    setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
 }
 
 CTCPSocket::CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_Error( 0 ), m_HasError( false ), m_Connected( true ), m_LastRecv( GetTime( ) )
@@ -191,12 +196,6 @@ void CTCPSocket::Disconnect( )
     shutdown( m_Socket, SHUT_RDWR );
 
   m_Connected = false;
-}
-
-void CTCPSocket::SetNoDelay( )
-{
-  int OptVal = 1;
-  setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
 }
 
 BYTEARRAY CTCPSocket::GetPort( )

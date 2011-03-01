@@ -172,7 +172,6 @@ public:
   void DoRecv( fd_set *fd );
   void DoSend( fd_set *send_fd );
   void Disconnect( );
-  void SetNoDelay( );
 };
 
 //

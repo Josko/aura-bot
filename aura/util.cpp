@@ -41,27 +41,41 @@ BYTEARRAY UTIL_CreateByteArray( unsigned char c )
 BYTEARRAY UTIL_CreateByteArray( uint16_t i, bool reverse )
 {
   BYTEARRAY result;
-  result.push_back( (unsigned char) i );
-  result.push_back( (unsigned char) ( i >> 8 ) );
 
-  if ( reverse )
-    return BYTEARRAY( result.rbegin( ), result.rend( ) );
+  if( !reverse )
+  {
+    result.push_back( (unsigned char) i );
+    result.push_back( (unsigned char) ( i >> 8 ) );
+  }
   else
-    return result;
+  {
+    result.push_back( (unsigned char) ( i >> 8 ) );
+    result.push_back( (unsigned char) i );
+  }
+
+  return result;
 }
 
 BYTEARRAY UTIL_CreateByteArray( uint32_t i, bool reverse )
 {
   BYTEARRAY result;
-  result.push_back( (unsigned char) i );
-  result.push_back( (unsigned char) ( i >> 8 ) );
-  result.push_back( (unsigned char) ( i >> 16 ) );
-  result.push_back( (unsigned char) ( i >> 24 ) );
 
-  if ( reverse )
-    return BYTEARRAY( result.rbegin( ), result.rend( ) );
+  if( !reverse )
+  {
+    result.push_back( (unsigned char) i );
+    result.push_back( (unsigned char) ( i >> 8 ) );
+    result.push_back( (unsigned char) ( i >> 16 ) );
+    result.push_back( (unsigned char) ( i >> 24 ) );
+  }
   else
-    return result;
+  {
+    result.push_back( (unsigned char) ( i >> 24 ) );
+    result.push_back( (unsigned char) ( i >> 16 ) );
+    result.push_back( (unsigned char) ( i >> 8 ) );
+    result.push_back( (unsigned char) i );
+  }
+
+  return result;
 }
 
 uint16_t UTIL_ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsigned int start )

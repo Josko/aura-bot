@@ -112,7 +112,6 @@ public:
   CIncomingAction *RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY data, unsigned char PID );
   uint32_t RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY data );
   CIncomingChatPlayer *RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data );
-  bool RECEIVE_W3GS_SEARCHGAME( BYTEARRAY data, unsigned char war3Version );
   CIncomingMapSize *RECEIVE_W3GS_MAPSIZE( BYTEARRAY data );
   uint32_t RECEIVE_W3GS_MAPPARTOK( BYTEARRAY data );
   uint32_t RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY data );
