@@ -281,7 +281,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
   m_SHA = new CSHA1( );
   m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
   m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
-  m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
+  m_LANWar3Version = CFG->GetInt( "lan_war3version", 25 );
 
   // open the database
 
@@ -373,7 +373,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
     }
 
     string BNETCommandTrigger = CFG->GetString( Prefix + "commandtrigger", "!" );
-    unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 24 );
+    unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 25 );
     BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
     BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
     string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
