@@ -12,7 +12,7 @@ The bot is guaranteed to run on little-endian Linux (32-bit and 64-bit), Windows
 Boost
 -----
 
-You will need the [Boost](http://www.boost.org/users/download/) libraries. Specifically
+You will need  newest [Boost](http://www.boost.org/users/download/) libraries (version 1.46.0 or higher). Specifically
 boost date-time, system and filesystem.
 
 ### Windows
