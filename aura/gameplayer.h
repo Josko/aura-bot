@@ -48,33 +48,14 @@ public:
   CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket );
   ~CPotentialPlayer( );
 
-  CTCPSocket *GetSocket( )
-  {
-    return m_Socket;
-  }
+  CTCPSocket *GetSocket( ) const								{ return m_Socket; }
+  BYTEARRAY GetExternalIP( ) const;
+  string GetExternalIPString( ) const;
+  bool GetDeleteMe( ) const											{ return m_DeleteMe; }
+  CIncomingJoinPlayer *GetJoinPlayer( ) const		{ return m_IncomingJoinPlayer; }
   
-  BYTEARRAY GetExternalIP( );
-  string GetExternalIPString( );
-
-  bool GetDeleteMe( )
-  {
-    return m_DeleteMe;
-  }
-
-  CIncomingJoinPlayer *GetJoinPlayer( )
-  {
-    return m_IncomingJoinPlayer;
-  }
-
-  void SetSocket( CTCPSocket *nSocket )
-  {
-    m_Socket = nSocket;
-  }
-
-  void SetDeleteMe( bool nDeleteMe )
-  {
-    m_DeleteMe = nDeleteMe;
-  }
+  void SetSocket( CTCPSocket *nSocket )					{ m_Socket = nSocket; }
+  void SetDeleteMe( bool nDeleteMe )						{ m_DeleteMe = nDeleteMe; }
 
   // processing functions
 
@@ -138,174 +119,41 @@ public:
   CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
   ~CGamePlayer( );
 
-  CTCPSocket *GetSocket( )
-  {
-    return m_Socket;
-  }
-  
-  BYTEARRAY GetExternalIP( );
-  
-  string GetExternalIPString( );
-
-  bool GetDeleteMe( )
-  {
-    return m_DeleteMe;
-  }
-
-  unsigned char GetPID( )
-  {
-    return m_PID;
-  }
-
-  string GetName( )
-  {
-    return m_Name;
-  }
-
-  BYTEARRAY GetInternalIP( )
-  {
-    return m_InternalIP;
-  }
-
-  unsigned int GetNumPings( )
-  {
-    return m_Pings.size( );
-  }
-
-  unsigned int GetNumCheckSums( )
-  {
-    return m_CheckSums.size( );
-  }
-
-  queue<uint32_t> *GetCheckSums( )
-  {
-    return &m_CheckSums;
-  }
-
-  string GetLeftReason( )
-  {
-    return m_LeftReason;
-  }
-
-  string GetSpoofedRealm( )
-  {
-    return m_SpoofedRealm;
-  }
-
-  string GetJoinedRealm( )
-  {
-    return m_JoinedRealm;
-  }
-
-  uint32_t GetLeftCode( )
-  {
-    return m_LeftCode;
-  }
-
-  uint32_t GetSyncCounter( )
-  {
-    return m_SyncCounter;
-  }
-
-  uint32_t GetJoinTime( )
-  {
-    return m_JoinTime;
-  }
-
-  uint32_t GetLastMapPartSent( )
-  {
-    return m_LastMapPartSent;
-  }
-
-  uint32_t GetLastMapPartAcked( )
-  {
-    return m_LastMapPartAcked;
-  }
-
-  uint32_t GetStartedDownloadingTicks( )
-  {
-    return m_StartedDownloadingTicks;
-  }
-
-  uint32_t GetFinishedDownloadingTime( )
-  {
-    return m_FinishedDownloadingTime;
-  }
-
-  uint32_t GetFinishedLoadingTicks( )
-  {
-    return m_FinishedLoadingTicks;
-  }
-
-  uint32_t GetStartedLaggingTicks( )
-  {
-    return m_StartedLaggingTicks;
-  }
-
-  bool GetSpoofed( )
-  {
-    return m_Spoofed;
-  }
-
-  bool GetReserved( )
-  {
-    return m_Reserved;
-  }
-
-  bool GetWhoisShouldBeSent( )
-  {
-    return m_WhoisShouldBeSent;
-  }
-
-  bool GetWhoisSent( )
-  {
-    return m_WhoisSent;
-  }
-
-  bool GetDownloadAllowed( )
-  {
-    return m_DownloadAllowed;
-  }
-
-  bool GetDownloadStarted( )
-  {
-    return m_DownloadStarted;
-  }
-
-  bool GetDownloadFinished( )
-  {
-    return m_DownloadFinished;
-  }
-
-  bool GetFinishedLoading( )
-  {
-    return m_FinishedLoading;
-  }
-
-  bool GetLagging( )
-  {
-    return m_Lagging;
-  }
-
-  bool GetDropVote( )
-  {
-    return m_DropVote;
-  }
-
-  bool GetKickVote( )
-  {
-    return m_KickVote;
-  }
-
-  bool GetMuted( )
-  {
-    return m_Muted;
-  }
-
-  bool GetLeftMessageSent( )
-  {
-    return m_LeftMessageSent;
-  }
+  CTCPSocket *GetSocket( ) const								{ return m_Socket; }
+  BYTEARRAY GetExternalIP( ) const;
+	string GetExternalIPString( ) const;
+  bool GetDeleteMe( ) const											{ return m_DeleteMe; }
+  unsigned char GetPID( ) const									{ return m_PID; }
+  string GetName( ) const												{ return m_Name; }
+  BYTEARRAY GetInternalIP( ) const							{ return m_InternalIP; }
+  unsigned int GetNumPings( ) const							{ return m_Pings.size( ); }
+  unsigned int GetNumCheckSums( ) const					{ return m_CheckSums.size( ); }
+  queue<uint32_t> *GetCheckSums( )							{ return &m_CheckSums; }
+  string GetLeftReason( ) const									{ return m_LeftReason; }
+  string GetSpoofedRealm( ) const								{ return m_SpoofedRealm; }
+  string GetJoinedRealm( ) const								{ return m_JoinedRealm; }
+  uint32_t GetLeftCode( ) const									{ return m_LeftCode; }
+  uint32_t GetSyncCounter( ) const							{ return m_SyncCounter; }
+  uint32_t GetJoinTime( ) const									{ return m_JoinTime; }
+  uint32_t GetLastMapPartSent( ) const					{ return m_LastMapPartSent; }
+  uint32_t GetLastMapPartAcked( ) const					{ return m_LastMapPartAcked; }
+  uint32_t GetStartedDownloadingTicks( ) const	{ return m_StartedDownloadingTicks; }
+  uint32_t GetFinishedDownloadingTime( ) const	{ return m_FinishedDownloadingTime; }
+  uint32_t GetFinishedLoadingTicks( ) const			{ return m_FinishedLoadingTicks; }
+  uint32_t GetStartedLaggingTicks( ) const			{ return m_StartedLaggingTicks; }
+  bool GetSpoofed( ) const											{ return m_Spoofed; }
+  bool GetReserved( ) const											{ return m_Reserved; }
+  bool GetWhoisShouldBeSent( ) const						{ return m_WhoisShouldBeSent; }
+  bool GetWhoisSent( ) const										{ return m_WhoisSent; }
+  bool GetDownloadAllowed( ) const							{ return m_DownloadAllowed; }
+  bool GetDownloadStarted( ) const							{ return m_DownloadStarted; }
+  bool GetDownloadFinished( ) const							{ return m_DownloadFinished; }
+  bool GetFinishedLoading( ) const							{ return m_FinishedLoading; }
+  bool GetLagging( ) const											{ return m_Lagging; }
+  bool GetDropVote( ) const											{ return m_DropVote; }
+  bool GetKickVote( ) const											{ return m_KickVote; }
+  bool GetMuted( ) const												{ return m_Muted; }
+  bool GetLeftMessageSent( ) const						  { return m_LeftMessageSent; }
 
   void SetLeftReason( const string &nLeftReason )
   {

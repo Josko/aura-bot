@@ -45,7 +45,7 @@ CPotentialPlayer::~CPotentialPlayer( )
   delete m_IncomingJoinPlayer;
 }
 
-BYTEARRAY CPotentialPlayer::GetExternalIP( )
+BYTEARRAY CPotentialPlayer::GetExternalIP( ) const
 {
   if ( m_Socket )
     return m_Socket->GetIP( );
@@ -55,7 +55,7 @@ BYTEARRAY CPotentialPlayer::GetExternalIP( )
   return UTIL_CreateByteArray( Zeros, 4 );
 }
 
-string CPotentialPlayer::GetExternalIPString( )
+string CPotentialPlayer::GetExternalIPString( ) const
 {
   if ( m_Socket )
     return m_Socket->GetIPString( );
@@ -139,12 +139,12 @@ CGamePlayer::~CGamePlayer( )
     delete m_Socket;
 }
 
-BYTEARRAY CGamePlayer::GetExternalIP( )
+BYTEARRAY CGamePlayer::GetExternalIP( ) const
 {
     return m_Socket->GetIP( );
 }
 
-string CGamePlayer::GetExternalIPString( )
+string CGamePlayer::GetExternalIPString( ) const
 {
     return m_Socket->GetIPString( );
 }

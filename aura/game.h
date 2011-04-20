@@ -116,21 +116,21 @@ public:
   CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
   ~CGame( );
 
-  uint16_t GetHostPort( )                     { return m_HostPort; }
-  unsigned char GetGameState( )               { return m_GameState; }
-  string GetGameName( )                       { return m_GameName; }
-  string GetLastGameName( )                   { return m_LastGameName; }
-  string GetVirtualHostName( )                { return m_VirtualHostName; }
-  string GetOwnerName( )                      { return m_OwnerName; }
-  string GetCreatorName( )                    { return m_CreatorName; }
-  string GetCreatorServer( )                  { return m_CreatorServer; }
-  uint32_t GetHostCounter( )                  { return m_HostCounter; }
-  uint32_t GetLastLagScreenTime( )            { return m_LastLagScreenTime; }
-  bool GetLocked( )                           { return m_Locked; }
-  bool GetCountDownStarted( )                 { return m_CountDownStarted; }
-  bool GetGameLoading( )                      { return m_GameLoading; }
-  bool GetGameLoaded( )                       { return m_GameLoaded; }
-  bool GetLagging( )                          { return m_Lagging; }
+  uint16_t GetHostPort( ) const               			{ return m_HostPort; }
+  unsigned char GetGameState( ) const         			{ return m_GameState; }
+  string GetGameName( ) const                      	{ return m_GameName; }
+  string GetLastGameName( ) const                  	{ return m_LastGameName; }
+  string GetVirtualHostName( ) const               	{ return m_VirtualHostName; }
+  string GetOwnerName( ) const                     	{ return m_OwnerName; }
+  string GetCreatorName( ) const                   	{ return m_CreatorName; }
+  string GetCreatorServer( ) const                 	{ return m_CreatorServer; }
+  uint32_t GetHostCounter( ) const                 	{ return m_HostCounter; }
+  uint32_t GetLastLagScreenTime( ) const           	{ return m_LastLagScreenTime; }
+  bool GetLocked( ) const                          	{ return m_Locked; }
+  bool GetCountDownStarted( ) const                	{ return m_CountDownStarted; }
+  bool GetGameLoading( ) const                     	{ return m_GameLoading; }
+  bool GetGameLoaded( ) const                      	{ return m_GameLoaded; }
+  bool GetLagging( ) const                         	{ return m_Lagging; }
 
   uint32_t GetNextTimedActionTicks( );
   uint32_t GetSlotsOccupied( );
