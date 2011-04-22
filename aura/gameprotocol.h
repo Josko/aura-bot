@@ -164,25 +164,10 @@ public:
   CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, const string &nName, BYTEARRAY &nInternalIP );
   ~CIncomingJoinPlayer( );
 
-  uint32_t GetHostCounter( )
-  {
-    return m_HostCounter;
-  }
-
-  uint32_t GetEntryKey( )
-  {
-    return m_EntryKey;
-  }
-
-  string GetName( )
-  {
-    return m_Name;
-  }
-
-  BYTEARRAY GetInternalIP( )
-  {
-    return m_InternalIP;
-  }
+  uint32_t GetHostCounter( ) const			{ return m_HostCounter; }
+  uint32_t GetEntryKey( ) const					{ return m_EntryKey; }
+  string GetName( ) const								{ return m_Name; }
+  BYTEARRAY GetInternalIP( ) const			{ return m_InternalIP; }
 };
 
 //
@@ -200,25 +185,10 @@ public:
   CIncomingAction( unsigned char nPID, BYTEARRAY &nCRC, BYTEARRAY &nAction );
   ~CIncomingAction( );
 
-  unsigned char GetPID( )
-  {
-    return m_PID;
-  }
-
-  BYTEARRAY GetCRC( )
-  {
-    return m_CRC;
-  }
-
-  BYTEARRAY *GetAction( )
-  {
-    return &m_Action;
-  }
-
-  uint32_t GetLength( )
-  {
-    return m_Action.size( ) + 3;
-  }
+  unsigned char GetPID( ) const					{ return m_PID; }
+  BYTEARRAY GetCRC( ) const							{ return m_CRC; }
+  BYTEARRAY *GetAction( )								{ return &m_Action; }
+  uint32_t GetLength( ) const						{	return m_Action.size( ) + 3; }
 };
 
 //
@@ -254,40 +224,13 @@ public:
   CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, unsigned char nByte );
   ~CIncomingChatPlayer( );
 
-  ChatToHostType GetType( )
-  {
-    return m_Type;
-  }
-
-  unsigned char GetFromPID( )
-  {
-    return m_FromPID;
-  }
-
-  BYTEARRAY GetToPIDs( )
-  {
-    return m_ToPIDs;
-  }
-
-  unsigned char GetFlag( )
-  {
-    return m_Flag;
-  }
-
-  string GetMessage( )
-  {
-    return m_Message;
-  }
-
-  unsigned char GetByte( )
-  {
-    return m_Byte;
-  }
-
-  BYTEARRAY GetExtraFlags( )
-  {
-    return m_ExtraFlags;
-  }
+  ChatToHostType GetType( ) const			{ return m_Type; }
+  unsigned char GetFromPID( ) const		{ return m_FromPID; }
+  BYTEARRAY GetToPIDs( ) const				{ return m_ToPIDs; }
+  unsigned char GetFlag( ) const			{ return m_Flag; }
+  string GetMessage( ) const					{ return m_Message; }
+  unsigned char GetByte( ) const			{ return m_Byte; }
+  BYTEARRAY GetExtraFlags( ) const		{ return m_ExtraFlags; }
 };
 
 class CIncomingMapSize
@@ -300,15 +243,8 @@ public:
   CIncomingMapSize( unsigned char nSizeFlag, uint32_t nMapSize );
   ~CIncomingMapSize( );
 
-  unsigned char GetSizeFlag( )
-  {
-    return m_SizeFlag;
-  }
-
-  uint32_t GetMapSize( )
-  {
-    return m_MapSize;
-  }
+  unsigned char GetSizeFlag( ) const	{ return m_SizeFlag; }
+  uint32_t GetMapSize( ) const				{ return m_MapSize; }
 };
 
 #endif

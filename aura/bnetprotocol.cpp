@@ -852,7 +852,7 @@ CIncomingGameHost::~CIncomingGameHost( )
 
 }
 
-string CIncomingGameHost::GetIPString( )
+string CIncomingGameHost::GetIPString( ) const
 {
   string Result;
 

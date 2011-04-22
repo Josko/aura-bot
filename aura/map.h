@@ -125,113 +125,30 @@ public:
   CMap( CAura *nAura, CConfig *CFG, const string &nCFGFile );
   ~CMap( );
 
-  bool GetValid( )
-  {
-    return m_Valid;
-  }
-
-  string GetCFGFile( )
-  {
-    return m_CFGFile;
-  }
-
-  string GetMapPath( )
-  {
-    return m_MapPath;
-  }
-
-  BYTEARRAY GetMapSize( )
-  {
-    return m_MapSize;
-  }
-
-  BYTEARRAY GetMapInfo( )
-  {
-    return m_MapInfo;
-  }
-
-  BYTEARRAY GetMapCRC( )
-  {
-    return m_MapCRC;
-  }
-
-  BYTEARRAY GetMapSHA1( )
-  {
-    return m_MapSHA1;
-  }
-
-  unsigned char GetMapSpeed( )
-  {
-    return m_MapSpeed;
-  }
-
-  unsigned char GetMapVisibility( )
-  {
-    return m_MapVisibility;
-  }
-
-  unsigned char GetMapObservers( )
-  {
-    return m_MapObservers;
-  }
-
-  unsigned char GetMapFlags( )
-  {
-    return m_MapFlags;
-  }
-  BYTEARRAY GetMapGameFlags( );
-  uint32_t GetMapGameType( );
-
-  uint32_t GetMapOptions( )
-  {
-    return m_MapOptions;
-  }
-  unsigned char GetMapLayoutStyle( );
-
-  BYTEARRAY GetMapWidth( )
-  {
-    return m_MapWidth;
-  }
-
-  BYTEARRAY GetMapHeight( )
-  {
-    return m_MapHeight;
-  }
-
-  string GetMapType( )
-  {
-    return m_MapType;
-  }
-
-  string GetMapDefaultHCL( )
-  {
-    return m_MapDefaultHCL;
-  }
-
-  string GetMapLocalPath( )
-  {
-    return m_MapLocalPath;
-  }
-
-  string *GetMapData( )
-  {
-    return &m_MapData;
-  }
-
-  uint32_t GetMapNumPlayers( )
-  {
-    return m_MapNumPlayers;
-  }
-
-  uint32_t GetMapNumTeams( )
-  {
-    return m_MapNumTeams;
-  }
-
-  vector<CGameSlot> GetSlots( )
-  {
-    return m_Slots;
-  }
+  bool GetValid( ) const										{ return m_Valid; }
+  string GetCFGFile( ) const								{ return m_CFGFile; }
+  string GetMapPath( ) const								{ return m_MapPath; }
+  BYTEARRAY GetMapSize( ) const							{ return m_MapSize; }
+  BYTEARRAY GetMapInfo( ) const							{ return m_MapInfo; }
+  BYTEARRAY GetMapCRC( ) const							{ return m_MapCRC; }
+  BYTEARRAY GetMapSHA1( ) const							{ return m_MapSHA1; }
+  unsigned char GetMapSpeed( ) const				{ return m_MapSpeed; }
+  unsigned char GetMapVisibility( ) const		{ return m_MapVisibility; }
+  unsigned char GetMapObservers( ) const		{ return m_MapObservers; }
+  unsigned char GetMapFlags( ) const				{ return m_MapFlags; }
+  BYTEARRAY GetMapGameFlags( ) const;
+  uint32_t GetMapGameType( ) const;
+  uint32_t GetMapOptions( ) const						{ return m_MapOptions; }
+  unsigned char GetMapLayoutStyle( ) const;
+  BYTEARRAY GetMapWidth( ) const						{ return m_MapWidth; }
+  BYTEARRAY GetMapHeight( ) const						{ return m_MapHeight; }
+  string GetMapType( ) const								{ return m_MapType; }
+  string GetMapDefaultHCL( ) const					{ return m_MapDefaultHCL; }
+  string GetMapLocalPath( ) const						{ return m_MapLocalPath; }
+  string *GetMapData( )											{ return &m_MapData; }
+  uint32_t GetMapNumPlayers( ) const				{ return m_MapNumPlayers; }
+  uint32_t GetMapNumTeams( ) const					{ return m_MapNumTeams; }
+  vector<CGameSlot> GetSlots( ) const				{ return m_Slots; }
 
   void Load( CConfig *CFG, const string &nCFGFile );
   void CheckValid( );

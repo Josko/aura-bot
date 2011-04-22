@@ -41,7 +41,7 @@ CSQLITE3::~CSQLITE3( )
   sqlite3_close( (sqlite3 *) m_DB );
 }
 
-string CSQLITE3::GetError( )
+string CSQLITE3::GetError( ) const
 {
   return sqlite3_errmsg( (sqlite3 *) m_DB );
 }
@@ -1086,7 +1086,7 @@ CDBDotAPlayer::~CDBDotAPlayer( )
 
 }
 
-string CDBDotAPlayer::GetItem( unsigned int i )
+string CDBDotAPlayer::GetItem( unsigned int i ) const
 {
   if ( i < 6 )
     return m_Items[i];

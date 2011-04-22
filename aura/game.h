@@ -116,9 +116,9 @@ public:
   CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
   ~CGame( );
 
-  uint16_t GetHostPort( ) const               			{ return m_HostPort; }
-  unsigned char GetGameState( ) const         			{ return m_GameState; }
-  string GetGameName( ) const                      	{ return m_GameName; }
+  uint16_t GetHostPort( ) const											{ return m_HostPort; }
+  unsigned char GetGameState( ) const								{ return m_GameState; }
+  string GetGameName( ) const												{ return m_GameName; }
   string GetLastGameName( ) const                  	{ return m_LastGameName; }
   string GetVirtualHostName( ) const               	{ return m_VirtualHostName; }
   string GetOwnerName( ) const                     	{ return m_OwnerName; }
@@ -140,8 +140,8 @@ public:
   string GetDescription( );
   string GetPlayers( );
 
-  void SetExiting( bool nExiting )            { m_Exiting = nExiting; }
-  void SetRefreshError( bool nRefreshError )  { m_RefreshError = nRefreshError; }
+  void SetExiting( bool nExiting )            			{ m_Exiting = nExiting; }
+  void SetRefreshError( bool nRefreshError )  			{ m_RefreshError = nRefreshError; }
 
   // processing functions
 

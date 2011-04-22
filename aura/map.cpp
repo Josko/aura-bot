@@ -45,7 +45,7 @@ CMap::~CMap( )
 
 }
 
-BYTEARRAY CMap::GetMapGameFlags( )
+BYTEARRAY CMap::GetMapGameFlags( ) const
 {
   uint32_t GameFlags = 0;
 
@@ -94,7 +94,7 @@ BYTEARRAY CMap::GetMapGameFlags( )
   return UTIL_CreateByteArray( GameFlags, false );
 }
 
-uint32_t CMap::GetMapGameType( )
+uint32_t CMap::GetMapGameType( ) const
 {
   /* spec stolen from Strilanc as follows:
 
@@ -169,7 +169,7 @@ uint32_t CMap::GetMapGameType( )
   return GameType;
 }
 
-unsigned char CMap::GetMapLayoutStyle( )
+unsigned char CMap::GetMapLayoutStyle( ) const
 {
   // 0 = melee
   // 1 = custom forces
