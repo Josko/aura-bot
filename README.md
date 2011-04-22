@@ -7,7 +7,7 @@ overhaul with speed and efficiency in mind and packed with fewer dependencies.
 Multi-platform
 --------------
 
-The bot is guaranteed to run on little-endian Linux (32-bit and 64-bit), Windows (32-bit and 64-bit) and OS X (64-bit Intel CPU) machines.
+The bot is guaranteed to run on little-endian Linux (32-bit and 64-bit), Windows (32-bit and WoW64) and OS X (64-bit Intel CPU) machines.
 
 Boost
 -----
