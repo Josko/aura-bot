@@ -69,50 +69,15 @@ public:
   unsigned char GetHandicap( ) const				{ return m_Handicap; }
   BYTEARRAY GetByteArray( ) const;
   
-  void SetPID( unsigned char nPID )
-  {
-    m_PID = nPID;
-  }
-
-  void SetDownloadStatus( unsigned char nDownloadStatus )
-  {
-    m_DownloadStatus = nDownloadStatus;
-  }
-
-  void SetSlotStatus( unsigned char nSlotStatus )
-  {
-    m_SlotStatus = nSlotStatus;
-  }
-
-  void SetComputer( unsigned char nComputer )
-  {
-    m_Computer = nComputer;
-  }
-
-  void SetTeam( unsigned char nTeam )
-  {
-    m_Team = nTeam;
-  }
-
-  void SetColour( unsigned char nColour )
-  {
-    m_Colour = nColour;
-  }
-
-  void SetRace( unsigned char nRace )
-  {
-    m_Race = nRace;
-  }
-
-  void SetComputerType( unsigned char nComputerType )
-  {
-    m_ComputerType = nComputerType;
-  }
-
-  void SetHandicap( unsigned char nHandicap )
-  {
-    m_Handicap = nHandicap;
-  }  
+  void SetPID( unsigned char nPID )														{ m_PID = nPID; }
+  void SetDownloadStatus( unsigned char nDownloadStatus )			{ m_DownloadStatus = nDownloadStatus; }
+  void SetSlotStatus( unsigned char nSlotStatus )							{ m_SlotStatus = nSlotStatus; }
+  void SetComputer( unsigned char nComputer )									{ m_Computer = nComputer; }
+  void SetTeam( unsigned char nTeam )													{ m_Team = nTeam; }
+  void SetColour( unsigned char nColour )											{ m_Colour = nColour; }
+  void SetRace( unsigned char nRace )													{ m_Race = nRace; }
+  void SetComputerType( unsigned char nComputerType )					{ m_ComputerType = nComputerType; }
+  void SetHandicap( unsigned char nHandicap )									{ m_Handicap = nHandicap; }
 };
 
 #endif

@@ -130,7 +130,7 @@ CGame::~CGame( )
   delete m_Stats;
 }
 
-uint32_t CGame::GetNextTimedActionTicks( )
+uint32_t CGame::GetNextTimedActionTicks( ) const
 {
   // return the number of ticks (ms) until the next "timed action", which for our purposes is the next game update
   // the main Aura++ loop will make sure the next loop update happens at or before this value
@@ -148,11 +148,11 @@ uint32_t CGame::GetNextTimedActionTicks( )
     return m_Latency - m_LastActionLateBy - TicksSinceLastUpdate;
 }
 
-uint32_t CGame::GetSlotsOccupied( )
+uint32_t CGame::GetSlotsOccupied( ) const
 {
   uint32_t NumSlotsOccupied = 0;
 
-  for ( vector<CGameSlot> ::iterator i = m_Slots.begin( ); i != m_Slots.end( ); ++i )
+  for ( vector<CGameSlot> ::const_iterator i = m_Slots.begin( ); i != m_Slots.end( ); ++i )
   {
     if ( ( *i ).GetSlotStatus( ) == SLOTSTATUS_OCCUPIED )
       ++NumSlotsOccupied;
@@ -161,11 +161,11 @@ uint32_t CGame::GetSlotsOccupied( )
   return NumSlotsOccupied;
 }
 
-uint32_t CGame::GetSlotsOpen( )
+uint32_t CGame::GetSlotsOpen( ) const
 {
   uint32_t NumSlotsOpen = 0;
 
-  for ( vector<CGameSlot> ::iterator i = m_Slots.begin( ); i != m_Slots.end( ); ++i )
+  for ( vector<CGameSlot> ::const_iterator i = m_Slots.begin( ); i != m_Slots.end( ); ++i )
   {
     if ( ( *i ).GetSlotStatus( ) == SLOTSTATUS_OPEN )
       ++NumSlotsOpen;
@@ -174,16 +174,16 @@ uint32_t CGame::GetSlotsOpen( )
   return NumSlotsOpen;
 }
 
-uint32_t CGame::GetNumPlayers( )
+uint32_t CGame::GetNumPlayers( ) const
 {
   return GetNumHumanPlayers( ) + m_FakePlayers.size( );
 }
 
-uint32_t CGame::GetNumHumanPlayers( )
+uint32_t CGame::GetNumHumanPlayers( ) const
 {
   uint32_t NumHumanPlayers = 0;
 
-  for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+  for ( vector<CGamePlayer *> ::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
   {
     if ( !( *i )->GetLeftMessageSent( ) )
       ++NumHumanPlayers;
@@ -192,7 +192,7 @@ uint32_t CGame::GetNumHumanPlayers( )
   return NumHumanPlayers;
 }
 
-string CGame::GetDescription( )
+string CGame::GetDescription( ) const
 {
   string Description = m_GameName + " : " + m_OwnerName + " : " + UTIL_ToString( GetNumHumanPlayers( ) ) + "/" + UTIL_ToString( m_GameLoading || m_GameLoaded ? m_StartPlayers : m_Slots.size( ) );
 
@@ -204,7 +204,7 @@ string CGame::GetDescription( )
   return Description;
 }
 
-string CGame::GetPlayers( )
+string CGame::GetPlayers( ) const
 {
   string Players;
 

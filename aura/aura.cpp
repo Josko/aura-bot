@@ -145,7 +145,7 @@ void Print2( const string &message )
 // main
 //
 
-int main( )
+int main(int argc, char *argv[])
 {
   srand( (unsigned int) time( NULL ) );
 
@@ -227,10 +227,7 @@ int main( )
   {
     // loop
 
-    while ( !gAura->Update( ) )
-    {
-      // loop until gAura->Update( ) returns true
-    }
+    while ( !gAura->Update( ) );
   }
   else
     Print( "[AURA] check your aura.cfg and configure Aura properly" );
@@ -256,9 +253,9 @@ int main( )
   if ( gRestart )
   {
 #ifdef WIN32
-    _spawnl( _P_OVERLAY, "aura.exe", "aura.exe", NULL );
+    _spawnl( _P_OVERLAY, argv[0], argv[0], NULL );
 #else
-    execl( "aura++", "aura++", NULL );
+    execl( argv[0], argv[0], NULL );
 #endif
   }
 
@@ -455,12 +452,12 @@ bool CAura::Update( )
   // 2. all running games' player sockets
 
   for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
-    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
+    NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
   // 3. all battle.net sockets
 
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
+    NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
   // 4. irc socket
 
@@ -473,8 +470,8 @@ bool CAura::Update( )
 
   for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
   {
-    if ( ( *i )->GetNextTimedActionTicks( ) * 1000 < usecBlock )
-      usecBlock = ( *i )->GetNextTimedActionTicks( ) * 1000;
+    if ( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
+      usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
   }
 
   struct timeval tv;
@@ -507,16 +504,16 @@ bool CAura::Update( )
 
   for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); )
   {
-    if ( ( *i )->Update( &fd, &send_fd ) )
+    if ( (*i)->Update( &fd, &send_fd ) )
     {
-      Print2( "[AURA] deleting game [" + ( *i )->GetGameName( ) + "]" );
-      EventGameDeleted( *i );
+      Print2( "[AURA] deleting game [" + (*i)->GetGameName( ) + "]" );
+      EventGameDeleted(*i);
       delete *i;
       i = m_Games.erase( i );
     }
     else
     {
-      ( *i )->UpdatePost( &send_fd );
+      (*i)->UpdatePost( &send_fd );
       ++i;
     }
   }
@@ -533,8 +530,8 @@ bool CAura::Update( )
 
       for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
       {
-        ( *i )->QueueGameUncreate( );
-        ( *i )->QueueEnterChat( );
+        (*i)->QueueGameUncreate( );
+        (*i)->QueueEnterChat( );
       }
     }
     else if ( m_CurrentGame )
@@ -545,7 +542,7 @@ bool CAura::Update( )
 
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    if ( ( *i )->Update( &fd, &send_fd ) )
+    if ( (*i)->Update( &fd, &send_fd ) )
       Exit = true;
   }
 
@@ -580,10 +577,10 @@ void CAura::EventGameDeleted( CGame *game )
 {
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    ( *i )->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
+    (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
 
-    if ( ( *i )->GetServer( ) == game->GetCreatorServer( ) )
-      ( *i )->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, string( ) );
+    if ( (*i)->GetServer( ) == game->GetCreatorServer( ) )
+      (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, string( ) );
   }
 }
 
@@ -630,9 +627,7 @@ void CAura::SetConfigs( CConfig *CFG )
   m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );
 
   if ( m_VoteKickPercentage > 100 )
-  {
     m_VoteKickPercentage = 100;
-  }
 }
 
 void CAura::ExtractScripts( )
@@ -774,8 +769,8 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   {
     for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -785,8 +780,8 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   {
     for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -796,8 +791,8 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   {
     for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -807,8 +802,8 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   {
     for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -818,8 +813,8 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   {
     for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -831,26 +826,26 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    if ( whisper && ( *i )->GetServer( ) == creatorServer )
+    if ( whisper && (*i)->GetServer( ) == creatorServer )
     {
       // note that we send this whisper only on the creator server
 
       if ( gameState == GAME_PRIVATE )
-        ( *i )->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, string( ) );
       else if ( gameState == GAME_PUBLIC )
-        ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, string( ) );
     }
     else
     {
       // note that we send this chat message on all other bnet servers
 
       if ( gameState == GAME_PRIVATE )
-        ( *i )->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
       else if ( gameState == GAME_PUBLIC )
-        ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
     }
 
-    ( *i )->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
+    (*i)->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
   }
 
   // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
@@ -861,8 +856,8 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
   {
     for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( !( *i )->GetPvPGN( ) )
-        ( *i )->QueueEnterChat( );
+      if ( !(*i)->GetPvPGN( ) )
+        (*i)->QueueEnterChat( );
     }
   }
 
@@ -870,7 +865,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    ( *i )->HoldFriends( m_CurrentGame );
-    ( *i )->HoldClan( m_CurrentGame );
+    (*i)->HoldFriends( m_CurrentGame );
+    (*i)->HoldClan( m_CurrentGame );
   }
 }

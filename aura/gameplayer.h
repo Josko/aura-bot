@@ -122,6 +122,7 @@ public:
   CTCPSocket *GetSocket( ) const								{ return m_Socket; }
   BYTEARRAY GetExternalIP( ) const;
 	string GetExternalIPString( ) const;
+  uint32_t GetPing( bool LCPing ) const;
   bool GetDeleteMe( ) const											{ return m_DeleteMe; }
   unsigned char GetPID( ) const									{ return m_PID; }
   string GetName( ) const												{ return m_Name; }
@@ -155,124 +156,36 @@ public:
   bool GetMuted( ) const												{ return m_Muted; }
   bool GetLeftMessageSent( ) const						  { return m_LeftMessageSent; }
 
-  void SetLeftReason( const string &nLeftReason )
-  {
-    m_LeftReason = nLeftReason;
-  }
-
-  void SetSpoofedRealm( const string &nSpoofedRealm )
-  {
-    m_SpoofedRealm = nSpoofedRealm;
-  }
-
-  void SetLeftCode( uint32_t nLeftCode )
-  {
-    m_LeftCode = nLeftCode;
-  }
-
-  void SetSyncCounter( uint32_t nSyncCounter )
-  {
-    m_SyncCounter = nSyncCounter;
-  }
-
-  void SetLastMapPartSent( uint32_t nLastMapPartSent )
-  {
-    m_LastMapPartSent = nLastMapPartSent;
-  }
-
-  void SetLastMapPartAcked( uint32_t nLastMapPartAcked )
-  {
-    m_LastMapPartAcked = nLastMapPartAcked;
-  }
-
-  void SetStartedDownloadingTicks( uint32_t nStartedDownloadingTicks )
-  {
-    m_StartedDownloadingTicks = nStartedDownloadingTicks;
-  }
-
-  void SetFinishedDownloadingTime( uint32_t nFinishedDownloadingTime )
-  {
-    m_FinishedDownloadingTime = nFinishedDownloadingTime;
-  }
-
-  void SetStartedLaggingTicks( uint32_t nStartedLaggingTicks )
-  {
-    m_StartedLaggingTicks = nStartedLaggingTicks;
-  }
-  
-  void SetSpoofed( bool nSpoofed )
-  {
-    m_Spoofed = nSpoofed;
-  }
-
-  void SetReserved( bool nReserved )
-  {
-    m_Reserved = nReserved;
-  }
-
-  void SetWhoisShouldBeSent( bool nWhoisShouldBeSent )
-  {
-    m_WhoisShouldBeSent = nWhoisShouldBeSent;
-  }
-
-  void SetDownloadAllowed( bool nDownloadAllowed )
-  {
-    m_DownloadAllowed = nDownloadAllowed;
-  }
-
-  void SetDownloadStarted( bool nDownloadStarted )
-  {
-    m_DownloadStarted = nDownloadStarted;
-  }
-
-  void SetDownloadFinished( bool nDownloadFinished )
-  {
-    m_DownloadFinished = nDownloadFinished;
-  }
-
-  void SetLagging( bool nLagging )
-  {
-    m_Lagging = nLagging;
-  }
-
-  void SetDropVote( bool nDropVote )
-  {
-    m_DropVote = nDropVote;
-  }
-
-  void SetKickVote( bool nKickVote )
-  {
-    m_KickVote = nKickVote;
-  }
-
-  void SetMuted( bool nMuted )
-  {
-    m_Muted = nMuted;
-  }
-
-  void SetLeftMessageSent( bool nLeftMessageSent )
-  {
-    m_LeftMessageSent = nLeftMessageSent;
-  }
+  void SetSocket( CTCPSocket *nSocket )										{ m_Socket = nSocket; }
+  void SetDeleteMe( bool nDeleteMe )											{ m_DeleteMe = nDeleteMe; }
+  void SetLeftReason( const string &nLeftReason )					{ m_LeftReason = nLeftReason; }
+  void SetSpoofedRealm( const string &nSpoofedRealm )			{ m_SpoofedRealm = nSpoofedRealm; }
+  void SetLeftCode( uint32_t nLeftCode )									{ m_LeftCode = nLeftCode; }
+  void SetSyncCounter( uint32_t nSyncCounter )						{ m_SyncCounter = nSyncCounter; }
+  void SetLastMapPartSent( uint32_t nLastMapPartSent )		{ m_LastMapPartSent = nLastMapPartSent; }
+  void SetLastMapPartAcked( uint32_t nLastMapPartAcked )	{ m_LastMapPartAcked = nLastMapPartAcked; }
+  void SetStartedDownloadingTicks( uint32_t nStartedDownloadingTicks )	{ m_StartedDownloadingTicks = nStartedDownloadingTicks; }
+  void SetFinishedDownloadingTime( uint32_t nFinishedDownloadingTime )	{ m_FinishedDownloadingTime = nFinishedDownloadingTime; }
+  void SetStartedLaggingTicks( uint32_t nStartedLaggingTicks )					{ m_StartedLaggingTicks = nStartedLaggingTicks; }
+  void SetSpoofed( bool nSpoofed )												{ m_Spoofed = nSpoofed; }
+  void SetReserved( bool nReserved )											{ m_Reserved = nReserved; }
+  void SetWhoisShouldBeSent( bool nWhoisShouldBeSent )		{ m_WhoisShouldBeSent = nWhoisShouldBeSent; }
+  void SetDownloadAllowed( bool nDownloadAllowed )				{ m_DownloadAllowed = nDownloadAllowed; }
+  void SetDownloadStarted( bool nDownloadStarted )				{ m_DownloadStarted = nDownloadStarted; }
+  void SetDownloadFinished( bool nDownloadFinished )			{ m_DownloadFinished = nDownloadFinished; }
+  void SetLagging( bool nLagging )												{ m_Lagging = nLagging; }
+  void SetDropVote( bool nDropVote )											{ m_DropVote = nDropVote; }
+  void SetKickVote( bool nKickVote )											{ m_KickVote = nKickVote; }
+  void SetMuted( bool nMuted )														{ m_Muted = nMuted; }
+  void SetLeftMessageSent( bool nLeftMessageSent )				{ m_LeftMessageSent = nLeftMessageSent; }
 
   // processing functions
 
   bool Update( void *fd );
 
-  void SetSocket( CTCPSocket *nSocket )
-  {
-    m_Socket = nSocket;
-  }
-
-  void SetDeleteMe( bool nDeleteMe )
-  {
-    m_DeleteMe = nDeleteMe;
-  }
-
   // other functions
 
   void Send( const BYTEARRAY &data );
-  uint32_t GetPing( bool LCPing );
 };
 
 #endif

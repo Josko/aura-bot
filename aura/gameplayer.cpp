@@ -149,7 +149,7 @@ string CGamePlayer::GetExternalIPString( ) const
     return m_Socket->GetIPString( );
 }
 
-uint32_t CGamePlayer::GetPing( bool LCPing )
+uint32_t CGamePlayer::GetPing( bool LCPing ) const
 {
   // just average all the pings in the vector, nothing fancy
 
