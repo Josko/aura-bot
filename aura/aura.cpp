@@ -266,8 +266,10 @@ int main(int argc, char *argv[])
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.07" ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( VERSION ), m_HostCounter( 1 ), m_Ready( true )
 {
+	Print( "[AURA] Aura++ commit " + m_Version + " - without GProxy++ support" );
+
   // get the general configuration variables
 
   m_UDPSocket = new CUDPSocket( );
@@ -409,8 +411,6 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
   // load the iptocountry data
 
   LoadIPToCountryData( );
-
-  Print( "[AURA] Aura++ Version " + m_Version + " - without GProxy++ support " );
 }
 
 CAura::~CAura( )
