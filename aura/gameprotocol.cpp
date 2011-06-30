@@ -532,7 +532,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG( vector<CGamePlayer *> players )
 
   unsigned char NumLaggers = 0;
 
-  for ( vector<CGamePlayer *> ::iterator i = players.begin( ); i != players.end( ); ++i )
+  for ( vector<CGamePlayer *> ::const_iterator i = players.begin( ); i != players.end( ); ++i )
   {
     if ( ( *i )->GetLagging( ) )
       ++NumLaggers;
@@ -546,7 +546,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG( vector<CGamePlayer *> players )
     packet.push_back( 0 ); // packet length will be assigned later
     packet.push_back( NumLaggers );
 
-    for ( vector<CGamePlayer *> ::iterator i = players.begin( ); i != players.end( ); ++i )
+    for ( vector<CGamePlayer *> ::const_iterator i = players.begin( ); i != players.end( ); ++i )
     {
       if ( ( *i )->GetLagging( ) )
       {

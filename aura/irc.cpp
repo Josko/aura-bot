@@ -253,7 +253,7 @@ void CIRC::ExtractPackets( )
       
       // relay messages to bnets
       
-      for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+      for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
       {
         if ( Message[0] == ( *i )->GetCommandTrigger( ) )
         {          
@@ -334,7 +334,7 @@ void CIRC::ExtractPackets( )
 
       // join channels
 
-      for ( vector<string> ::iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
+      for ( vector<string> ::const_iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
         SendIRC( "JOIN " + ( *j ) );
 
       continue;
@@ -377,7 +377,7 @@ void CIRC::SendMessageIRC( const string &message, const string &target )
   if ( m_Socket->GetConnected( ) )
   {
     if ( target.empty( ) )
-      for ( vector<string> ::iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
+      for ( vector<string> ::const_iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
         m_Socket->PutBytes( "PRIVMSG " + ( *i ) + " :" + ( message.size( ) > 450 ? message.substr( 0, 450 ) : message ) + LF );
     else
       m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 450 ? message.substr( 0, 450 ) : message ) + LF );
