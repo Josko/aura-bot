@@ -4,10 +4,10 @@ ARCH = $(shell uname -m)
 CC = gcc
 CXX = g++
 CCFLAGS =
-CXXFLAGS = -Wall -Wextra
+CXXFLAGS = -pipe -Wall -Wextra
 DFLAGS = 
 OFLAGS = -O3
-LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
+LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time -lboost_system -lboost_filesystem
 
 ifeq ($(ARCH),x86_64)
 	CCFLAGS += -m64
@@ -41,20 +41,24 @@ COBJS = sqlite3.o
 PROGS = ./aura++
 
 all: $(OBJS) $(COBJS) $(PROGS)
+	@echo "Used CFLAGS: $(CXXFLAGS)"
 
 ./aura++: $(OBJS) $(COBJS)
-	$(CXX) -o ./aura++ $(OBJS) $(COBJS) $(LFLAGS)
+	@$(CXX) -o ./aura++ $(OBJS) $(COBJS) $(LFLAGS)
+	@echo "[BIN] Success. $@ created."
 
 clean:
-	rm -f $(OBJS) $(COBJS) $(PROGS)	
+	@rm -f $(OBJS) $(COBJS) $(PROGS)
+	@echo "Cleaned."
 
-install: $(PROGS)
-	cp $(PROGS) ../$(PROGS)
+install:
+	@cp $(PROGS) ..
 
 $(OBJS): %.o: %.cpp
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c $<
+	@echo "[$(CXX)] $@"
 
 $(COBJS): %.o: %.c
-	$(CC) -o $@ $(CCFLAGS) -c $<
+	@$(CC) -o $@ $(CCFLAGS) -c $<
+	@echo "[$(CC)] $@"
 
-./aura++: $(OBJS) $(COBJS)
