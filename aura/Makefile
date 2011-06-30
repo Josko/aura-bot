@@ -1,16 +1,22 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
+ARCH = $(shell uname -m)
 CC = gcc
 CXX = g++
-CCFLAGS = -m64
-CXXFLAGS = -m64 -Wall -Wextra
+CCFLAGS =
+CXXFLAGS = -Wall -Wextra
 DFLAGS = 
 OFLAGS = -O3
 LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
 
+ifeq ($(ARCH),x86_64)
+	CCFLAGS += -m64
+	CXXFLAGS += -m64
+endif
+
 ifeq ($(SYSTEM),Darwin)
 	CC = /usr/bin/gcc
-	CXX = /usr/bin/g++	
+	CXX = /usr/bin/g++
 	DFLAGS += -D__APPLE__
 	OFLAGS += -flat_namespace
 	LFLAGS += -L/opt/local/lib/
