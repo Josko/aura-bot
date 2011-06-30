@@ -178,7 +178,7 @@ bool CGamePlayer::Update( void *fd )
 
   if ( m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty( ) && Time - m_JoinTime >= 4 )
   {
-    for ( vector<CBNET *> ::iterator i = m_Game->m_Aura->m_BNETs.begin( ); i != m_Game->m_Aura->m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_Game->m_Aura->m_BNETs.begin( ); i != m_Game->m_Aura->m_BNETs.end( ); ++i )
     {
       if ( ( *i )->GetServer( ) == m_JoinedRealm )
       {

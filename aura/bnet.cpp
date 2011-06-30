@@ -656,7 +656,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( Command == "spam" && m_Aura->m_CurrentGame && m_Aura->m_CurrentGame->GetGameName( ).size( ) < 6 )
         {
-          for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+          for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
             if ( !( *i )->GetPvPGN( ) )
               ( *i )->SetSpam( );
         }
@@ -1115,8 +1115,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						// when a player joins a game we can obtain the ID from the received host counter
 						// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
 
-						uint32_t FixedHostCounter = m_Aura->m_CurrentGame->GetHostCounter( ) & 0x0FFFFFFF;
-
 						// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
 						// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
 						// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
@@ -1126,13 +1124,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 						// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
 						// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
 
-
 						// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
 						// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-						uint32_t MapGameType = MAPGAMETYPE_UNKNOWN0;
-
-						m_Aura->m_UDPSocket->SendTo( IP, Port, m_Aura->m_CurrentGame->GetProtocol( )->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( MapGameType, false ), m_Aura->m_CurrentGame->GetMap( )->GetMapGameFlags( ), m_Aura->m_CurrentGame->GetMap( )->GetMapWidth( ), m_Aura->m_CurrentGame->GetMap( )->GetMapHeight( ), m_Aura->m_CurrentGame->GetGameName( ), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap( )->GetMapPath( ), m_Aura->m_CurrentGame->GetMap( )->GetMapCRC( ), 12, 12, m_Aura->m_CurrentGame->GetHostPort( ), FixedHostCounter, m_Aura->m_CurrentGame->GetEntryKey( ) ) );
+						m_Aura->m_UDPSocket->SendTo( IP, Port, m_Aura->m_CurrentGame->GetProtocol( )->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( (uint32_t) MAPGAMETYPE_UNKNOWN0, false ), m_Aura->m_CurrentGame->GetMap( )->GetMapGameFlags( ), m_Aura->m_CurrentGame->GetMap( )->GetMapWidth( ), m_Aura->m_CurrentGame->GetMap( )->GetMapHeight( ), m_Aura->m_CurrentGame->GetGameName( ), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap( )->GetMapPath( ), m_Aura->m_CurrentGame->GetMap( )->GetMapCRC( ), 12, 12, m_Aura->m_CurrentGame->GetHostPort( ), m_Aura->m_CurrentGame->GetHostCounter( ) & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey( ) ) );
 					}
 				}
 
@@ -1393,7 +1388,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             if ( m_Aura->m_CurrentGame )
               m_Aura->m_CurrentGame->SendAllChat( Payload );
 
-            for ( vector<CGame *> ::iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
+            for ( vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
               ( *i )->SendAllChat( "ADMIN: " + Payload );
           }
           else
@@ -1401,7 +1396,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             if ( m_Aura->m_CurrentGame )
               m_Aura->m_CurrentGame->SendAllChat( Payload );
 
-            for ( vector<CGame *> ::iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
+            for ( vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
               ( *i )->SendAllChat( "ADMIN (" + User + "): " + Payload );
           }
         }
@@ -1513,7 +1508,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             Name = Payload.substr( 0, MessageStart );
             Message = Payload.substr( MessageStart + 1 );
 
-            for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+            for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
               ( *i )->QueueChatCommand( Message, Name, true, string( ) );
           }
         }
@@ -1739,7 +1734,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           string message = "Status: ";
 
-          for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+          for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
           {
             message += ( *i )->GetServer( ) + ( ( *i )->GetLoggedIn( ) ? " [Online], " : " [Offline], " );
           }
@@ -2023,12 +2018,12 @@ CDBBan *CBNET::IsBannedName( string name )
 
 void CBNET::HoldFriends( CGame *game )
 {
-  for ( vector<string> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
+  for ( vector<string> ::const_iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
     game->AddToReserved( *i  );
 }
 
 void CBNET::HoldClan( CGame *game )
 {
-  for ( vector<string> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
+  for ( vector<string> ::const_iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
     game->AddToReserved( *i );
 }

@@ -302,7 +302,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
 
   vector<string> Channels;
 
-  for ( int i = 1; i <= 10; ++i )
+  for ( unsigned int i = 1; i <= 10; ++i )
   {
     string Channel;
 
@@ -329,7 +329,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
   // load the battle.net connections
   // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
 
-  for ( int i = 1; i < 10; ++i )
+  for ( unsigned int i = 1; i < 10; ++i )
   {
     string Prefix;
 
@@ -451,12 +451,12 @@ bool CAura::Update( )
 
   // 2. all running games' player sockets
 
-  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+  for ( vector<CGame *> ::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
     NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
   // 3. all battle.net sockets
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
   // 4. irc socket
@@ -468,7 +468,7 @@ bool CAura::Update( )
 
   unsigned long usecBlock = 50000;
 
-  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+  for ( vector<CGame *> ::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
   {
     if ( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
       usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
@@ -528,7 +528,7 @@ bool CAura::Update( )
       delete m_CurrentGame;
       m_CurrentGame = NULL;
 
-      for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+      for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
       {
         (*i)->QueueGameUncreate( );
         (*i)->QueueEnterChat( );
@@ -540,7 +540,7 @@ bool CAura::Update( )
 
   // update battle.net connections
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     if ( (*i)->Update( &fd, &send_fd ) )
       Exit = true;
@@ -575,7 +575,7 @@ void CAura::EventBNETGameRefreshFailed( CBNET *bnet )
 
 void CAura::EventGameDeleted( CGame *game )
 {
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
 
@@ -767,7 +767,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 {
   if ( !m_Enabled )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
         (*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, string( ) );
@@ -778,7 +778,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( gameName.size( ) > 31 )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
         (*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, string( ) );
@@ -789,7 +789,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( !map->GetValid( ) )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
         (*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, string( ) );
@@ -800,7 +800,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( m_CurrentGame )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
         (*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, string( ) );
@@ -811,7 +811,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( m_Games.size( ) >= m_MaxGames )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
         (*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, string( ) );
@@ -824,7 +824,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     if ( whisper && (*i)->GetServer( ) == creatorServer )
     {
@@ -854,7 +854,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( gameState == GAME_PRIVATE )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( !(*i)->GetPvPGN( ) )
         (*i)->QueueEnterChat( );
@@ -863,7 +863,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   // hold friends and/or clan members
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     (*i)->HoldFriends( m_CurrentGame );
     (*i)->HoldClan( m_CurrentGame );
