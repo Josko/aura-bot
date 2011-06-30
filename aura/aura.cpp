@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.06" ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.07" ), m_HostCounter( 1 ), m_Ready( true )
 {
   // get the general configuration variables
 
