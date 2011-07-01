@@ -4027,7 +4027,7 @@ void CGame::AddToSpoofed( const string &server, const string &name, bool sendMes
     Player->SetSpoofed( true );
 
     if ( sendMessage )
-      SendAllChat( m_Aura->m_Language->SpoofCheckAcceptedFor( server, name ) );
+      SendChat( Player, m_Aura->m_Language->SpoofCheckAcceptedFor( server, name ) );
   }
 }
 

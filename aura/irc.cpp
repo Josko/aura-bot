@@ -116,7 +116,7 @@ bool CIRC::Update( void *fd, void *send_fd )
         m_Nickname = m_NicknameCpy;
 
       SendIRC( "NICK " + m_Nickname );
-      SendIRC( "USER " + m_Username + " " + m_Nickname + " " + m_Username + " :by h4x0rz88" );
+      SendIRC( "USER " + m_Username + " " + m_Nickname + " " + m_Username + " :Annyu" );
 
       m_Socket->DoSend( (fd_set *) send_fd );
 
@@ -276,7 +276,7 @@ void CIRC::ExtractPackets( )
       bool Root = false;
       
       if( Hostname.size( ) > 6 )
-        Root = Hostname.substr( 0, 6 ) == "Aurani" || Hostname.substr( 0, 8 ) == "h4x0rz88";
+        Root = Hostname.substr( 0, 6 ) == "Philly" || Hostname.substr( 0, 6 ) == "Starrk";
 
       if( PayloadStart != string :: npos )
       {
