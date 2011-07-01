@@ -53,6 +53,10 @@
 #include <mach/mach_time.h>
 #endif
 
+#ifdef WIN32
+#define VERSION "1.07"
+#endif
+
 CAura *gAura = NULL;
 bool gRestart = false;
 
@@ -268,7 +272,11 @@ int main(int argc, char *argv[])
 
 CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( VERSION ), m_HostCounter( 1 ), m_Ready( true )
 {
+#ifdef WIN32
+	Print( "[AURA] Aura++ version " + m_Version + " - without GProxy++ support" );
+#elif
 	Print( "[AURA] Aura++ commit " + m_Version + " - without GProxy++ support" );
+#endif
 
   // get the general configuration variables
 
