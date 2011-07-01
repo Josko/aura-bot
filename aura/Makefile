@@ -39,18 +39,18 @@ CXXFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/
 
 OBJS = bncsutilinterface.o bnet.o bnetprotocol.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o aura.o auradb.o language.o map.o sha1.o socket.o stats.o util.o irc.o
 COBJS = sqlite3.o
-PROGS = ./aura++
+PROGS = aura++
 
 all: $(OBJS) $(COBJS) $(PROGS)
 	@echo "Used CFLAGS: $(CXXFLAGS)"
 
-./aura++: $(OBJS) $(COBJS)
-	@$(CXX) -o ./aura++ $(OBJS) $(COBJS) $(LFLAGS)
+aura++: $(OBJS) $(COBJS)
+	@$(CXX) -o aura++ $(OBJS) $(COBJS) $(LFLAGS)
 	@echo "[BIN] Success. $@ created."
 
 clean:
 	@rm -f $(OBJS) $(COBJS) $(PROGS)
-	@echo "Cleaned."
+	@echo "Binary and object files cleaned."
 
 install:
 	@cp $(PROGS) ..
