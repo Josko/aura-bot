@@ -1966,7 +1966,7 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, CMap 
     MapHeight.push_back( 192 );
     MapHeight.push_back( 7 );
 
-    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), MapWidth, MapHeight, gameName, "Clan 007", 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );  
+    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), MapWidth, MapHeight, gameName, m_UserName, 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );  
   }
 }
 
