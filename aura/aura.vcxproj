@@ -29,7 +29,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\boost_1_44_0\</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\boost_1_46_1\</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -45,7 +45,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <CompileAsManaged>false</CompileAsManaged>
@@ -59,7 +59,7 @@
       <AdditionalDependencies>ws2_32.lib;winmm.lib;zdll.lib;StormLibRAS.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\zlib\lib;..\boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -83,6 +83,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gameplayer.cpp" />
     <ClCompile Include="gameprotocol.cpp" />
+    <ClCompile Include="gpsprotocol.cpp" />
     <ClCompile Include="gameslot.cpp" />
     <ClCompile Include="aura.cpp" />
     <ClCompile Include="auradb.cpp" />
@@ -105,6 +106,7 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="gameplayer.h" />
     <ClInclude Include="gameprotocol.h" />
+    <ClInclude Include="gpsprotocol.h" />
     <ClInclude Include="gameslot.h" />
     <ClInclude Include="aura.h" />
     <ClInclude Include="auradb.h" />

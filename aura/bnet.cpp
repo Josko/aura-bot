@@ -146,7 +146,7 @@ bool CBNET::Update( void *fd, void *send_fd )
       {
         // bytes 2 and 3 contain the length of the packet
 
-        uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+        uint16_t Length = (uint16_t) ( Bytes[3] << 8 | Bytes[2] );
 
         if ( Bytes.size( ) >= Length )
         {
@@ -595,8 +595,8 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
                 for ( directory_iterator i( m_Aura->m_MapPath ); i != EndIterator; ++i )
                 {
-                  string FileName = i->filename( );
-                  string Stem = i->path( ).stem( );
+                  string FileName = i->path( ).filename( ).string( );
+                  string Stem = i->path( ).stem( ).string( );
                   transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
                   transform( Stem.begin( ), Stem.end( ), Stem.begin( ), (int(* )(int) )tolower );
 
@@ -606,9 +606,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                     ++Matches;
 
                     if ( FoundMaps.empty( ) )
-                      FoundMaps = i->filename( );
+                      FoundMaps = i->path( ).filename( ).string( );
                     else
-                      FoundMaps += ", " + i->filename( );
+                      FoundMaps += ", " + i->path( ).filename( ).string( );
 
                     // if the pattern matches the filename exactly, with or without extension, stop any further matching
 
@@ -624,7 +624,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                   QueueChatCommand( m_Aura->m_Language->NoMapsFound( ), User, Whisper, m_IRC );
                 else if ( Matches == 1 )
                 {
-                  string File = LastMatch.filename( );
+                  string File = LastMatch.filename( ).string( );
                   QueueChatCommand( m_Aura->m_Language->LoadingConfigFile( File ), User, Whisper, m_IRC );
 
                   // hackhack: create a config file in memory with the required information to load the map
@@ -656,7 +656,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( Command == "spam" && m_Aura->m_CurrentGame && m_Aura->m_CurrentGame->GetGameName( ).size( ) < 6 )
         {
-          for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+          for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
             if ( !( *i )->GetPvPGN( ) )
               ( *i )->SetSpam( );
         }
@@ -738,8 +738,8 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
                 for ( directory_iterator i( MapCFGPath ); i != EndIterator; ++i )
                 {
-                  string FileName = i->filename( );
-                  string Stem = i->path( ).stem( );
+                  string FileName = i->path( ).filename( ).string( );
+                  string Stem = i->path( ).stem( ).string( );
                   transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
                   transform( Stem.begin( ), Stem.end( ), Stem.begin( ), (int(* )(int) )tolower );
 
@@ -749,9 +749,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                     ++Matches;
 
                     if ( FoundMapConfigs.empty( ) )
-                      FoundMapConfigs = i->filename( );
+                      FoundMapConfigs = i->path( ).filename( ).string( );
                     else
-                      FoundMapConfigs += ", " + i->filename( );
+                      FoundMapConfigs += ", " + i->path( ).filename( ).string( );
 
                     // if the pattern matches the filename exactly, with or without extension, stop any further matching
 
@@ -767,7 +767,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                   QueueChatCommand( m_Aura->m_Language->NoMapConfigsFound( ), User, Whisper, m_IRC );
                 else if ( Matches == 1 )
                 {
-                  string File = LastMatch.filename( );
+                  string File = LastMatch.filename( ).string( );
                   QueueChatCommand( m_Aura->m_Language->LoadingConfigFile( m_Aura->m_MapCFGPath + File ), User, Whisper, m_IRC );
                   CConfig MapCFG;
                   MapCFG.Read( LastMatch.string( ) );
@@ -1090,6 +1090,47 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           }
         }
         
+        else if ( Command == "sendlan" && m_Aura->m_CurrentGame && !Payload.empty( ) && !m_Aura->m_CurrentGame->GetCountDownStarted( ) )
+				{
+					// extract the ip and the port
+					// e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
+
+					string IP;
+					uint32_t Port = 6112;
+					stringstream SS;
+					SS << Payload;
+					SS >> IP;
+
+					if ( !SS.eof( ) )
+						SS >> Port;
+
+					if ( SS.fail( ) )
+						QueueChatCommand( "Bad input to sendlan command", User, Whisper, m_IRC );
+					else
+					{
+						// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
+						// the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
+						// the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
+						// since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
+						// when a player joins a game we can obtain the ID from the received host counter
+						// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
+
+						// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
+						// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
+						// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
+						// however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
+						// nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
+						// we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
+						// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
+						// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
+
+						// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
+						// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
+
+						m_Aura->m_UDPSocket->SendTo( IP, Port, m_Aura->m_CurrentGame->GetProtocol( )->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( (uint32_t) MAPGAMETYPE_UNKNOWN0, false ), m_Aura->m_CurrentGame->GetMap( )->GetMapGameFlags( ), m_Aura->m_CurrentGame->GetMap( )->GetMapWidth( ), m_Aura->m_CurrentGame->GetMap( )->GetMapHeight( ), m_Aura->m_CurrentGame->GetGameName( ), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap( )->GetMapPath( ), m_Aura->m_CurrentGame->GetMap( )->GetMapCRC( ), 12, 12, m_Aura->m_CurrentGame->GetHostPort( ), m_Aura->m_CurrentGame->GetHostCounter( ) & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey( ) ) );
+					}
+				}
+
         //
         // !COUNTMAPS
         // !COUNTMAP
@@ -1102,7 +1143,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           for ( directory_iterator i( m_Aura->m_MapPath ); i != EndIterator; ++i )
           {
-            string FileName = i->filename( );
+            string FileName = i->path( ).filename( ).string( );
             transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
 
             if ( FileName.find( ".w3x" ) != string::npos || FileName.find( ".w3m" ) != string::npos )
@@ -1124,7 +1165,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           for ( directory_iterator i( m_Aura->m_MapCFGPath ); i != EndIterator; ++i )
           {
-            string FileName = i->filename( );
+            string FileName = i->path( ).filename( ).string( );
             transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
 
             if ( FileName.find( ".cfg" ) != string::npos )
@@ -1149,13 +1190,13 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           for ( directory_iterator i( m_Aura->m_MapCFGPath ); i != EndIterator; ++i )
           {
-            string FileName = i->filename( );
+            string FileName = i->path( ).filename( ).string( );
             transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
 
             if ( FileName == Payload )
             {
-              remove( m_Aura->m_MapCFGPath + i->filename( ) );
-              QueueChatCommand( "Deleted [" + i->filename( ) + "]", User, Whisper, m_IRC );
+              remove( m_Aura->m_MapCFGPath + i->path( ).filename( ).string( ) );
+              QueueChatCommand( "Deleted [" + i->path( ).filename( ).string( ) + "]", User, Whisper, m_IRC );
             }
           }
         }
@@ -1175,13 +1216,13 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           for ( directory_iterator i( m_Aura->m_MapPath ); i != EndIterator; ++i )
           {
-            string FileName = i->filename( );
+          	string FileName = i->path( ).filename( ).string( );
             transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
 
             if ( FileName == Payload )
             {
-              remove( m_Aura->m_MapPath + i->filename( ) );
-              QueueChatCommand( "Deleted [" + i->filename( ) + "]", User, Whisper, m_IRC );
+              remove( m_Aura->m_MapPath + i->path( ).filename( ).string( ) );
+              QueueChatCommand( "Deleted [" + i->path( ).filename( ).string( ) + "]", User, Whisper, m_IRC );
             }
           }
         }
@@ -1347,7 +1388,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             if ( m_Aura->m_CurrentGame )
               m_Aura->m_CurrentGame->SendAllChat( Payload );
 
-            for ( vector<CGame *> ::iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
+            for ( vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
               ( *i )->SendAllChat( "ADMIN: " + Payload );
           }
           else
@@ -1355,7 +1396,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             if ( m_Aura->m_CurrentGame )
               m_Aura->m_CurrentGame->SendAllChat( Payload );
 
-            for ( vector<CGame *> ::iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
+            for ( vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
               ( *i )->SendAllChat( "ADMIN (" + User + "): " + Payload );
           }
         }
@@ -1467,7 +1508,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             Name = Payload.substr( 0, MessageStart );
             Message = Payload.substr( MessageStart + 1 );
 
-            for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+            for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
               ( *i )->QueueChatCommand( Message, Name, true, string( ) );
           }
         }
@@ -1693,7 +1734,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           string message = "Status: ";
 
-          for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+          for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
           {
             message += ( *i )->GetServer( ) + ( ( *i )->GetLoggedIn( ) ? " [Online], " : " [Offline], " );
           }
@@ -1915,8 +1956,17 @@ void CBNET::QueueGameRefresh( unsigned char state, const string &gameName, CMap 
 
     if ( state == GAME_PRIVATE )
       MapGameType |= MAPGAMETYPE_PRIVATEGAME;
-    
-    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), map->GetMapWidth( ), map->GetMapHeight( ), gameName, string( UniqueName.begin( ), UniqueName.end( ) ), 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );
+
+    // use an invalid map width/height to indicate reconnectable games
+
+    BYTEARRAY MapWidth;
+    MapWidth.push_back( 192 );
+    MapWidth.push_back( 7 );
+    BYTEARRAY MapHeight;
+    MapHeight.push_back( 192 );
+    MapHeight.push_back( 7 );
+
+    m_OutPackets.push( m_Protocol->SEND_SID_STARTADVEX3( state, UTIL_CreateByteArray( MapGameType, false ), map->GetMapGameFlags( ), MapWidth, MapHeight, gameName, "Clan 007", 0, map->GetMapPath( ), map->GetMapCRC( ), map->GetMapSHA1( ), ( ( hostCounter & 0x0FFFFFFF ) | ( m_HostCounterID << 28 ) ) ) );  
   }
 }
 
@@ -1977,12 +2027,12 @@ CDBBan *CBNET::IsBannedName( string name )
 
 void CBNET::HoldFriends( CGame *game )
 {
-  for ( vector<string> ::iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
+  for ( vector<string> ::const_iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
     game->AddToReserved( *i  );
 }
 
 void CBNET::HoldClan( CGame *game )
 {
-  for ( vector<string> ::iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
+  for ( vector<string> ::const_iterator i = m_Clans.begin( ); i != m_Clans.end( ); ++i )
     game->AddToReserved( *i );
 }

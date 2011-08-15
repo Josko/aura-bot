@@ -133,7 +133,7 @@ uint32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
   // 1 byte           -> ???
-  // 4 bytes					-> CheckSum??? (used in replays)
+  // 4 bytes					-> CheckSum
 
   if ( ValidateLength( data ) && data.size( ) == 9 )
     return UTIL_ByteArrayToUInt32( data, false, 5 );
@@ -206,35 +206,6 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data )
   }
 
   return NULL;
-}
-
-bool CGameProtocol::RECEIVE_W3GS_SEARCHGAME( BYTEARRAY data, unsigned char war3Version )
-{
-  uint32_t ProductID = 1462982736; // "W3XP"
-  uint32_t Version = war3Version;
-
-  // DEBUG_Print( "RECEIVED W3GS_SEARCHGAME" );
-  // DEBUG_Print( data );
-
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 4 bytes					-> ProductID
-  // 4 bytes					-> Version
-  // 4 bytes					-> ??? (Zero)
-
-  if ( ValidateLength( data ) && data.size( ) >= 16 )
-  {
-    if ( UTIL_ByteArrayToUInt32( data, false, 4 ) == ProductID )
-    {
-      if ( UTIL_ByteArrayToUInt32( data, false, 8 ) == Version )
-      {
-        if ( UTIL_ByteArrayToUInt32( data, false, 12 ) == 0 )
-          return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 CIncomingMapSize *CGameProtocol::RECEIVE_W3GS_MAPSIZE( BYTEARRAY data )
@@ -453,6 +424,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFO( vector<CGameSlot> &slots, uint32_t 
   UTIL_AppendByteArray( packet, (uint16_t) SlotInfo.size( ), false ); // SlotInfo length
   UTIL_AppendByteArrayFast( packet, SlotInfo ); // SlotInfo
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_SLOTINFO" );
   // DEBUG_Print( packet );
   return packet;
@@ -466,6 +438,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_START( )
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( 0 ); // packet length will be assigned later
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_COUNTDOWN_START" );
   // DEBUG_Print( packet );
   return packet;
@@ -479,6 +452,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_END( )
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( 0 ); // packet length will be assigned later
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_COUNTDOWN_END" );
   // DEBUG_Print( packet );
   return packet;
@@ -499,14 +473,14 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *> act
   {
     BYTEARRAY subpacket;
 
-    while ( !actions.empty( ) )
+    do
     {
       CIncomingAction *Action = actions.front( );
       actions.pop( );
       subpacket.push_back( Action->GetPID( ) );
       UTIL_AppendByteArray( subpacket, (uint16_t) Action->GetAction( )->size( ), false );
       UTIL_AppendByteArrayFast( subpacket, *Action->GetAction( ) );
-    }
+    } while ( !actions.empty( ) );
 
     // calculate crc (we only care about the first 2 bytes though)
 
@@ -520,6 +494,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *> act
   }
 
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_INCOMING_ACTION" );
   // DEBUG_Print( packet );
   return packet;
@@ -557,7 +532,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG( vector<CGamePlayer *> players )
 
   unsigned char NumLaggers = 0;
 
-  for ( vector<CGamePlayer *> ::iterator i = players.begin( ); i != players.end( ); ++i )
+  for ( vector<CGamePlayer *> ::const_iterator i = players.begin( ); i != players.end( ); ++i )
   {
     if ( ( *i )->GetLagging( ) )
       ++NumLaggers;
@@ -571,7 +546,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG( vector<CGamePlayer *> players )
     packet.push_back( 0 ); // packet length will be assigned later
     packet.push_back( NumLaggers );
 
-    for ( vector<CGamePlayer *> ::iterator i = players.begin( ); i != players.end( ); ++i )
+    for ( vector<CGamePlayer *> ::const_iterator i = players.begin( ); i != players.end( ); ++i )
     {
       if ( ( *i )->GetLagging( ) )
       {
@@ -598,10 +573,9 @@ BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG( CGamePlayer *player )
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( 0 ); // packet length will be assigned later
   packet.push_back( player->GetPID( ) );
-
   UTIL_AppendByteArray( packet, GetTicks( ) - player->GetStartedLaggingTicks( ), false );
-
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_STOP_LAG" );
   // DEBUG_Print( packet );
   return packet;
@@ -677,6 +651,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_CREATEGAME( unsigned char war3Version )
   UTIL_AppendByteArray( packet, Version, 4 ); // Version
   UTIL_AppendByteArray( packet, HostCounter, 4 ); // Host Counter
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_CREATEGAME" );
   // DEBUG_Print( packet );
   return packet;
@@ -695,6 +670,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_REFRESHGAME( uint32_t players, uint32_t playe
   UTIL_AppendByteArray( packet, players, false ); // Players
   UTIL_AppendByteArray( packet, playerSlots, false ); // Player Slots
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_REFRESHGAME" );
   // DEBUG_Print( packet );
   return packet;
@@ -711,6 +687,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_DECREATEGAME( )
   packet.push_back( 0 ); // packet length will be assigned later
   UTIL_AppendByteArray( packet, HostCounter, 4 ); // Host Counter
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_DECREATEGAME" );
   // DEBUG_Print( packet );
   return packet;
@@ -756,6 +733,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_STARTDOWNLOAD( unsigned char fromPID )
   UTIL_AppendByteArray( packet, Unknown, 4 ); // ???
   packet.push_back( fromPID ); // from PID
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_STARTDOWNLOAD" );
   // DEBUG_Print( packet );
   return packet;
@@ -841,6 +819,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> ac
   }
 
   AssignLength( packet );
+
   // DEBUG_Print( "SENT W3GS_INCOMING_ACTION2" );
   // DEBUG_Print( packet );
   return packet;
@@ -854,23 +833,15 @@ void CGameProtocol::AssignLength( BYTEARRAY &content )
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-  BYTEARRAY LengthBytes;
-
-  LengthBytes = UTIL_CreateByteArray( (uint16_t) content.size( ), false );
-  content[2] = LengthBytes[0];
-  content[3] = LengthBytes[1];
+  content[2] = (unsigned char) ( (uint16_t ) content.size( ) );
+  content[3] = (unsigned char) ( (uint16_t ) content.size( ) >> 8 );
 }
 
 bool CGameProtocol::ValidateLength( BYTEARRAY &content )
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  BYTEARRAY LengthBytes;
-
-  LengthBytes.push_back( content[2] );
-  LengthBytes.push_back( content[3] );
-
-  if ( UTIL_ByteArrayToUInt16( LengthBytes, false ) == content.size( ) )
+  if ( (uint16_t) ( content[3] << 8 | content[2] ) == content.size( ) )
     return true;
 
   return false;

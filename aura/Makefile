@@ -1,16 +1,23 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
+ARCH = $(shell uname -m)
+VERSION = $(shell git rev-parse --short HEAD)
 CC = gcc
 CXX = g++
-CCFLAGS = -m64
-CXXFLAGS = -m64 -Wall -Wextra
+CCFLAGS =
+CXXFLAGS = -pipe -Wall -Wextra
 DFLAGS = 
 OFLAGS = -O3
-LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
+LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time -lboost_system -lboost_filesystem
+
+ifeq ($(ARCH),x86_64)
+	CCFLAGS += -m64
+	CXXFLAGS += -m64
+endif
 
 ifeq ($(SYSTEM),Darwin)
 	CC = /usr/bin/gcc
-	CXX = /usr/bin/g++	
+	CXX = /usr/bin/g++
 	DFLAGS += -D__APPLE__
 	OFLAGS += -flat_namespace
 	LFLAGS += -L/opt/local/lib/
@@ -30,25 +37,29 @@ endif
 CCFLAGS += $(OFLAGS) -DSQLITE_THREADSAFE=0 -I.
 CXXFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/
 
-OBJS = bncsutilinterface.o bnet.o bnetprotocol.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o aura.o auradb.o language.o map.o sha1.o socket.o stats.o util.o irc.o
+OBJS = bncsutilinterface.o bnet.o bnetprotocol.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o gpsprotocol.o aura.o auradb.o language.o map.o sha1.o socket.o stats.o util.o irc.o
 COBJS = sqlite3.o
-PROGS = ./aura++
+PROGS = aura++
 
 all: $(OBJS) $(COBJS) $(PROGS)
+	@echo "Used CFLAGS: $(CXXFLAGS)"
 
-./aura++: $(OBJS) $(COBJS)
-	$(CXX) -o ./aura++ $(OBJS) $(COBJS) $(LFLAGS)
+aura++: $(OBJS) $(COBJS)
+	@$(CXX) -o aura++ $(OBJS) $(COBJS) $(LFLAGS)
+	@echo "[BIN] Success. $@ created."
 
 clean:
-	rm -f $(OBJS) $(COBJS) $(PROGS)	
+	@rm -f $(OBJS) $(COBJS) $(PROGS)
+	@echo "Binary and object files cleaned."
 
-install: $(PROGS)
-	cp $(PROGS) ../$(PROGS)
+install:
+	@cp $(PROGS) ..
 
 $(OBJS): %.o: %.cpp
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
+	@$(CXX) -o $@ $(CXXFLAGS) -c $< -DVERSION=\"$(VERSION)\"
+	@echo "[$(CXX)] $@"
 
 $(COBJS): %.o: %.c
-	$(CC) -o $@ $(CCFLAGS) -c $<
+	@$(CC) -o $@ $(CCFLAGS) -c $<
+	@echo "[$(CC)] $@"
 
-./aura++: $(OBJS) $(COBJS)

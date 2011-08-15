@@ -27,13 +27,15 @@
 
 #include <boost/tokenizer.hpp>
 
+typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+
 //////////////
 //// CIRC ////
 //////////////
 
-CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, vector<string> *nChannels, uint16_t nPort, char nCommandTrigger ) : m_Aura( nAura ), m_Channels( *nChannels ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ), m_LastAntiIdleTime( GetTime( ) )
+CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger ) : m_Aura( nAura ), m_Socket( new CTCPClient ), m_Channels( nChannels ), m_RootAdmins( nRootAdmins ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ), m_LastAntiIdleTime( GetTime( ) )
 {
-  m_Socket = new CTCPClient( );
+	sort(m_RootAdmins.begin(), m_RootAdmins.end());
 }
 
 CIRC::~CIRC( )
@@ -116,7 +118,7 @@ bool CIRC::Update( void *fd, void *send_fd )
         m_Nickname = m_NicknameCpy;
 
       SendIRC( "NICK " + m_Nickname );
-      SendIRC( "USER " + m_Username + " " + m_Nickname + " " + m_Username + " :by h4x0rz88" );
+      SendIRC( "USER " + m_Username + " " + m_Nickname + " " + m_Username + " :aura-bot" );
 
       m_Socket->DoSend( (fd_set *) send_fd );
 
@@ -173,8 +175,6 @@ void CIRC::ExtractPackets( )
   string *Recv = m_Socket->GetBytes( );
 
   // separate packets using the CRLF delimiter
-
-  typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
   
   boost::char_separator<char> Packet_separator( "\n\r" );
 
@@ -253,7 +253,7 @@ void CIRC::ExtractPackets( )
       
       // relay messages to bnets
       
-      for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+      for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
       {
         if ( Message[0] == ( *i )->GetCommandTrigger( ) )
         {          
@@ -275,8 +275,14 @@ void CIRC::ExtractPackets( )
       
       bool Root = false;
       
-      if( Hostname.size( ) > 6 )
-        Root = Hostname.substr( 0, 6 ) == "Aurani" || Hostname.substr( 0, 8 ) == "h4x0rz88";
+      for( vector<string> :: const_iterator i = m_RootAdmins.begin( ); i != m_RootAdmins.end( ) && *i <= Hostname; ++i )
+      {
+        if( *i == Hostname )
+        {
+          Root = true;
+          break;
+        }
+      }
 
       if( PayloadStart != string :: npos )
       {
@@ -334,7 +340,7 @@ void CIRC::ExtractPackets( )
 
       // join channels
 
-      for ( vector<string> ::iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
+      for ( vector<string> ::const_iterator j = m_Channels.begin( ); j != m_Channels.end( ); ++j )
         SendIRC( "JOIN " + ( *j ) );
 
       continue;
@@ -377,7 +383,7 @@ void CIRC::SendMessageIRC( const string &message, const string &target )
   if ( m_Socket->GetConnected( ) )
   {
     if ( target.empty( ) )
-      for ( vector<string> ::iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
+      for ( vector<string> ::const_iterator i = m_Channels.begin( ); i != m_Channels.end( ); ++i )
         m_Socket->PutBytes( "PRIVMSG " + ( *i ) + " :" + ( message.size( ) > 450 ? message.substr( 0, 450 ) : message ) + LF );
     else
       m_Socket->PutBytes( "PRIVMSG " + target + " :" + ( message.size( ) > 450 ? message.substr( 0, 450 ) : message ) + LF );

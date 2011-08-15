@@ -107,19 +107,19 @@ public:
   CBNETProtocol( );
   ~CBNETProtocol( );
 
-  BYTEARRAY GetClientToken( )             { return m_ClientToken; }
-  BYTEARRAY GetLogonType( )               { return m_LogonType; }
-  BYTEARRAY GetServerToken( )             { return m_ServerToken; }
-  BYTEARRAY GetMPQFileTime( )             { return m_MPQFileTime; }
-  BYTEARRAY GetIX86VerFileName( )         { return m_IX86VerFileName; }
-  string GetIX86VerFileNameString( )      { return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
-  BYTEARRAY GetValueStringFormula( )      { return m_ValueStringFormula; }
-  string GetValueStringFormulaString( )   { return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
-  BYTEARRAY GetKeyState( )                { return m_KeyState; }
-  string GetKeyStateDescription( )        { return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
-  BYTEARRAY GetSalt( )                    { return m_Salt; }
-  BYTEARRAY GetServerPublicKey( )         { return m_ServerPublicKey; }
-  BYTEARRAY GetUniqueName( )              { return m_UniqueName; }
+  BYTEARRAY GetClientToken( ) const       		{ return m_ClientToken; }
+  BYTEARRAY GetLogonType( ) const         		{ return m_LogonType; }
+  BYTEARRAY GetServerToken( ) const       		{ return m_ServerToken; }
+  BYTEARRAY GetMPQFileTime( ) const       		{ return m_MPQFileTime; }
+  BYTEARRAY GetIX86VerFileName( ) const   		{ return m_IX86VerFileName; }
+  string GetIX86VerFileNameString( ) const		{ return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
+  BYTEARRAY GetValueStringFormula( ) const		{ return m_ValueStringFormula; }
+  string GetValueStringFormulaString( ) const	{ return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
+	BYTEARRAY GetKeyState( ) const							{ return m_KeyState; }
+  string GetKeyStateDescription( ) const			{ return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
+  BYTEARRAY GetSalt( ) const									{ return m_Salt; }
+  BYTEARRAY GetServerPublicKey( ) const				{ return m_ServerPublicKey; }
+  BYTEARRAY GetUniqueName( ) const						{ return m_UniqueName; }
 
   // receive functions
 
@@ -183,11 +183,11 @@ public:
   CIncomingGameHost( BYTEARRAY &nIP, uint16_t nPort, string nGameName, BYTEARRAY &nHostCounter );
   ~CIncomingGameHost( );
 
-  string GetIPString( );
-  BYTEARRAY GetIP( )          { return m_IP; }
-  uint16_t GetPort( )         { return m_Port; }
-  string GetGameName( )       { return m_GameName; }
-  BYTEARRAY GetHostCounter( ) { return m_HostCounter; }
+  string GetIPString( ) const;
+  BYTEARRAY GetIP( ) const          { return m_IP; }
+  uint16_t GetPort( ) const         { return m_Port; }
+  string GetGameName( ) const       { return m_GameName; }
+  BYTEARRAY GetHostCounter( ) const { return m_HostCounter; }
 };
 
 //
@@ -205,9 +205,9 @@ public:
   CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage );
   ~CIncomingChatEvent( );
 
-  CBNETProtocol::IncomingChatEvent GetChatEvent( )    { return m_ChatEvent; }
-  string GetUser( )                                   { return m_User; }
-  string GetMessage( )                                { return m_Message; }
+  CBNETProtocol::IncomingChatEvent GetChatEvent( ) const    { return m_ChatEvent; }
+  string GetUser( ) const                                   { return m_User; }
+  string GetMessage( ) const                                { return m_Message; }
 };
 
 #endif

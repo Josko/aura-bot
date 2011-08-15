@@ -45,7 +45,7 @@ CMap::~CMap( )
 
 }
 
-BYTEARRAY CMap::GetMapGameFlags( )
+BYTEARRAY CMap::GetMapGameFlags( ) const
 {
   uint32_t GameFlags = 0;
 
@@ -94,7 +94,7 @@ BYTEARRAY CMap::GetMapGameFlags( )
   return UTIL_CreateByteArray( GameFlags, false );
 }
 
-uint32_t CMap::GetMapGameType( )
+uint32_t CMap::GetMapGameType( ) const
 {
   /* spec stolen from Strilanc as follows:
 
@@ -169,7 +169,7 @@ uint32_t CMap::GetMapGameType( )
   return GameType;
 }
 
-unsigned char CMap::GetMapLayoutStyle( )
+unsigned char CMap::GetMapLayoutStyle( ) const
 {
   // 0 = melee
   // 1 = custom forces
@@ -813,8 +813,6 @@ void CMap::CheckValid( )
     m_Valid = false;
     Print( "[MAP] invalid map_path detected" );
   }
-  else if ( m_MapPath[0] == '\\' )
-    Print( "[MAP] warning - map_path starts with '\\', any replays saved by Aura++ will not be playable in Warcraft III" );
 
   if ( m_MapPath.find( '/' ) != string::npos )
     Print( "[MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\\'" );

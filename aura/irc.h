@@ -32,6 +32,7 @@ public:
   CAura *m_Aura;
   CTCPClient *m_Socket;
   vector<string> m_Channels;
+  vector<string> m_RootAdmins;
   string m_Server;
   string m_ServerIP;
   string m_Nickname;
@@ -47,7 +48,7 @@ public:
   uint32_t m_LastPacketTime;
   uint32_t m_LastAntiIdleTime;
 
-  CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, vector<string> *nChannels, uint16_t nPort, char nCommandTrigger );
+  CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins,uint16_t nPort, char nCommandTrigger );
   ~CIRC( );
 
   unsigned int SetFD( void *fd, void *send_fd, int *nfds );

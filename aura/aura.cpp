@@ -31,6 +31,7 @@
 #include "map.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
+#include "gpsprotocol.h"
 #include "game.h"
 #include "irc.h"
 
@@ -51,6 +52,10 @@
 
 #ifdef __APPLE__
 #include <mach/mach_time.h>
+#endif
+
+#ifdef WIN32
+#define VERSION "1.07"
 #endif
 
 CAura *gAura = NULL;
@@ -145,7 +150,7 @@ void Print2( const string &message )
 // main
 //
 
-int main( )
+int main(int argc, char *argv[])
 {
   srand( (unsigned int) time( NULL ) );
 
@@ -227,10 +232,7 @@ int main( )
   {
     // loop
 
-    while ( !gAura->Update( ) )
-    {
-      // loop until gAura->Update( ) returns true
-    }
+    while ( !gAura->Update( ) );
   }
   else
     Print( "[AURA] check your aura.cfg and configure Aura properly" );
@@ -256,9 +258,9 @@ int main( )
   if ( gRestart )
   {
 #ifdef WIN32
-    _spawnl( _P_OVERLAY, "aura.exe", "aura.exe", NULL );
+    _spawnl( _P_OVERLAY, argv[0], argv[0], NULL );
 #else
-    execl( "aura++", "aura++", NULL );
+    execl( argv[0], argv[0], NULL );
 #endif
   }
 
@@ -269,19 +271,38 @@ int main( )
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( "1.05" ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( VERSION ), m_HostCounter( 1 ), m_Ready( true )
 {
+#ifdef WIN32
+    Print( "[AURA] Aura++ version " + m_Version + " - with GProxy++ support" );
+#else
+    Print( "[AURA] Aura++ commit " + m_Version + " - with GProxy++ support" );
+#endif
+
   // get the general configuration variables
 
   m_UDPSocket = new CUDPSocket( );
   m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
   m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
+
+  m_ReconnectSocket = new CTCPServer( );
+
+  if ( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
+    Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+  else
+  {
+    Print( "[AURA] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+    m_Ready = false;
+    return;
+  }
+
+  m_GPSProtocol = new CGPSProtocol( );
   m_CRC = new CCRC32( );
   m_CRC->Initialize( );
   m_SHA = new CSHA1( );
   m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
   m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
-  m_LANWar3Version = CFG->GetInt( "lan_war3version", 24 );
+  m_LANWar3Version = CFG->GetInt( "lan_war3version", 26 );
 
   // open the database
 
@@ -301,23 +322,29 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
   string IRC_CommandTrigger = CFG->GetString( "irc_commandtrigger", "!" );
   uint32_t IRC_Port = CFG->GetInt( "irc_port", 6667 );
 
-  // get the irc channels
+  // get the irc channels and root admins
 
-  vector<string> Channels;
+  vector<string> IRC_Channels, IRC_RootAdmins;
 
-  for ( int i = 1; i <= 10; ++i )
+  for ( unsigned int i = 1; i <= 10; ++i )
   {
-    string Channel;
+    string Channel, RootAdmin;
 
     if ( i == 1 )
+    {
       Channel = CFG->GetString( "irc_channel", string( ) );
+      RootAdmin = CFG->GetString( "irc_rootadmin", string( ) );
+    }
     else
+    {
       Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
+      RootAdmin = CFG->GetString( "irc_rootadmin" + UTIL_ToString( i ), string( ) );
+    }
 
-    if ( Channel.empty( ) )
-      break;
-    else
-      Channels.push_back( "#" + Channel );
+    if ( !Channel.empty( ) )
+      IRC_Channels.push_back( "#" + Channel );
+    if ( !RootAdmin.empty( ) )
+      IRC_RootAdmins.push_back( RootAdmin );
   }
 
   if ( IRC_Server.empty( ) || IRC_UserName.empty( ) || IRC_NickName.empty( ) || IRC_Port == 0 || IRC_Port >= 65535 )
@@ -327,12 +354,12 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
     return;
   }
   else
-    m_IRC = new CIRC( this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, &Channels, IRC_Port, IRC_CommandTrigger[0] );
+    m_IRC = new CIRC( this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, IRC_Channels, IRC_RootAdmins, IRC_Port, IRC_CommandTrigger[0] );
 
   // load the battle.net connections
   // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
 
-  for ( int i = 1; i < 10; ++i )
+  for ( unsigned int i = 1; i < 10; ++i )
   {
     string Prefix;
 
@@ -373,7 +400,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
     }
 
     string BNETCommandTrigger = CFG->GetString( Prefix + "commandtrigger", "!" );
-    unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 24 );
+    unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 26 );
     BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
     BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
     string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
@@ -412,8 +439,6 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
   // load the iptocountry data
 
   LoadIPToCountryData( );
-
-  Print( "[AURA] Aura++ Version " + m_Version + " - without GProxy++ support " );
 }
 
 CAura::~CAura( )
@@ -421,6 +446,11 @@ CAura::~CAura( )
   delete m_UDPSocket;
   delete m_CRC;
   delete m_SHA;
+  delete m_ReconnectSocket;
+  delete m_GPSProtocol;
+
+  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
+    delete *i;
 
   for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     delete *i;
@@ -454,27 +484,48 @@ bool CAura::Update( )
 
   // 2. all running games' player sockets
 
-  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
-    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
+  for ( vector<CGame *> ::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+    NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
   // 3. all battle.net sockets
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-    NumFDs += ( *i )->SetFD( &fd, &send_fd, &nfds );
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    NumFDs += (*i)->SetFD( &fd, &send_fd, &nfds );
 
   // 4. irc socket
 
-  NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );  
+  NumFDs += m_IRC->SetFD( &fd, &send_fd, &nfds );
+
+  // 5. reconnect socket
+
+  if ( m_ReconnectSocket->HasError( ) )
+  { 
+    Print( "[AURA] GProxy++ reconnect listener error (" + m_ReconnectSocket->GetErrorString( ) + ")" ); 
+    return true;
+  }
+  else
+  {
+    m_ReconnectSocket->SetFD( &fd, &send_fd, &nfds );
+    ++NumFDs;
+  }
+
+  // 6. reconnect sockets
+
+  for ( vector<CTCPSocket *> ::const_iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
+  {     
+    (*i)->SetFD( &fd, &send_fd, &nfds );
+    ++NumFDs;   
+  }
 
   // before we call select we need to determine how long to block for
   // 50 ms is the hard maximum
 
   unsigned long usecBlock = 50000;
 
-  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+  for ( vector<CGame *> ::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
   {
-    if ( ( *i )->GetNextTimedActionTicks( ) * 1000 < usecBlock )
-      usecBlock = ( *i )->GetNextTimedActionTicks( ) * 1000;
+    if ( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
+      usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
   }
 
   struct timeval tv;
@@ -507,16 +558,16 @@ bool CAura::Update( )
 
   for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); )
   {
-    if ( ( *i )->Update( &fd, &send_fd ) )
+    if ( (*i)->Update( &fd, &send_fd ) )
     {
-      Print2( "[AURA] deleting game [" + ( *i )->GetGameName( ) + "]" );
-      EventGameDeleted( *i );
+      Print2( "[AURA] deleting game [" + (*i)->GetGameName( ) + "]" );
+      EventGameDeleted(*i);
       delete *i;
       i = m_Games.erase( i );
     }
     else
     {
-      ( *i )->UpdatePost( &send_fd );
+      (*i)->UpdatePost( &send_fd );
       ++i;
     }
   }
@@ -531,10 +582,10 @@ bool CAura::Update( )
       delete m_CurrentGame;
       m_CurrentGame = NULL;
 
-      for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+      for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
       {
-        ( *i )->QueueGameUncreate( );
-        ( *i )->QueueEnterChat( );
+        (*i)->QueueGameUncreate( );
+        (*i)->QueueEnterChat( );
       }
     }
     else if ( m_CurrentGame )
@@ -543,16 +594,103 @@ bool CAura::Update( )
 
   // update battle.net connections
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    if ( ( *i )->Update( &fd, &send_fd ) )
+    if ( (*i)->Update( &fd, &send_fd ) )
       Exit = true;
   }
 
   // update irc
 
   if ( m_IRC->Update( &fd, &send_fd ) )
-    Exit = true;  
+    Exit = true;
+
+  // update GProxy++ reliable reconnect sockets
+
+  CTCPSocket *NewSocket = m_ReconnectSocket->Accept( &fd );
+
+  if ( NewSocket )
+      m_ReconnectSockets.push_back( NewSocket );
+
+  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
+  {
+    if ( (*i)->HasError( ) || !(*i)->GetConnected( ) || GetTime( ) - (*i)->GetLastRecv( ) >= 12 )
+    {
+      delete *i;
+      i = m_ReconnectSockets.erase( i );
+      continue;
+    }
+
+    (*i)->DoRecv( &fd );
+    string *RecvBuffer = (*i)->GetBytes( );     
+    BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
+
+    // a packet is at least 4 bytes
+
+    if ( Bytes.size( ) >= 4 )
+    {
+      if ( Bytes[0] == GPS_HEADER_CONSTANT )
+      {
+        // bytes 2 and 3 contain the length of the packet
+
+        uint16_t Length = (uint16_t) ( Bytes[3] << 8 | Bytes[2] );
+
+        if ( Bytes.size( ) >= Length )
+        {                   
+          if ( Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13 )
+          {
+            unsigned char PID = Bytes[4];
+            uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
+            uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
+
+            // look for a matching player in a running game
+
+            CGamePlayer *Match = NULL;
+
+            for ( vector<CGame *> ::const_iterator j = m_Games.begin( ); j != m_Games.end( ); ++j )
+            {
+              if ( (*j)->GetGameLoaded( ) )
+              {
+                CGamePlayer *Player = (*j)->GetPlayerFromPID( PID );
+
+                if ( Player && Player->GetGProxy( ) && Player->GetGProxyReconnectKey( ) == ReconnectKey )
+                {
+                  Match = Player;
+                  break;
+                }
+              }
+            }
+
+            if ( Match )
+            {
+              // reconnect successful!
+
+              *RecvBuffer = RecvBuffer->substr( Length );
+              Match->EventGProxyReconnect( *i, LastPacket );
+              i = m_ReconnectSockets.erase( i );
+              continue;
+            }
+            else
+            {
+              (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+              (*i)->DoSend( &send_fd );
+              delete *i;
+              i = m_ReconnectSockets.erase( i );
+              continue;
+            }
+          }
+          else
+          {
+            (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+            (*i)->DoSend( &send_fd );
+            delete *i;
+            i = m_ReconnectSockets.erase( i );
+            continue;
+          }
+        }
+      }
+    }
+  }
 
   return m_Exiting || Exit;
 }
@@ -578,12 +716,12 @@ void CAura::EventBNETGameRefreshFailed( CBNET *bnet )
 
 void CAura::EventGameDeleted( CGame *game )
 {
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    ( *i )->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
+    (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
 
-    if ( ( *i )->GetServer( ) == game->GetCreatorServer( ) )
-      ( *i )->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, string( ) );
+    if ( (*i)->GetServer( ) == game->GetCreatorServer( ) )
+      (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, string( ) );
   }
 }
 
@@ -604,6 +742,8 @@ void CAura::SetConfigs( CConfig *CFG )
   m_Language = new CLanguage( m_LanguageFile );
   m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
   m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
+  m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
+  m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
   m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
   string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
   m_CommandTrigger = BotCommandTrigger[0];
@@ -630,9 +770,7 @@ void CAura::SetConfigs( CConfig *CFG )
   m_VoteKickPercentage = CFG->GetInt( "bot_votekickpercentage", 70 );
 
   if ( m_VoteKickPercentage > 100 )
-  {
     m_VoteKickPercentage = 100;
-  }
 }
 
 void CAura::ExtractScripts( )
@@ -772,10 +910,10 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 {
   if ( !m_Enabled )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -783,10 +921,10 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( gameName.size( ) > 31 )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -794,10 +932,10 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( !map->GetValid( ) )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -805,10 +943,10 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( m_CurrentGame )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -816,10 +954,10 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( m_Games.size( ) >= m_MaxGames )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == creatorServer )
-        ( *i )->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, string( ) );
+      if ( (*i)->GetServer( ) == creatorServer )
+        (*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, string( ) );
     }
 
     return;
@@ -829,28 +967,28 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    if ( whisper && ( *i )->GetServer( ) == creatorServer )
+    if ( whisper && (*i)->GetServer( ) == creatorServer )
     {
       // note that we send this whisper only on the creator server
 
       if ( gameState == GAME_PRIVATE )
-        ( *i )->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, string( ) );
       else if ( gameState == GAME_PUBLIC )
-        ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, string( ) );
     }
     else
     {
       // note that we send this chat message on all other bnet servers
 
       if ( gameState == GAME_PRIVATE )
-        ( *i )->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
       else if ( gameState == GAME_PUBLIC )
-        ( *i )->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
+        (*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
     }
 
-    ( *i )->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
+    (*i)->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
   }
 
   // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
@@ -859,18 +997,18 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   if ( gameState == GAME_PRIVATE )
   {
-    for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
-      if ( !( *i )->GetPvPGN( ) )
-        ( *i )->QueueEnterChat( );
+      if ( !(*i)->GetPvPGN( ) )
+        (*i)->QueueEnterChat( );
     }
   }
 
   // hold friends and/or clan members
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    ( *i )->HoldFriends( m_CurrentGame );
-    ( *i )->HoldClan( m_CurrentGame );
+    (*i)->HoldFriends( m_CurrentGame );
+    (*i)->HoldClan( m_CurrentGame );
   }
 }

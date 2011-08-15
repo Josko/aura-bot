@@ -28,6 +28,8 @@
 class CTCPClient;
 class CBNCSUtilInterface;
 class CBNETProtocol;
+class CGameProtocol;
+class CGame;
 class CIncomingChatEvent;
 class CDBBan;
 class CIRC;
@@ -85,27 +87,27 @@ public:
   CBNET( CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID );
   ~CBNET( );
 
-  bool GetExiting( )                        { return m_Exiting; }
-  string GetServer( )                       { return m_Server; }
-  string GetServerAlias( )                  { return m_ServerAlias; }
-  string GetCDKeyROC( )                     { return m_CDKeyROC; }
-  string GetCDKeyTFT( )                     { return m_CDKeyTFT; }
-  string GetUserName( )                     { return m_UserName; }
-  string GetUserPassword( )                 { return m_UserPassword; }
-  string GetFirstChannel( )                 { return m_FirstChannel; }
-  string GetCurrentChannel( )               { return m_CurrentChannel; }
-  char GetCommandTrigger( )                 { return m_CommandTrigger; }
-  BYTEARRAY GetEXEVersion( )                { return m_EXEVersion; }
-  BYTEARRAY GetEXEVersionHash( )            { return m_EXEVersionHash; }
-  string GetPasswordHashType( )             { return m_PasswordHashType; }
-  uint32_t GetHostCounterID( )              { return m_HostCounterID; }
-  bool GetLoggedIn( )                       { return m_LoggedIn; }
-  bool GetInChat( )                         { return m_InChat; }
-  uint32_t GetOutPacketsQueued( )           { return m_OutPackets.size( ); }
-  bool GetSpam( )                           { return m_Spam; }
-  bool GetPvPGN( )                          { return m_PvPGN; }
+  bool GetExiting( ) const                       	{ return m_Exiting; }
+  string GetServer( ) const                      	{ return m_Server; }
+  string GetServerAlias( ) const                 	{ return m_ServerAlias; }
+  string GetCDKeyROC( ) const                    	{ return m_CDKeyROC; }
+  string GetCDKeyTFT( ) const                    	{ return m_CDKeyTFT; }
+  string GetUserName( ) const                    	{ return m_UserName; }
+  string GetUserPassword( ) const                	{ return m_UserPassword; }
+  string GetFirstChannel( ) const                	{ return m_FirstChannel; }
+  string GetCurrentChannel( ) const              	{ return m_CurrentChannel; }
+  char GetCommandTrigger( ) const                	{ return m_CommandTrigger; }
+  BYTEARRAY GetEXEVersion( ) const               	{ return m_EXEVersion; }
+  BYTEARRAY GetEXEVersionHash( ) const           	{ return m_EXEVersionHash; }
+  string GetPasswordHashType( ) const            	{ return m_PasswordHashType; }
+  uint32_t GetHostCounterID( ) const             	{ return m_HostCounterID; }
+  bool GetLoggedIn( ) const                      	{ return m_LoggedIn; }
+  bool GetInChat( ) const                        	{ return m_InChat; }
+  uint32_t GetOutPacketsQueued( ) const          	{ return m_OutPackets.size( ); }
+  bool GetSpam( ) const                          	{ return m_Spam; }
+  bool GetPvPGN( ) const                         	{ return m_PvPGN; }
 
-  void SetSpam( bool spam )                 { m_Spam = spam; }
+  void SetSpam( bool spam )                 			{ m_Spam = spam; }
   void SetSpam( );
 
   // processing functions

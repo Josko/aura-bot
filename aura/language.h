@@ -215,6 +215,12 @@ public:
   string CantEndGameOwnerIsStillPlaying( const string &owner );
   string CantUnhostGameOwnerIsPresent( const string &owner );
   string WasAutomaticallyDroppedAfterSeconds( const string &seconds );
+  string HasLostConnectionTimedOutGProxy( );
+  string HasLostConnectionSocketErrorGProxy( const string &error );
+  string HasLostConnectionClosedByRemoteHostGProxy( );
+  string WaitForReconnectSecondsRemain( const string &seconds );
+  string WasUnrecoverablyDroppedFromGProxy( );
+  string PlayerReconnectedWithGProxy( const string &name );
 };
 
 #endif

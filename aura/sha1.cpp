@@ -186,7 +186,7 @@ void CSHA1::Update( unsigned char* data, unsigned int len )
 
 void CSHA1::Final( )
 {
-  uint32_t i = 0, j = 0;
+  uint32_t i = 0;
   unsigned char finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
   for ( i = 0; i < 8; ++i )
@@ -207,7 +207,6 @@ void CSHA1::Final( )
 
   // Wipe variables for security reasons
   i = 0;
-  j = 0;
   memset( m_buffer, 0, 64 );
   memset( m_state, 0, 20 );
   memset( m_count, 0, 8 );

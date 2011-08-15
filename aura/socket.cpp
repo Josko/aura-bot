@@ -55,6 +55,11 @@ CTCPSocket::CTCPSocket( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Err
 #else
   fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
+
+  // disable Nagle's algorithm
+
+  int OptVal = 1;
+    setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
 }
 
 CTCPSocket::CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_Error( 0 ), m_HasError( false ), m_Connected( true ), m_LastRecv( GetTime( ) )
@@ -193,28 +198,22 @@ void CTCPSocket::Disconnect( )
   m_Connected = false;
 }
 
-void CTCPSocket::SetNoDelay( )
-{
-  int OptVal = 1;
-  setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
-}
-
-BYTEARRAY CTCPSocket::GetPort( )
+BYTEARRAY CTCPSocket::GetPort( ) const
 {
   return UTIL_CreateByteArray( m_SIN.sin_port, false );
 }
 
-BYTEARRAY CTCPSocket::GetIP( )
+BYTEARRAY CTCPSocket::GetIP( ) const
 {
   return UTIL_CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false );
 }
 
-string CTCPSocket::GetIPString( )
+string CTCPSocket::GetIPString( ) const
 {
   return inet_ntoa( m_SIN.sin_addr );
 }
 
-string CTCPSocket::GetErrorString( )
+string CTCPSocket::GetErrorString( ) const
 {
   if ( !m_HasError )
     return "NO ERROR";
@@ -540,22 +539,22 @@ void CTCPClient::SetNoDelay( )
   setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
 }
 
-BYTEARRAY CTCPClient::GetPort( )
+BYTEARRAY CTCPClient::GetPort( ) const
 {
   return UTIL_CreateByteArray( m_SIN.sin_port, false );
 }
 
-BYTEARRAY CTCPClient::GetIP( )
+BYTEARRAY CTCPClient::GetIP( ) const
 {
   return UTIL_CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false );
 }
 
-string CTCPClient::GetIPString( )
+string CTCPClient::GetIPString( ) const
 {
   return inet_ntoa( m_SIN.sin_addr );
 }
 
-string CTCPClient::GetErrorString( )
+string CTCPClient::GetErrorString( ) const
 {
   if ( !m_HasError )
     return "NO ERROR";
@@ -725,7 +724,7 @@ CTCPSocket *CTCPServer::Accept( fd_set *fd )
   return NULL;
 }
 
-string CTCPServer::GetErrorString( )
+string CTCPServer::GetErrorString( ) const
 {
   if ( !m_HasError )
     return "NO ERROR";
@@ -917,22 +916,22 @@ void CUDPSocket::SetDontRoute( bool dontRoute )
   setsockopt( m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *) &OptVal, sizeof ( int) );
 }
 
-BYTEARRAY CUDPSocket::GetPort( )
+BYTEARRAY CUDPSocket::GetPort( ) const
 {
   return UTIL_CreateByteArray( m_SIN.sin_port, false );
 }
 
-BYTEARRAY CUDPSocket::GetIP( )
+BYTEARRAY CUDPSocket::GetIP( ) const
 {
   return UTIL_CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false );
 }
 
-string CUDPSocket::GetIPString( )
+string CUDPSocket::GetIPString( ) const
 {
   return inet_ntoa( m_SIN.sin_addr );
 }
 
-string CUDPSocket::GetErrorString( )
+string CUDPSocket::GetErrorString( ) const
 {
   if ( !m_HasError )
     return "NO ERROR";

@@ -1277,3 +1277,39 @@ string CLanguage::WasAutomaticallyDroppedAfterSeconds( const string &seconds )
   UTIL_Replace( Out, "$SECONDS$", seconds );
   return Out;
 }
+
+string CLanguage::HasLostConnectionTimedOutGProxy( )
+{
+  return m_CFG->GetString( "lang_0215", "lang_0215" );
+}
+
+string CLanguage::HasLostConnectionSocketErrorGProxy( const string &error )
+{
+  string Out = m_CFG->GetString( "lang_0216", "lang_0216" );
+  UTIL_Replace( Out, "$ERROR$", error );
+  return Out;
+}
+
+string CLanguage::HasLostConnectionClosedByRemoteHostGProxy( )
+{
+  return m_CFG->GetString( "lang_0217", "lang_0217" );
+}
+
+string CLanguage::WaitForReconnectSecondsRemain( const string &seconds )
+{
+  string Out = m_CFG->GetString( "lang_0218", "lang_0218" );
+  UTIL_Replace( Out, "$SECONDS$", seconds );
+  return Out;
+}
+
+string CLanguage::WasUnrecoverablyDroppedFromGProxy( )
+{
+  return m_CFG->GetString( "lang_0219", "lang_0219" );
+}
+
+string CLanguage::PlayerReconnectedWithGProxy( const string &name )
+{
+  string Out = m_CFG->GetString( "lang_0220", "lang_0220" );
+  UTIL_Replace( Out, "$NAME$", name );
+  return Out;
+}

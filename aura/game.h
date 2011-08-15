@@ -67,6 +67,7 @@ protected:
   unsigned char m_GameState;                // game state, public or private
   unsigned char m_VirtualHostPID;           // host's PID
   vector<unsigned char> m_FakePlayers;      // the fake player's PIDs (if present)
+  unsigned char m_GProxyEmptyActions;       // empty actions used for gproxy protocol
   string m_GameName;                        // game name
   string m_LastGameName;                    // last game name (the previous game name before it was rehosted)
   string m_VirtualHostName;                 // host's name
@@ -116,32 +117,36 @@ public:
   CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
   ~CGame( );
 
-  uint16_t GetHostPort( )                     { return m_HostPort; }
-  unsigned char GetGameState( )               { return m_GameState; }
-  string GetGameName( )                       { return m_GameName; }
-  string GetLastGameName( )                   { return m_LastGameName; }
-  string GetVirtualHostName( )                { return m_VirtualHostName; }
-  string GetOwnerName( )                      { return m_OwnerName; }
-  string GetCreatorName( )                    { return m_CreatorName; }
-  string GetCreatorServer( )                  { return m_CreatorServer; }
-  uint32_t GetHostCounter( )                  { return m_HostCounter; }
-  uint32_t GetLastLagScreenTime( )            { return m_LastLagScreenTime; }
-  bool GetLocked( )                           { return m_Locked; }
-  bool GetCountDownStarted( )                 { return m_CountDownStarted; }
-  bool GetGameLoading( )                      { return m_GameLoading; }
-  bool GetGameLoaded( )                       { return m_GameLoaded; }
-  bool GetLagging( )                          { return m_Lagging; }
+  CMap *GetMap( ) const								{ return m_Map; }
+  CGameProtocol *GetProtocol( ) const				{ return m_Protocol; }
+  uint32_t GetEntryKey( ) const						{ return m_EntryKey; }
+  uint16_t GetHostPort( ) const						{ return m_HostPort; }
+  unsigned char GetGameState( ) const				{ return m_GameState; }
+  unsigned char GetGProxyEmptyActions( ) const      { return m_GProxyEmptyActions; }
+  string GetGameName( ) const						{ return m_GameName; }
+  string GetLastGameName( ) const                  	{ return m_LastGameName; }
+  string GetVirtualHostName( ) const               	{ return m_VirtualHostName; }
+  string GetOwnerName( ) const                     	{ return m_OwnerName; }
+  string GetCreatorName( ) const                   	{ return m_CreatorName; }
+  string GetCreatorServer( ) const                 	{ return m_CreatorServer; }
+  uint32_t GetHostCounter( ) const                 	{ return m_HostCounter; }
+  uint32_t GetLastLagScreenTime( ) const           	{ return m_LastLagScreenTime; }
+  bool GetLocked( ) const                          	{ return m_Locked; }
+  bool GetCountDownStarted( ) const                	{ return m_CountDownStarted; }
+  bool GetGameLoading( ) const                     	{ return m_GameLoading; }
+  bool GetGameLoaded( ) const                      	{ return m_GameLoaded; }
+  bool GetLagging( ) const                         	{ return m_Lagging; }
 
-  uint32_t GetNextTimedActionTicks( );
-  uint32_t GetSlotsOccupied( );
-  uint32_t GetSlotsOpen( );
-  uint32_t GetNumPlayers( );
-  uint32_t GetNumHumanPlayers( );
-  string GetDescription( );
-  string GetPlayers( );
+  uint32_t GetNextTimedActionTicks( ) const;
+  uint32_t GetSlotsOccupied( ) const;
+  uint32_t GetSlotsOpen( ) const;
+  uint32_t GetNumPlayers( ) const;
+  uint32_t GetNumHumanPlayers( ) const;
+  string GetDescription( ) const;
+  string GetPlayers( ) const;
 
-  void SetExiting( bool nExiting )            { m_Exiting = nExiting; }
-  void SetRefreshError( bool nRefreshError )  { m_RefreshError = nRefreshError; }
+  void SetExiting( bool nExiting )            			{ m_Exiting = nExiting; }
+  void SetRefreshError( bool nRefreshError )  			{ m_RefreshError = nRefreshError; }
 
   // processing functions
 
@@ -178,7 +183,7 @@ public:
   void EventPlayerDisconnectSocketError( CGamePlayer *player );
   void EventPlayerDisconnectConnectionClosed( CGamePlayer *player );
   void EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer );
-  void EventPlayerLeft( CGamePlayer *player );
+  void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
   void EventPlayerLoaded( CGamePlayer *player );
   void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
   void EventPlayerKeepAlive( CGamePlayer *player );

@@ -549,7 +549,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3( unsigned char state, BYTEARRAY ma
   string HostCounterString = UTIL_ToHexString( hostCounter );
 
   if ( HostCounterString.size( ) < 8 )
-    HostCounterString.insert( 0, 8 - HostCounterString.size( ), '0' );
+    HostCounterString.insert( (size_t) 0, (size_t) 8 - HostCounterString.size( ), '0' );
 
   HostCounterString = string( HostCounterString.rbegin( ), HostCounterString.rend( ) );
 
@@ -686,7 +686,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO( unsigned char ver, uint32_t localeI
   unsigned char Version[] = { ver, 0, 0, 0 };
   unsigned char Language[] = { 83, 85, 110, 101 }; // "enUS"
   unsigned char LocalIP[] = { 127, 0, 0, 1 };
-  unsigned char TimeZoneBias[] = { 44, 1, 0, 0 }; // 300 minutes (GMT -0500)
+  unsigned char TimeZoneBias[] = { 60, 0, 0, 0 }; // 60 minutes (GMT +0100) but this is probably -0100
 
   BYTEARRAY packet;
   packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
@@ -824,23 +824,15 @@ void CBNETProtocol::AssignLength( BYTEARRAY &content )
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-  BYTEARRAY LengthBytes;
-
-  LengthBytes = UTIL_CreateByteArray( (uint16_t) content.size( ), false );
-  content[2] = LengthBytes[0];
-  content[3] = LengthBytes[1];
+  content[2] = (unsigned char) ( (uint16_t ) content.size( ) );
+  content[3] = (unsigned char) ( (uint16_t ) content.size( ) >> 8 );
 }
 
 bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  BYTEARRAY LengthBytes;
-
-  LengthBytes.push_back( content[2] );
-  LengthBytes.push_back( content[3] );
-
-  if ( UTIL_ByteArrayToUInt16( LengthBytes, false ) == content.size( ) )
+  if ( (uint16_t) ( content[3] << 8 | content[2] ) == content.size( ) )
     return true;
 
   return false;
@@ -860,7 +852,7 @@ CIncomingGameHost::~CIncomingGameHost( )
 
 }
 
-string CIncomingGameHost::GetIPString( )
+string CIncomingGameHost::GetIPString( ) const
 {
   string Result;
 
