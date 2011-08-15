@@ -23,10 +23,10 @@
 // CGameProtocol
 //
 
-#define GPS_HEADER_CONSTANT			248
+#define GPS_HEADER_CONSTANT         248
 
-#define REJECTGPS_INVALID			1
-#define REJECTGPS_NOTFOUND			2
+#define REJECTGPS_INVALID           1
+#define REJECTGPS_NOTFOUND          2
 
 class CGPSProtocol
 {
@@ -34,10 +34,10 @@ public:
 
   enum Protocol
   {
-    GPS_INIT = 1,
+    GPS_INIT      = 1,
     GPS_RECONNECT = 2,
-    GPS_ACK = 3,
-    GPS_REJECT = 4
+    GPS_ACK       = 3,
+    GPS_REJECT    = 4
   };
 
   CGPSProtocol( );

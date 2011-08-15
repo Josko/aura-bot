@@ -107,19 +107,19 @@ public:
   CBNETProtocol( );
   ~CBNETProtocol( );
 
-  BYTEARRAY GetClientToken( ) const       		{ return m_ClientToken; }
-  BYTEARRAY GetLogonType( ) const         		{ return m_LogonType; }
-  BYTEARRAY GetServerToken( ) const       		{ return m_ServerToken; }
-  BYTEARRAY GetMPQFileTime( ) const       		{ return m_MPQFileTime; }
-  BYTEARRAY GetIX86VerFileName( ) const   		{ return m_IX86VerFileName; }
-  string GetIX86VerFileNameString( ) const		{ return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
-  BYTEARRAY GetValueStringFormula( ) const		{ return m_ValueStringFormula; }
-  string GetValueStringFormulaString( ) const	{ return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
-	BYTEARRAY GetKeyState( ) const							{ return m_KeyState; }
-  string GetKeyStateDescription( ) const			{ return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
-  BYTEARRAY GetSalt( ) const									{ return m_Salt; }
-  BYTEARRAY GetServerPublicKey( ) const				{ return m_ServerPublicKey; }
-  BYTEARRAY GetUniqueName( ) const						{ return m_UniqueName; }
+  BYTEARRAY GetClientToken( ) const             { return m_ClientToken; }
+  BYTEARRAY GetLogonType( ) const               { return m_LogonType; }
+  BYTEARRAY GetServerToken( ) const             { return m_ServerToken; }
+  BYTEARRAY GetMPQFileTime( ) const             { return m_MPQFileTime; }
+  BYTEARRAY GetIX86VerFileName( ) const         { return m_IX86VerFileName; }
+  string GetIX86VerFileNameString( ) const      { return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
+  BYTEARRAY GetValueStringFormula( ) const      { return m_ValueStringFormula; }
+  string GetValueStringFormulaString( ) const   { return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
+  BYTEARRAY GetKeyState( ) const                { return m_KeyState; }
+  string GetKeyStateDescription( ) const        { return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
+  BYTEARRAY GetSalt( ) const                    { return m_Salt; }
+  BYTEARRAY GetServerPublicKey( ) const         { return m_ServerPublicKey; }
+  BYTEARRAY GetUniqueName( ) const              { return m_UniqueName; }
 
   // receive functions
 
