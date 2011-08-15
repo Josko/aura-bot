@@ -286,6 +286,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language(
   m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
 
   m_ReconnectSocket = new CTCPServer( );
+  m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
 
   if ( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
     Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
@@ -743,7 +744,6 @@ void CAura::SetConfigs( CConfig *CFG )
   m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
   m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
   m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
-  m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
   m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
   string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
   m_CommandTrigger = BotCommandTrigger[0];
