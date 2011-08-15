@@ -142,8 +142,8 @@ public:
   CSQLITE3( string filename );
   ~CSQLITE3( );
 
-  bool GetReady( ) const			{ return m_Ready; }
-  vector<string> *GetRow( )		    { return &m_Row; }  
+  bool GetReady( ) const            { return m_Ready; }
+  vector<string> *GetRow( )         { return &m_Row; }  
   string GetError( ) const ;
 
   int Prepare( const string &query, void **Statement );
@@ -184,8 +184,8 @@ public:
   CAuraDB( CConfig *CFG );
   ~CAuraDB( );
 
-  bool HasError( ) const				{ return m_HasError; }
-  string GetError( ) const			    { return m_Error; }
+  bool HasError( ) const                { return m_HasError; }
+  string GetError( ) const              { return m_Error; }
 
   bool Begin( );
   bool Commit( );
@@ -233,13 +233,13 @@ public:
   CDBBan( const string &nServer, const string &nName, const string &nIP, const string &nDate, const string &nGameName, const string &nAdmin, const string &nReason );
   ~CDBBan( );
 
-  string GetServer( ) const					{ return m_Server; }
-  string GetName( ) const					{ return m_Name; }
-  string GetIP( ) const						{ return m_IP; }
-  string GetDate( ) const					{ return m_Date; }
-  string GetGameName( ) const				{ return m_GameName; }
-  string GetAdmin( ) const					{ return m_Admin; }
-  string GetReason( ) const					{ return m_Reason; }
+  string GetServer( ) const                 { return m_Server; }
+  string GetName( ) const                   { return m_Name; }
+  string GetIP( ) const                     { return m_IP; }
+  string GetDate( ) const                   { return m_Date; }
+  string GetGameName( ) const               { return m_GameName; }
+  string GetAdmin( ) const                  { return m_Admin; }
+  string GetReason( ) const                 { return m_Reason; }
 };
 
 //
@@ -266,22 +266,22 @@ public:
   CDBGamePlayer( uint32_t nID, uint32_t nGameID, const string &nName, string nIP, uint32_t nSpoofed, const string &nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, const string &nLeftReason, uint32_t nTeam, uint32_t nColour );
   ~CDBGamePlayer( );
 
-  uint32_t GetID( ) const					{ return m_ID; }
-  uint32_t GetGameID( ) const				{ return m_GameID; }
-  string GetName( ) const					{ return m_Name; }
-  string GetIP( ) const						{ return m_IP; }
-  uint32_t GetSpoofed( ) const			    { return m_Spoofed; }
-  string GetSpoofedRealm( ) const		    { return m_SpoofedRealm; }
-  uint32_t GetReserved( ) const			    { return m_Reserved; }
-  uint32_t GetLoadingTime( ) const	        { return m_LoadingTime; }
-  uint32_t GetLeft( ) const					{ return m_Left; }
-  string GetLeftReason( ) const			    { return m_LeftReason; }
-  uint32_t GetTeam( ) const					{ return m_Team; }
-  uint32_t GetColour( ) const				{ return m_Colour; }
+  uint32_t GetID( ) const                   { return m_ID; }
+  uint32_t GetGameID( ) const               { return m_GameID; }
+  string GetName( ) const                   { return m_Name; }
+  string GetIP( ) const                     { return m_IP; }
+  uint32_t GetSpoofed( ) const              { return m_Spoofed; }
+  string GetSpoofedRealm( ) const           { return m_SpoofedRealm; }
+  uint32_t GetReserved( ) const             { return m_Reserved; }
+  uint32_t GetLoadingTime( ) const          { return m_LoadingTime; }
+  uint32_t GetLeft( ) const                 { return m_Left; }
+  string GetLeftReason( ) const             { return m_LeftReason; }
+  uint32_t GetTeam( ) const                 { return m_Team; }
+  uint32_t GetColour( ) const               { return m_Colour; }
   
-  void SetLoadingTime( uint32_t nLoadingTime )		{ m_LoadingTime = nLoadingTime; }
-  void SetLeft( uint32_t nLeft )					{ m_Left = nLeft; }
-  void SetLeftReason( string nLeftReason )			{ m_LeftReason = nLeftReason; }
+  void SetLoadingTime( uint32_t nLoadingTime )      { m_LoadingTime = nLoadingTime; }
+  void SetLeft( uint32_t nLeft )                    { m_Left = nLeft; }
+  void SetLeftReason( string nLeftReason )          { m_LeftReason = nLeftReason; }
 };
 
 //
@@ -310,20 +310,20 @@ public:
   CDBGamePlayerSummary( const string &nServer, const string &nName, const string &nFirstGameDateTime, const string &nLastGameDateTime, uint32_t nTotalGames, uint32_t nMinLoadingTime, uint32_t nAvgLoadingTime, uint32_t nMaxLoadingTime, uint32_t nMinLeftPercent, uint32_t nAvgLeftPercent, uint32_t nMaxLeftPercent, uint32_t nMinDuration, uint32_t nAvgDuration, uint32_t nMaxDuration );
   ~CDBGamePlayerSummary( );
 
-  string GetServer( ) const					{ return m_Server; }
-  string GetName( ) const					{ return m_Name; }
-  string GetFirstGameDateTime( ) const	    { return m_FirstGameDateTime; }
-  string GetLastGameDateTime( ) const		{ return m_LastGameDateTime; }
-  uint32_t GetTotalGames( ) const			{ return m_TotalGames; }
-  uint32_t GetMinLoadingTime( ) const		{ return m_MinLoadingTime; }
-  uint32_t GetAvgLoadingTime( ) const		{ return m_AvgLoadingTime; }
-  uint32_t GetMaxLoadingTime( ) const		{ return m_MaxLoadingTime; }
-  uint32_t GetMinLeftPercent( ) const		{ return m_MinLeftPercent; }
-  uint32_t GetAvgLeftPercent( ) const		{ return m_AvgLeftPercent; }
-  uint32_t GetMaxLeftPercent( ) const		{ return m_MaxLeftPercent; }
-  uint32_t GetMinDuration( ) const			{ return m_MinDuration; }
-  uint32_t GetAvgDuration( ) const			{ return m_AvgDuration; }
-  uint32_t GetMaxDuration( ) const			{ return m_MaxDuration; }
+  string GetServer( ) const                 { return m_Server; }
+  string GetName( ) const                   { return m_Name; }
+  string GetFirstGameDateTime( ) const      { return m_FirstGameDateTime; }
+  string GetLastGameDateTime( ) const       { return m_LastGameDateTime; }
+  uint32_t GetTotalGames( ) const           { return m_TotalGames; }
+  uint32_t GetMinLoadingTime( ) const       { return m_MinLoadingTime; }
+  uint32_t GetAvgLoadingTime( ) const       { return m_AvgLoadingTime; }
+  uint32_t GetMaxLoadingTime( ) const       { return m_MaxLoadingTime; }
+  uint32_t GetMinLeftPercent( ) const       { return m_MinLeftPercent; }
+  uint32_t GetAvgLeftPercent( ) const       { return m_AvgLeftPercent; }
+  uint32_t GetMaxLeftPercent( ) const       { return m_MaxLeftPercent; }
+  uint32_t GetMinDuration( ) const          { return m_MinDuration; }
+  uint32_t GetAvgDuration( ) const          { return m_AvgDuration; }
+  uint32_t GetMaxDuration( ) const          { return m_MaxDuration; }
 };
 
 //
@@ -355,36 +355,36 @@ public:
   CDBDotAPlayer( uint32_t nID, uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, const string &nItem1, const string &nItem2, const string &nItem3, const string &nItem4, const string &nItem5, const string &nItem6, const string &nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills );
   ~CDBDotAPlayer( );
 
-	string GetItem( unsigned int i ) const;
-  uint32_t GetID( ) const						{ return m_ID; }
-  uint32_t GetGameID( ) const					{ return m_GameID; }
-  uint32_t GetColour( ) const					{ return m_Colour; }
-  uint32_t GetKills( ) const					{ return m_Kills; }
-  uint32_t GetDeaths( ) const					{ return m_Deaths; }
-  uint32_t GetCreepKills( ) const				{ return m_CreepKills; }
-  uint32_t GetCreepDenies( ) const				{ return m_CreepDenies; }
-  uint32_t GetAssists( ) const					{ return m_Assists; }
-  uint32_t GetGold( ) const						{ return m_Gold; }
-  uint32_t GetNeutralKills( ) const				{ return m_NeutralKills; }  
-  string GetHero( ) const						{ return m_Hero; }
-  uint32_t GetNewColour( ) const				{ return m_NewColour; }
-  uint32_t GetTowerKills( ) const				{ return m_TowerKills; }
-  uint32_t GetRaxKills( ) const					{ return m_RaxKills; }
-  uint32_t GetCourierKills( ) const				{ return m_CourierKills; }
+    string GetItem( unsigned int i ) const;
+  uint32_t GetID( ) const                       { return m_ID; }
+  uint32_t GetGameID( ) const                   { return m_GameID; }
+  uint32_t GetColour( ) const                   { return m_Colour; }
+  uint32_t GetKills( ) const                    { return m_Kills; }
+  uint32_t GetDeaths( ) const                   { return m_Deaths; }
+  uint32_t GetCreepKills( ) const               { return m_CreepKills; }
+  uint32_t GetCreepDenies( ) const              { return m_CreepDenies; }
+  uint32_t GetAssists( ) const                  { return m_Assists; }
+  uint32_t GetGold( ) const                     { return m_Gold; }
+  uint32_t GetNeutralKills( ) const             { return m_NeutralKills; }  
+  string GetHero( ) const                       { return m_Hero; }
+  uint32_t GetNewColour( ) const                { return m_NewColour; }
+  uint32_t GetTowerKills( ) const               { return m_TowerKills; }
+  uint32_t GetRaxKills( ) const                 { return m_RaxKills; }
+  uint32_t GetCourierKills( ) const             { return m_CourierKills; }
   
   void SetItem( unsigned int i, string item );
-  void SetColour( uint32_t nColour )      		  { m_Colour = nColour; }
-  void SetKills( uint32_t nKills )				  { m_Kills = nKills; }
-  void SetDeaths( uint32_t nDeaths )			  { m_Deaths = nDeaths; }
-  void SetCreepKills( uint32_t nCreepKills )	  { m_CreepKills = nCreepKills; }
-  void SetCreepDenies( uint32_t nCreepDenies )	  { m_CreepDenies = nCreepDenies; }
-  void SetAssists( uint32_t nAssists )			  { m_Assists = nAssists; }
-  void SetGold( uint32_t nGold )				  { m_Gold = nGold; }
+  void SetColour( uint32_t nColour )              { m_Colour = nColour; }
+  void SetKills( uint32_t nKills )                { m_Kills = nKills; }
+  void SetDeaths( uint32_t nDeaths )              { m_Deaths = nDeaths; }
+  void SetCreepKills( uint32_t nCreepKills )      { m_CreepKills = nCreepKills; }
+  void SetCreepDenies( uint32_t nCreepDenies )    { m_CreepDenies = nCreepDenies; }
+  void SetAssists( uint32_t nAssists )            { m_Assists = nAssists; }
+  void SetGold( uint32_t nGold )                  { m_Gold = nGold; }
   void SetNeutralKills( uint32_t nNeutralKills )  { m_NeutralKills = nNeutralKills; }
-  void SetHero( string nHero )					  { m_Hero = nHero; }
-  void SetNewColour( uint32_t nNewColour )		  { m_NewColour = nNewColour; }
-  void SetTowerKills( uint32_t nTowerKills )	  { m_TowerKills = nTowerKills; }
-  void SetRaxKills( uint32_t nRaxKills )		  { m_RaxKills = nRaxKills; }
+  void SetHero( string nHero )                    { m_Hero = nHero; }
+  void SetNewColour( uint32_t nNewColour )        { m_NewColour = nNewColour; }
+  void SetTowerKills( uint32_t nTowerKills )      { m_TowerKills = nTowerKills; }
+  void SetRaxKills( uint32_t nRaxKills )          { m_RaxKills = nRaxKills; }
   void SetCourierKills( uint32_t nCourierKills )  { m_CourierKills = nCourierKills; }
 };
 
@@ -414,29 +414,29 @@ public:
   CDBDotAPlayerSummary( const string &nServer, const string &nName, uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills );
   ~CDBDotAPlayerSummary( );
 
-  string GetServer( ) const					{ return m_Server; }
-  string GetName( ) const					{ return m_Name; }
-  uint32_t GetTotalGames( ) const			{ return m_TotalGames; }
-  uint32_t GetTotalWins( ) const			{ return m_TotalWins; }
-  uint32_t GetTotalLosses( ) const			{ return m_TotalLosses; }
-  uint32_t GetTotalKills( ) const			{ return m_TotalKills; }
-  uint32_t GetTotalDeaths( ) const			{ return m_TotalDeaths; }
-  uint32_t GetTotalCreepKills( ) const		{ return m_TotalCreepKills; }
-  uint32_t GetTotalCreepDenies( ) const		{ return m_TotalCreepDenies; }
-  uint32_t GetTotalAssists( ) const			{ return m_TotalAssists; }
-  uint32_t GetTotalNeutralKills( ) const	{ return m_TotalNeutralKills; }
-  uint32_t GetTotalTowerKills( ) const		{ return m_TotalTowerKills; }
-  uint32_t GetTotalRaxKills( ) const		{ return m_TotalRaxKills; }
-  uint32_t GetTotalCourierKills( ) const	{ return m_TotalCourierKills; }
-  float GetAvgKills( ) const				{ return m_TotalGames > 0 ? (float) m_TotalKills / m_TotalGames : 0; }
-  float GetAvgDeaths( ) const				{ return m_TotalGames > 0 ? (float) m_TotalDeaths / m_TotalGames : 0; }
-  float GetAvgCreepKills( ) const			{ return m_TotalGames > 0 ? (float) m_TotalCreepKills / m_TotalGames : 0; }
-  float GetAvgCreepDenies( ) const			{ return m_TotalGames > 0 ? (float) m_TotalCreepDenies / m_TotalGames : 0; }
-  float GetAvgAssists( ) const				{ return m_TotalGames > 0 ? (float) m_TotalAssists / m_TotalGames : 0; }
-  float GetAvgNeutralKills( ) const			{ return m_TotalGames > 0 ? (float) m_TotalNeutralKills / m_TotalGames : 0; }
-  float GetAvgTowerKills( ) const			{ return m_TotalGames > 0 ? (float) m_TotalTowerKills / m_TotalGames : 0; }
-  float GetAvgRaxKills( ) const				{ return m_TotalGames > 0 ? (float) m_TotalRaxKills / m_TotalGames : 0; }
-  float GetAvgCourierKills( ) const			{ return m_TotalGames > 0 ? (float) m_TotalCourierKills / m_TotalGames : 0; }
+  string GetServer( ) const                 { return m_Server; }
+  string GetName( ) const                   { return m_Name; }
+  uint32_t GetTotalGames( ) const           { return m_TotalGames; }
+  uint32_t GetTotalWins( ) const            { return m_TotalWins; }
+  uint32_t GetTotalLosses( ) const          { return m_TotalLosses; }
+  uint32_t GetTotalKills( ) const           { return m_TotalKills; }
+  uint32_t GetTotalDeaths( ) const          { return m_TotalDeaths; }
+  uint32_t GetTotalCreepKills( ) const      { return m_TotalCreepKills; }
+  uint32_t GetTotalCreepDenies( ) const     { return m_TotalCreepDenies; }
+  uint32_t GetTotalAssists( ) const         { return m_TotalAssists; }
+  uint32_t GetTotalNeutralKills( ) const    { return m_TotalNeutralKills; }
+  uint32_t GetTotalTowerKills( ) const      { return m_TotalTowerKills; }
+  uint32_t GetTotalRaxKills( ) const        { return m_TotalRaxKills; }
+  uint32_t GetTotalCourierKills( ) const    { return m_TotalCourierKills; }
+  float GetAvgKills( ) const                { return m_TotalGames > 0 ? (float) m_TotalKills / m_TotalGames : 0; }
+  float GetAvgDeaths( ) const               { return m_TotalGames > 0 ? (float) m_TotalDeaths / m_TotalGames : 0; }
+  float GetAvgCreepKills( ) const           { return m_TotalGames > 0 ? (float) m_TotalCreepKills / m_TotalGames : 0; }
+  float GetAvgCreepDenies( ) const          { return m_TotalGames > 0 ? (float) m_TotalCreepDenies / m_TotalGames : 0; }
+  float GetAvgAssists( ) const              { return m_TotalGames > 0 ? (float) m_TotalAssists / m_TotalGames : 0; }
+  float GetAvgNeutralKills( ) const         { return m_TotalGames > 0 ? (float) m_TotalNeutralKills / m_TotalGames : 0; }
+  float GetAvgTowerKills( ) const           { return m_TotalGames > 0 ? (float) m_TotalTowerKills / m_TotalGames : 0; }
+  float GetAvgRaxKills( ) const             { return m_TotalGames > 0 ? (float) m_TotalRaxKills / m_TotalGames : 0; }
+  float GetAvgCourierKills( ) const         { return m_TotalGames > 0 ? (float) m_TotalCourierKills / m_TotalGames : 0; }
 };
 
 #endif
