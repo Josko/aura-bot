@@ -130,7 +130,7 @@ void CPotentialPlayer::Send( const BYTEARRAY &data )
 // CGamePlayer
 //
 
-CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved ) : m_Protocol( potential->m_Protocol ), m_Game( potential->m_Game ), m_Socket( potential->GetSocket( ) ), m_DeleteMe( false ), m_PID( nPID ), m_Name( nName ), m_InternalIP( nInternalIP ), m_JoinedRealm( nJoinedRealm ), m_LeftCode( PLAYERLEAVE_LOBBY ), m_SyncCounter( 0 ), m_JoinTime( GetTime( ) ), m_LastMapPartSent( 0 ), m_LastMapPartAcked( 0 ), m_FinishedLoadingTicks( 0 ), m_StartedLaggingTicks( 0 ), m_LastGProxyWaitNoticeSentTime( 0 ), m_Spoofed( false ), m_Reserved( nReserved ), m_WhoisShouldBeSent( false ), m_WhoisSent( false ), m_DownloadAllowed( false ), m_DownloadStarted( false ), m_DownloadFinished( false ), m_FinishedLoading( false ), m_Lagging( false ), m_DropVote( false ), m_KickVote( false ), m_Muted( false ), m_LeftMessageSent( false ), m_GProxy( false ), m_GProxyDisconnectNoticeSent( false ), m_GProxyReconnectKey( GetTicks( ) ), m_LastGProxyAckTime( 0 )
+CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved ) : m_Protocol( potential->m_Protocol ), m_Game( potential->m_Game ), m_Socket( potential->GetSocket( ) ), m_DeleteMe( false ), m_PID( nPID ), m_Name( nName ), m_InternalIP( nInternalIP ), m_JoinedRealm( nJoinedRealm ), m_TotalPacketsReceived( 1 ), m_LeftCode( PLAYERLEAVE_LOBBY ), m_SyncCounter( 0 ), m_JoinTime( GetTime( ) ), m_LastMapPartSent( 0 ), m_LastMapPartAcked( 0 ), m_FinishedLoadingTicks( 0 ), m_StartedLaggingTicks( 0 ), m_LastGProxyWaitNoticeSentTime( 0 ), m_Spoofed( false ), m_Reserved( nReserved ), m_WhoisShouldBeSent( false ), m_WhoisSent( false ), m_DownloadAllowed( false ), m_DownloadStarted( false ), m_DownloadFinished( false ), m_FinishedLoading( false ), m_Lagging( false ), m_DropVote( false ), m_KickVote( false ), m_Muted( false ), m_LeftMessageSent( false ), m_GProxy( false ), m_GProxyDisconnectNoticeSent( false ), m_GProxyReconnectKey( GetTicks( ) ), m_LastGProxyAckTime( 0 )
 {
 
 }
@@ -203,10 +203,10 @@ bool CGamePlayer::Update( void *fd )
 
   // GProxy++ acks
 
-  if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )  
-  {   
-    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );  
-    m_LastGProxyAckTime = Time;   
+  if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
+  {
+    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
+    m_LastGProxyAckTime = Time;
   }
 
   m_Socket->DoRecv( (fd_set *) fd );
@@ -230,6 +230,8 @@ bool CGamePlayer::Update( void *fd )
       // bytes 2 and 3 contain the length of the packet
 
       uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+
+      ++m_TotalPacketsReceived;
 
       if ( Bytes.size( ) >= Length )
       {

@@ -2501,24 +2501,24 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           Print( "[GAME: " + m_GameName + "] bad inputs to sendlan command" );
         else
         {
-        	// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
-					// the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
-					// the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
-					// since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
-					// when a player joins a game we can obtain the ID from the received host counter
-					// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
+            // construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
+                    // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
+                    // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
+                    // since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
+                    // when a player joins a game we can obtain the ID from the received host counter
+                    // note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
 
-					// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
-					// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
-					// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
-					// however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
-					// nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
-					// we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
-					// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
-					// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
+                    // we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
+                    // we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
+                    // this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
+                    // however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
+                    // nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
+                    // we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
+                    // so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
+                    // the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
 
-					// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
-					// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
+                    // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
+                    // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
           m_Aura->m_UDPSocket->SendTo( IP, Port, m_Protocol->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( (uint32_t) MAPGAMETYPE_UNKNOWN0, false ), m_Map->GetMapGameFlags( ), m_Map->GetMapWidth( ), m_Map->GetMapHeight( ), m_GameName, "Clan 007", 0, m_Map->GetMapPath( ), m_Map->GetMapCRC( ), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey ) );
         }
@@ -3017,29 +3017,29 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
       if ( DotAPlayerSummary )
       {
         string Summary = m_Aura->m_Language->HasPlayedDotAGamesWithThisBot(
-					StatsUser,
-					UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-					UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 )
-				);
+                    StatsUser,
+                    UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
+                    UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 )
+                );
 
         if ( player->GetSpoofed( ) && ( m_Aura->m_DB->AdminCheck( player->GetSpoofedRealm( ), User ) || RootAdminCheck || IsOwner( User ) ) )
           SendAllChat( Summary );
