@@ -201,14 +201,6 @@ bool CGamePlayer::Update( void *fd )
   if ( Time - m_Socket->GetLastRecv( ) >= 30 )
     m_Game->EventPlayerDisconnectTimedOut( this );
 
-  // GProxy++ acks
-
-  if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
-  {
-    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
-    m_LastGProxyAckTime = Time;
-  }
-
   m_Socket->DoRecv( (fd_set *) fd );
 
   // extract as many packets as possible from the socket's receive buffer and process them
@@ -380,6 +372,14 @@ bool CGamePlayer::Update( void *fd )
         break;
       }
   }
+  
+  // GProxy++ acks
+
+  if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
+  {
+    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
+    m_LastGProxyAckTime = Time;
+  }
 
   // try to find out why we're requesting deletion
   // in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
@@ -389,14 +389,20 @@ bool CGamePlayer::Update( void *fd )
     m_Game->EventPlayerDisconnectSocketError( this );
     m_Socket->Reset( );
     
-    return true;
+    if( m_GProxy && m_Game->GetGameLoaded( ) )
+      return false;
+    else
+      return true;
   }
   else if ( !m_Socket->GetConnected( ) )
   {
     m_Game->EventPlayerDisconnectConnectionClosed( this );
     m_Socket->Reset( );
     
-    return true;
+    if( m_GProxy && m_Game->GetGameLoaded( ) )
+      return false;
+    else
+      return true;
   }  
   
   return m_DeleteMe;
