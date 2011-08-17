@@ -3001,9 +3001,10 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
 
     //
     // !STATSDOTA
+    // !SD
     //
 
-  else if ( Command == "statsdota" )
+  else if ( Command == "statsdota" || Command == "sd" )
   {
     string StatsUser = User;
 
