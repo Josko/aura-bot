@@ -707,6 +707,9 @@ bool CAura::Update( )
         continue;
       }
     }
+
+    (*i)->DoSend( &send_fd );
+    ++i;
   }
 
   return m_Exiting || Exit;
