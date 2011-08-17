@@ -689,6 +689,22 @@ bool CAura::Update( )
             continue;
           }
         }
+        else
+        {
+          (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+          (*i)->DoSend( &send_fd );
+          delete *i;
+          i = m_ReconnectSockets.erase( i );
+          continue;
+        }
+      }
+      else
+      {
+        (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+        (*i)->DoSend( &send_fd );
+        delete *i;
+        i = m_ReconnectSockets.erase( i );
+        continue;
       }
     }
   }
