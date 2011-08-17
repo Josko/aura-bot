@@ -130,7 +130,7 @@ void CPotentialPlayer::Send( const BYTEARRAY &data )
 // CGamePlayer
 //
 
-CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved ) : m_Protocol( potential->m_Protocol ), m_Game( potential->m_Game ), m_Socket( potential->GetSocket( ) ), m_DeleteMe( false ), m_PID( nPID ), m_Name( nName ), m_InternalIP( nInternalIP ), m_JoinedRealm( nJoinedRealm ), m_TotalPacketsReceived( 1 ), m_LeftCode( PLAYERLEAVE_LOBBY ), m_SyncCounter( 0 ), m_JoinTime( GetTime( ) ), m_LastMapPartSent( 0 ), m_LastMapPartAcked( 0 ), m_FinishedLoadingTicks( 0 ), m_StartedLaggingTicks( 0 ), m_LastGProxyWaitNoticeSentTime( 0 ), m_Spoofed( false ), m_Reserved( nReserved ), m_WhoisShouldBeSent( false ), m_WhoisSent( false ), m_DownloadAllowed( false ), m_DownloadStarted( false ), m_DownloadFinished( false ), m_FinishedLoading( false ), m_Lagging( false ), m_DropVote( false ), m_KickVote( false ), m_Muted( false ), m_LeftMessageSent( false ), m_GProxy( false ), m_GProxyDisconnectNoticeSent( false ), m_GProxyReconnectKey( GetTicks( ) ), m_LastGProxyAckTime( 0 )
+CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved ) : m_Protocol( potential->m_Protocol ), m_Game( potential->m_Game ), m_Socket( potential->GetSocket( ) ), m_DeleteMe( false ), m_PID( nPID ), m_Name( nName ), m_InternalIP( nInternalIP ), m_JoinedRealm( nJoinedRealm ), m_TotalPacketsSent( 0 ), m_TotalPacketsReceived( 1 ), m_LeftCode( PLAYERLEAVE_LOBBY ), m_SyncCounter( 0 ), m_JoinTime( GetTime( ) ), m_LastMapPartSent( 0 ), m_LastMapPartAcked( 0 ), m_FinishedLoadingTicks( 0 ), m_StartedLaggingTicks( 0 ), m_LastGProxyWaitNoticeSentTime( 0 ), m_Spoofed( false ), m_Reserved( nReserved ), m_WhoisShouldBeSent( false ), m_WhoisSent( false ), m_DownloadAllowed( false ), m_DownloadStarted( false ), m_DownloadFinished( false ), m_FinishedLoading( false ), m_Lagging( false ), m_DropVote( false ), m_KickVote( false ), m_Muted( false ), m_LeftMessageSent( false ), m_GProxy( false ), m_GProxyDisconnectNoticeSent( false ), m_GProxyReconnectKey( GetTicks( ) ), m_LastGProxyAckTime( 0 )
 {
 
 }
@@ -410,6 +410,15 @@ bool CGamePlayer::Update( void *fd )
 
 void CGamePlayer::Send( const BYTEARRAY &data )
 {
+  // must start counting packet total from beginning of connection
+  // but we can avoid buffering packets until we know the client is using GProxy++ since that'll be determined before the game starts
+  // this prevents us from buffering packets for non-GProxy++ clients
+
+  ++m_TotalPacketsSent;
+
+  if( m_GProxy && m_Game->GetGameLoaded( ) )
+    m_GProxyBuffer.push( data );
+
   m_Socket->PutBytes( data );
 }
 
