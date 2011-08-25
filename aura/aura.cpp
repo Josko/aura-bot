@@ -615,7 +615,7 @@ bool CAura::Update( )
 
   for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
   {
-    if ( (*i)->HasError( ) || !(*i)->GetConnected( ) || GetTime( ) - (*i)->GetLastRecv( ) >= 12 )
+    if ( (*i)->HasError( ) || !(*i)->GetConnected( ) || GetTime( ) - (*i)->GetLastRecv( ) >= 10 )
     {
       delete *i;
       i = m_ReconnectSockets.erase( i );
@@ -682,7 +682,7 @@ bool CAura::Update( )
           }
           else
           {
-            (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+            (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
             (*i)->DoSend( &send_fd );
             delete *i;
             i = m_ReconnectSockets.erase( i );
@@ -691,7 +691,7 @@ bool CAura::Update( )
         }
         else
         {
-          (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+          (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
           (*i)->DoSend( &send_fd );
           delete *i;
           i = m_ReconnectSockets.erase( i );
@@ -700,7 +700,7 @@ bool CAura::Update( )
       }
       else
       {
-        (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_NOTFOUND ) );
+        (*i)->PutBytes( m_GPSProtocol->SEND_GPSS_REJECT( REJECTGPS_INVALID ) );
         (*i)->DoSend( &send_fd );
         delete *i;
         i = m_ReconnectSockets.erase( i );

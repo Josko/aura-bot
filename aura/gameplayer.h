@@ -87,7 +87,7 @@ private:
   unsigned char m_PID;                      // the player's PID
   string m_Name;                            // the player's name
   BYTEARRAY m_InternalIP;                   // the player's internal IP address as reported by the player when connecting
-  vector<uint32_t> m_Pings;                 // store the last few (20) pings received so we can take an average
+  vector<uint32_t> m_Pings;                 // store the last few (10) pings received so we can take an average
   queue<uint32_t> m_CheckSums;              // the last few checksums the player has sent (for detecting desyncs)
   string m_LeftReason;                      // the reason the player left the game
   string m_SpoofedRealm;                    // the realm the player last spoof checked on

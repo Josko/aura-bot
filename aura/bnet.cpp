@@ -1682,7 +1682,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           int32_t GameNumber = UTIL_ToInt32( Payload ) - 1;
 
-          if ( GameNumber > -1 && GameNumber < m_Aura->m_Games.size( ) )
+          if ( -1 < GameNumber && GameNumber < m_Aura->m_Games.size( ) )
             QueueChatCommand( "Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName( ) + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers( ), User, Whisper, m_IRC );
           else if( GameNumber == -1 && m_Aura->m_CurrentGame )
             QueueChatCommand( "Players in lobby [" + m_Aura->m_CurrentGame->GetGameName( ) + "] are: " + m_Aura->m_CurrentGame->GetPlayers( ), User, Whisper, m_IRC );

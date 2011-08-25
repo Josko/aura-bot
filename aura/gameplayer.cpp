@@ -172,30 +172,6 @@ uint32_t CGamePlayer::GetPing( bool LCPing ) const
 
 bool CGamePlayer::Update( void *fd )
 {
-  // try to find out why we're requesting deletion
-  // in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set 
-  
-  if ( m_Socket->HasError( ) )
-  {
-    m_Game->EventPlayerDisconnectSocketError( this );
-    m_Socket->Reset( );
-    
-    if( m_GProxy && m_Game->GetGameLoaded( ) )
-      return false;
-    else
-      return true;
-  }
-  else if ( !m_Socket->GetConnected( ) )
-  {
-    m_Game->EventPlayerDisconnectConnectionClosed( this );
-    m_Socket->Reset( );
-    
-    if( m_GProxy && m_Game->GetGameLoaded( ) )
-      return false;
-    else
-      return true;
-  }  
-  
   uint32_t Time = GetTime( );
 
   // wait 4 seconds after joining before sending the /whois or /w
@@ -216,7 +192,7 @@ bool CGamePlayer::Update( void *fd )
 
     m_WhoisSent = true;
   }
-
+  
   // check for socket timeouts
   // if we don't receive anything from a player for 30 seconds we can assume they've dropped
   // this works because in the lobby we send pings every 5 seconds and expect a response to each one
@@ -224,6 +200,14 @@ bool CGamePlayer::Update( void *fd )
 
   if ( Time - m_Socket->GetLastRecv( ) >= 30 )
     m_Game->EventPlayerDisconnectTimedOut( this );
+  
+  // GProxy++ acks
+
+  if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
+  {
+    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
+    m_LastGProxyAckTime = Time;
+  }  
 
   m_Socket->DoRecv( (fd_set *) fd );
 
@@ -336,7 +320,7 @@ bool CGamePlayer::Update( void *fd )
                 {
                   m_Pings.push_back( GetTicks( ) - Pong );
 
-                  if ( m_Pings.size( ) > 20 )
+                  if ( m_Pings.size( ) > 10 )
                     m_Pings.erase( m_Pings.begin( ) );
                 }
               }
@@ -397,15 +381,27 @@ bool CGamePlayer::Update( void *fd )
       }
   }
   
-  // GProxy++ acks
-
-  if ( m_GProxy && Time - m_LastGProxyAckTime >= 10 )
+  // try to find out why we're requesting deletion
+  // in cases other than the ones covered here m_LeftReason should have been set when m_DeleteMe was set
+  
+  if( m_Socket )
   {
-    m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_ACK( m_TotalPacketsReceived ) );
-    m_LastGProxyAckTime = Time;
+    if( m_Socket->HasError( ) )
+    {
+      m_Game->EventPlayerDisconnectSocketError( this );
+      m_Socket->Reset( );
+    }
+    else if( !m_Socket->GetConnected( ) )
+    {
+      m_Game->EventPlayerDisconnectConnectionClosed( this );
+      m_Socket->Reset( );
+    }
   }
-    
-  return m_DeleteMe;
+   
+  if( m_GProxy && m_Game->GetGameLoaded( ) )
+    return m_DeleteMe;
+  
+  return m_DeleteMe || m_Socket->HasError( ) || !m_Socket->GetConnected( );
 }
 
 void CGamePlayer::Send( const BYTEARRAY &data )
