@@ -1089,6 +1089,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
         }
+
+        //
+        // !SENDLAN
+        //
         
         else if ( Command == "sendlan" && m_Aura->m_CurrentGame && !Payload.empty( ) && !m_Aura->m_CurrentGame->GetCountDownStarted( ) )
 				{
@@ -1195,8 +1199,15 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
             if ( FileName == Payload )
             {
-              remove( m_Aura->m_MapCFGPath + i->path( ).filename( ).string( ) );
-              QueueChatCommand( "Deleted [" + i->path( ).filename( ).string( ) + "]", User, Whisper, m_IRC );
+              try
+              {
+                remove( m_Aura->m_MapCFGPath + i->path( ).filename( ).string( ) );
+                QueueChatCommand( "Deleted [" + i->path( ).filename( ).string( ) + "]", User, Whisper, m_IRC );
+              }
+              catch( const exception &e )
+              {
+                // removal failed
+              }
             }
           }
         }
@@ -1221,8 +1232,15 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
             if ( FileName == Payload )
             {
-              remove( m_Aura->m_MapPath + i->path( ).filename( ).string( ) );
-              QueueChatCommand( "Deleted [" + i->path( ).filename( ).string( ) + "]", User, Whisper, m_IRC );
+              try
+              {
+                remove( m_Aura->m_MapPath + i->path( ).filename( ).string( ) );
+                QueueChatCommand( "Deleted [" + i->path( ).filename( ).string( ) + "]", User, Whisper, m_IRC );
+              }
+              catch( const exception &e )
+              {
+                // removal failed
+              }
             }
           }
         }
@@ -1664,8 +1682,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
-          if ( GameNumber < m_Aura->m_Games.size( ) )
+          if ( GameNumber != 0 && GameNumber < m_Aura->m_Games.size( ) )
             QueueChatCommand( "Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName( ) + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers( ), User, Whisper, m_IRC );
+          else if( GameNumber == 0 && m_Aura->m_CurrentGame )
+            QueueChatCommand( "Players in lobby [" + m_Aura->m_CurrentGame->GetGameName( ) + "] are: " + m_Aura->m_CurrentGame->GetPlayers( ), User, Whisper, m_IRC );
           else
             QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
 
