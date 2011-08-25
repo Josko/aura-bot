@@ -1209,7 +1209,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           transform( Payload.begin( ), Payload.end( ), Payload.begin( ), (int(* )(int) )tolower );
 
-          if ( Payload.find( ".w3x" ) == string::npos || Payload.find( ".w3m" ) == string::npos )
+          if ( Payload.find( ".w3x" ) == string::npos && Payload.find( ".w3m" ) == string::npos )
             Payload.append( ".w3x" );
 
           directory_iterator EndIterator;
