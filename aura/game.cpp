@@ -32,7 +32,7 @@
 #include "stats.h"
 #include "irc.h"
 
-#include <time.h>
+#include <ctime>
 #include <cmath>
 #include <cstdlib>
 
