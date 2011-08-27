@@ -1243,8 +1243,6 @@ void CGame::EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer 
         potential->SetDeleteMe( true );
 
         delete Ban;
-        Ban = NULL;
-
         return;
       }
     }
@@ -2446,7 +2444,6 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           {
             SendAllChat( m_Aura->m_Language->UserWasBannedOnByBecause( ( *i )->GetServer( ), Payload, Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ) );
             delete Ban;
-            Ban = NULL;
           }
           else
             SendAllChat( m_Aura->m_Language->UserIsNotBanned( ( *i )->GetServer( ), Payload ) );
@@ -2992,7 +2989,6 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           SendChat( player, m_Aura->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float) ( GamePlayerSummary->GetAvgLoadingTime( ) / 1000 ), 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ) );
 
         delete GamePlayerSummary;
-        GamePlayerSummary = NULL;
       }
     }
   }
@@ -3046,7 +3042,6 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           SendChat( player, Summary );
 
         delete DotAPlayerSummary;
-        DotAPlayerSummary = NULL;
       }
       else
       {

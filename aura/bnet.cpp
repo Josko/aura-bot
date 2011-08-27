@@ -835,7 +835,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             QueueChatCommand( m_Aura->m_Language->UserIsAlreadyBanned( m_Server, Victim ), User, Whisper, m_IRC );
 
             delete Ban;
-            Ban = NULL;
           }
           else if ( m_Aura->m_DB->BanAdd( m_Server, Victim, string( ), string( ), User, Reason ) )
             QueueChatCommand( m_Aura->m_Language->BannedUser( m_Server, Victim ), User, Whisper, m_IRC );
@@ -881,7 +880,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             QueueChatCommand( m_Aura->m_Language->UserIsNotBanned( m_Server, Payload ), User, Whisper, m_IRC );
 
           delete Ban;
-          Ban = NULL;
         }
         
         //
@@ -1641,7 +1639,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               QueueChatCommand( m_Aura->m_Language->HasntPlayedGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
 
             delete GamePlayerSummary;
-            GamePlayerSummary = NULL;
           }
         }
         
@@ -1739,7 +1736,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               QueueChatCommand( Summary, User, Whisper, m_IRC );
 
               delete DotAPlayerSummary;
-              DotAPlayerSummary = NULL;
             }
             else
               QueueChatCommand( m_Aura->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
@@ -1851,8 +1847,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
     if ( m_Spam && Message == "Channel is full." )
     {
-      // if( m_SpamChannel == "allstars/j allstars/j allstars" )
-      if ( m_SpamChannel.size( ) > 19 )
+      if ( m_SpamChannel.size( ) >= 19 )
         m_SpamChannel = "Allstars";
       else
         m_SpamChannel += "/j Allstars";
@@ -1864,15 +1859,15 @@ void CBNET::SetSpam( )
 {
   if ( !m_Spam )
   {
-    m_SpamChannel = "Allstars";
     m_Spam = true;
+    m_SpamChannel = "Allstars";
     Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is on." );
   }
   else
   {
     m_Spam = false;
-    Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is off." );
     QueueChatCommand( "/j " + m_FirstChannel );
+    Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is off." );
   }
 }
 
