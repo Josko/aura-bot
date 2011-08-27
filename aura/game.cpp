@@ -2128,9 +2128,9 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
       {
         for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
         {
-          if ( !( *i )->GetPvPGN( ) && ( *i )->GetSpam( ) )
+          if ( (*i)->GetSpam( ) )
           {
-            ( *i )->SetSpam( );
+            (*i)->SetSpam( );
           }
         }
 
@@ -2141,13 +2141,13 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         // !SPAM
         //
 
-      else if ( Command == "spam" && !m_CountDownStarted && m_GameName.size( ) < 6 && m_GameState == GAME_PRIVATE )
+      else if ( Command == "spam" && !m_CountDownStarted && m_GameState == GAME_PRIVATE && m_Map->GetMapType( ) == "dota" )
       {
         for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
         {
-          if ( !( *i )->GetPvPGN( ) )
+          if ( !(*i)->GetPvPGN( ) )
           {
-            ( *i )->SetSpam( );
+            (*i)->SetSpam( );
           }
         }
       }
@@ -3535,14 +3535,13 @@ void CGame::EventGameStarted( )
 
   for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
   {
-    ( *i )->QueueGameUncreate( );
-    ( *i )->QueueEnterChat( );
+    (*i)->QueueGameUncreate( );
+    (*i)->QueueEnterChat( );
 
-    if ( ( *i )->GetSpam( ) )
+    if ( (*i)->GetSpam( ) )
     {
-      ( *i )->SetSpam( false );
-      ( *i )->SendJoinChannel( ( *i )->GetFirstChannel( ) );
-      Print2( "[BNET: " + ( *i )->GetServerAlias( ) + "] Allstars spam is auto-off." );
+      (*i)->SetSpam( false );
+      (*i)->SendJoinChannel( (*i)->GetFirstChannel( ) );
     }
   }
 

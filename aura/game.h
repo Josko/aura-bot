@@ -118,25 +118,25 @@ public:
   CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
   ~CGame( );
 
-  CMap *GetMap( ) const                             { return m_Map; }
-  CGameProtocol *GetProtocol( ) const               { return m_Protocol; }
-  uint32_t GetEntryKey( ) const                     { return m_EntryKey; }
-  uint16_t GetHostPort( ) const                     { return m_HostPort; }
-  unsigned char GetGameState( ) const               { return m_GameState; }
-  unsigned char GetGProxyEmptyActions( ) const      { return m_GProxyEmptyActions; }
-  string GetGameName( ) const                       { return m_GameName; }
-  string GetLastGameName( ) const                   { return m_LastGameName; }
-  string GetVirtualHostName( ) const                { return m_VirtualHostName; }
-  string GetOwnerName( ) const                      { return m_OwnerName; }
-  string GetCreatorName( ) const                    { return m_CreatorName; }
-  string GetCreatorServer( ) const                  { return m_CreatorServer; }
-  uint32_t GetHostCounter( ) const                  { return m_HostCounter; }
-  uint32_t GetLastLagScreenTime( ) const            { return m_LastLagScreenTime; }
-  bool GetLocked( ) const                           { return m_Locked; }
-  bool GetCountDownStarted( ) const                 { return m_CountDownStarted; }
-  bool GetGameLoading( ) const                      { return m_GameLoading; }
-  bool GetGameLoaded( ) const                       { return m_GameLoaded; }
-  bool GetLagging( ) const                          { return m_Lagging; }
+  inline CMap *GetMap( ) const                             { return m_Map; }
+  inline CGameProtocol *GetProtocol( ) const               { return m_Protocol; }
+  inline uint32_t GetEntryKey( ) const                     { return m_EntryKey; }
+  inline uint16_t GetHostPort( ) const                     { return m_HostPort; }
+  inline unsigned char GetGameState( ) const               { return m_GameState; }
+  inline unsigned char GetGProxyEmptyActions( ) const      { return m_GProxyEmptyActions; }
+  inline string GetGameName( ) const                       { return m_GameName; }
+  inline string GetLastGameName( ) const                   { return m_LastGameName; }
+  inline string GetVirtualHostName( ) const                { return m_VirtualHostName; }
+  inline string GetOwnerName( ) const                      { return m_OwnerName; }
+  inline string GetCreatorName( ) const                    { return m_CreatorName; }
+  inline string GetCreatorServer( ) const                  { return m_CreatorServer; }
+  inline uint32_t GetHostCounter( ) const                  { return m_HostCounter; }
+  inline uint32_t GetLastLagScreenTime( ) const            { return m_LastLagScreenTime; }
+  inline bool GetLocked( ) const                           { return m_Locked; }
+  inline bool GetCountDownStarted( ) const                 { return m_CountDownStarted; }
+  inline bool GetGameLoading( ) const                      { return m_GameLoading; }
+  inline bool GetGameLoaded( ) const                       { return m_GameLoaded; }
+  inline bool GetLagging( ) const                          { return m_Lagging; }
 
   uint32_t GetNextTimedActionTicks( ) const;
   uint32_t GetSlotsOccupied( ) const;
@@ -146,8 +146,8 @@ public:
   string GetDescription( ) const;
   string GetPlayers( ) const;
 
-  void SetExiting( bool nExiting )                      { m_Exiting = nExiting; }
-  void SetRefreshError( bool nRefreshError )            { m_RefreshError = nRefreshError; }
+  inline void SetExiting( bool nExiting )                      { m_Exiting = nExiting; }
+  inline void SetRefreshError( bool nRefreshError )            { m_RefreshError = nRefreshError; }
 
   // processing functions
 

@@ -368,11 +368,11 @@ bool CBNET::Update( void *fd, void *send_fd )
     uint32_t WaitTicks;
 
     if ( m_LastOutPacketSize < 10 )
-      WaitTicks = 1150;
+      WaitTicks = 1300;
     else if ( m_LastOutPacketSize < 100 )
-      WaitTicks = 3150;
+      WaitTicks = 3300;
     else
-      WaitTicks = 4150;
+      WaitTicks = 4300;
 
     if ( !m_OutPackets.empty( ) && Ticks - m_LastOutPacketTicks >= WaitTicks )
     {
@@ -654,11 +654,12 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         // !SPAM
         //
 
-        else if ( Command == "spam" && m_Aura->m_CurrentGame && m_Aura->m_CurrentGame->GetGameName( ).size( ) < 6 )
+        else if ( Command == "spam" && m_Aura->m_CurrentGame && !m_Aura->m_CurrentGame->GetCountDownStarted( )
+                  && m_Aura->m_CurrentGame->GetMap( )->GetMapType( ) == "dota" )
         {
           for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-            if ( !( *i )->GetPvPGN( ) )
-              ( *i )->SetSpam( );
+            if ( !(*i)->GetPvPGN( ) )
+              (*i)->SetSpam( );
         }
         
         //
@@ -684,7 +685,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               if ( m_Spam )
               {
                 m_Spam = false;
-                Print2( "[BNET: " + m_ServerAlias + "] Allstars spam is auto-off." );
                 QueueChatCommand( "/j " + m_FirstChannel );
               }
             }

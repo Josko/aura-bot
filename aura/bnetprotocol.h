@@ -107,19 +107,19 @@ public:
   CBNETProtocol( );
   ~CBNETProtocol( );
 
-  BYTEARRAY GetClientToken( ) const             { return m_ClientToken; }
-  BYTEARRAY GetLogonType( ) const               { return m_LogonType; }
-  BYTEARRAY GetServerToken( ) const             { return m_ServerToken; }
-  BYTEARRAY GetMPQFileTime( ) const             { return m_MPQFileTime; }
-  BYTEARRAY GetIX86VerFileName( ) const         { return m_IX86VerFileName; }
-  string GetIX86VerFileNameString( ) const      { return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
-  BYTEARRAY GetValueStringFormula( ) const      { return m_ValueStringFormula; }
-  string GetValueStringFormulaString( ) const   { return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
-  BYTEARRAY GetKeyState( ) const                { return m_KeyState; }
-  string GetKeyStateDescription( ) const        { return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
-  BYTEARRAY GetSalt( ) const                    { return m_Salt; }
-  BYTEARRAY GetServerPublicKey( ) const         { return m_ServerPublicKey; }
-  BYTEARRAY GetUniqueName( ) const              { return m_UniqueName; }
+  inline BYTEARRAY GetClientToken( ) const             { return m_ClientToken; }
+  inline BYTEARRAY GetLogonType( ) const               { return m_LogonType; }
+  inline BYTEARRAY GetServerToken( ) const             { return m_ServerToken; }
+  inline BYTEARRAY GetMPQFileTime( ) const             { return m_MPQFileTime; }
+  inline BYTEARRAY GetIX86VerFileName( ) const         { return m_IX86VerFileName; }
+  inline string GetIX86VerFileNameString( ) const      { return string( m_IX86VerFileName.begin( ), m_IX86VerFileName.end( ) ); }
+  inline BYTEARRAY GetValueStringFormula( ) const      { return m_ValueStringFormula; }
+  inline string GetValueStringFormulaString( ) const   { return string( m_ValueStringFormula.begin( ), m_ValueStringFormula.end( ) ); }
+  inline BYTEARRAY GetKeyState( ) const                { return m_KeyState; }
+  inline string GetKeyStateDescription( ) const        { return string( m_KeyStateDescription.begin( ), m_KeyStateDescription.end( ) ); }
+  inline BYTEARRAY GetSalt( ) const                    { return m_Salt; }
+  inline BYTEARRAY GetServerPublicKey( ) const         { return m_ServerPublicKey; }
+  inline BYTEARRAY GetUniqueName( ) const              { return m_UniqueName; }
 
   // receive functions
 
@@ -184,10 +184,10 @@ public:
   ~CIncomingGameHost( );
 
   string GetIPString( ) const;
-  BYTEARRAY GetIP( ) const          { return m_IP; }
-  uint16_t GetPort( ) const         { return m_Port; }
-  string GetGameName( ) const       { return m_GameName; }
-  BYTEARRAY GetHostCounter( ) const { return m_HostCounter; }
+  inline BYTEARRAY GetIP( ) const          { return m_IP; }
+  inline uint16_t GetPort( ) const         { return m_Port; }
+  inline string GetGameName( ) const       { return m_GameName; }
+  inline BYTEARRAY GetHostCounter( ) const { return m_HostCounter; }
 };
 
 //
@@ -205,9 +205,9 @@ public:
   CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage );
   ~CIncomingChatEvent( );
 
-  CBNETProtocol::IncomingChatEvent GetChatEvent( ) const    { return m_ChatEvent; }
-  string GetUser( ) const                                   { return m_User; }
-  string GetMessage( ) const                                { return m_Message; }
+  inline CBNETProtocol::IncomingChatEvent GetChatEvent( ) const    { return m_ChatEvent; }
+  inline string GetUser( ) const                                   { return m_User; }
+  inline string GetMessage( ) const                                { return m_Message; }
 };
 
 #endif

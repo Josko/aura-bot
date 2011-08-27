@@ -58,26 +58,26 @@ public:
   CGameSlot( unsigned char nPID, unsigned char nDownloadStatus, unsigned char nSlotStatus, unsigned char nComputer, unsigned char nTeam, unsigned char nColour, unsigned char nRace, unsigned char nComputerType = 1, unsigned char nHandicap = 100 );
   ~CGameSlot( );
 
-  unsigned char GetPID( ) const                           { return m_PID; }
-  unsigned char GetDownloadStatus( ) const                { return m_DownloadStatus; }
-  unsigned char GetSlotStatus( ) const                    { return m_SlotStatus; }
-  unsigned char GetComputer( ) const                      { return m_Computer; }
-  unsigned char GetTeam( ) const                          { return m_Team; }
-  unsigned char GetColour( ) const                        { return m_Colour; }
-  unsigned char GetRace( ) const                          { return m_Race; }
-  unsigned char GetComputerType( ) const                  { return m_ComputerType; }
-  unsigned char GetHandicap( ) const                      { return m_Handicap; }
+  inline unsigned char GetPID( ) const                           { return m_PID; }
+  inline unsigned char GetDownloadStatus( ) const                { return m_DownloadStatus; }
+  inline unsigned char GetSlotStatus( ) const                    { return m_SlotStatus; }
+  inline unsigned char GetComputer( ) const                      { return m_Computer; }
+  inline unsigned char GetTeam( ) const                          { return m_Team; }
+  inline unsigned char GetColour( ) const                        { return m_Colour; }
+  inline unsigned char GetRace( ) const                          { return m_Race; }
+  inline unsigned char GetComputerType( ) const                  { return m_ComputerType; }
+  inline unsigned char GetHandicap( ) const                      { return m_Handicap; }
   BYTEARRAY GetByteArray( ) const;
   
-  void SetPID( unsigned char nPID )                       { m_PID = nPID; }
-  void SetDownloadStatus( unsigned char nDownloadStatus ) { m_DownloadStatus = nDownloadStatus; }
-  void SetSlotStatus( unsigned char nSlotStatus )         { m_SlotStatus = nSlotStatus; }
-  void SetComputer( unsigned char nComputer )             { m_Computer = nComputer; }
-  void SetTeam( unsigned char nTeam )                     { m_Team = nTeam; }
-  void SetColour( unsigned char nColour )                 { m_Colour = nColour; }
-  void SetRace( unsigned char nRace )                     { m_Race = nRace; }
-  void SetComputerType( unsigned char nComputerType )     { m_ComputerType = nComputerType; }
-  void SetHandicap( unsigned char nHandicap )             { m_Handicap = nHandicap; }
+  inline void SetPID( unsigned char nPID )                       { m_PID = nPID; }
+  inline void SetDownloadStatus( unsigned char nDownloadStatus ) { m_DownloadStatus = nDownloadStatus; }
+  inline void SetSlotStatus( unsigned char nSlotStatus )         { m_SlotStatus = nSlotStatus; }
+  inline void SetComputer( unsigned char nComputer )             { m_Computer = nComputer; }
+  inline void SetTeam( unsigned char nTeam )                     { m_Team = nTeam; }
+  inline void SetColour( unsigned char nColour )                 { m_Colour = nColour; }
+  inline void SetRace( unsigned char nRace )                     { m_Race = nRace; }
+  inline void SetComputerType( unsigned char nComputerType )     { m_ComputerType = nComputerType; }
+  inline void SetHandicap( unsigned char nHandicap )             { m_Handicap = nHandicap; }
 };
 
 #endif
