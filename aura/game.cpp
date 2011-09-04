@@ -2360,7 +2360,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
           else if ( Matches == 1 )
           {
             m_Aura->m_DB->BanAdd( LastMatch->GetServer( ), LastMatch->GetName( ), LastMatch->GetIP( ), m_GameName, User, Reason );
-            SendAllChat( "Player [" + LastMatch->GetServer( ) + "] was banned by player [" + LastMatch->GetName( ) + "] on server [" + User + "]" );
+            SendAllChat( "Player [" + LastMatch->GetName( ) + "] was banned by player [" + User + "] on server [" + LastMatch->GetServer( ) + "]" );
           }
           else
             SendChat( player, "Unable to ban player [" + Victim + "]. Found more than one match" );
