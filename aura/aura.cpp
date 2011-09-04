@@ -24,7 +24,6 @@
 #include "sha1.h"
 #include "csvparser.h"
 #include "config.h"
-#include "language.h"
 #include "socket.h"
 #include "auradb.h"
 #include "bnet.h"
@@ -55,7 +54,7 @@
 #endif
 
 #ifdef WIN32
-#define VERSION "1.08"
+#define VERSION "1.09"
 #endif
 
 CAura *gAura = NULL;
@@ -271,7 +270,7 @@ int main(int argc, char *argv[])
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Language( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( VERSION ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( VERSION ), m_HostCounter( 1 ), m_Ready( true )
 {
 #ifdef WIN32
     Print( "[AURA] Aura++ version " + m_Version + " - with GProxy++ support" );
@@ -462,7 +461,6 @@ CAura::~CAura( )
     delete *i;
 
   delete m_DB;
-  delete m_Language;
   delete m_Map;
   delete m_IRC;
 }
@@ -719,9 +717,9 @@ void CAura::EventBNETGameRefreshFailed( CBNET *bnet )
 {
   if ( m_CurrentGame )
   {
-    m_CurrentGame->SendAllChat( m_Language->UnableToCreateGameTryAnotherName( bnet->GetServer( ), m_CurrentGame->GetGameName( ) ) );
+    m_CurrentGame->SendAllChat( "Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name" );
 
-    Print2( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name." );
+    Print2( "[GAME: " + m_CurrentGame->GetGameName( ) + "] Unable to create game on server [" + bnet->GetServer( ) + "]. Try another name" );
 
     // we take the easy route and simply close the lobby if a refresh fails
     // it's possible at least one refresh succeeded and therefore the game is still joinable on at least one battle.net (plus on the local network) but we don't keep track of that
@@ -738,10 +736,10 @@ void CAura::EventGameDeleted( CGame *game )
 {
   for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
-    (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ) );
+    (*i)->QueueChatCommand( "Game [" + game->GetDescription( ) + "] is over" );
 
     if ( (*i)->GetServer( ) == game->GetCreatorServer( ) )
-      (*i)->QueueChatCommand( m_Language->GameIsOver( game->GetDescription( ) ), game->GetCreatorName( ), true, string( ) );
+      (*i)->QueueChatCommand( "Game [" + game->GetDescription( ) + "] is over", game->GetCreatorName( ), true, string( ) );
   }
 }
 
@@ -756,10 +754,7 @@ void CAura::SetConfigs( CConfig *CFG )
 {
   // this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
   // it just set the easily reloadable values
-
-  m_LanguageFile = CFG->GetString( "bot_language", "language.cfg" );
-  delete m_Language;
-  m_Language = new CLanguage( m_LanguageFile );
+  
   m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
   m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
   m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
@@ -932,7 +927,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
-        (*i)->QueueChatCommand( m_Language->UnableToCreateGameDisabled( gameName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string( ) );
     }
 
     return;
@@ -943,7 +938,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
-        (*i)->QueueChatCommand( m_Language->UnableToCreateGameNameTooLong( gameName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string( ) );
     }
 
     return;
@@ -954,7 +949,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
-        (*i)->QueueChatCommand( m_Language->UnableToCreateGameInvalidMap( gameName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string( ) );
     }
 
     return;
@@ -965,7 +960,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
-        (*i)->QueueChatCommand( m_Language->UnableToCreateGameAnotherGameInLobby( gameName, m_CurrentGame->GetDescription( ) ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription( ) + "] is in the lobby", creatorName, whisper, string( ) );
     }
 
     return;
@@ -976,7 +971,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
-        (*i)->QueueChatCommand( m_Language->UnableToCreateGameMaxGamesReached( gameName, UTIL_ToString( m_MaxGames ) ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + UTIL_ToString( m_MaxGames ) + ") has been reached", creatorName, whisper, string( ) );
     }
 
     return;
@@ -993,18 +988,18 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
       // note that we send this whisper only on the creator server
 
       if ( gameState == GAME_PRIVATE )
-        (*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Creating private game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string( ) );
       else if ( gameState == GAME_PUBLIC )
-        (*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ), creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Creating public game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string( ) );
     }
     else
     {
       // note that we send this chat message on all other bnet servers
 
       if ( gameState == GAME_PRIVATE )
-        (*i)->QueueChatCommand( m_Language->CreatingPrivateGame( gameName, ownerName ) );
+        (*i)->QueueChatCommand( "Creating private game [" + gameName + "] started by [" + ownerName + "]" );
       else if ( gameState == GAME_PUBLIC )
-        (*i)->QueueChatCommand( m_Language->CreatingPublicGame( gameName, ownerName ) );
+        (*i)->QueueChatCommand( "Creating public game [" + gameName + "] started by [" + ownerName + "]" );
     }
 
     (*i)->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );

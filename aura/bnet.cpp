@@ -21,7 +21,6 @@
 #include "aura.h"
 #include "util.h"
 #include "config.h"
-#include "language.h"
 #include "socket.h"
 #include "auradb.h"
 #include "bncsutilinterface.h"
@@ -571,7 +570,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         if ( Command == "map" )
         {
           if ( Payload.empty( ) )
-            QueueChatCommand( m_Aura->m_Language->CurrentlyLoadedMapCFGIs( m_Aura->m_Map->GetCFGFile( ) ), User, Whisper, m_IRC );
+            QueueChatCommand( "The currently loaded map config file is: [" + m_Aura->m_Map->GetCFGFile( ) + "]", User, Whisper, m_IRC );
           else
           {
             string FoundMaps;
@@ -585,7 +584,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               if ( !exists( m_Aura->m_MapPath ) )
               {
                 Print( "[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist" );
-                QueueChatCommand( m_Aura->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
+                QueueChatCommand( "Error listing maps", User, Whisper, m_IRC );
               }
               else
               {
@@ -621,11 +620,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                 }
 
                 if ( Matches == 0 )
-                  QueueChatCommand( m_Aura->m_Language->NoMapsFound( ), User, Whisper, m_IRC );
+                  QueueChatCommand( "No maps found with that name", User, Whisper, m_IRC );
                 else if ( Matches == 1 )
                 {
                   string File = LastMatch.filename( ).string( );
-                  QueueChatCommand( m_Aura->m_Language->LoadingConfigFile( File ), User, Whisper, m_IRC );
+                  QueueChatCommand( "Loading config file [" + File + "]", User, Whisper, m_IRC );
 
                   // hackhack: create a config file in memory with the required information to load the map
 
@@ -639,13 +638,13 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                   m_Aura->m_Map->Load( &MapCFG, File );
                 }
                 else
-                  QueueChatCommand( m_Aura->m_Language->FoundMaps( FoundMaps ), User, Whisper, m_IRC );
+                  QueueChatCommand( "Maps: " + FoundMaps, User, Whisper, m_IRC );
               }
             }
             catch ( const exception &e )
             {
               Print( "[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + e.what( ) + "]" );
-              QueueChatCommand( m_Aura->m_Language->ErrorListingMaps( ), User, Whisper, m_IRC );
+              QueueChatCommand( "Error listing maps", User, Whisper, m_IRC );
             }
           }
         }
@@ -671,15 +670,15 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( m_Aura->m_CurrentGame )
           {
             if ( m_Aura->m_CurrentGame->GetCountDownStarted( ) )
-              QueueChatCommand( m_Aura->m_Language->UnableToUnhostGameCountdownStarted( m_Aura->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "Unable to unhost game [" + m_Aura->m_CurrentGame->GetDescription( ) + "]. The countdown has started, just wait a few seconds", User, Whisper, m_IRC );
 
               // if the game owner is still in the game only allow the root admin to unhost the game
 
             else if ( m_Aura->m_CurrentGame->GetPlayerFromName( m_Aura->m_CurrentGame->GetOwnerName( ), false ) && !IsRootAdmin( User ) )
-              QueueChatCommand( m_Aura->m_Language->CantUnhostGameOwnerIsPresent( m_Aura->m_CurrentGame->GetOwnerName( ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "You can't unhost that game because the game owner [" + m_Aura->m_CurrentGame->GetOwnerName( ) + "] is in the lobby", User, Whisper, m_IRC );
             else
             {
-              QueueChatCommand( m_Aura->m_Language->UnhostingGame( m_Aura->m_CurrentGame->GetDescription( ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "Unhosting game [" + m_Aura->m_CurrentGame->GetDescription( ) + "]", User, Whisper, m_IRC );
               m_Aura->m_CurrentGame->SetExiting( true );
 
               if ( m_Spam )
@@ -690,7 +689,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->UnableToUnhostGameNoGameInLobby( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Unable to unhost game. There is no game in the lobby", User, Whisper, m_IRC );
         }
         
         //
@@ -714,7 +713,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         else if ( Command == "load" )
         {
           if ( Payload.empty( ) )
-            QueueChatCommand( m_Aura->m_Language->CurrentlyLoadedMapCFGIs( m_Aura->m_Map->GetCFGFile( ) ), User, Whisper, m_IRC );
+            QueueChatCommand( "The currently loaded map config file is: [" + m_Aura->m_Map->GetCFGFile( ) + "]", User, Whisper, m_IRC );
           else
           {
             string FoundMapConfigs;
@@ -728,7 +727,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               if ( !exists( MapCFGPath ) )
               {
                 Print( "[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist" );
-                QueueChatCommand( m_Aura->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
+                QueueChatCommand( "Error listing map configs", User, Whisper, m_IRC );
               }
               else
               {
@@ -764,23 +763,23 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                 }
 
                 if ( Matches == 0 )
-                  QueueChatCommand( m_Aura->m_Language->NoMapConfigsFound( ), User, Whisper, m_IRC );
+                  QueueChatCommand( "No map configs found with that name", User, Whisper, m_IRC );
                 else if ( Matches == 1 )
                 {
                   string File = LastMatch.filename( ).string( );
-                  QueueChatCommand( m_Aura->m_Language->LoadingConfigFile( m_Aura->m_MapCFGPath + File ), User, Whisper, m_IRC );
+                  QueueChatCommand( "Loading config file [" + m_Aura->m_MapCFGPath + File + "]", User, Whisper, m_IRC );
                   CConfig MapCFG;
                   MapCFG.Read( LastMatch.string( ) );
                   m_Aura->m_Map->Load( &MapCFG, m_Aura->m_MapCFGPath + File );
                 }
                 else
-                  QueueChatCommand( m_Aura->m_Language->FoundMapConfigs( FoundMapConfigs ), User, Whisper, m_IRC );
+                  QueueChatCommand( "Map configs: " + FoundMapConfigs, User, Whisper, m_IRC );
               }
             }
             catch ( const exception &e )
             {
               Print( "[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + e.what( ) + "]" );
-              QueueChatCommand( m_Aura->m_Language->ErrorListingMapConfigs( ), User, Whisper, m_IRC );
+              QueueChatCommand( "Error listing map configs", User, Whisper, m_IRC );
             }
           }
         }
@@ -794,14 +793,14 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( IsRootAdmin( User ) )
           {
             if ( IsAdmin( Payload ) )
-              QueueChatCommand( m_Aura->m_Language->UserIsAlreadyAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "Error. User [" + Payload + "] is already an admin on server [" + m_Server + "]", User, Whisper, m_IRC );
             else if ( m_Aura->m_DB->AdminAdd( m_Server, Payload ) )
-              QueueChatCommand( m_Aura->m_Language->AddedUserToAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "Added user [" + Payload + "] to the admin database on server [" + m_Server + "]", User, Whisper, m_IRC );
             else
-              QueueChatCommand( m_Aura->m_Language->ErrorAddingUserToAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "Error adding user [" + Payload + "] to the admin database on server [" + m_Server + "]", User, Whisper, m_IRC );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -832,14 +831,14 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           if ( Ban )
           {
-            QueueChatCommand( m_Aura->m_Language->UserIsAlreadyBanned( m_Server, Victim ), User, Whisper, m_IRC );
+            QueueChatCommand( "Error. User [" + Victim + "] is already banned on server [" + m_Server + "]", User, Whisper, m_IRC );
 
             delete Ban;
           }
           else if ( m_Aura->m_DB->BanAdd( m_Server, Victim, string( ), string( ), User, Reason ) )
-            QueueChatCommand( m_Aura->m_Language->BannedUser( m_Server, Victim ), User, Whisper, m_IRC );
+            QueueChatCommand( "Banned user [" + Victim + "] on server [" + m_Server + "]", User, Whisper, m_IRC );
           else
-            QueueChatCommand( m_Aura->m_Language->ErrorBanningUser( m_Server, Victim ), User, Whisper, m_IRC );
+            QueueChatCommand( "Error banning user [" + Victim + "] on server [" + m_Server + "]", User, Whisper, m_IRC );
         }
         
         //
@@ -858,12 +857,12 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( IsRootAdmin( User ) )
           {
             if ( IsAdmin( Payload ) )
-              QueueChatCommand( m_Aura->m_Language->UserIsAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "User [" + Payload + "] is an admin on server [" + m_Server + "]", User, Whisper, m_IRC );
             else
-              QueueChatCommand( m_Aura->m_Language->UserIsNotAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "User [" + Payload + "] is not an admin on server [" + m_Server + "]", User, Whisper, m_IRC );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -875,9 +874,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           CDBBan *Ban = IsBannedName( Payload );
 
           if ( Ban )
-            QueueChatCommand( m_Aura->m_Language->UserWasBannedOnByBecause( m_Server, Payload, Ban->GetDate( ), Ban->GetAdmin( ), Ban->GetReason( ) ), User, Whisper, m_IRC );
+            QueueChatCommand( "User [" + Payload + "] was banned on server [" + m_Server + "] on " + Ban->GetDate( ) + " by [" + Ban->GetAdmin( ) + "] because [" + Ban->GetReason( ) + "]", User, Whisper, m_IRC );            
           else
-            QueueChatCommand( m_Aura->m_Language->UserIsNotBanned( m_Server, Payload ), User, Whisper, m_IRC );
+            QueueChatCommand( "User [" + Payload + "] is not banned on server [" + m_Server + "]", User, Whisper, m_IRC );
 
           delete Ban;
         }
@@ -910,7 +909,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -922,7 +921,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( !m_Aura->m_CurrentGame->GetLocked( ) )
             m_Aura->m_CurrentGame->CloseAllSlots( );
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -936,14 +935,14 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             uint32_t Count = m_Aura->m_DB->AdminCount( m_Server );
 
             if ( Count == 0 )
-              QueueChatCommand( m_Aura->m_Language->ThereAreNoAdmins( m_Server ), User, Whisper, m_IRC );
+              QueueChatCommand( "There are no admins on server [" + m_Server + "]", User, Whisper, m_IRC );
             else if ( Count == 1 )
-              QueueChatCommand( m_Aura->m_Language->ThereIsAdmin( m_Server ), User, Whisper, m_IRC );
+              QueueChatCommand( "There is 1 admin on server [" + m_Server + "]", User, Whisper, m_IRC );
             else
-              QueueChatCommand( m_Aura->m_Language->ThereAreAdmins( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "There are " + UTIL_ToString( Count ) + " admins on server [" + m_Server + "]", User, Whisper, m_IRC );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -955,11 +954,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           uint32_t Count = m_Aura->m_DB->BanCount( m_Server );
 
           if ( Count == 0 )
-            QueueChatCommand( m_Aura->m_Language->ThereAreNoBannedUsers( m_Server ), User, Whisper, m_IRC );
+            QueueChatCommand( "There are no banned users on server [" + m_Server + "]", User, Whisper, m_IRC );
           else if ( Count == 1 )
-            QueueChatCommand( m_Aura->m_Language->ThereIsBannedUser( m_Server ), User, Whisper, m_IRC );
+            QueueChatCommand( "There is 1 banned user on server [" + m_Server + "]", User, Whisper, m_IRC );
           else
-            QueueChatCommand( m_Aura->m_Language->ThereAreBannedUsers( m_Server, UTIL_ToString( Count ) ), User, Whisper, m_IRC );
+            QueueChatCommand( "There are " + UTIL_ToString( Count ) + " banned users on server [" + m_Server + "]", User, Whisper, m_IRC );
         }
         
         //
@@ -971,14 +970,14 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( IsRootAdmin( User ) )
           {
             if ( !IsAdmin( Payload ) )
-              QueueChatCommand( m_Aura->m_Language->UserIsNotAnAdmin( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "User [" + Payload + "] is not an admin on server [" + m_Server + "]", User, Whisper, m_IRC );
             else if ( m_Aura->m_DB->AdminRemove( m_Server, Payload ) )
-              QueueChatCommand( m_Aura->m_Language->DeletedUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "Deleted user [" + Payload + "] from the admin database on server [" + m_Server + "]", User, Whisper, m_IRC );
             else
-              QueueChatCommand( m_Aura->m_Language->ErrorDeletingUserFromAdminDatabase( m_Server, Payload ), User, Whisper, m_IRC );
+              QueueChatCommand( "Error deleting user [" + Payload + "] from the admin database on server [" + m_Server + "]", User, Whisper, m_IRC );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -989,9 +988,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         else if ( ( Command == "delban" || Command == "unban" ) && !Payload.empty( ) )
         {
           if ( m_Aura->m_DB->BanRemove( Payload ) )
-            QueueChatCommand( m_Aura->m_Language->UnbannedUser( Payload ), User, Whisper, m_IRC );
+            QueueChatCommand( "Unbanned user [" + Payload + "] on all realms", User, Whisper, m_IRC );
           else
-            QueueChatCommand( m_Aura->m_Language->ErrorUnbanningUser( Payload ), User, Whisper, m_IRC );
+            QueueChatCommand( "Error unbanning user [" + Payload + "] on all realms", User, Whisper, m_IRC );
         }
         
         //
@@ -1004,11 +1003,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( Payload.empty( ) )
           {
             if ( m_Aura->m_AllowDownloads == 0 )
-              QueueChatCommand( m_Aura->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );
+              QueueChatCommand( "Map downloads disabled", User, Whisper, m_IRC );
             else if ( m_Aura->m_AllowDownloads == 1 )
-              QueueChatCommand( m_Aura->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );
+              QueueChatCommand( "Map downloads enabled", User, Whisper, m_IRC );
             else if ( m_Aura->m_AllowDownloads == 2 )
-              QueueChatCommand( m_Aura->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
+              QueueChatCommand( "Conditional map downloads enabled", User, Whisper, m_IRC );
 
             return;
           }
@@ -1017,17 +1016,17 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           if ( Downloads == 0 )
           {
-            QueueChatCommand( m_Aura->m_Language->MapDownloadsDisabled( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Map downloads disabled", User, Whisper, m_IRC );
             m_Aura->m_AllowDownloads = 0;
           }
           else if ( Downloads == 1 )
           {
-            QueueChatCommand( m_Aura->m_Language->MapDownloadsEnabled( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Map downloads enabled", User, Whisper, m_IRC );
             m_Aura->m_AllowDownloads = 1;
           }
           else if ( Downloads == 2 )
           {
-            QueueChatCommand( m_Aura->m_Language->MapDownloadsConditional( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Conditional map downloads enabled", User, Whisper, m_IRC );
             m_Aura->m_AllowDownloads = 2;
           }
         }
@@ -1047,16 +1046,16 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             // if the game owner is still in the game only allow the root admin to end the game
 
             if ( m_Aura->m_Games[GameNumber]->GetPlayerFromName( m_Aura->m_Games[GameNumber]->GetOwnerName( ), false ) && !IsRootAdmin( User ) )
-              QueueChatCommand( m_Aura->m_Language->CantEndGameOwnerIsStillPlaying( m_Aura->m_Games[GameNumber]->GetOwnerName( ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "You can't end that game because the game owner [" + m_Aura->m_Games[GameNumber]->GetOwnerName( ) + "] is still playing", User, Whisper, m_IRC );
             else
             {
-              QueueChatCommand( m_Aura->m_Language->EndingGame( m_Aura->m_Games[GameNumber]->GetDescription( ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "Ending game [" + m_Aura->m_Games[GameNumber]->GetDescription( ) + "]", User, Whisper, m_IRC );
               Print( "[GAME: " + m_Aura->m_Games[GameNumber]->GetGameName( ) + "] is over (admin ended game)" );
               m_Aura->m_Games[GameNumber]->StopPlayers( "was disconnected (admin ended game)" );
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
+            QueueChatCommand( "Game number " + Payload + " doesn't exist", User, Whisper, m_IRC );
         }
         
         //
@@ -1082,7 +1081,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
             else
             {
-              QueueChatCommand( m_Aura->m_Language->AddedPlayerToTheHoldList( HoldName ), User, Whisper, m_IRC );
+              QueueChatCommand( "Added player [" + HoldName + "] to the hold list", User, Whisper, m_IRC );
               m_Aura->m_CurrentGame->AddToReserved( HoldName );
             }
           }
@@ -1271,7 +1270,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -1283,7 +1282,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( !m_Aura->m_CurrentGame->GetLocked( ) )
             m_Aura->m_CurrentGame->OpenAllSlots( );
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -1334,11 +1333,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           if ( IsRootAdmin( User ) )
           {
-            QueueChatCommand( m_Aura->m_Language->ReloadingConfigurationFiles( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Reloading configuration files", User, Whisper, m_IRC );
             m_Aura->ReloadConfigs( );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -1385,12 +1384,12 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
                 if ( GameNumber - 1 < m_Aura->m_Games.size( ) )
                   m_Aura->m_Games[GameNumber - 1]->SendAllChat( "ADMIN: " + Message );
                 else
-                  QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( UTIL_ToString( GameNumber ) ), User, Whisper, m_IRC );
+                  QueueChatCommand( "Game number " + UTIL_ToString( GameNumber ) + " doesn't exist", User, Whisper, m_IRC );
               }
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -1425,11 +1424,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           if ( !m_Aura->m_CurrentGame->GetLocked( ) )
           {
-            m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->ShufflingPlayers( ) );
+            m_Aura->m_CurrentGame->SendAllChat( "Shuffling players" );
             m_Aura->m_CurrentGame->ShuffleSlots( );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -1450,7 +1449,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               m_Aura->m_CurrentGame->StartCountDown( false );
           }
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -1484,7 +1483,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->TheGameIsLockedBNET( ), User, Whisper, m_IRC );
+            QueueChatCommand( "This command is disabled while the game is locked", User, Whisper, m_IRC );
         }
         
         //
@@ -1537,11 +1536,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           if ( IsRootAdmin( User ) )
           {
-            QueueChatCommand( m_Aura->m_Language->BotDisabled( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Creation of new games has been disabled (if there is a game in the lobby it will not be automatically unhosted)", User, Whisper, m_IRC );
             m_Aura->m_Enabled = false;
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -1552,11 +1551,11 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           if ( IsRootAdmin( User ) )
           {
-            QueueChatCommand( m_Aura->m_Language->BotEnabled( ), User, Whisper, m_IRC );
+            QueueChatCommand( "Creation of new games has been enabled", User, Whisper, m_IRC );
             m_Aura->m_Enabled = true;
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
         
         //
@@ -1566,7 +1565,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         else if ( Command == "getclan" )
         {
           SendGetClanList( );
-          QueueChatCommand( m_Aura->m_Language->UpdatingClanList( ), User, Whisper, m_IRC );
+          QueueChatCommand( "Updating the bot's internal clan list from battle.net..", User, Whisper, m_IRC );
         }
         
         //
@@ -1576,7 +1575,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         else if ( Command == "getfriends" )
         {
           SendGetFriendsList( );
-          QueueChatCommand( m_Aura->m_Language->UpdatingFriendsList( ), User, Whisper, m_IRC );
+          QueueChatCommand( "Updating the bot's internal friends list from battle.net..", User, Whisper, m_IRC );
         }
         
         //
@@ -1593,13 +1592,13 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
             else
             {
               if ( m_Aura->m_CurrentGame || !m_Aura->m_Games.empty( ) )
-                QueueChatCommand( m_Aura->m_Language->AtLeastOneGameActiveUseForceToShutdown( ), User, Whisper, m_IRC );
+                QueueChatCommand( "At least one game is in the lobby or in progress. Use 'force' to shutdown anyway", User, Whisper, m_IRC );
               else
                 m_Exiting = true;
             }
           }
           else
-            QueueChatCommand( m_Aura->m_Language->YouDontHaveAccessToThatCommand( ), User, Whisper, m_IRC );
+            QueueChatCommand( "You don't have access to that command", User, Whisper, m_IRC );
         }
       }
       else
@@ -1629,14 +1628,14 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           // check for potential abuse
 
-          if ( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
+          if ( StatsUser.size( ) < 16 && StatsUser[0] != '/' )
           {
             CDBGamePlayerSummary *GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck( StatsUser );
 
             if ( GamePlayerSummary )
-              QueueChatCommand( m_Aura->m_Language->HasPlayedGamesWithThisBot( StatsUser, GamePlayerSummary->GetFirstGameDateTime( ), GamePlayerSummary->GetLastGameDateTime( ), UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ), UTIL_ToString( (float) GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ), UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) ), User, Whisper, m_IRC );
+              QueueChatCommand( "[" + StatsUser + "] has played " + UTIL_ToString( GamePlayerSummary->GetTotalGames( ) ) + " games with this bot. Average loading time: " + UTIL_ToString( (float) GamePlayerSummary->GetAvgLoadingTime( ) / 1000, 2 ) + " seconds. Average stay: " + UTIL_ToString( GamePlayerSummary->GetAvgLeftPercent( ) ) + " percent", User, Whisper, m_IRC );
             else
-              QueueChatCommand( m_Aura->m_Language->HasntPlayedGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
+              QueueChatCommand( "[" + StatsUser + "] hasn't played any games with this bot yet", User, Whisper, m_IRC );
 
             delete GamePlayerSummary;
           }
@@ -1652,9 +1651,9 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
           if ( GameNumber < m_Aura->m_Games.size( ) )
-            QueueChatCommand( m_Aura->m_Language->GameNumberIs( Payload, m_Aura->m_Games[GameNumber]->GetDescription( ) ), User, Whisper, m_IRC );
+            QueueChatCommand( "Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription( ) + "]", User, Whisper, m_IRC );
           else
-            QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
+            QueueChatCommand( "Game number " + Payload + " doesn't exist", User, Whisper, m_IRC );
         }
         
         //
@@ -1664,10 +1663,10 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( ( Command == "getgames" || Command == "g" ) && Payload.empty( ) )
         {
-          if ( m_Aura->m_CurrentGame )
-            QueueChatCommand( m_Aura->m_Language->GameIsInTheLobby( m_Aura->m_CurrentGame->GetDescription( ), UTIL_ToString( m_Aura->m_Games.size( ) ), UTIL_ToString( m_Aura->m_MaxGames ) ), User, Whisper, m_IRC );
+          if ( m_Aura->m_CurrentGame )            
+            QueueChatCommand( "Game [" + m_Aura->m_CurrentGame->GetDescription( ) + "] is in the lobby and there are " + UTIL_ToString( m_Aura->m_Games.size( ) ) + "/" + UTIL_ToString( m_Aura->m_MaxGames ) + " other games in progress", User, Whisper, m_IRC );
           else
-            QueueChatCommand( m_Aura->m_Language->ThereIsNoGameInTheLobby( UTIL_ToString( m_Aura->m_Games.size( ) ), UTIL_ToString( m_Aura->m_MaxGames ) ), User, Whisper, m_IRC );
+            QueueChatCommand( "There is no game in the lobby and there are " + UTIL_ToString( m_Aura->m_Games.size( ) ) + "/" + UTIL_ToString( m_Aura->m_MaxGames ) + " other games in progress", User, Whisper, m_IRC );
         }
         
         //
@@ -1679,12 +1678,12 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         {
           int32_t GameNumber = UTIL_ToInt32( Payload ) - 1;
 
-          if ( -1 < GameNumber && GameNumber < m_Aura->m_Games.size( ) )
+          if ( -1 < GameNumber && GameNumber < (signed) m_Aura->m_Games.size( ) )
             QueueChatCommand( "Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName( ) + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers( ), User, Whisper, m_IRC );
           else if( GameNumber == -1 && m_Aura->m_CurrentGame )
             QueueChatCommand( "Players in lobby [" + m_Aura->m_CurrentGame->GetGameName( ) + "] are: " + m_Aura->m_CurrentGame->GetPlayers( ), User, Whisper, m_IRC );
           else
-            QueueChatCommand( m_Aura->m_Language->GameNumberDoesntExist( Payload ), User, Whisper, m_IRC );
+            QueueChatCommand( "Game number " + Payload + " doesn't exist", User, Whisper, m_IRC );
 
         }
         
@@ -1708,37 +1707,14 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
             if ( DotAPlayerSummary )
             {
-              string Summary = m_Aura->m_Language->HasPlayedDotAGamesWithThisBot(
-                      StatsUser,
-                      UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgTowerKills( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgRaxKills( ), 2 ),
-                      UTIL_ToString( DotAPlayerSummary->GetAvgCourierKills( ), 2 )
-                      );
-
+              const string Summary = StatsUser + " - " + UTIL_ToString( DotAPlayerSummary->GetTotalGames( ) ) + " games (W/L: " + UTIL_ToString( DotAPlayerSummary->GetTotalWins( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalLosses( ) ) + ") Hero K/D/A: " + UTIL_ToString( DotAPlayerSummary->GetTotalKills( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalDeaths( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalAssists( ) ) + " (" + UTIL_ToString( DotAPlayerSummary->GetAvgKills( ), 2 ) + "/" + UTIL_ToString( DotAPlayerSummary->GetAvgDeaths( ), 2 ) + "/" + UTIL_ToString( DotAPlayerSummary->GetAvgAssists( ), 2 ) + ") Creep K/D/N: " + UTIL_ToString( DotAPlayerSummary->GetTotalCreepKills( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalCreepDenies( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalNeutralKills( ) ) + " (" + UTIL_ToString( DotAPlayerSummary->GetAvgCreepKills( ), 2 ) + "/" + UTIL_ToString( DotAPlayerSummary->GetAvgCreepDenies( ), 2 ) + "/" + UTIL_ToString( DotAPlayerSummary->GetAvgNeutralKills( ), 2 ) +") T/R/C: " + UTIL_ToString( DotAPlayerSummary->GetTotalTowerKills( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalRaxKills( ) ) + "/" + UTIL_ToString( DotAPlayerSummary->GetTotalCourierKills( ) );
+              
               QueueChatCommand( Summary, User, Whisper, m_IRC );
 
               delete DotAPlayerSummary;
             }
             else
-              QueueChatCommand( m_Aura->m_Language->HasntPlayedDotAGamesWithThisBot( StatsUser ), User, Whisper, m_IRC );
+              QueueChatCommand( "[" + StatsUser + "] hasn't played any DotA games here", User, Whisper, m_IRC );
           }
         }
         
@@ -1766,10 +1742,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( Command == "version" )
         {
-          if ( IsAdmin( User ) || IsRootAdmin( User ) )
-            QueueChatCommand( m_Aura->m_Language->VersionAdmin( m_Aura->m_Version ), User, Whisper, m_IRC );
-          else
-            QueueChatCommand( m_Aura->m_Language->VersionNotAdmin( m_Aura->m_Version ), User, Whisper, m_IRC );
+            QueueChatCommand( "Version: Aura " + m_Aura->m_Version, User, Whisper, m_IRC );
         }
 
       }
@@ -1821,23 +1794,23 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
           if ( Message.find( m_Aura->m_CurrentGame->GetGameName( ) ) != string::npos || Message.find( m_Aura->m_CurrentGame->GetLastGameName( ) ) != string::npos )
             m_Aura->m_CurrentGame->AddToSpoofed( m_Server, UserName, false );
           else
-            m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofDetectedIsInAnotherGame( UserName ) );
+            m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is in another game" );
 
           return;
         }
 
         if ( Message.find( "is away" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofPossibleIsAway( UserName ) );
+          m_Aura->m_CurrentGame->SendAllChat( "Name spoof possible. The real [" + UserName + "] is away" );
         else if ( Message.find( "is unavailable" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofPossibleIsUnavailable( UserName ) );
+          m_Aura->m_CurrentGame->SendAllChat( "Name spoof possible. The real [" + UserName + "] is unavailable" );
         else if ( Message.find( "is refusing messages" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofPossibleIsRefusingMessages( UserName ) );
+          m_Aura->m_CurrentGame->SendAllChat( "Name spoof possible. The real [" + UserName + "] is refusing messages" );
         else if ( Message.find( "is using Warcraft III The Frozen Throne in the channel" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofDetectedIsNotInGame( UserName ) );
+          m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is not in a game" );
         else if ( Message.find( "is using Warcraft III The Frozen Throne in channel" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofDetectedIsNotInGame( UserName ) );
+          m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is not in a game" );
         else if ( Message.find( "is using Warcraft III The Frozen Throne in a private channel" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( m_Aura->m_Language->SpoofDetectedIsInPrivateChannel( UserName ) );
+          m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is in a private channel" );
       }
     }
   }
@@ -1847,7 +1820,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
     if ( m_Spam && Message == "Channel is full." )
     {
-      if ( m_SpamChannel.size( ) >= 19 )
+      if ( m_SpamChannel.size( ) > 19 )
         m_SpamChannel = "Allstars";
       else
         m_SpamChannel += "/j Allstars";

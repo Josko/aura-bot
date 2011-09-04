@@ -54,9 +54,6 @@
     <ClCompile Include="auradb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>  
-    <ClCompile Include="language.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,9 +67,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="irc.cpp">
@@ -120,9 +114,6 @@
       <Filter>Header Files</Filter>
     </ClInclude> 
     <ClInclude Include="includes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="language.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="map.h">

@@ -20,7 +20,6 @@
 
 #include "aura.h"
 #include "util.h"
-#include "language.h"
 #include "socket.h"
 #include "bnet.h"
 #include "map.h"
@@ -181,12 +180,12 @@ bool CGamePlayer::Update( void *fd )
   {
     for ( vector<CBNET *> ::iterator i = m_Game->m_Aura->m_BNETs.begin( ); i != m_Game->m_Aura->m_BNETs.end( ); ++i )
     {
-      if ( ( *i )->GetServer( ) == m_JoinedRealm )
+      if ( (*i)->GetServer( ) == m_JoinedRealm )
       {
         if ( m_Game->GetGameState( ) == GAME_PUBLIC || ( *i )->GetPvPGN( ) )
-          ( *i )->QueueChatCommand( "/whois " + m_Name );
+          (*i)->QueueChatCommand( "/whois " + m_Name );
         else if ( m_Game->GetGameState( ) == GAME_PRIVATE )
-          ( *i )->QueueChatCommand( m_Game->m_Aura->m_Language->SpoofCheckByReplying( ), m_Name, true, string( ) );
+          (*i)->QueueChatCommand( "Spoof check by replying to this message with \"sc\" [ /r sc ]", m_Name, true, string( ) );
       }
     }
 
@@ -453,5 +452,5 @@ void CGamePlayer::EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPack
 
   m_GProxyBuffer = TempBuffer;
   m_GProxyDisconnectNoticeSent = false;
-  m_Game->SendAllChat( m_Game->m_Aura->m_Language->PlayerReconnectedWithGProxy( m_Name ) );
+  m_Game->SendAllChat( "Player [" + m_Name + "] reconnected with GProxy++!" );
 }

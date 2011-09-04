@@ -37,7 +37,7 @@ endif
 CCFLAGS += $(OFLAGS) -DSQLITE_THREADSAFE=0 -I.
 CXXFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/
 
-OBJS = bncsutilinterface.o bnet.o bnetprotocol.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o gpsprotocol.o aura.o auradb.o language.o map.o sha1.o socket.o stats.o util.o irc.o
+OBJS = bncsutilinterface.o bnet.o bnetprotocol.o config.o crc32.o csvparser.o game.o gameplayer.o gameprotocol.o gameslot.o gpsprotocol.o aura.o auradb.o map.o sha1.o socket.o stats.o irc.o
 COBJS = sqlite3.o
 PROGS = aura++
 

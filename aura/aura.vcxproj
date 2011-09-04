@@ -88,13 +88,11 @@
     <ClCompile Include="aura.cpp" />
     <ClCompile Include="auradb.cpp" />
     <ClCompile Include="irc.cpp" />
-    <ClCompile Include="language.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="sha1.cpp" />
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="sqlite3.c" />
     <ClCompile Include="stats.cpp" />
-    <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bncsutilinterface.h" />
@@ -112,7 +110,6 @@
     <ClInclude Include="auradb.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="irc.h" />
-    <ClInclude Include="language.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ms_stdint.h" />
     <ClInclude Include="sha1.h" />

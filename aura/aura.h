@@ -36,7 +36,6 @@ class CSHA1;
 class CBNET;
 class CGame;
 class CAuraDB;
-class CLanguage;
 class CMap;
 class CConfig;
 class CIRC;
@@ -55,7 +54,6 @@ public:
   CGame *m_CurrentGame;                     // this game is still in the lobby state
   vector<CGame *> m_Games;                  // these games are in progress
   CAuraDB *m_DB;                            // database
-  CLanguage *m_Language;                    // language
   CMap *m_Map;                              // the currently loaded map
   bool m_Exiting;                           // set to true to force aura to shutdown next update (used by SignalCatcher)
   bool m_Enabled;                           // set to false to prevent new games from being created
