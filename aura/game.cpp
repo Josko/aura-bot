@@ -1758,7 +1758,7 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
       else if ( ( Command == "banlast" || Command == "bl" ) && m_GameLoaded && !m_Aura->m_BNETs.empty( ) && m_DBBanLast )
       {
         m_Aura->m_DB->BanAdd( m_DBBanLast->GetServer( ), m_DBBanLast->GetName( ), m_DBBanLast->GetIP( ), m_GameName, User, Payload );
-        SendAllChat( "Player [" + m_DBBanLast->GetServer( ) + "] was banned by player [" + m_DBBanLast->GetName( ) + "] on server [" + User + "]" );
+        SendAllChat( "Player [" + m_DBBanLast->GetName( ) + "] was banned by player [" + User + "] on server [" + m_DBBanLast->GetServer( ) + "]" );
       }
 
         //
