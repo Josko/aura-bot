@@ -55,7 +55,7 @@ public:
   CIncomingJoinPlayer *GetJoinPlayer( ) const                   { return m_IncomingJoinPlayer; }
   
   inline void SetSocket( CTCPSocket *nSocket )                  { m_Socket = nSocket; }
-  inline void SetDeleteMe( bool nDeleteMe )                            { m_DeleteMe = nDeleteMe; }
+  inline void SetDeleteMe( bool nDeleteMe )                     { m_DeleteMe = nDeleteMe; }
 
   // processing functions
 
@@ -198,7 +198,6 @@ public:
   bool Update( void *fd );
 
   // other functions
-
   
   void Send( const BYTEARRAY &data );
   void EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket );

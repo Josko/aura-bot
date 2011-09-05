@@ -57,7 +57,7 @@
 #define VERSION "1.09"
 #endif
 
-CAura *gAura = NULL;
+static CAura *gAura = NULL;
 bool gRestart = false;
 
 uint32_t GetTime( )
