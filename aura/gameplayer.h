@@ -63,7 +63,7 @@ public:
 
   // other functions
 
-  void Send( const BYTEARRAY &data );
+  void Send( const BYTEARRAY &data ) const;
 };
 
 //

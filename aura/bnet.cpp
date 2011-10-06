@@ -100,7 +100,7 @@ unsigned int CBNET::SetFD( void *fd, void *send_fd, int *nfds )
 
 bool CBNET::Update( void *fd, void *send_fd )
 {
-  uint32_t Ticks = GetTicks( ), Time = GetTime( );
+  const uint32_t Ticks = GetTicks( ), Time = GetTime( );
 
   // we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
   // that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
@@ -132,8 +132,8 @@ bool CBNET::Update( void *fd, void *send_fd )
     string *RecvBuffer = m_Socket->GetBytes( );
     BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
 
-    CIncomingGameHost *GameHost = NULL;
-    CIncomingChatEvent *ChatEvent = NULL;
+    CIncomingGameHost *GameHost;
+    CIncomingChatEvent *ChatEvent;
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -168,7 +168,6 @@ bool CBNET::Update( void *fd, void *send_fd )
                 Print( "[BNET: " + m_ServerAlias + "] joining game [" + GameHost->GetGameName( ) + "]" );
 
               delete GameHost;
-              GameHost = NULL;
               break;
 
             case CBNETProtocol::SID_ENTERCHAT:
@@ -188,7 +187,6 @@ bool CBNET::Update( void *fd, void *send_fd )
                 ProcessChatEvent( ChatEvent );
 
               delete ChatEvent;
-              ChatEvent = NULL;
               break;
 
             case CBNETProtocol::SID_CHECKAD:
@@ -1092,45 +1090,45 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
         //
         
         else if ( Command == "sendlan" && m_Aura->m_CurrentGame && !Payload.empty( ) && !m_Aura->m_CurrentGame->GetCountDownStarted( ) )
-				{
-					// extract the ip and the port
-					// e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
+        {
+          // extract the ip and the port
+          // e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
 
-					string IP;
-					uint32_t Port = 6112;
-					stringstream SS;
-					SS << Payload;
-					SS >> IP;
+          string IP;
+          uint32_t Port = 6112;
+          stringstream SS;
+          SS << Payload;
+          SS >> IP;
 
-					if ( !SS.eof( ) )
-						SS >> Port;
+          if ( !SS.eof( ) )
+            SS >> Port;
 
-					if ( SS.fail( ) )
-						QueueChatCommand( "Bad input to sendlan command", User, Whisper, m_IRC );
-					else
-					{
-						// construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
-						// the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
-						// the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
-						// since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
-						// when a player joins a game we can obtain the ID from the received host counter
-						// note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
+          if ( SS.fail( ) )
+            QueueChatCommand( "Bad input to sendlan command", User, Whisper, m_IRC );
+          else
+          {
+            // construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
+            // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
+            // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
+            // since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
+            // when a player joins a game we can obtain the ID from the received host counter
+            // note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
 
-						// we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
-						// we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
-						// this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
-						// however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
-						// nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
-						// we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
-						// so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
-						// the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
+            // we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
+            // we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
+            // this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
+            // however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
+            // nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
+            // we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
+            // so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
+            // the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
 
-						// note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
-						// note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
+            // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
+            // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-						m_Aura->m_UDPSocket->SendTo( IP, Port, m_Aura->m_CurrentGame->GetProtocol( )->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( (uint32_t) MAPGAMETYPE_UNKNOWN0, false ), m_Aura->m_CurrentGame->GetMap( )->GetMapGameFlags( ), m_Aura->m_CurrentGame->GetMap( )->GetMapWidth( ), m_Aura->m_CurrentGame->GetMap( )->GetMapHeight( ), m_Aura->m_CurrentGame->GetGameName( ), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap( )->GetMapPath( ), m_Aura->m_CurrentGame->GetMap( )->GetMapCRC( ), 12, 12, m_Aura->m_CurrentGame->GetHostPort( ), m_Aura->m_CurrentGame->GetHostCounter( ) & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey( ) ) );
-					}
-				}
+            m_Aura->m_UDPSocket->SendTo( IP, Port, m_Aura->m_CurrentGame->GetProtocol( )->SEND_W3GS_GAMEINFO( m_Aura->m_LANWar3Version, UTIL_CreateByteArray( (uint32_t) MAPGAMETYPE_UNKNOWN0, false ), m_Aura->m_CurrentGame->GetMap( )->GetMapGameFlags( ), m_Aura->m_CurrentGame->GetMap( )->GetMapWidth( ), m_Aura->m_CurrentGame->GetMap( )->GetMapHeight( ), m_Aura->m_CurrentGame->GetGameName( ), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap( )->GetMapPath( ), m_Aura->m_CurrentGame->GetMap( )->GetMapCRC( ), 12, 12, m_Aura->m_CurrentGame->GetHostPort( ), m_Aura->m_CurrentGame->GetHostCounter( ) & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey( ) ) );
+          }
+        }
 
         //
         // !COUNTMAPS
@@ -1224,7 +1222,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           for ( directory_iterator i( m_Aura->m_MapPath ); i != EndIterator; ++i )
           {
-          	string FileName = i->path( ).filename( ).string( );
+            string FileName = i->path( ).filename( ).string( );
             transform( FileName.begin( ), FileName.end( ), FileName.begin( ), (int(* )(int) )tolower );
 
             if ( FileName == Payload )
@@ -1404,7 +1402,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               m_Aura->m_CurrentGame->SendAllChat( Payload );
 
             for ( vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
-              ( *i )->SendAllChat( "ADMIN: " + Payload );
+              (*i)->SendAllChat( "ADMIN: " + Payload );
           }
           else
           {
@@ -1412,7 +1410,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
               m_Aura->m_CurrentGame->SendAllChat( Payload );
 
             for ( vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin( ); i != m_Aura->m_Games.end( ); ++i )
-              ( *i )->SendAllChat( "ADMIN (" + User + "): " + Payload );
+              (*i)->SendAllChat( "ADMIN (" + User + "): " + Payload );
           }
         }
         
@@ -1648,7 +1646,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( ( Command == "getgame" || Command == "g" ) && !Payload.empty( ) )
         {
-          uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
+          const uint32_t GameNumber = UTIL_ToUInt32( Payload ) - 1;
 
           if ( GameNumber < m_Aura->m_Games.size( ) )
             QueueChatCommand( "Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription( ) + "]", User, Whisper, m_IRC );
@@ -1676,7 +1674,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
         else if ( ( Command == "gp" || Command == "getplayers" ) && !Payload.empty( ) )
         {
-          int32_t GameNumber = UTIL_ToInt32( Payload ) - 1;
+          const int32_t GameNumber = UTIL_ToInt32( Payload ) - 1;
 
           if ( -1 < GameNumber && GameNumber < (signed) m_Aura->m_Games.size( ) )
             QueueChatCommand( "Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName( ) + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers( ), User, Whisper, m_IRC );
@@ -1703,7 +1701,7 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           if ( !StatsUser.empty( ) && StatsUser.size( ) < 16 && StatsUser[0] != '/' )
           {
-            CDBDotAPlayerSummary *DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck( StatsUser );
+            const CDBDotAPlayerSummary *DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck( StatsUser );
 
             if ( DotAPlayerSummary )
             {
@@ -1798,19 +1796,6 @@ void CBNET::ProcessChatEvent( CIncomingChatEvent *chatEvent )
 
           return;
         }
-
-        if ( Message.find( "is away" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( "Name spoof possible. The real [" + UserName + "] is away" );
-        else if ( Message.find( "is unavailable" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( "Name spoof possible. The real [" + UserName + "] is unavailable" );
-        else if ( Message.find( "is refusing messages" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( "Name spoof possible. The real [" + UserName + "] is refusing messages" );
-        else if ( Message.find( "is using Warcraft III The Frozen Throne in the channel" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is not in a game" );
-        else if ( Message.find( "is using Warcraft III The Frozen Throne in channel" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is not in a game" );
-        else if ( Message.find( "is using Warcraft III The Frozen Throne in a private channel" ) != string::npos )
-          m_Aura->m_CurrentGame->SendAllChat( "Name spoof detected. The real [" + UserName + "] is in a private channel" );
       }
     }
   }
@@ -2016,7 +2001,7 @@ CDBBan *CBNET::IsBannedName( string name )
 void CBNET::HoldFriends( CGame *game )
 {
   for ( vector<string> ::const_iterator i = m_Friends.begin( ); i != m_Friends.end( ); ++i )
-    game->AddToReserved( *i  );
+    game->AddToReserved( *i );
 }
 
 void CBNET::HoldClan( CGame *game )

@@ -76,7 +76,7 @@ protected:
   string m_CreatorServer;                   // battle.net server the player who created this game was on
   string m_KickVotePlayer;                  // the player to be kicked with the currently running kick vote
   string m_HCLCommandString;                // the "HostBot Command Library" command string, used to pass a limited amount of data to specially designed maps
-  string m_MapPath;
+  string m_MapPath;                         // store the map path to save in the database on game end
   uint32_t m_RandomSeed;                    // the random seed sent to the Warcraft III clients
   uint32_t m_HostCounter;                   // a unique game number
   uint32_t m_EntryKey;                      // random entry key for LAN, used to prove that a player is actually joining from LAN

@@ -160,7 +160,6 @@ int main(int argc, char *argv[])
 
   Print( "[AURA] starting up" );
 
-  // signal( SIGABRT, SignalCatcher );
   signal( SIGINT, SignalCatcher );
 
 #ifndef WIN32
@@ -638,9 +637,8 @@ bool CAura::Update( )
         {                   
           if ( Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13 )
           {
-            unsigned char PID = Bytes[4];
-            uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
-            uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
+            const uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
+            const uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
 
             // look for a matching player in a running game
 
@@ -650,7 +648,7 @@ bool CAura::Update( )
             {
               if ( (*j)->GetGameLoaded( ) )
               {
-                CGamePlayer *Player = (*j)->GetPlayerFromPID( PID );
+                CGamePlayer *Player = (*j)->GetPlayerFromPID( Bytes[4] );
 
                 if ( Player && Player->GetGProxy( ) && Player->GetGProxyReconnectKey( ) == ReconnectKey )
                 {
@@ -789,7 +787,7 @@ void CAura::SetConfigs( CConfig *CFG )
 
 void CAura::ExtractScripts( )
 {
-  string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
+  const string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
   void  *PatchMPQ;
 
   if ( SFileOpenArchive( PatchMPQFileName.c_str( ), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ ) )
@@ -1003,26 +1001,18 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     }
 
     (*i)->QueueGameCreate( gameState, gameName, map, m_CurrentGame->GetHostCounter( ) );
-  }
 
-  // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
-  // unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game
-  // so don't rejoin the chat if we're using PVPGN
+    // hold friends and/or clan members
 
-  if ( gameState == GAME_PRIVATE )
-  {
-    for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-    {
-      if ( !(*i)->GetPvPGN( ) )
-        (*i)->QueueEnterChat( );
-    }
-  }
-
-  // hold friends and/or clan members
-
-  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
-  {
     (*i)->HoldFriends( m_CurrentGame );
     (*i)->HoldClan( m_CurrentGame );
+
+
+    // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
+    // unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game
+    // so don't rejoin the chat if we're using PVPGN
+
+    if ( !(*i)->GetPvPGN( ) )
+      (*i)->QueueEnterChat( );
   }
 }

@@ -86,7 +86,7 @@ bool CPotentialPlayer::Update( void *fd )
     {
       // bytes 2 and 3 contain the length of the packet
 
-      uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+      const uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
       if ( Bytes.size( ) >= Length )
       {
@@ -119,9 +119,9 @@ bool CPotentialPlayer::Update( void *fd )
   return m_DeleteMe || !m_Socket->GetConnected( ) || m_Socket->HasError( );
 }
 
-void CPotentialPlayer::Send( const BYTEARRAY &data )
+void CPotentialPlayer::Send( const BYTEARRAY &data ) const
 {
-  if( m_Socket )
+  if ( m_Socket )
     m_Socket->PutBytes( data );
 }
 
@@ -171,14 +171,14 @@ uint32_t CGamePlayer::GetPing( bool LCPing ) const
 
 bool CGamePlayer::Update( void *fd )
 {
-  uint32_t Time = GetTime( );
+  const uint32_t Time = GetTime( );
 
   // wait 4 seconds after joining before sending the /whois or /w
   // if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
 
   if ( m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty( ) && Time - m_JoinTime >= 4 )
   {
-    for ( vector<CBNET *> ::iterator i = m_Game->m_Aura->m_BNETs.begin( ); i != m_Game->m_Aura->m_BNETs.end( ); ++i )
+    for ( vector<CBNET *> ::const_iterator i = m_Game->m_Aura->m_BNETs.begin( ); i != m_Game->m_Aura->m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == m_JoinedRealm )
       {
@@ -217,10 +217,10 @@ bool CGamePlayer::Update( void *fd )
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
-  CIncomingAction *Action = NULL;
-  CIncomingChatPlayer *ChatPlayer = NULL;
-  CIncomingMapSize *MapSize = NULL;
-  uint32_t Pong = 0;
+  CIncomingAction *Action;
+  CIncomingChatPlayer *ChatPlayer;
+  CIncomingMapSize *MapSize;
+  uint32_t Pong;
 
   while ( Bytes.size( ) >= 4 )
   {
@@ -228,7 +228,7 @@ bool CGamePlayer::Update( void *fd )
     {
       // bytes 2 and 3 contain the length of the packet
 
-      uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+       const uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
       ++m_TotalPacketsReceived;
 
@@ -337,7 +337,7 @@ bool CGamePlayer::Update( void *fd )
     }
     else if ( Bytes[0] == GPS_HEADER_CONSTANT )
     {
-      uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+      const uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
 
       if ( Length >= 4 )
       {
@@ -423,7 +423,7 @@ void CGamePlayer::EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPack
   m_Socket = NewSocket;
   m_Socket->PutBytes( m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_RECONNECT( m_TotalPacketsReceived ) );
 
-  uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
+  const uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
 
   if ( LastPacket > PacketsAlreadyUnqueued )
   {

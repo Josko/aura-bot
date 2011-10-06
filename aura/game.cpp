@@ -125,7 +125,7 @@ CGame::~CGame( )
 
     // store the stats in the database
 
-    if ( m_Stats )
+    if ( m_Stats && m_StartPlayers >= 5 )
       m_Stats->Save( m_Aura, m_Aura->m_DB, m_GameID );
   }
   else
@@ -150,7 +150,7 @@ uint32_t CGame::GetNextTimedActionTicks( ) const
   if ( !m_GameLoaded || m_Lagging )
     return 50;
 
-  uint32_t TicksSinceLastUpdate = GetTicks( ) - m_LastActionSentTicks;
+  const uint32_t TicksSinceLastUpdate = GetTicks( ) - m_LastActionSentTicks;
 
   if ( TicksSinceLastUpdate > m_Latency - m_LastActionLateBy )
     return 0;
@@ -260,7 +260,7 @@ unsigned int CGame::SetFD( void *fd, void *send_fd, int *nfds )
 
 bool CGame::Update( void *fd, void *send_fd )
 {
-  uint32_t Time = GetTime( ), Ticks = GetTicks( );
+  const uint32_t Time = GetTime( ), Ticks = GetTicks( );
 
   // ping every 5 seconds
   // changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
@@ -624,7 +624,7 @@ bool CGame::Update( void *fd, void *send_fd )
         // in addition to this, the throughput is limited by the configuration value bot_maxdownloadspeed
         // in summary: the actual throughput is MIN( 140 * 1000 / ping, 1400, bot_maxdownloadspeed ) in KB/sec assuming only one player is downloading the map
 
-        uint32_t MapSize = UTIL_ByteArrayToUInt32( m_Map->GetMapSize( ), false );
+        const uint32_t MapSize = UTIL_ByteArrayToUInt32( m_Map->GetMapSize( ), false );
 
         while ( (*i)->GetLastMapPartSent( ) < (*i)->GetLastMapPartAcked( ) + 1442 * 100 && (*i)->GetLastMapPartSent( ) < MapSize )
         {
@@ -911,7 +911,7 @@ void CGame::SendAllActions( )
     // GProxy++ will insert these itself so we don't need to send them to GProxy++ players
     // empty actions are used to extend the time a player can use when reconnecting
 
-    for ( vector<CGamePlayer *> ::iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+    for ( vector<CGamePlayer *> ::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
     {
       if ( !(*i)->GetGProxy( ) )
       {
@@ -975,9 +975,9 @@ void CGame::SendAllActions( )
   else
     SendAll( m_Protocol->SEND_W3GS_INCOMING_ACTION( m_Actions, m_Latency ) );
 
-  uint32_t Ticks = GetTicks( );
-  uint32_t ActualSendInterval = Ticks - m_LastActionSentTicks;
-  uint32_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
+  const uint32_t Ticks = GetTicks( );
+  const uint32_t ActualSendInterval = Ticks - m_LastActionSentTicks;
+  const uint32_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
   m_LastActionLateBy = ActualSendInterval - ExpectedSendInterval;
 
   if ( m_LastActionLateBy > m_Latency )
@@ -1185,7 +1185,7 @@ void CGame::EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer 
   // note: this is not a replacement for spoof checking since it doesn't verify the player's name and it can be spoofed anyway
 
   string JoinedRealm;
-  uint32_t HostCounterID = joinPlayer->GetHostCounter( ) >> 28;
+  const uint32_t HostCounterID = joinPlayer->GetHostCounter( ) >> 28;
 
   // we use an ID value of 0 to denote joining via LAN, we don't have to set their joined realm.
 
@@ -1213,11 +1213,10 @@ void CGame::EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer 
     }
   }
 
-  // check if the new player's name is banned but only if bot_banmethod is not 0
-  // this is because if bot_banmethod is 0 and we announce the ban here it's possible for the player to be rejected later because the game is full
-  // this would allow the player to spam the chat by attempting to join the game multiple times in a row
+  // check if the new player's name is banned
+  // don't allow the player to spam the chat by attempting to join the game multiple times in a row
 
-  for ( vector<CBNET *> ::iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
+  for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
   {
     if ( (*i)->GetServer( ) == JoinedRealm )
     {
@@ -1251,8 +1250,8 @@ void CGame::EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer 
   // check if the player is an admin or root admin on any connected realm for determining reserved status
   // we can't just use the spoof checked realm like in EventPlayerBotCommand because the player hasn't spoof checked yet
 
-  bool AnyAdminCheck = m_Aura->m_DB->AdminCheck( joinPlayer->GetName( ) ) || m_Aura->m_DB->RootAdminCheck( joinPlayer->GetName( ) );
-  bool Reserved = IsReserved( joinPlayer->GetName( ) ) || AnyAdminCheck || IsOwner( joinPlayer->GetName( ) );
+  const bool AnyAdminCheck = m_Aura->m_DB->AdminCheck( joinPlayer->GetName( ) ) || m_Aura->m_DB->RootAdminCheck( joinPlayer->GetName( ) );
+  const bool Reserved = IsReserved( joinPlayer->GetName( ) ) || AnyAdminCheck || IsOwner( joinPlayer->GetName( ) );
 
   // try to find a slot
 
@@ -1497,7 +1496,7 @@ void CGame::EventPlayerKeepAlive( CGamePlayer *player )
 {
   // check for desyncs
 
-  uint32_t FirstCheckSum = player->GetCheckSums( )->front( );
+  const uint32_t FirstCheckSum = player->GetCheckSums( )->front( );
 
   for ( vector<CGamePlayer *> ::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
   {
@@ -1527,7 +1526,7 @@ void CGame::EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *cha
       // relay the chat message to other players
 
       bool Relay = !player->GetMuted( );
-      BYTEARRAY ExtraFlags = chatPlayer->GetExtraFlags( );
+      const BYTEARRAY ExtraFlags = chatPlayer->GetExtraFlags( );
 
       // calculate timestamp
 
@@ -1577,7 +1576,7 @@ void CGame::EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *cha
 
       // handle bot commands
 
-      string Message = chatPlayer->GetMessage( );
+      const string Message = chatPlayer->GetMessage( );
 
       if ( !Message.empty( ) && ( Message[0] == m_Aura->m_CommandTrigger || Message[0] == '/' ) )
       {

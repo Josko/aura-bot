@@ -154,7 +154,7 @@ inline double UTIL_ToDouble( string &s )
   return result;
 }
 
-inline BYTEARRAY UTIL_CreateByteArray( unsigned char *a, int size )
+inline BYTEARRAY UTIL_CreateByteArray( const unsigned char *a, int size )
 {
   if ( size < 1 )
     return BYTEARRAY( );
