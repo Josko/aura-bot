@@ -198,21 +198,21 @@ class CDBGamePlayer
 {
 private:
   string m_Name;
-  uint32_t m_LoadingTime;
-  uint32_t m_Left;
+  uint64_t m_LoadingTime;
+  uint64_t m_Left;
   uint32_t m_Colour;
 
 public:
-  CDBGamePlayer( const string &name, uint32_t nLoadingTime, uint32_t nLeft, uint32_t nColour );
+  CDBGamePlayer( const string &name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour );
   ~CDBGamePlayer( );
 
   inline string GetName( ) const                           { return m_Name; }
-  inline uint32_t GetLoadingTime( ) const                  { return m_LoadingTime; }
-  inline uint32_t GetLeft( ) const                         { return m_Left; }
+  inline uint64_t GetLoadingTime( ) const                  { return m_LoadingTime; }
+  inline uint64_t GetLeft( ) const                         { return m_Left; }
   inline uint32_t GetColour( ) const                       { return m_Colour; }
   
-  inline void SetLoadingTime( uint32_t nLoadingTime )      { m_LoadingTime = nLoadingTime; }
-  inline void SetLeft( uint32_t nLeft )                    { m_Left = nLeft; }
+  inline void SetLoadingTime( uint64_t nLoadingTime )      { m_LoadingTime = nLoadingTime; }
+  inline void SetLeft( uint64_t nLeft )                    { m_Left = nLeft; }
 };
 
 //
@@ -281,15 +281,9 @@ public:
   
   inline void SetColour( uint32_t nColour )              { m_Colour = nColour; }
   inline void SetNewColour( uint32_t nNewColour )        { m_NewColour = nNewColour; }
-  inline void SetKills( uint32_t nKills )                { m_Kills = nKills; }
-  inline void SetDeaths( uint32_t nDeaths )              { m_Deaths = nDeaths; }
   inline void SetCreepKills( uint32_t nCreepKills )      { m_CreepKills = nCreepKills; }
   inline void SetCreepDenies( uint32_t nCreepDenies )    { m_CreepDenies = nCreepDenies; }
-  inline void SetAssists( uint32_t nAssists )            { m_Assists = nAssists; }
   inline void SetNeutralKills( uint32_t nNeutralKills )  { m_NeutralKills = nNeutralKills; }
-  inline void SetTowerKills( uint32_t nTowerKills )      { m_TowerKills = nTowerKills; }
-  inline void SetRaxKills( uint32_t nRaxKills )          { m_RaxKills = nRaxKills; }
-  inline void SetCourierKills( uint32_t nCourierKills )  { m_CourierKills = nCourierKills; }
 };
 
 //

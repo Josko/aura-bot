@@ -875,7 +875,7 @@ CDBBan::~CDBBan( )
 // CDBGamePlayer
 //
 
-CDBGamePlayer::CDBGamePlayer( const string &nName,uint32_t nLoadingTime, uint32_t nLeft, uint32_t nColour ) : m_Name( nName ), m_LoadingTime( nLoadingTime ), m_Left( nLeft ), m_Colour( nColour )
+CDBGamePlayer::CDBGamePlayer( const string &nName, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour ) : m_Name( nName ), m_LoadingTime( nLoadingTime ), m_Left( nLeft ), m_Colour( nColour )
 {
 
 }

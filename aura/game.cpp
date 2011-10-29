@@ -3483,6 +3483,7 @@ void CGame::EventGameStarted( )
 
   if ( m_StartPlayers < 6 )
   {
+    Print( "[STATS] disabling dotastats due to too few players" );
     delete m_Stats;
     m_Stats = NULL;
   }

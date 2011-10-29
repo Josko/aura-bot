@@ -26,7 +26,7 @@
 
 #include <sys/stat.h>
 
-inline string ToString( unsigned long i )
+inline string ToString( uint64_t i )
 {
   string result;
   stringstream SS;
@@ -35,7 +35,7 @@ inline string ToString( unsigned long i )
   return result;
 }
 
-inline string ToString( unsigned short i )
+inline string ToString( uint32_t i )
 {
   string result;
   stringstream SS;
@@ -44,7 +44,7 @@ inline string ToString( unsigned short i )
   return result;
 }
 
-inline string ToString( unsigned int i )
+inline string ToString( uint16_t i )
 {
   string result;
   stringstream SS;
@@ -53,7 +53,7 @@ inline string ToString( unsigned int i )
   return result;
 }
 
-inline string ToString( long i )
+inline string ToString( int64_t i )
 {
   string result;
   stringstream SS;
@@ -62,7 +62,7 @@ inline string ToString( long i )
   return result;
 }
 
-inline string ToString( short i )
+inline string ToString( int32_t i )
 {
   string result;
   stringstream SS;
@@ -71,7 +71,7 @@ inline string ToString( short i )
   return result;
 }
 
-inline string ToString( int i )
+inline string ToString( int16_t i )
 {
   string result;
   stringstream SS;
