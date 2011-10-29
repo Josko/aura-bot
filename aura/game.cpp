@@ -135,7 +135,7 @@ CGame::~CGame( )
 
   // store the dota stats in the database
 
-  if ( m_Stats /* && ( m_StartPlayers >= 5 */ )
+  if ( m_Stats && m_StartPlayers >= 5 )
       m_Stats->Save( m_Aura, m_Aura->m_DB );  
 
   while ( !m_Actions.empty( ) )
@@ -3475,9 +3475,17 @@ void CGame::EventGameStarted( )
   for ( vector<unsigned char> ::const_iterator i = m_FakePlayers.begin( ); i != m_FakePlayers.end( ); ++i )
     SendAll( m_Protocol->SEND_W3GS_GAMELOADED_OTHERS(*i) );
 
-  // record the starting number of players
+  // record the number of starting players
 
   m_StartPlayers = GetNumHumanPlayers( );
+
+  // disable stats if not enough players (6)
+
+  if ( m_StartPlayers < 6 )
+  {
+    delete m_Stats;
+    m_Stats = NULL;
+  }
 
   // close the listening socket
 

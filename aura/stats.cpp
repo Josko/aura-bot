@@ -87,7 +87,7 @@ bool CStats::ProcessAction( CIncomingAction *Action )
             string KeyString = string( Key.begin( ), Key.end( ) );
             uint32_t ValueInt = ByteArrayToUInt32( Value, false );
             
-            Print( "[STATS] " + DataString + ", " + KeyString + ", " + ToString( ValueInt ) );
+            //Print( "[STATS] " + DataString + ", " + KeyString + ", " + ToString( ValueInt ) );
 
             if ( DataString == "Data" )
             {
@@ -133,18 +133,21 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                   }
                 }       
               }
-              else if ( KeyString.size( ) >= 8 && KeyString.substr( 0, 7 ) == "Courier" )
+              else if ( KeyString.size( ) >= 7 && KeyString.substr( 0, 6 ) == "Assist" )
               {
-                // a courier died
+                // check if the assist was on a non-leaver
                 
-                if ( ( ValueInt >= 1 && ValueInt <= 5 ) || ( ValueInt >= 7 && ValueInt <= 11 ) )
+                if ( m_Game->GetPlayerFromColour( ValueInt ) )
                 {
-                  if ( !m_Players[ValueInt] )
-                    m_Players[ValueInt] = new CDBDotAPlayer( );
-
-                  m_Players[ValueInt]->IncCourierKills( );
-                }
-              }
+                  string AssisterName = KeyString.substr( 6 );
+                  const uint32_t AssisterColour = ToUInt32( AssisterName );
+                  
+                  if ( !m_Players[AssisterColour] )
+                    m_Players[AssisterColour] = new CDBDotAPlayer( );
+                  
+                  m_Players[AssisterColour]->IncAssists( );
+                }                
+              }              
               else if ( KeyString.size( ) >= 8 && KeyString.substr( 0, 5 ) == "Tower" )
               {
                 // a tower died
@@ -167,6 +170,18 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                     m_Players[ValueInt] = new CDBDotAPlayer( );
 
                   m_Players[ValueInt]->IncRaxKills( );
+                }
+              }
+              else if ( KeyString.size( ) >= 8 && KeyString.substr( 0, 7 ) == "Courier" )
+              {
+                // a courier died
+                
+                if ( ( ValueInt >= 1 && ValueInt <= 5 ) || ( ValueInt >= 7 && ValueInt <= 11 ) )
+                {
+                  if ( !m_Players[ValueInt] )
+                    m_Players[ValueInt] = new CDBDotAPlayer( );
+
+                  m_Players[ValueInt]->IncCourierKills( );
                 }
               }
             }
@@ -213,9 +228,8 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                 
                 // Key "3"		-> Creep Kills
                 // Key "4"		-> Creep Denies
-                // Key "5"		-> Assists // to be removed
                 // Key "7"		-> Neutral Kills
-                // Key "id"     -> ID (1-5 for sentinel, 6-10 for scourge, accurate after using -sp and/or -switch)
+                // Key "id"   -> ID (1-5 for sentinel, 6-10 for scourge, accurate after using -sp and/or -switch)
                 
                 switch( KeyString[0] )
                 {
@@ -225,10 +239,6 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                   
                   case '4':
                     m_Players[ID]->SetCreepDenies( ValueInt );
-                    break;
-                    
-                  case '5':
-                    m_Players[ID]->SetAssists( ValueInt );
                     break;
                   
                   case '7':
