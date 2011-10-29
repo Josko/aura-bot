@@ -51,7 +51,6 @@ protected:
   CDBBan *m_DBBanLast;                      // last ban for the !banlast command - this is a pointer to one of the items in m_DBBans
   vector<CDBBan *> m_DBBans;                // vector of potential ban data for the database
   CStats *m_Stats;                          // class to keep track of game stats such as kills/deaths/assists in dota
-  uint32_t m_GameID;                        // GameID stored in the database
   CGameProtocol *m_Protocol;                // game protocol
   vector<CGameSlot> m_Slots;                // vector of slots
   vector<CPotentialPlayer *> m_Potentials;  // vector of potential players (connections that haven't sent a W3GS_REQJOIN packet yet)
@@ -60,14 +59,8 @@ protected:
   queue<CIncomingAction *> m_Actions;       // queue of actions to be sent
   vector<string> m_Reserved;                // vector of player names with reserved slots (from the !hold command)
   set<string> m_IgnoredNames;               // set of player names to NOT print ban messages for when joining because they've already been printed
-  CMap *m_Map;                              // map data
-  bool m_Exiting;                           // set to true and this class will be deleted next update
-  bool m_Saving;                            // if we're currently saving game data to the database
-  uint16_t m_HostPort;                      // the port to host games on
-  unsigned char m_GameState;                // game state, public or private
-  unsigned char m_VirtualHostPID;           // host's PID
   vector<unsigned char> m_FakePlayers;      // the fake player's PIDs (if present)
-  unsigned char m_GProxyEmptyActions;       // empty actions used for gproxy protocol
+  CMap *m_Map;                              // map data    
   string m_GameName;                        // game name
   string m_LastGameName;                    // last game name (the previous game name before it was rehosted)
   string m_VirtualHostName;                 // host's name
@@ -103,6 +96,12 @@ protected:
   uint32_t m_StartedKickVoteTime;           // GetTime when the kick vote was started
   uint32_t m_GameOverTime;                  // GetTime when the game was over
   uint32_t m_LastPlayerLeaveTicks;          // GetTicks when the most recent player left the game
+  uint16_t m_HostPort;                      // the port to host games on
+  unsigned char m_GameState;                // game state, public or private
+  unsigned char m_VirtualHostPID;           // host's PID
+  unsigned char m_GProxyEmptyActions;       // empty actions used for gproxy protocol
+  bool m_Exiting;                           // set to true and this class will be deleted next update
+  bool m_Saving;                            // if we're currently saving game data to the database
   bool m_SlotInfoChanged;                   // if the slot info has changed and hasn't been sent to the players yet (optimization)
   bool m_Locked;                            // if the game owner is the only one allowed to run game commands or not
   bool m_RefreshError;                      // if the game had a refresh error
@@ -210,6 +209,7 @@ public:
   CGamePlayer *GetPlayerFromSID( unsigned char SID );
   CGamePlayer *GetPlayerFromName( string name, bool sensitive );
   uint32_t GetPlayerFromNamePartial( string name, CGamePlayer **player );
+  string GetDBPlayerNameFromColour( unsigned char colour ) const;
   CGamePlayer *GetPlayerFromColour( unsigned char colour );
   unsigned char GetNewPID( );
   unsigned char GetNewColour( );

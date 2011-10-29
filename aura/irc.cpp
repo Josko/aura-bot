@@ -33,7 +33,14 @@ typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
 //// CIRC ////
 //////////////
 
-CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger ) : m_Aura( nAura ), m_Socket( new CTCPClient ), m_Channels( nChannels ), m_RootAdmins( nRootAdmins ), m_Server( nServer ), m_Nickname( nNickname ), m_NicknameCpy( nNickname ), m_Username( nUsername ), m_CommandTrigger( nCommandTrigger ), m_Password( nPassword ), m_Port( nPort ), m_Exiting( false ), m_WaitingToConnect( true ), m_OriginalNick( true ), m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ), m_LastAntiIdleTime( GetTime( ) )
+CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger )
+  : m_Aura( nAura ), m_Socket( new CTCPClient ), m_Channels( nChannels ),
+    m_RootAdmins( nRootAdmins ), m_Server( nServer ), m_Nickname( nNickname ),
+    m_NicknameCpy( nNickname ), m_Username( nUsername ), m_Password( nPassword ),
+    m_LastConnectionAttemptTime( 0 ), m_LastPacketTime( GetTime( ) ),
+    m_LastAntiIdleTime( GetTime( ) ), m_Port( nPort ),
+    m_CommandTrigger( nCommandTrigger ), m_Exiting( false ),
+    m_WaitingToConnect( true ), m_OriginalNick( true )
 {
 	sort(m_RootAdmins.begin(), m_RootAdmins.end());
 }
@@ -144,7 +151,7 @@ bool CIRC::Update( void *fd, void *send_fd )
   {
     // attempt to connect to irc
 
-    Print( "[IRC: " + m_Server + "] connecting to server [" + m_Server + "] on port " + UTIL_ToString( m_Port ) );
+    Print( "[IRC: " + m_Server + "] connecting to server [" + m_Server + "] on port " + ToString( m_Port ) );
 
     if ( m_ServerIP.empty( ) )
     {
@@ -211,7 +218,7 @@ void CIRC::ExtractPackets( )
     // the delimiter is space
     // we use a std::vector so we can check its number of tokens
 
-    vector<string> Tokens = UTIL_Tokenize( *pak_iter, ' ' );
+    vector<string> Tokens = Tokenize( *pak_iter, ' ' );
     
     // privmsg packet
     // in:  :nickname!~username@hostname PRIVMSG #channel :message

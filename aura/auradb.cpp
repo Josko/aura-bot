@@ -22,16 +22,13 @@
 #include "util.h"
 #include "config.h"
 #include "auradb.h"
-#include "sqlite3.h"
 
 //
 // CQSLITE3 (wrapper class)
 //
 
-CSQLITE3::CSQLITE3( string filename )
+CSQLITE3::CSQLITE3( const string &filename ) : m_Ready( true )
 {
-  m_Ready = true;
-
   if ( sqlite3_open_v2( filename.c_str( ), ( sqlite3 ** ) & m_DB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL ) != SQLITE_OK )
     m_Ready = false;
 }
@@ -41,67 +38,16 @@ CSQLITE3::~CSQLITE3( )
   sqlite3_close( (sqlite3 *) m_DB );
 }
 
-string CSQLITE3::GetError( ) const
-{
-  return sqlite3_errmsg( (sqlite3 *) m_DB );
-}
-
-int CSQLITE3::Prepare( const string &query, void **Statement )
-{
-  return sqlite3_prepare_v2( (sqlite3 *) m_DB, query.c_str( ), -1, (sqlite3_stmt **) Statement, NULL );
-}
-
-int CSQLITE3::Step( void *Statement )
-{
-  int RC = sqlite3_step( (sqlite3_stmt *) Statement );
-
-  if ( RC == SQLITE_ROW )
-  {
-    m_Row.clear( );
-
-    for ( int i = 0; i < sqlite3_column_count( (sqlite3_stmt *) Statement ); ++i )
-    {
-      char *ColumnText = (char *) sqlite3_column_text( (sqlite3_stmt *) Statement, i );
-
-      if ( ColumnText )
-        m_Row.push_back( ColumnText );
-      else
-        m_Row.push_back( string( ) );
-    }
-  }
-
-  return RC;
-}
-
-int CSQLITE3::Finalize( void *Statement )
-{
-  return sqlite3_finalize( (sqlite3_stmt *) Statement );
-}
-
-int CSQLITE3::Reset( void *Statement )
-{
-  return sqlite3_reset( (sqlite3_stmt *) Statement );
-}
-
-int CSQLITE3::Exec( const string &query )
-{
-  return sqlite3_exec( (sqlite3 *) m_DB, query.c_str( ), NULL, NULL, NULL );
-}
-
-uint32_t CSQLITE3::LastRowID( )
-{
-  return (uint32_t) sqlite3_last_insert_rowid( (sqlite3 *) m_DB );
-}
-
 //
 // CAuraDB
 //
 
 CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), FromCheckStmt( NULL ), BanCheckStmt( NULL ), AdminCheckStmt( NULL ), RootAdminCheckStmt( NULL )
 {
-  m_File = CFG->GetString( "db_sqlite3_file", "aura.dbs" );
   Print( "[SQLITE3] version " + string( SQLITE_VERSION ) );
-  Print( "[SQLITE3] opening database [" + m_File + "]" );
+  m_File = CFG->GetString( "db_sqlite3_file", "aura.dbs" );
+
+  Print( "[SQLITE3] opening database [" + m_File + "]" );  
   m_DB = new CSQLITE3( m_File );
 
   if ( !m_DB->GetReady( ) )
@@ -127,10 +73,8 @@ CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), Fro
 
     if ( RC == SQLITE_ROW )
     {
-      vector<string> *Row = m_DB->GetRow( );
-
-      if ( Row->size( ) == 1 )
-        SchemaNumber = ( *Row )[0];
+      if( sqlite3_column_count( Statement ) == 1 )
+        SchemaNumber = string( (char *) sqlite3_column_text( Statement, 0 ) );
       else
         Print( "[SQLITE3] error getting schema number - row doesn't have 1 column" );
     }
@@ -145,33 +89,22 @@ CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), Fro
   if ( SchemaNumber.empty( ) )
   {
     // couldn't find the schema number
-    // MAEK NEW TABLEZ
-
+    
     Print( "[SQLITE3] couldn't find schema number, create tables" );
 
     // assume the database is empty
     // note to self: update the SchemaNumber and the database structure when making a new schema
 
     Print( "[SQLITE3] assuming database is empty" );
-    SchemaNumber = "1";
 
     if ( m_DB->Exec( "CREATE TABLE admins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
       Print( "[SQLITE3] error creating admins table - " + m_DB->GetError( ) );
 
-    if ( m_DB->Exec( "CREATE TABLE bans ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, name TEXT NOT NULL, ip TEXT, date TEXT NOT NULL, gamename TEXT, admin TEXT NOT NULL, reason TEXT )" ) != SQLITE_OK )
+    if ( m_DB->Exec( "CREATE TABLE bans ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, name TEXT NOT NULL, date TEXT NOT NULL, admin TEXT NOT NULL, reason TEXT )" ) != SQLITE_OK )
       Print( "[SQLITE3] error creating bans table - " + m_DB->GetError( ) );
 
-    if ( m_DB->Exec( "CREATE TABLE games ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, map TEXT NOT NULL, datetime TEXT NOT NULL, gamename TEXT NOT NULL, ownername TEXT NOT NULL, duration INTEGER NOT NULL, gamestate INTEGER NOT NULL DEFAULT 0, creatorname TEXT NOT NULL DEFAULT \"\", creatorserver TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
-      Print( "[SQLITE3] error creating games table - " + m_DB->GetError( ) );
-
-    if ( m_DB->Exec( "CREATE TABLE gameplayers ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, name TEXT NOT NULL, ip TEXT NOT NULL, spoofed INTEGER NOT NULL, reserved INTEGER NOT NULL, loadingtime INTEGER NOT NULL, left INTEGER NOT NULL, leftreason TEXT NOT NULL, team INTEGER NOT NULL, colour INTEGER NOT NULL, spoofedrealm TEXT NOT NULL DEFAULT \"\" )" ) != SQLITE_OK )
-      Print( "[SQLITE3] error creating gameplayers table - " + m_DB->GetError( ) );
-
-    if ( m_DB->Exec( "CREATE TABLE dotagames ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, winner INTEGER NOT NULL, min INTEGER NOT NULL DEFAULT 0, sec INTEGER NOT NULL DEFAULT 0 )" ) != SQLITE_OK )
-      Print( "[SQLITE3] error creating dotagames table - " + m_DB->GetError( ) );
-
-    if ( m_DB->Exec( "CREATE TABLE dotaplayers ( id INTEGER PRIMARY KEY, gameid INTEGER NOT NULL, colour INTEGER NOT NULL, kills INTEGER NOT NULL, deaths INTEGER NOT NULL, creepkills INTEGER NOT NULL, creepdenies INTEGER NOT NULL, assists INTEGER NOT NULL, gold INTEGER NOT NULL, neutralkills INTEGER NOT NULL, item1 TEXT NOT NULL, item2 TEXT NOT NULL, item3 TEXT NOT NULL, item4 TEXT NOT NULL, item5 TEXT NOT NULL, item6 TEXT NOT NULL, hero TEXT NOT NULL DEFAULT \"\", newcolour NOT NULL DEFAULT 0, towerkills NOT NULL DEFAULT 0, raxkills NOT NULL DEFAULT 0, courierkills NOT NULL DEFAULT 0 )" ) != SQLITE_OK )
-      Print( "[SQLITE3] error creating dotaplayers table - " + m_DB->GetError( ) );
+    if ( m_DB->Exec( "CREATE TABLE players ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, games INTEGER, dotas INTEGER, loadingtime INTEGER, duration INTEGER, left INTEGER, wins INTEGER, losses INTEGER, kills INTEGER, deaths INTEGER, creepkills INTEGER, creepdenies INTEGER, assists INTEGER, neutralkills INTEGER, towerkills INTEGER, raxkills INTEGER, courierkills INTEGER )" ) != SQLITE_OK )
+      Print( "[SQLITE3] error creating players table - " + m_DB->GetError( ) );
 
     if ( m_DB->Exec( "CREATE TABLE config ( name TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )" ) != SQLITE_OK )
       Print( "[SQLITE3] error creating config table - " + m_DB->GetError( ) );
@@ -180,23 +113,17 @@ CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), Fro
 
     if ( Statement )
     {
-      sqlite3_bind_text( Statement, 1, SchemaNumber.c_str( ), -1, SQLITE_TRANSIENT );
-      int RC = m_DB->Step( Statement );
+      sqlite3_bind_text( Statement, 1, "1", -1, SQLITE_TRANSIENT );
+
+      const int RC = m_DB->Step( Statement );
 
       if ( RC == SQLITE_ERROR )
-        Print( "[SQLITE3] error inserting schema number [" + SchemaNumber + "] - " + m_DB->GetError( ) );
+        Print( "[SQLITE3] error inserting schema number [1] - " + m_DB->GetError( ) );
 
       m_DB->Finalize( Statement );
     }
     else
-      Print( "[SQLITE3] prepare error inserting schema number [" + SchemaNumber + "] - " + m_DB->GetError( ) );
-
-    if ( m_DB->Exec( "CREATE INDEX idx_gameid ON gameplayers ( gameid )" ) != SQLITE_OK )
-      Print( "[SQLITE3] error creating idx_gameid index on gameplayers table - " + m_DB->GetError( ) );
-
-    if ( m_DB->Exec( "CREATE INDEX idx_gameid_colour ON dotaplayers ( gameid, colour )" ) != SQLITE_OK )
-      Print( "[SQLITE3] error creating idx_gameid_colour index on dotaplayers table - " + m_DB->GetError( ) );
-
+      Print( "[SQLITE3] prepare error inserting schema number [1] - " + m_DB->GetError( ) );
   }
   else
     Print( "[SQLITE3] found schema number [" + SchemaNumber + "]" );
@@ -210,6 +137,8 @@ CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), Fro
 
 CAuraDB::~CAuraDB( )
 {
+  Print( "[SQLITE3] closing database [" + m_File + "]" );
+  
   if ( FromAddStmt )
     m_DB->Finalize( FromAddStmt );
 
@@ -223,20 +152,9 @@ CAuraDB::~CAuraDB( )
     m_DB->Finalize( AdminCheckStmt );
 
   if( RootAdminCheckStmt )
-    m_DB->Finalize( RootAdminCheckStmt );
-
-  Print( "[SQLITE3] closing database [" + m_File + "]" );
+    m_DB->Finalize( RootAdminCheckStmt );  
+  
   delete m_DB;
-}
-
-bool CAuraDB::Begin( )
-{
-  return m_DB->Exec( "BEGIN TRANSACTION" ) == SQLITE_OK;
-}
-
-bool CAuraDB::Commit( )
-{
-  return m_DB->Exec( "COMMIT TRANSACTION" ) == SQLITE_OK;
 }
 
 uint32_t CAuraDB::AdminCount( const string &server )
@@ -248,7 +166,8 @@ uint32_t CAuraDB::AdminCount( const string &server )
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_ROW )
       Count = sqlite3_column_int( Statement, 0 );
@@ -276,7 +195,7 @@ bool CAuraDB::AdminCheck( const string &server, string user )
     sqlite3_bind_text( (sqlite3_stmt *) AdminCheckStmt, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( (sqlite3_stmt *) AdminCheckStmt, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
 
-    int RC = m_DB->Step( AdminCheckStmt );
+    const int RC = m_DB->Step( AdminCheckStmt );
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -305,7 +224,7 @@ bool CAuraDB::AdminCheck( string user )
   {
     sqlite3_bind_text( Statement, 1, user.c_str( ), -1, SQLITE_TRANSIENT );
 
-    int RC = m_DB->Step( Statement );
+    const int RC = m_DB->Step( Statement );
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -335,7 +254,7 @@ bool CAuraDB::RootAdminCheck( const string &server, string user )
     sqlite3_bind_text( (sqlite3_stmt *) RootAdminCheckStmt, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( (sqlite3_stmt *) RootAdminCheckStmt, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
 
-    int RC = m_DB->Step( (sqlite3_stmt *) RootAdminCheckStmt );
+    const int RC = m_DB->Step( (sqlite3_stmt *) RootAdminCheckStmt );
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -364,7 +283,7 @@ bool CAuraDB::RootAdminCheck( string user )
   {
     sqlite3_bind_text( Statement, 1, user.c_str( ), -1, SQLITE_TRANSIENT );
 
-    int RC = m_DB->Step( Statement );
+    const int RC = m_DB->Step( Statement );
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -393,7 +312,8 @@ bool CAuraDB::AdminAdd( const string &server, string user )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_DONE )
       Success = true;
@@ -420,7 +340,8 @@ bool CAuraDB::RootAdminAdd( const string &server, string user )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_DONE )
       Success = true;
@@ -437,16 +358,17 @@ bool CAuraDB::RootAdminAdd( const string &server, string user )
 
 bool CAuraDB::AdminRemove( const string &server, string user )
 {
-  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
   bool Success = false;
   sqlite3_stmt *Statement;
+  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );  
   m_DB->Prepare( "DELETE FROM admins WHERE server=? AND name=?", (void **) &Statement );
 
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_DONE )
       Success = true;
@@ -470,7 +392,8 @@ uint32_t CAuraDB::BanCount( const string &server )
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_ROW )
       Count = sqlite3_column_int( Statement, 0 );
@@ -485,92 +408,88 @@ uint32_t CAuraDB::BanCount( const string &server )
   return Count;
 }
 
-CDBBan *CAuraDB::BanCheck( const string &server, string user, const string &ip )
+CDBBan *CAuraDB::BanCheck( const string &server, string user )
 {
-  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
   CDBBan *Ban = NULL;
+  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
 
   if ( !BanCheckStmt )
-  {
-    if ( ip.empty( ) )
-      m_DB->Prepare( "SELECT name, ip, date, gamename, admin, reason FROM bans WHERE server=? AND name=?", (void **) &BanCheckStmt );
-    else
-      m_DB->Prepare( "SELECT name, ip, date, gamename, admin, reason FROM bans WHERE (server=? AND name=?) OR ip=?", (void **) &BanCheckStmt );
-  }
+    m_DB->Prepare( "SELECT name, date, admin, reason FROM bans WHERE server=? AND name=?", (void **) &BanCheckStmt );
 
   if ( BanCheckStmt )
   {
     sqlite3_bind_text( (sqlite3_stmt *) BanCheckStmt, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( (sqlite3_stmt *) BanCheckStmt, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
 
-    if ( !ip.empty( ) )
-      sqlite3_bind_text( (sqlite3_stmt *) BanCheckStmt, 3, ip.c_str( ), -1, SQLITE_TRANSIENT );
-
-    int RC = m_DB->Step( BanCheckStmt );
+    const int RC = m_DB->Step( BanCheckStmt );
 
     if ( RC == SQLITE_ROW )
     {
-      vector<string> *Row = m_DB->GetRow( );
-
-      if ( Row->size( ) == 6 )
-        Ban = new CDBBan( server, ( *Row )[0], ( *Row )[1], ( *Row )[2], ( *Row )[3], ( *Row )[4], ( *Row )[5] );
+      if ( sqlite3_column_count( (sqlite3_stmt *) BanCheckStmt ) == 4 )
+      {
+        string Name = string( (char *) sqlite3_column_text( (sqlite3_stmt *) BanCheckStmt, 0 ) );
+        string Date = string( (char *) sqlite3_column_text( (sqlite3_stmt *) BanCheckStmt, 1 ) );
+        string Admin = string( (char *) sqlite3_column_text( (sqlite3_stmt *) BanCheckStmt, 2 ) );
+        string Reason = string( (char *) sqlite3_column_text( (sqlite3_stmt *) BanCheckStmt, 3 ) );
+        
+        Ban = new CDBBan( server, Name, Date, Admin, Reason );
+      }
       else
-        Print( "[SQLITE3] error checking ban [" + server + " : " + user + " : " + ip + "] - row doesn't have 6 columns" );
+        Print( "[SQLITE3] error checking ban [" + server + " : " + user + "] - row doesn't have 4 columns" );
     }
     else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error checking ban [" + server + " : " + user + " : " + ip + "] - " + m_DB->GetError( ) );
+      Print( "[SQLITE3] error checking ban [" + server + " : " + user + "] - " + m_DB->GetError( ) );
 
     m_DB->Reset( BanCheckStmt );
   }
   else
-    Print( "[SQLITE3] prepare error checking ban [" + server + " : " + user + " : " + ip + "] - " + m_DB->GetError( ) );
+    Print( "[SQLITE3] prepare error checking ban [" + server + " : " + user + "] - " + m_DB->GetError( ) );
 
   return Ban;
 }
 
-bool CAuraDB::BanAdd( const string &server, string user, const string &ip, const string &gamename, string admin, const string &reason )
+bool CAuraDB::BanAdd( const string &server, string user, const string &admin, const string &reason )
 {
-  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
   bool Success = false;
   sqlite3_stmt *Statement;
-  m_DB->Prepare( "INSERT INTO bans ( server, name, ip, date, gamename, admin, reason ) VALUES ( ?, ?, ?, date('now'), ?, ?, ? )", (void **) &Statement );
+  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
+  m_DB->Prepare( "INSERT INTO bans ( server, name, date, admin, reason ) VALUES ( ?, ?, date('now'), ?, ? )", (void **) &Statement );
 
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 3, ip.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 4, gamename.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 5, admin.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 6, reason.c_str( ), -1, SQLITE_TRANSIENT );
+    sqlite3_bind_text( Statement, 3, admin.c_str( ), -1, SQLITE_TRANSIENT );
+    sqlite3_bind_text( Statement, 4, reason.c_str( ), -1, SQLITE_TRANSIENT );
 
-    int RC = m_DB->Step( Statement );
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_DONE )
       Success = true;
     else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error adding ban [" + server + " : " + user + " : " + ip + " : " + gamename + " : " + admin + " : " + reason + "] - " + m_DB->GetError( ) );
+      Print( "[SQLITE3] error adding ban [" + server + " : " + user + " : " + admin + " : " + reason + "] - " + m_DB->GetError( ) );
 
     m_DB->Finalize( Statement );
   }
   else
-    Print( "[SQLITE3] prepare error adding ban [" + server + " : " + user + " : " + ip + " : " + gamename + " : " + admin + " : " + reason + "] - " + m_DB->GetError( ) );
+    Print( "[SQLITE3] prepare error adding ban [" + server + " : " + user + " : " + admin + " : " + reason + "] - " + m_DB->GetError( ) );
 
   return Success;
 }
 
 bool CAuraDB::BanRemove( const string &server, string user )
 {
-  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
   bool Success = false;
   sqlite3_stmt *Statement;
+  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );  
   m_DB->Prepare( "DELETE FROM bans WHERE server=? AND name=?", (void **) &Statement );
 
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
     sqlite3_bind_text( Statement, 2, user.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_DONE )
       Success = true;
@@ -587,15 +506,16 @@ bool CAuraDB::BanRemove( const string &server, string user )
 
 bool CAuraDB::BanRemove( string user )
 {
-  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );
   bool Success = false;
   sqlite3_stmt *Statement;
+  transform( user.begin( ), user.end( ), user.begin( ), (int(* )(int) )tolower );  
   m_DB->Prepare( "DELETE FROM bans WHERE name=?", (void **) &Statement );
 
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, user.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_DONE )
       Success = true;
@@ -610,144 +530,115 @@ bool CAuraDB::BanRemove( string user )
   return Success;
 }
 
-uint32_t CAuraDB::GameAdd( const string &server, const string &map, const string &gamename, const string &ownername, uint32_t duration, uint32_t gamestate, const string &creatorname, const string &creatorserver )
+bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duration, uint64_t left )
 {
-  uint32_t RowID = 0;
+  uint32_t Success = false;
   sqlite3_stmt *Statement;
-  m_DB->Prepare( "INSERT INTO games ( server, map, datetime, gamename, ownername, duration, gamestate, creatorname, creatorserver ) VALUES ( ?, ?, datetime('now'), ?, ?, ?, ?, ?, ? )", (void **) &Statement );
-
-  if ( Statement )
-  {
-    sqlite3_bind_text( Statement, 1, server.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 2, map.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 3, gamename.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 4, ownername.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_int( Statement, 5, duration );
-    sqlite3_bind_int( Statement, 6, gamestate );
-    sqlite3_bind_text( Statement, 7, creatorname.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 8, creatorserver.c_str( ), -1, SQLITE_TRANSIENT );
-
-    int RC = m_DB->Step( Statement );
-
-    if ( RC == SQLITE_DONE )
-      RowID = m_DB->LastRowID( );
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error adding game [" + server + " : " + map + " : " + gamename + " : " + ownername + " : " + UTIL_ToString( duration ) + " : " + UTIL_ToString( gamestate ) + " : " + creatorname + " : " + creatorserver + "] - " + m_DB->GetError( ) );
-
-    m_DB->Finalize( Statement );
-  }
-  else
-    Print( "[SQLITE3] prepare error adding game [" + server + " : " + map + " : " + gamename + " : " + ownername + " : " + UTIL_ToString( duration ) + " : " + UTIL_ToString( gamestate ) + " : " + creatorname + " : " + creatorserver + "] - " + m_DB->GetError( ) );
-
-  return RowID;
-}
-
-uint32_t CAuraDB::GamePlayerAdd( uint32_t gameid, string name, const string &ip, uint32_t spoofed, const string &spoofedrealm, uint32_t reserved, uint32_t loadingtime, uint32_t left, const string &leftreason, uint32_t team, uint32_t colour )
-{
   transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
-  uint32_t RowID = 0;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare( "INSERT INTO gameplayers ( gameid, name, ip, spoofed, reserved, loadingtime, left, leftreason, team, colour, spoofedrealm ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", (void **) &Statement );
-
-  if ( Statement )
-  {
-    sqlite3_bind_int( Statement, 1, gameid );
-    sqlite3_bind_text( Statement, 2, name.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 3, ip.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_int( Statement, 4, spoofed );
-    sqlite3_bind_int( Statement, 5, reserved );
-    sqlite3_bind_int( Statement, 6, loadingtime );
-    sqlite3_bind_int( Statement, 7, left );
-    sqlite3_bind_text( Statement, 8, leftreason.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_int( Statement, 9, team );
-    sqlite3_bind_int( Statement, 10, colour );
-    sqlite3_bind_text( Statement, 11, spoofedrealm.c_str( ), -1, SQLITE_TRANSIENT );
-
-    int RC = m_DB->Step( Statement );
-
-    if ( RC == SQLITE_DONE )
-      RowID = m_DB->LastRowID( );
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error adding gameplayer [" + UTIL_ToString( gameid ) + " : " + name + " : " + ip + " : " + UTIL_ToString( spoofed ) + " : " + spoofedrealm + " : " + UTIL_ToString( reserved ) + " : " + UTIL_ToString( loadingtime ) + " : " + UTIL_ToString( left ) + " : " + leftreason + " : " + UTIL_ToString( team ) + " : " + UTIL_ToString( colour ) + "] - " + m_DB->GetError( ) );
-
-    m_DB->Finalize( Statement );
-  }
-  else
-    Print( "[SQLITE3] prepare error adding gameplayer [" + UTIL_ToString( gameid ) + " : " + name + " : " + ip + " : " + UTIL_ToString( spoofed ) + " : " + spoofedrealm + " : " + UTIL_ToString( reserved ) + " : " + UTIL_ToString( loadingtime ) + " : " + UTIL_ToString( left ) + " : " + leftreason + " : " + UTIL_ToString( team ) + " : " + UTIL_ToString( colour ) + "] - " + m_DB->GetError( ) );
-
-  return RowID;
-}
-
-uint32_t CAuraDB::GamePlayerCount( string name )
-{
-  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
-  uint32_t Count = 0;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare( "SELECT COUNT(*) FROM gameplayers LEFT JOIN games ON games.id=gameid WHERE name=?", (void **) &Statement );
-
+  
+  // check if entry exists
+  
+  int RC;
+  uint32_t Games = 0;
+  
+  m_DB->Prepare( "SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void **) &Statement );
+  
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
-
+    
+    RC = m_DB->Step( Statement );
+    
     if ( RC == SQLITE_ROW )
-      Count = sqlite3_column_int( Statement, 0 );
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error counting gameplayers [" + name + "] - " + m_DB->GetError( ) );
-
+    {      
+      Games += 1 + sqlite3_column_int( Statement, 0 );
+      loadingtime += sqlite3_column_int64( Statement, 1 );
+      duration += sqlite3_column_int64( Statement, 2 );
+      left += sqlite3_column_int64( Statement, 3 );
+    }
+    
     m_DB->Finalize( Statement );
   }
   else
-    Print( "[SQLITE3] prepare error counting gameplayers [" + name + "] - " + m_DB->GetError( ) );
-
-  return Count;
+  {
+    Print( "[SQLITE3] prepare error adding gameplayer [" + name + "] - " + m_DB->GetError( ) );
+    return false;
+  }
+  
+  if ( Games == 0 )
+  {
+    // insert new entry
+    
+    m_DB->Prepare( "INSERT INTO players ( name, games, loadingtime, duration, left ) VALUES ( ?, ?, ?, ?, ? )", (void **) &Statement );
+    
+    if ( Statement == NULL )
+    {
+      Print( "[SQLITE3] prepare error inserting gameplayer [" + name + "] - " + m_DB->GetError( ) );
+      return false;
+    }
+    
+    sqlite3_bind_text( Statement, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
+    sqlite3_bind_int( Statement, 2, 1 );
+    sqlite3_bind_int64( Statement, 3, loadingtime );
+    sqlite3_bind_int64( Statement, 4, duration );
+    sqlite3_bind_int64( Statement, 5, left );
+  }
+  else
+  {
+    // update existing entry
+    
+    m_DB->Prepare( "UPDATE players SET games=?, loadingtime=?, duration=?, left=? WHERE name=?", (void **) &Statement );
+    
+    if ( Statement == NULL )
+    {
+      Print( "[SQLITE3] prepare error updating gameplayer [" + name + "] - " + m_DB->GetError( ) );
+      return false;
+    }
+    
+    sqlite3_bind_int( Statement, 1, Games );
+    sqlite3_bind_int( Statement, 2, loadingtime );
+    sqlite3_bind_int( Statement, 3, duration );
+    sqlite3_bind_int( Statement, 4, left );
+    sqlite3_bind_text( Statement, 5, name.c_str( ), -1, SQLITE_TRANSIENT );
+  }
+  
+  RC = m_DB->Step( Statement );
+  
+  if( RC == SQLITE_DONE )
+    Success = true;
+  else
+    Print( "[SQLITE3] error adding gameplayer [" + name + "] - " + m_DB->GetError( ) );
+    
+  m_DB->Finalize( Statement );
+  return Success;
 }
 
 CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck( string name )
 {
-  if ( GamePlayerCount( name ) == 0 )
-    return NULL;
-
-  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
-  CDBGamePlayerSummary *GamePlayerSummary = NULL;
   sqlite3_stmt *Statement;
-  m_DB->Prepare( "SELECT MIN(datetime), MAX(datetime), COUNT(*), MIN(loadingtime), AVG(loadingtime), MAX(loadingtime), MIN(left/CAST(duration AS REAL))*100, AVG(left/CAST(duration AS REAL))*100, MAX(left/CAST(duration AS REAL))*100, MIN(duration), AVG(duration), MAX(duration) FROM gameplayers LEFT JOIN games ON games.id=gameid WHERE name=?", (void **) &Statement );
+  CDBGamePlayerSummary *GamePlayerSummary = NULL;
+  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );  
+  m_DB->Prepare( "SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void **) &Statement );
 
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_ROW )
     {
-      if ( sqlite3_column_count( (sqlite3_stmt *) Statement ) == 12 )
+      if ( sqlite3_column_count( Statement ) == 4 )
       {
-        char *First = (char *) sqlite3_column_text( (sqlite3_stmt *) Statement, 0 );
-        char *Last = (char *) sqlite3_column_text( (sqlite3_stmt *) Statement, 1 );
-        string FirstGameDateTime;
-        string LastGameDateTime;
-
-        if ( First )
-          FirstGameDateTime = First;
-
-        if ( Last )
-          LastGameDateTime = Last;
-
-        uint32_t TotalGames = sqlite3_column_int( (sqlite3_stmt *) Statement, 2 );
-        uint32_t MinLoadingTime = sqlite3_column_int( (sqlite3_stmt *) Statement, 3 );
-        uint32_t AvgLoadingTime = sqlite3_column_int( (sqlite3_stmt *) Statement, 4 );
-        uint32_t MaxLoadingTime = sqlite3_column_int( (sqlite3_stmt *) Statement, 5 );
-        uint32_t MinLeftPercent = sqlite3_column_int( (sqlite3_stmt *) Statement, 6 );
-        uint32_t AvgLeftPercent = sqlite3_column_int( (sqlite3_stmt *) Statement, 7 );
-        uint32_t MaxLeftPercent = sqlite3_column_int( (sqlite3_stmt *) Statement, 8 );
-        uint32_t MinDuration = sqlite3_column_int( (sqlite3_stmt *) Statement, 9 );
-        uint32_t AvgDuration = sqlite3_column_int( (sqlite3_stmt *) Statement, 10 );
-        uint32_t MaxDuration = sqlite3_column_int( (sqlite3_stmt *) Statement, 11 );
+        const uint32_t TotalGames = sqlite3_column_int( Statement, 0 );
+        const uint32_t LoadingTime = sqlite3_column_int( Statement, 1 );
+        const uint32_t Left = sqlite3_column_int( Statement, 2 );
+        const uint32_t Duration = sqlite3_column_int( Statement, 3 );
         
-        GamePlayerSummary = new CDBGamePlayerSummary( string( ), name, FirstGameDateTime, LastGameDateTime, TotalGames, MinLoadingTime, AvgLoadingTime, MaxLoadingTime, MinLeftPercent, AvgLeftPercent, MaxLeftPercent, MinDuration, AvgDuration, MaxDuration );
+        GamePlayerSummary = new CDBGamePlayerSummary( TotalGames, (float) LoadingTime / TotalGames / 1000, (float) Left / Duration * 100 );
       }
       else
-        Print( "[SQLITE3] error checking gameplayersummary [" + name + "] - row doesn't have 12 columns" );
+        Print( "[SQLITE3] error checking gameplayersummary [" + name + "] - row doesn't have 4 columns" );
     }
     else if ( RC == SQLITE_ERROR )
       Print( "[SQLITE3] error checking gameplayersummary [" + name + "] - " + m_DB->GetError( ) );
@@ -760,184 +651,135 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck( string name )
   return GamePlayerSummary;
 }
 
-uint32_t CAuraDB::DotAGameAdd( uint32_t gameid, uint32_t winner, uint32_t min, uint32_t sec )
+bool CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
 {
-  uint32_t RowID = 0;
+  bool Success = false;
   sqlite3_stmt *Statement;
-  m_DB->Prepare( "INSERT INTO dotagames ( gameid, winner, min, sec ) VALUES ( ?, ?, ?, ? )", (void **) &Statement );
+  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );  
+  m_DB->Prepare( "SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
+  
+  int RC;
+  uint32_t Dotas = 1;
+  uint32_t Wins = 0;
+  uint32_t Losses = 0;
 
-  if ( Statement )
-  {
-    sqlite3_bind_int( Statement, 1, gameid );
-    sqlite3_bind_int( Statement, 2, winner );
-    sqlite3_bind_int( Statement, 3, min );
-    sqlite3_bind_int( Statement, 4, sec );
-
-    int RC = m_DB->Step( Statement );
-
-    if ( RC == SQLITE_DONE )
-      RowID = m_DB->LastRowID( );
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error adding dotagame [" + UTIL_ToString( gameid ) + " : " + UTIL_ToString( winner ) + " : " + UTIL_ToString( min ) + " : " + UTIL_ToString( sec ) + "] - " + m_DB->GetError( ) );
-
-    m_DB->Finalize( Statement );
-  }
-  else
-    Print( "[SQLITE3] prepare error adding dotagame [" + UTIL_ToString( gameid ) + " : " + UTIL_ToString( winner ) + " : " + UTIL_ToString( min ) + " : " + UTIL_ToString( sec ) + "] - " + m_DB->GetError( ) );
-
-  return RowID;
-}
-
-uint32_t CAuraDB::DotAPlayerAdd( uint32_t gameid, uint32_t colour, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t gold, uint32_t neutralkills, const string &item1, const string &item2, const string &item3, const string &item4, const string &item5, const string &item6, const string &hero, uint32_t newcolour, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
-{
-  uint32_t RowID = 0;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare( "INSERT INTO dotaplayers ( gameid, colour, kills, deaths, creepkills, creepdenies, assists, gold, neutralkills, item1, item2, item3, item4, item5, item6, hero, newcolour, towerkills, raxkills, courierkills ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", (void **) &Statement );
-
-  if ( Statement )
-  {
-    sqlite3_bind_int( Statement, 1, gameid );
-    sqlite3_bind_int( Statement, 2, colour );
-    sqlite3_bind_int( Statement, 3, kills );
-    sqlite3_bind_int( Statement, 4, deaths );
-    sqlite3_bind_int( Statement, 5, creepkills );
-    sqlite3_bind_int( Statement, 6, creepdenies );
-    sqlite3_bind_int( Statement, 7, assists );
-    sqlite3_bind_int( Statement, 8, gold );
-    sqlite3_bind_int( Statement, 9, neutralkills );
-    sqlite3_bind_text( Statement, 10, item1.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 11, item2.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 12, item3.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 13, item4.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 14, item5.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 15, item6.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_text( Statement, 16, hero.c_str( ), -1, SQLITE_TRANSIENT );
-    sqlite3_bind_int( Statement, 17, newcolour );
-    sqlite3_bind_int( Statement, 18, towerkills );
-    sqlite3_bind_int( Statement, 19, raxkills );
-    sqlite3_bind_int( Statement, 20, courierkills );
-
-    int RC = m_DB->Step( Statement );
-
-    if ( RC == SQLITE_DONE )
-      RowID = m_DB->LastRowID( );
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error adding dotaplayer [" + UTIL_ToString( gameid ) + " : " + UTIL_ToString( colour ) + " : " + UTIL_ToString( kills ) + " : " + UTIL_ToString( deaths ) + " : " + UTIL_ToString( creepkills ) + " : " + UTIL_ToString( creepdenies ) + " : " + UTIL_ToString( assists ) + " : " + UTIL_ToString( gold ) + " : " + UTIL_ToString( neutralkills ) + " : " + item1 + " : " + item2 + " : " + item3 + " : " + item4 + " : " + item5 + " : " + item6 + " : " + hero + " : " + UTIL_ToString( newcolour ) + " : " + UTIL_ToString( towerkills ) + " : " + UTIL_ToString( raxkills ) + " : " + UTIL_ToString( courierkills ) + "] - " + m_DB->GetError( ) );
-
-    m_DB->Finalize( Statement );
-  }
-  else
-    Print( "[SQLITE3] prepare error adding dotaplayer [" + UTIL_ToString( gameid ) + " : " + UTIL_ToString( colour ) + " : " + UTIL_ToString( kills ) + " : " + UTIL_ToString( deaths ) + " : " + UTIL_ToString( creepkills ) + " : " + UTIL_ToString( creepdenies ) + " : " + UTIL_ToString( assists ) + " : " + UTIL_ToString( gold ) + " : " + UTIL_ToString( neutralkills ) + " : " + item1 + " : " + item2 + " : " + item3 + " : " + item4 + " : " + item5 + " : " + item6 + " : " + hero + " : " + UTIL_ToString( newcolour ) + " : " + UTIL_ToString( towerkills ) + " : " + UTIL_ToString( raxkills ) + " : " + UTIL_ToString( courierkills ) + "] - " + m_DB->GetError( ) );
-
-  return RowID;
-}
-
-uint32_t CAuraDB::DotAPlayerCount( string name )
-{
-  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
-  uint32_t Count = 0;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare( "SELECT COUNT(dotaplayers.id) FROM gameplayers LEFT JOIN games ON games.id=gameplayers.gameid LEFT JOIN dotaplayers ON dotaplayers.gameid=games.id AND dotaplayers.colour=gameplayers.colour WHERE name=?", (void **) &Statement );
-
+  if ( winner == 1 )
+    ++Wins;
+  else if ( winner == 2 )
+    ++Losses;
+  
   if ( Statement )
   {
     sqlite3_bind_text( Statement, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
-
+    
+    RC = m_DB->Step( Statement );
+    
     if ( RC == SQLITE_ROW )
-      Count = sqlite3_column_int( Statement, 0 );
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error counting dotaplayers [" + name + "] - " + m_DB->GetError( ) );
-
+    { 
+      Dotas += sqlite3_column_int( Statement, 0 );
+      Wins += sqlite3_column_int( Statement, 1 );
+      Losses += sqlite3_column_int( Statement, 2 );
+      kills += sqlite3_column_int( Statement, 3 );
+      deaths += sqlite3_column_int( Statement, 4 );
+      creepkills += sqlite3_column_int( Statement, 5 );
+      creepdenies += sqlite3_column_int( Statement, 6 );
+      assists += sqlite3_column_int( Statement, 7 );
+      neutralkills += sqlite3_column_int( Statement, 8 );
+      towerkills += sqlite3_column_int( Statement, 9 );
+      raxkills += sqlite3_column_int( Statement, 10 );
+      courierkills += sqlite3_column_int( Statement, 11 );
+      
+      Success = true;
+    }
+    
     m_DB->Finalize( Statement );
   }
   else
-    Print( "[SQLITE3] prepare error counting dotaplayers [" + name + "] - " + m_DB->GetError( ) );
+  {
+    Print( "[SQLITE3] prepare error adding dotaplayer [" + name + "] - " + m_DB->GetError( ) );
+    return false;
+  }
+  
+  // there must be a row already because we add one, if not present, in GamePlayerAdd( ) before the call to DotAPlayerAdd( )
+  
+  if ( Success == false )
+  {
+    Print( "[SQLITE3] error adding dotaplayer [" + name + "] - no existing row" );
+    return false;
+  } 
+  
+  m_DB->Prepare( "UPDATE players SET dotas=?, wins=?, losses=?, kills=?, deaths=?, creepkills=?, creepdenies=?, assists=?, neutralkills=?, towerkills=?, raxkills=?, courierkills=? WHERE name=?", (void **) &Statement );
+  
+  if ( Statement == NULL )
+  {
+    Print( "[SQLITE3] prepare error updating dotalayer [" + name + "] - " + m_DB->GetError( ) );
+    return false;
+  }
 
-  return Count;
+  sqlite3_bind_int( Statement, 1, Dotas );
+  sqlite3_bind_int( Statement, 2, Wins );
+  sqlite3_bind_int( Statement, 3, Losses );
+  sqlite3_bind_int( Statement, 4, kills );
+  sqlite3_bind_int( Statement, 5, deaths );
+  sqlite3_bind_int( Statement, 6, creepkills );
+  sqlite3_bind_int( Statement, 7, creepdenies );
+  sqlite3_bind_int( Statement, 8, assists );
+  sqlite3_bind_int( Statement, 9, neutralkills );
+  sqlite3_bind_int( Statement, 10, towerkills );
+  sqlite3_bind_int( Statement, 11, raxkills );
+  sqlite3_bind_int( Statement, 12, courierkills );
+  sqlite3_bind_text( Statement, 13, name.c_str( ), -1, SQLITE_TRANSIENT );
+
+  RC = m_DB->Step( Statement );
+
+  if( RC == SQLITE_DONE )
+    Success = true;
+  else
+    Print( "[SQLITE3] error adding dotaplayer [" + name + "] - " + m_DB->GetError( ) );
+    
+  m_DB->Finalize( Statement );
+  return Success;
 }
 
 CDBDotAPlayerSummary *CAuraDB::DotAPlayerSummaryCheck( string name )
 {
-  if ( DotAPlayerCount( name ) == 0 )
-    return NULL;
-
-  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
+  sqlite3_stmt *Statement;  
   CDBDotAPlayerSummary *DotAPlayerSummary = NULL;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare( "SELECT COUNT(dotaplayers.id), SUM(kills), SUM(deaths), SUM(creepkills), SUM(creepdenies), SUM(assists), SUM(neutralkills), SUM(towerkills), SUM(raxkills), SUM(courierkills) FROM gameplayers LEFT JOIN games ON games.id=gameplayers.gameid LEFT JOIN dotaplayers ON dotaplayers.gameid=games.id AND dotaplayers.colour=gameplayers.colour WHERE name=?", (void **) &Statement );
-
-  if ( Statement )
+  transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
+  m_DB->Prepare( "SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
+  
+  if( Statement )
   {
     sqlite3_bind_text( Statement, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
-    int RC = m_DB->Step( Statement );
+    
+    const int RC = m_DB->Step( Statement );
 
     if ( RC == SQLITE_ROW )
     {
-      if ( sqlite3_column_count( (sqlite3_stmt *) Statement ) == 10 )
+      if ( sqlite3_column_count( Statement ) == 12 )
       {
-        uint32_t TotalGames = sqlite3_column_int( (sqlite3_stmt *) Statement, 0 );
-        uint32_t TotalWins = 0;
-        uint32_t TotalLosses = 0;
-        uint32_t TotalKills = sqlite3_column_int( (sqlite3_stmt *) Statement, 1 );
-        uint32_t TotalDeaths = sqlite3_column_int( (sqlite3_stmt *) Statement, 2 );
-        uint32_t TotalCreepKills = sqlite3_column_int( (sqlite3_stmt *) Statement, 3 );
-        uint32_t TotalCreepDenies = sqlite3_column_int( (sqlite3_stmt *) Statement, 4 );
-        uint32_t TotalAssists = sqlite3_column_int( (sqlite3_stmt *) Statement, 5 );
-        uint32_t TotalNeutralKills = sqlite3_column_int( (sqlite3_stmt *) Statement, 6 );
-        uint32_t TotalTowerKills = sqlite3_column_int( (sqlite3_stmt *) Statement, 7 );
-        uint32_t TotalRaxKills = sqlite3_column_int( (sqlite3_stmt *) Statement, 8 );
-        uint32_t TotalCourierKills = sqlite3_column_int( (sqlite3_stmt *) Statement, 9 );
-
-        // calculate total wins
-
-        sqlite3_stmt *Statement2;
-        m_DB->Prepare( "SELECT COUNT(*) FROM gameplayers LEFT JOIN games ON games.id=gameplayers.gameid LEFT JOIN dotaplayers ON dotaplayers.gameid=games.id AND dotaplayers.colour=gameplayers.colour LEFT JOIN dotagames ON games.id=dotagames.gameid WHERE name=? AND ((winner=1 AND dotaplayers.newcolour>=1 AND dotaplayers.newcolour<=5) OR (winner=2 AND dotaplayers.newcolour>=7 AND dotaplayers.newcolour<=11))", (void **) &Statement2 );
-
-        if ( Statement2 )
+        const uint32_t TotalGames = sqlite3_column_int( Statement, 0 );
+      
+        if( TotalGames != 0 )
         {
-          sqlite3_bind_text( Statement2, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
-          int RC2 = m_DB->Step( Statement2 );
-
-          if ( RC2 == SQLITE_ROW )
-            TotalWins = sqlite3_column_int( Statement2, 0 );
-          else if ( RC2 == SQLITE_ERROR )
-            Print( "[SQLITE3] error counting dotaplayersummary wins [" + name + "] - " + m_DB->GetError( ) );
-
-          m_DB->Finalize( Statement2 );
+          const uint32_t TotalWins = sqlite3_column_int( Statement, 1 );
+          const uint32_t TotalLosses = sqlite3_column_int( Statement, 2 );
+          const uint32_t TotalKills = sqlite3_column_int( Statement, 3 );
+          const uint32_t TotalDeaths = sqlite3_column_int( Statement, 4 );
+          const uint32_t TotalCreepKills = sqlite3_column_int( Statement, 5 );
+          const uint32_t TotalCreepDenies = sqlite3_column_int( Statement, 6 );
+          const uint32_t TotalAssists = sqlite3_column_int( Statement, 7 );
+          const uint32_t TotalNeutralKills = sqlite3_column_int( Statement, 8 );
+          const uint32_t TotalTowerKills = sqlite3_column_int( Statement, 9 );
+          const uint32_t TotalRaxKills = sqlite3_column_int( Statement, 10 );
+          const uint32_t TotalCourierKills = sqlite3_column_int( Statement, 11 );
+        
+          DotAPlayerSummary = new CDBDotAPlayerSummary( TotalGames, TotalWins, TotalLosses, TotalKills, TotalDeaths, TotalCreepKills, TotalCreepDenies, TotalAssists, TotalNeutralKills, TotalTowerKills, TotalRaxKills, TotalCourierKills );
         }
-        else
-          Print( "[SQLITE3] prepare error counting dotaplayersummary wins [" + name + "] - " + m_DB->GetError( ) );
-
-        // calculate total losses
-
-        sqlite3_stmt *Statement3;
-        m_DB->Prepare( "SELECT COUNT(*) FROM gameplayers LEFT JOIN games ON games.id=gameplayers.gameid LEFT JOIN dotaplayers ON dotaplayers.gameid=games.id AND dotaplayers.colour=gameplayers.colour LEFT JOIN dotagames ON games.id=dotagames.gameid WHERE name=? AND ((winner=2 AND dotaplayers.newcolour>=1 AND dotaplayers.newcolour<=5) OR (winner=1 AND dotaplayers.newcolour>=7 AND dotaplayers.newcolour<=11))", (void **) &Statement3 );
-
-        if ( Statement3 )
-        {
-          sqlite3_bind_text( Statement3, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
-          int RC3 = m_DB->Step( Statement3 );
-
-          if ( RC3 == SQLITE_ROW )
-            TotalLosses = sqlite3_column_int( Statement3, 0 );
-          else if ( RC3 == SQLITE_ERROR )
-            Print( "[SQLITE3] error counting dotaplayersummary losses [" + name + "] - " + m_DB->GetError( ) );
-
-          m_DB->Finalize( Statement3 );
-        }
-        else
-          Print( "[SQLITE3] prepare error counting dotaplayersummary losses [" + name + "] - " + m_DB->GetError( ) );
-
-        // done
-
-        DotAPlayerSummary = new CDBDotAPlayerSummary( string( ), name, TotalGames, TotalWins, TotalLosses, TotalKills, TotalDeaths, TotalCreepKills, TotalCreepDenies, TotalAssists, TotalNeutralKills, TotalTowerKills, TotalRaxKills, TotalCourierKills );
       }
       else
-        Print( "[SQLITE3] error checking dotaplayersummary [" + name + "] - row doesn't have 7 columns" );
+        Print( "[SQLITE3] error checking dotaplayersummary [" + name + "] - row doesn't have 12 columns" );
     }
-    else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error checking dotaplayersummary [" + name + "] - " + m_DB->GetError( ) );
 
     m_DB->Finalize( Statement );
   }
@@ -963,24 +805,22 @@ string CAuraDB::FromCheck( uint32_t ip )
     sqlite3_bind_int64( (sqlite3_stmt *) FromCheckStmt, 1, ip );
     sqlite3_bind_int64( (sqlite3_stmt *) FromCheckStmt, 2, ip );
 
-    int RC = m_DB->Step( FromCheckStmt );
+    const int RC = m_DB->Step( FromCheckStmt );
 
     if ( RC == SQLITE_ROW )
     {
-      vector<string> *Row = m_DB->GetRow( );
-
-      if ( Row->size( ) == 1 )
-        From = ( *Row )[0];
+      if ( sqlite3_column_count( (sqlite3_stmt *) FromCheckStmt ) == 1 )
+        From = string( (char *) sqlite3_column_text( (sqlite3_stmt *) FromCheckStmt, 0 ) );
       else
-        Print( "[SQLITE3] error checking iptocountry [" + UTIL_ToString( ip ) + "] - row doesn't have 1 column" );
+        Print( "[SQLITE3] error checking iptocountry [" + ToString( ip ) + "] - row doesn't have 1 column" );
     }
     else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error checking iptocountry [" + UTIL_ToString( ip ) + "] - " + m_DB->GetError( ) );
+      Print( "[SQLITE3] error checking iptocountry [" + ToString( ip ) + "] - " + m_DB->GetError( ) );
 
     m_DB->Reset( FromCheckStmt );
   }
   else
-    Print( "[SQLITE3] prepare error checking iptocountry [" + UTIL_ToString( ip ) + "] - " + m_DB->GetError( ) );
+    Print( "[SQLITE3] prepare error checking iptocountry [" + ToString( ip ) + "] - " + m_DB->GetError( ) );
 
   return From;
 }
@@ -1007,12 +847,12 @@ bool CAuraDB::FromAdd( uint32_t ip1, uint32_t ip2, const string &country )
     if ( RC == SQLITE_DONE )
       Success = true;
     else if ( RC == SQLITE_ERROR )
-      Print( "[SQLITE3] error adding iptocountry [" + UTIL_ToString( ip1 ) + " : " + UTIL_ToString( ip2 ) + " : " + country + "] - " + m_DB->GetError( ) );
+      Print( "[SQLITE3] error adding iptocountry [" + ToString( ip1 ) + " : " + ToString( ip2 ) + " : " + country + "] - " + m_DB->GetError( ) );
 
     m_DB->Reset( FromAddStmt );
   }
   else
-    Print( "[SQLITE3] prepare error adding iptocountry [" + UTIL_ToString( ip1 ) + " : " + UTIL_ToString( ip2 ) + " : " + country + "] - " + m_DB->GetError( ) );
+    Print( "[SQLITE3] prepare error adding iptocountry [" + ToString( ip1 ) + " : " + ToString( ip2 ) + " : " + country + "] - " + m_DB->GetError( ) );
 
   return Success;
 }
@@ -1021,7 +861,7 @@ bool CAuraDB::FromAdd( uint32_t ip1, uint32_t ip2, const string &country )
 // CDBBan
 //
 
-CDBBan::CDBBan( const string &nServer, const string &nName, const string &nIP, const string &nDate, const string &nGameName, const string &nAdmin, const string &nReason ) : m_Server( nServer ), m_Name( nName ), m_IP( nIP ), m_Date( nDate ), m_GameName( nGameName ), m_Admin( nAdmin ), m_Reason( nReason )
+CDBBan::CDBBan( const string &nServer, const string &nName, const string &nDate, const string &nAdmin, const string &nReason ) : m_Server( nServer ), m_Name( nName ), m_Date( nDate ), m_Admin( nAdmin ), m_Reason( nReason )
 {
 
 }
@@ -1035,7 +875,7 @@ CDBBan::~CDBBan( )
 // CDBGamePlayer
 //
 
-CDBGamePlayer::CDBGamePlayer( uint32_t nID, uint32_t nGameID, const string &nName, string nIP, uint32_t nSpoofed, const string &nSpoofedRealm, uint32_t nReserved, uint32_t nLoadingTime, uint32_t nLeft, const string &nLeftReason, uint32_t nTeam, uint32_t nColour ) : m_ID( nID ), m_GameID( nGameID ), m_Name( nName ), m_IP( nIP ), m_Spoofed( nSpoofed ), m_SpoofedRealm( nSpoofedRealm ), m_Reserved( nReserved ), m_LoadingTime( nLoadingTime ), m_Left( nLeft ), m_LeftReason( nLeftReason ), m_Team( nTeam ), m_Colour( nColour )
+CDBGamePlayer::CDBGamePlayer( const string &nName,uint32_t nLoadingTime, uint32_t nLeft, uint32_t nColour ) : m_Name( nName ), m_LoadingTime( nLoadingTime ), m_Left( nLeft ), m_Colour( nColour )
 {
 
 }
@@ -1049,7 +889,7 @@ CDBGamePlayer::~CDBGamePlayer( )
 // CDBGamePlayerSummary
 //
 
-CDBGamePlayerSummary::CDBGamePlayerSummary( const string &nServer, const string &nName, const string &nFirstGameDateTime, const string &nLastGameDateTime, uint32_t nTotalGames, uint32_t nMinLoadingTime, uint32_t nAvgLoadingTime, uint32_t nMaxLoadingTime, uint32_t nMinLeftPercent, uint32_t nAvgLeftPercent, uint32_t nMaxLeftPercent, uint32_t nMinDuration, uint32_t nAvgDuration, uint32_t nMaxDuration ) : m_Server( nServer ), m_Name( nName ), m_FirstGameDateTime( nFirstGameDateTime ), m_LastGameDateTime( nLastGameDateTime ), m_TotalGames( nTotalGames ), m_MinLoadingTime( nMinLoadingTime ), m_AvgLoadingTime( nAvgLoadingTime ), m_MaxLoadingTime( nMaxLoadingTime ), m_MinLeftPercent( nMinLeftPercent ), m_AvgLeftPercent( nAvgLeftPercent ), m_MaxLeftPercent( nMaxLeftPercent ), m_MinDuration( nMinDuration ), m_AvgDuration( nAvgDuration ), m_MaxDuration( nMaxDuration )
+CDBGamePlayerSummary::CDBGamePlayerSummary( uint32_t nTotalGames, float nAvgLoadingTime, uint32_t nAvgLeftPercent ) : m_TotalGames( nTotalGames ), m_AvgLoadingTime( nAvgLoadingTime ), m_AvgLeftPercent( nAvgLeftPercent )
 {
 
 }
@@ -1063,21 +903,13 @@ CDBGamePlayerSummary::~CDBGamePlayerSummary( )
 // CDBDotAPlayer
 //
 
-CDBDotAPlayer::CDBDotAPlayer( ) : m_ID( 0 ), m_GameID( 0 ), m_Colour( 0 ), m_Kills( 0 ), m_Deaths( 0 ), m_CreepKills( 0 ), m_CreepDenies( 0 ), m_Assists( 0 ), m_Gold( 0 ), m_NeutralKills( 0 ), m_NewColour( 0 ), m_TowerKills( 0 ), m_RaxKills( 0 ), m_CourierKills( 0 )
+CDBDotAPlayer::CDBDotAPlayer( ) : m_Colour( 0 ), m_NewColour( 0 ), m_Kills( 0 ), m_Deaths( 0 ), m_CreepKills( 0 ), m_CreepDenies( 0 ), m_Assists( 0 ), m_NeutralKills( 0 ), m_TowerKills( 0 ), m_RaxKills( 0 ), m_CourierKills( 0 )
 {
 
 }
 
-CDBDotAPlayer::CDBDotAPlayer( uint32_t nID, uint32_t nGameID, uint32_t nColour, uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nGold, uint32_t nNeutralKills, const string &nItem1, const string &nItem2, const string &nItem3, const string &nItem4, const string &nItem5, const string &nItem6, const string &nHero, uint32_t nNewColour, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills ) :         \
-	m_ID( nID ), m_GameID( nGameID ), m_Colour( nColour ), m_Kills( nKills ), m_Deaths( nDeaths ), m_CreepKills( nCreepKills ), m_CreepDenies( nCreepDenies ), m_Assists( nAssists ), m_Gold( nGold ),         \
-	m_NeutralKills( nNeutralKills ), m_Hero( nHero ), m_NewColour( nNewColour ), m_TowerKills( nTowerKills ), m_RaxKills( nRaxKills ), m_CourierKills( nCourierKills )
+CDBDotAPlayer::CDBDotAPlayer( uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nNeutralKills, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills ) : m_Kills( nKills ), m_Deaths( nDeaths ), m_CreepKills( nCreepKills ), m_CreepDenies( nCreepDenies ), m_Assists( nAssists ), m_NeutralKills( nNeutralKills ), m_TowerKills( nTowerKills ), m_RaxKills( nRaxKills ), m_CourierKills( nCourierKills )
 {
-  m_Items[0] = nItem1;
-  m_Items[1] = nItem2;
-  m_Items[2] = nItem3;
-  m_Items[3] = nItem4;
-  m_Items[4] = nItem5;
-  m_Items[5] = nItem6;
 
 }
 
@@ -1086,25 +918,11 @@ CDBDotAPlayer::~CDBDotAPlayer( )
 
 }
 
-string CDBDotAPlayer::GetItem( unsigned int i ) const
-{
-  if ( i < 6 )
-    return m_Items[i];
-
-  return string( );
-}
-
-void CDBDotAPlayer::SetItem( unsigned int i, string item )
-{
-  if ( i < 6 )
-    m_Items[i] = item;
-}
-
 //
 // CDBDotAPlayerSummary
 //
 
-CDBDotAPlayerSummary::CDBDotAPlayerSummary( const string &nServer, const string &nName, uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills ) : m_Server( nServer ), m_Name( nName ), m_TotalGames( nTotalGames ), m_TotalWins( nTotalWins ), m_TotalLosses( nTotalLosses ), m_TotalKills( nTotalKills ), m_TotalDeaths( nTotalDeaths ), m_TotalCreepKills( nTotalCreepKills ), m_TotalCreepDenies( nTotalCreepDenies ), m_TotalAssists( nTotalAssists ), m_TotalNeutralKills( nTotalNeutralKills ), m_TotalTowerKills( nTotalTowerKills ), m_TotalRaxKills( nTotalRaxKills ), m_TotalCourierKills( nTotalCourierKills )
+CDBDotAPlayerSummary::CDBDotAPlayerSummary( uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills ) : m_TotalGames( nTotalGames ), m_TotalWins( nTotalWins ), m_TotalLosses( nTotalLosses ), m_TotalKills( nTotalKills ), m_TotalDeaths( nTotalDeaths ), m_TotalCreepKills( nTotalCreepKills ), m_TotalCreepDenies( nTotalCreepDenies ), m_TotalAssists( nTotalAssists ), m_TotalNeutralKills( nTotalNeutralKills ), m_TotalTowerKills( nTotalTowerKills ), m_TotalRaxKills( nTotalRaxKills ), m_TotalCourierKills( nTotalCourierKills )
 {
 
 }

@@ -38,15 +38,15 @@ public:
   string m_Nickname;
   string m_NicknameCpy;
   string m_Username;
-  char m_CommandTrigger;
   string m_Password;
-  uint16_t m_Port;
-  bool m_Exiting;
-  bool m_WaitingToConnect;
-  bool m_OriginalNick;
   uint32_t m_LastConnectionAttemptTime;
   uint32_t m_LastPacketTime;
   uint32_t m_LastAntiIdleTime;
+  uint16_t m_Port;
+  char m_CommandTrigger;
+  bool m_Exiting;
+  bool m_WaitingToConnect;
+  bool m_OriginalNick;  
 
   CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins,uint16_t nPort, char nCommandTrigger );
   ~CIRC( );

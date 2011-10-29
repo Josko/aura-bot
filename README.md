@@ -7,13 +7,13 @@ overhaul with speed and efficiency in mind and packed with fewer dependencies.
 Multi-platform
 --------------
 
-The bot is guaranteed to run on little-endian Linux (32-bit and 64-bit), Windows (32-bit and 64-bit) and OS X (64-bit Intel CPU) machines.
+The bot runs on little-endian Linux (32-bit and 64-bit), Windows (32-bit and 64-bit) and OS X (64-bit Intel CPU) machines.
 
 Boost
 -----
 
 You will need the [Boost](http://www.boost.org/users/download/) libraries. Specifically
-boost date-time, system and filesystem.
+boost date-time, system and filesystemV2.
 
 ### Windows
 
@@ -55,7 +55,7 @@ Windows users should use VS2010 as there are the necessary .sln and .vcxproj fil
 building, choose the Release option. The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 Run it from `aura-bot` folder.
 
-note: supplied project settings produce a SSE2-enabled x86 binary.
+note: supplied project settings produce a x86 binary.
 
 ### Linux
 
@@ -85,8 +85,6 @@ Then proceed to build Aura:
 	cd ..
 	
 Now you can run Aura by executing `./aura++`.
-
-note: supplied Makefile settings produce a x64 binary (remove the -m64 from CCFLAGS and CXXFLAGS to make it produce a x86 binary).
 
 ### OS X
 
@@ -121,8 +119,6 @@ Go on building aura:
 	cd ..
    
 Now you can run aura by executing `./aura++` in Terminal.
-
-note: supplied Makefile settings produce a x64 binary which is the only one supported.
 
 Configuring
 -----------

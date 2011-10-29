@@ -53,9 +53,7 @@
 #include <mach/mach_time.h>
 #endif
 
-#ifdef WIN32
-#define VERSION "1.09"
-#endif
+#define VERSION "1.10"
 
 static CAura *gAura = NULL;
 bool gRestart = false;
@@ -69,7 +67,7 @@ uint32_t GetTime( )
 
   return timeGetTime( ) / 1000;
 #elif __APPLE__
-  uint64_t current = mach_absolute_time( );
+  const uint64_t current = mach_absolute_time( );
   static mach_timebase_info_data_t info = { 0, 0 };
 
   // get timebase info
@@ -77,13 +75,13 @@ uint32_t GetTime( )
   if ( info.denom == 0 )
     mach_timebase_info( &info );
 
-  uint64_t elapsednano = current * ( info.numer / info.denom );
+  const uint64_t elapsednano = current * ( info.numer / info.denom );
 
   // convert ns to s
 
   return elapsednano / 1000000000;
 #else
-  struct timespec t;
+  static struct timespec t;
   clock_gettime( CLOCK_MONOTONIC, &t );
   return t.tv_sec;
 #endif
@@ -98,7 +96,7 @@ uint32_t GetTicks( )
 
   return timeGetTime( );
 #elif __APPLE__
-  uint64_t current = mach_absolute_time( );
+  const uint64_t current = mach_absolute_time( );
   static mach_timebase_info_data_t info = { 0, 0 };
 
   // get timebase info
@@ -106,21 +104,21 @@ uint32_t GetTicks( )
   if ( info.denom == 0 )
     mach_timebase_info( &info );
 
-  uint64_t elapsednano = current * ( info.numer / info.denom );
+  const uint64_t elapsednano = current * ( info.numer / info.denom );
 
   // convert ns to ms
 
   return elapsednano / 1000000;
 #else
-  struct timespec t;
+  static struct timespec t;
   clock_gettime( CLOCK_MONOTONIC, &t );
   return t.tv_sec * 1000 + t.tv_nsec / 1000000;
 #endif
 }
 
-static void SignalCatcher( int s )
+static void SignalCatcher( int )
 {
-  Print( "[!!!] caught signal " + UTIL_ToString( s ) + ", exiting NOW" );
+  Print( "[!!!] caught signal SIGINT, exiting NOW" );
 
   if ( gAura )
   {
@@ -149,7 +147,7 @@ void Print2( const string &message )
 // main
 //
 
-int main(int argc, char *argv[])
+int main( int, char *argv[] )
 {
   srand( (unsigned int) time( NULL ) );
 
@@ -182,7 +180,7 @@ int main(int argc, char *argv[])
       break;
     }
     else if ( i < 5 )
-      Print( "[AURA] error setting Windows timer resolution to " + UTIL_ToString( i ) + " milliseconds, trying a higher resolution" );
+      Print( "[AURA] error setting Windows timer resolution to " + ToString( i ) + " milliseconds, trying a higher resolution" );
     else
     {
       Print( "[AURA] error setting Windows timer resolution" );
@@ -190,7 +188,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  Print( "[AURA] using Windows timer with resolution " + UTIL_ToString( TimerResolution ) + " milliseconds" );
+  Print( "[AURA] using Windows timer with resolution " + ToString( TimerResolution ) + " milliseconds" );
 #elif !defined(__APPLE__)
   // print the timer resolution
 
@@ -199,7 +197,7 @@ int main(int argc, char *argv[])
   if ( clock_getres( CLOCK_MONOTONIC, &Resolution ) == -1 )
     Print( "[AURA] error getting monotonic timer resolution" );
   else
-    Print( "[AURA] using monotonic timer with resolution " + UTIL_ToString( (double) ( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
+    Print( "[AURA] using monotonic timer with resolution " + ToString( (double) ( Resolution.tv_nsec / 1000 ), 2 ) + " microseconds" );
 #endif
 
 #ifdef WIN32
@@ -269,44 +267,34 @@ int main(int argc, char *argv[])
 // CAura
 //
 
-CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Map( NULL ), m_Exiting( false ), m_Enabled( true ), m_Version( VERSION ), m_HostCounter( 1 ), m_Ready( true )
+CAura::CAura( CConfig *CFG )
+  : m_IRC( NULL ), m_UDPSocket( new CUDPSocket( ) ), m_ReconnectSocket( new CTCPServer( ) ),
+    m_GPSProtocol( new CGPSProtocol( ) ), m_CRC ( new CCRC32( ) ), m_SHA( new CSHA1( ) ),
+    m_CurrentGame( NULL ), m_DB( new CAuraDB( CFG ) ), m_Version( VERSION ), m_HostCounter( 1 ),
+    m_Exiting( false ), m_Enabled( true ), m_Ready( true )
 {
-#ifdef WIN32
-    Print( "[AURA] Aura++ version " + m_Version + " - with GProxy++ support" );
-#else
-    Print( "[AURA] Aura++ commit " + m_Version + " - with GProxy++ support" );
-#endif
+  Print( "[AURA] Aura++ version " + m_Version + " - with GProxy++ support" );
 
   // get the general configuration variables
 
-  m_UDPSocket = new CUDPSocket( );
   m_UDPSocket->SetBroadcastTarget( CFG->GetString( "udp_broadcasttarget", string( ) ) );
   m_UDPSocket->SetDontRoute( CFG->GetInt( "udp_dontroute", 0 ) == 0 ? false : true );
 
-  m_ReconnectSocket = new CTCPServer( );
   m_ReconnectPort = CFG->GetInt( "bot_reconnectport", 6113 );
 
   if ( m_ReconnectSocket->Listen( m_BindAddress, m_ReconnectPort ) )
-    Print( "[AURA] listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+    Print( "[AURA] listening for GProxy++ reconnects on port " + ToString( m_ReconnectPort ) );
   else
   {
-    Print( "[AURA] error listening for GProxy++ reconnects on port " + UTIL_ToString( m_ReconnectPort ) );
+    Print( "[AURA] error listening for GProxy++ reconnects on port " + ToString( m_ReconnectPort ) );
     m_Ready = false;
     return;
   }
 
-  m_GPSProtocol = new CGPSProtocol( );
-  m_CRC = new CCRC32( );
   m_CRC->Initialize( );
-  m_SHA = new CSHA1( );
   m_HostPort = CFG->GetInt( "bot_hostport", 6112 );
   m_DefaultMap = CFG->GetString( "bot_defaultmap", "dota" );
   m_LANWar3Version = CFG->GetInt( "lan_war3version", 26 );
-
-  // open the database
-
-  Print( "[AURA] opening database" );
-  m_DB = new CAuraDB( CFG );
 
   // read the rest of the general configuration
 
@@ -336,8 +324,8 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Map( NULL
     }
     else
     {
-      Channel = CFG->GetString( "irc_channel" + UTIL_ToString( i ), string( ) );
-      RootAdmin = CFG->GetString( "irc_rootadmin" + UTIL_ToString( i ), string( ) );
+      Channel = CFG->GetString( "irc_channel" + ToString( i ), string( ) );
+      RootAdmin = CFG->GetString( "irc_rootadmin" + ToString( i ), string( ) );
     }
 
     if ( !Channel.empty( ) )
@@ -365,7 +353,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Map( NULL
     if ( i == 1 )
       Prefix = "bnet_";
     else
-      Prefix = "bnet" + UTIL_ToString( i ) + "_";
+      Prefix = "bnet" + ToString( i ) + "_";
 
     string Server = CFG->GetString( Prefix + "server", string( ) );
     string ServerAlias = CFG->GetString( Prefix + "serveralias", string( ) );
@@ -379,7 +367,7 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Map( NULL
     if ( Locale == "system" )
       LocaleID = 1031;
     else
-      LocaleID = UTIL_ToUInt32( Locale );
+      LocaleID = ToUInt32( Locale );
 
     string UserName = CFG->GetString( Prefix + "username", string( ) );
     string UserPassword = CFG->GetString( Prefix + "password", string( ) );
@@ -400,25 +388,23 @@ CAura::CAura( CConfig *CFG ) : m_IRC( NULL ), m_CurrentGame( NULL ), m_Map( NULL
 
     string BNETCommandTrigger = CFG->GetString( Prefix + "commandtrigger", "!" );
     unsigned char War3Version = CFG->GetInt( Prefix + "custom_war3version", 26 );
-    BYTEARRAY EXEVersion = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
-    BYTEARRAY EXEVersionHash = UTIL_ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
+    BYTEARRAY EXEVersion = ExtractNumbers( CFG->GetString( Prefix + "custom_exeversion", string( ) ), 4 );
+    BYTEARRAY EXEVersionHash = ExtractNumbers( CFG->GetString( Prefix + "custom_exeversionhash", string( ) ), 4 );
     string PasswordHashType = CFG->GetString( Prefix + "custom_passwordhashtype", string( ) );
 
     if ( Server.empty( ) )
       break;
 
-    Print( "[AURA] found battle.net connection #" + UTIL_ToString( i ) + " for server [" + Server + "]" );
+    Print( "[AURA] found battle.net connection #" + ToString( i ) + " for server [" + Server + "]" );
 
     if ( Locale == "system" )
-      Print( "[AURA] using system locale of " + UTIL_ToString( LocaleID ) );
+      Print( "[AURA] using system locale of " + ToString( LocaleID ) );
 
     m_BNETs.push_back( new CBNET( this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i ) );
   }
 
   if ( m_BNETs.empty( ) )
-  {
     Print( "[AURA] warning - no battle.net connections found in config file" );
-  }
 
   // extract common.j and blizzard.j from War3Patch.mpq if we can
   // these two files are necessary for calculating "map_crc" when loading maps so we make sure to do it before loading the default map
@@ -448,15 +434,15 @@ CAura::~CAura( )
   delete m_ReconnectSocket;
   delete m_GPSProtocol;
 
-  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
+  for ( vector<CTCPSocket *>::const_iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
     delete *i;
 
-  for ( vector<CBNET *> ::iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *>::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     delete *i;
 
   delete m_CurrentGame;
 
-  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+  for ( vector<CGame *>::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
     delete *i;
 
   delete m_DB;
@@ -509,7 +495,7 @@ bool CAura::Update( )
 
   // 6. reconnect sockets
 
-  for ( vector<CTCPSocket *> ::const_iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
+  for ( vector<CTCPSocket *>::const_iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); ++i )
   {     
     (*i)->SetFD( &fd, &send_fd, &nfds );
     ++NumFDs;   
@@ -520,17 +506,17 @@ bool CAura::Update( )
 
   unsigned long usecBlock = 50000;
 
-  for ( vector<CGame *> ::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
+  for ( vector<CGame *>::const_iterator i = m_Games.begin( ); i != m_Games.end( ); ++i )
   {
     if ( (*i)->GetNextTimedActionTicks( ) * 1000 < usecBlock )
       usecBlock = (*i)->GetNextTimedActionTicks( ) * 1000;
   }
 
-  struct timeval tv;
+  static struct timeval tv;
   tv.tv_sec = 0;
   tv.tv_usec = usecBlock;
 
-  struct timeval send_tv;
+  static struct timeval send_tv;
   send_tv.tv_sec = 0;
   send_tv.tv_usec = 0;
 
@@ -554,7 +540,7 @@ bool CAura::Update( )
 
   // update running games
 
-  for ( vector<CGame *> ::iterator i = m_Games.begin( ); i != m_Games.end( ); )
+  for ( vector<CGame *>::iterator i = m_Games.begin( ); i != m_Games.end( ); )
   {
     if ( (*i)->Update( &fd, &send_fd ) )
     {
@@ -592,7 +578,7 @@ bool CAura::Update( )
 
   // update battle.net connections
 
-  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *>::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     if ( (*i)->Update( &fd, &send_fd ) )
       Exit = true;
@@ -610,7 +596,7 @@ bool CAura::Update( )
   if ( NewSocket )
       m_ReconnectSockets.push_back( NewSocket );
 
-  for ( vector<CTCPSocket *> ::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
+  for ( vector<CTCPSocket *>::iterator i = m_ReconnectSockets.begin( ); i != m_ReconnectSockets.end( ); )
   {
     if ( (*i)->HasError( ) || !(*i)->GetConnected( ) || GetTime( ) - (*i)->GetLastRecv( ) >= 10 )
     {
@@ -621,7 +607,7 @@ bool CAura::Update( )
 
     (*i)->DoRecv( &fd );
     string *RecvBuffer = (*i)->GetBytes( );     
-    BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
+    BYTEARRAY Bytes = CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
 
     // a packet is at least 4 bytes
 
@@ -637,8 +623,8 @@ bool CAura::Update( )
         {                   
           if ( Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13 )
           {
-            const uint32_t ReconnectKey = UTIL_ByteArrayToUInt32( Bytes, false, 5 );
-            const uint32_t LastPacket = UTIL_ByteArrayToUInt32( Bytes, false, 9 );
+            const uint32_t ReconnectKey = ByteArrayToUInt32( Bytes, false, 5 );
+            const uint32_t LastPacket = ByteArrayToUInt32( Bytes, false, 9 );
 
             // look for a matching player in a running game
 
@@ -732,7 +718,7 @@ void CAura::EventBNETGameRefreshFailed( CBNET *bnet )
 
 void CAura::EventGameDeleted( CGame *game )
 {
-  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *>::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     (*i)->QueueChatCommand( "Game [" + game->GetDescription( ) + "] is over" );
 
@@ -753,15 +739,15 @@ void CAura::SetConfigs( CConfig *CFG )
   // this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
   // it just set the easily reloadable values
   
-  m_Warcraft3Path = UTIL_AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
+  m_Warcraft3Path = AddPathSeperator( CFG->GetString( "bot_war3path", "C:\\Program Files\\Warcraft III\\" ) );
   m_BindAddress = CFG->GetString( "bot_bindaddress", string( ) );
   m_ReconnectWaitTime = CFG->GetInt( "bot_reconnectwaittime", 3 );
   m_MaxGames = CFG->GetInt( "bot_maxgames", 20 );
   string BotCommandTrigger = CFG->GetString( "bot_commandtrigger", "!" );
   m_CommandTrigger = BotCommandTrigger[0];
 
-  m_MapCFGPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mapcfgpath", string( ) ) );
-  m_MapPath = UTIL_AddPathSeperator( CFG->GetString( "bot_mappath", string( ) ) );
+  m_MapCFGPath = AddPathSeperator( CFG->GetString( "bot_mapcfgpath", string( ) ) );
+  m_MapPath = AddPathSeperator( CFG->GetString( "bot_mappath", string( ) ) );
   m_VirtualHostName = CFG->GetString( "bot_virtualhostname", "|cFF4080C0Aura" );
 
   if ( m_VirtualHostName.size( ) > 15 )
@@ -809,7 +795,7 @@ void CAura::ExtractScripts( )
         if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
         {
           Print( "[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]" );
-          UTIL_FileWrite( m_MapCFGPath + "common.j", (unsigned char *) SubFileData, BytesRead );
+          FileWrite( m_MapCFGPath + "common.j", (unsigned char *) SubFileData, BytesRead );
         }
         else
           Print( "[AURA] warning - unable to extract Scripts\\common.j from MPQ file" );
@@ -836,7 +822,7 @@ void CAura::ExtractScripts( )
         if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
         {
           Print( "[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]" );
-          UTIL_FileWrite( m_MapCFGPath + "blizzard.j", (unsigned char *) SubFileData, BytesRead );
+          FileWrite( m_MapCFGPath + "blizzard.j", (unsigned char *) SubFileData, BytesRead );
         }
         else
           Print( "[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file" );
@@ -852,7 +838,7 @@ void CAura::ExtractScripts( )
     SFileCloseArchive( PatchMPQ );
   }
   else
-    Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + UTIL_ToString( GetLastError( ) ) );
+    Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + ToString( GetLastError( ) ) );
 }
 
 void CAura::LoadIPToCountryData( )
@@ -894,7 +880,7 @@ void CAura::LoadIPToCountryData( )
         parser >> IP1;
         parser >> IP2;
         parser >> Country;
-        m_DB->FromAdd( UTIL_ToUInt32( IP1 ), UTIL_ToUInt32( IP2 ), Country );
+        m_DB->FromAdd( ToUInt32( IP1 ), ToUInt32( IP2 ), Country );
 
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
@@ -904,7 +890,7 @@ void CAura::LoadIPToCountryData( )
         if ( NewPercent != Percent && NewPercent % 10 == 0 )
         {
           Percent = NewPercent;
-          Print( "[AURA] iptocountry data: " + UTIL_ToString( Percent ) + "% loaded" );
+          Print( "[AURA] iptocountry data: " + ToString( Percent ) + "% loaded" );
         }
       }
 
@@ -969,7 +955,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
     for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
     {
       if ( (*i)->GetServer( ) == creatorServer )
-        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + UTIL_ToString( m_MaxGames ) + ") has been reached", creatorName, whisper, string( ) );
+        (*i)->QueueChatCommand( "Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + ToString( m_MaxGames ) + ") has been reached", creatorName, whisper, string( ) );
     }
 
     return;
@@ -979,7 +965,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
   m_CurrentGame = new CGame( this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer );
 
-  for ( vector<CBNET *> ::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
+  for ( vector<CBNET *>::const_iterator i = m_BNETs.begin( ); i != m_BNETs.end( ); ++i )
   {
     if ( whisper && (*i)->GetServer( ) == creatorServer )
     {
@@ -987,7 +973,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
       if ( gameState == GAME_PRIVATE )
         (*i)->QueueChatCommand( "Creating private game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string( ) );
-      else if ( gameState == GAME_PUBLIC )
+      else
         (*i)->QueueChatCommand( "Creating public game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string( ) );
     }
     else
@@ -996,7 +982,7 @@ void CAura::CreateGame( CMap *map, unsigned char gameState, string gameName, str
 
       if ( gameState == GAME_PRIVATE )
         (*i)->QueueChatCommand( "Creating private game [" + gameName + "] started by [" + ownerName + "]" );
-      else if ( gameState == GAME_PUBLIC )
+      else
         (*i)->QueueChatCommand( "Creating public game [" + gameName + "] started by [" + ownerName + "]" );
     }
 

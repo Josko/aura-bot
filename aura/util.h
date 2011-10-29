@@ -18,15 +18,15 @@
 
  */
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef H_
+#define H_
 
 #include "aura.h"
 #include "util.h"
 
 #include <sys/stat.h>
 
-inline string UTIL_ToString( unsigned long i )
+inline string ToString( unsigned long i )
 {
   string result;
   stringstream SS;
@@ -35,7 +35,7 @@ inline string UTIL_ToString( unsigned long i )
   return result;
 }
 
-inline string UTIL_ToString( unsigned short i )
+inline string ToString( unsigned short i )
 {
   string result;
   stringstream SS;
@@ -44,7 +44,7 @@ inline string UTIL_ToString( unsigned short i )
   return result;
 }
 
-inline string UTIL_ToString( unsigned int i )
+inline string ToString( unsigned int i )
 {
   string result;
   stringstream SS;
@@ -53,7 +53,7 @@ inline string UTIL_ToString( unsigned int i )
   return result;
 }
 
-inline string UTIL_ToString( long i )
+inline string ToString( long i )
 {
   string result;
   stringstream SS;
@@ -62,7 +62,7 @@ inline string UTIL_ToString( long i )
   return result;
 }
 
-inline string UTIL_ToString( short i )
+inline string ToString( short i )
 {
   string result;
   stringstream SS;
@@ -71,7 +71,7 @@ inline string UTIL_ToString( short i )
   return result;
 }
 
-inline string UTIL_ToString( int i )
+inline string ToString( int i )
 {
   string result;
   stringstream SS;
@@ -80,7 +80,7 @@ inline string UTIL_ToString( int i )
   return result;
 }
 
-inline string UTIL_ToString( float f, int digits )
+inline string ToString( float f, int digits )
 {
   string result;
   stringstream SS;
@@ -89,7 +89,7 @@ inline string UTIL_ToString( float f, int digits )
   return result;
 }
 
-inline string UTIL_ToString( const double d, int digits )
+inline string ToString( const double d, int digits )
 {
   string result;
   stringstream SS;
@@ -98,7 +98,7 @@ inline string UTIL_ToString( const double d, int digits )
   return result;
 }
 
-inline string UTIL_ToHexString( uint32_t i )
+inline string ToHexString( uint32_t i )
 {
   string result;
   stringstream SS;
@@ -107,9 +107,9 @@ inline string UTIL_ToHexString( uint32_t i )
   return result;
 }
 
-// TODO: these UTIL_ToXXX functions don't fail gracefully, they just return garbage (in the uint case usually just -1 casted to an unsigned type it looks like)
+// TODO: these ToXXX functions don't fail gracefully, they just return garbage (in the uint case usually just -1 casted to an unsigned type it looks like)
 
-inline uint16_t UTIL_ToUInt16( string &s )
+inline uint16_t ToUInt16( string &s )
 {
   uint16_t result;
   stringstream SS;
@@ -118,7 +118,7 @@ inline uint16_t UTIL_ToUInt16( string &s )
   return result;
 }
 
-inline uint32_t UTIL_ToUInt32( string &s )
+inline uint32_t ToUInt32( string &s )
 {
   uint32_t result;
   stringstream SS;
@@ -127,7 +127,7 @@ inline uint32_t UTIL_ToUInt32( string &s )
   return result;
 }
 
-inline int16_t UTIL_ToInt16( string &s )
+inline int16_t ToInt16( string &s )
 {
   int16_t result;
   stringstream SS;
@@ -136,7 +136,7 @@ inline int16_t UTIL_ToInt16( string &s )
   return result;
 }
 
-inline int32_t UTIL_ToInt32( string &s )
+inline int32_t ToInt32( string &s )
 {
   int32_t result;
   stringstream SS;
@@ -145,7 +145,7 @@ inline int32_t UTIL_ToInt32( string &s )
   return result;
 }
 
-inline double UTIL_ToDouble( string &s )
+inline double ToDouble( string &s )
 {
   double result;
   stringstream SS;
@@ -154,7 +154,7 @@ inline double UTIL_ToDouble( string &s )
   return result;
 }
 
-inline BYTEARRAY UTIL_CreateByteArray( const unsigned char *a, int size )
+inline BYTEARRAY CreateByteArray( const unsigned char *a, int size )
 {
   if ( size < 1 )
     return BYTEARRAY( );
@@ -162,14 +162,14 @@ inline BYTEARRAY UTIL_CreateByteArray( const unsigned char *a, int size )
   return BYTEARRAY( a, a + size );
 }
 
-inline BYTEARRAY UTIL_CreateByteArray( unsigned char c )
+inline BYTEARRAY CreateByteArray( unsigned char c )
 {
   BYTEARRAY result;
   result.push_back( c );
   return result;
 }
 
-inline BYTEARRAY UTIL_CreateByteArray( uint16_t i, bool reverse )
+inline BYTEARRAY CreateByteArray( uint16_t i, bool reverse )
 {
   BYTEARRAY result;
 
@@ -187,7 +187,7 @@ inline BYTEARRAY UTIL_CreateByteArray( uint16_t i, bool reverse )
   return result;
 }
 
-inline BYTEARRAY UTIL_CreateByteArray( uint32_t i, bool reverse )
+inline BYTEARRAY CreateByteArray( uint32_t i, bool reverse )
 {
   BYTEARRAY result;
 
@@ -209,7 +209,7 @@ inline BYTEARRAY UTIL_CreateByteArray( uint32_t i, bool reverse )
   return result;
 }
 
-inline uint16_t UTIL_ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsigned int start = 0 )
+inline uint16_t ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsigned int start = 0 )
 {
   if ( b.size( ) < start + 2 )
     return 0;
@@ -220,7 +220,7 @@ inline uint16_t UTIL_ByteArrayToUInt16( const BYTEARRAY &b, bool reverse, unsign
     return (uint16_t) ( b[ start] << 8 | b[start + 1] );
 }
 
-inline uint32_t UTIL_ByteArrayToUInt32( const BYTEARRAY& b, bool reverse, unsigned int start = 0 )
+inline uint32_t ByteArrayToUInt32( const BYTEARRAY& b, bool reverse, unsigned int start = 0 )
 {
   if ( b.size( ) < start + 4 )
     return 0;
@@ -231,53 +231,53 @@ inline uint32_t UTIL_ByteArrayToUInt32( const BYTEARRAY& b, bool reverse, unsign
     return (uint32_t) ( b[start] << 24 | b[start + 1] << 16 | b[start + 2] << 8 | b[start + 3] );
 }
 
-inline string UTIL_ByteArrayToDecString( const BYTEARRAY &b )
+inline string ByteArrayToDecString( const BYTEARRAY &b )
 {
   if ( b.empty( ) )
     return string( );
 
-  string result = UTIL_ToString( b[0] );
+  string result = ToString( b[0] );
 
   for ( BYTEARRAY::const_iterator i = b.begin( ) + 1; i != b.end( ); ++i )
-    result += " " + UTIL_ToString( *i );
+    result += " " + ToString( *i );
 
   return result;
 }
 
-inline string UTIL_ByteArrayToHexString( const BYTEARRAY &b )
+inline string ByteArrayToHexString( const BYTEARRAY &b )
 {
   if ( b.empty( ) )
     return string( );
 
-  string result = UTIL_ToHexString( b[0] );
+  string result = ToHexString( b[0] );
 
   for ( BYTEARRAY::const_iterator i = b.begin( ) + 1; i != b.end( ); ++i )
   {
     if ( *i < 16 )
-      result += " 0" + UTIL_ToHexString( *i );
+      result += " 0" + ToHexString( *i );
     else
-      result += " " + UTIL_ToHexString( *i );
+      result += " " + ToHexString( *i );
   }
 
   return result;
 }
 
-inline void UTIL_AppendByteArray( BYTEARRAY &b, const BYTEARRAY &append )
+inline void AppendByteArray( BYTEARRAY &b, const BYTEARRAY &append )
 {
   b.insert( b.end( ), append.begin( ), append.end( ) );
 }
 
-inline void UTIL_AppendByteArrayFast( BYTEARRAY &b, BYTEARRAY &append )
+inline void AppendByteArrayFast( BYTEARRAY &b, BYTEARRAY &append )
 {
   b.insert( b.end( ), append.begin( ), append.end( ) );
 }
 
-inline void UTIL_AppendByteArray( BYTEARRAY &b, unsigned char *a, int size )
+inline void AppendByteArray( BYTEARRAY &b, unsigned char *a, int size )
 {
-  UTIL_AppendByteArray( b, UTIL_CreateByteArray( a, size ) );
+  AppendByteArray( b, CreateByteArray( a, size ) );
 }
 
-inline void UTIL_AppendByteArray( BYTEARRAY &b, string append, bool terminator = true )
+inline void AppendByteArray( BYTEARRAY &b, string append, bool terminator = true )
 {
   // append the string plus a null terminator
 
@@ -287,7 +287,7 @@ inline void UTIL_AppendByteArray( BYTEARRAY &b, string append, bool terminator =
     b.push_back( 0 );
 }
 
-inline void UTIL_AppendByteArrayFast( BYTEARRAY &b, string &append, bool terminator = true )
+inline void AppendByteArrayFast( BYTEARRAY &b, string &append, bool terminator = true )
 {
   // append the string plus a null terminator
 
@@ -297,17 +297,17 @@ inline void UTIL_AppendByteArrayFast( BYTEARRAY &b, string &append, bool termina
     b.push_back( 0 );
 }
 
-inline void UTIL_AppendByteArray( BYTEARRAY &b, uint16_t i, bool reverse )
+inline void AppendByteArray( BYTEARRAY &b, uint16_t i, bool reverse )
 {
-  UTIL_AppendByteArray( b, UTIL_CreateByteArray( i, reverse ) );
+  AppendByteArray( b, CreateByteArray( i, reverse ) );
 }
 
-inline void UTIL_AppendByteArray( BYTEARRAY &b, uint32_t i, bool reverse )
+inline void AppendByteArray( BYTEARRAY &b, uint32_t i, bool reverse )
 {
-  UTIL_AppendByteArray( b, UTIL_CreateByteArray( i, reverse ) );
+  AppendByteArray( b, CreateByteArray( i, reverse ) );
 }
 
-inline BYTEARRAY UTIL_ExtractCString( BYTEARRAY &b, unsigned int start )
+inline BYTEARRAY ExtractCString( BYTEARRAY &b, unsigned int start )
 {
   // start searching the byte array at position 'start' for the first null value
   // if found, return the subarray from 'start' to the null value but not including the null value
@@ -328,7 +328,7 @@ inline BYTEARRAY UTIL_ExtractCString( BYTEARRAY &b, unsigned int start )
   return BYTEARRAY( );
 }
 
-inline unsigned char UTIL_ExtractHex( BYTEARRAY &b, unsigned int start, bool reverse )
+inline unsigned char ExtractHex( BYTEARRAY &b, unsigned int start, bool reverse )
 {
   // consider the byte array to contain a 2 character ASCII encoded hex value at b[start] and b[start + 1] e.g. "FF"
   // extract it as a single decoded byte
@@ -350,7 +350,7 @@ inline unsigned char UTIL_ExtractHex( BYTEARRAY &b, unsigned int start, bool rev
   return 0;
 }
 
-inline BYTEARRAY UTIL_ExtractNumbers( const string &s, unsigned int count )
+inline BYTEARRAY ExtractNumbers( const string &s, unsigned int count )
 {
   // consider the string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
@@ -374,7 +374,7 @@ inline BYTEARRAY UTIL_ExtractNumbers( const string &s, unsigned int count )
   return result;
 }
 
-inline BYTEARRAY UTIL_ExtractHexNumbers( string &s )
+inline BYTEARRAY ExtractHexNumbers( string &s )
 {
   // consider the string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
@@ -395,10 +395,10 @@ inline BYTEARRAY UTIL_ExtractHexNumbers( string &s )
   return result;
 }
 
-inline string UTIL_MSToString( uint32_t ms )
+inline string MSToString( uint32_t ms )
 {
-  string MinString = UTIL_ToString( ( ms / 1000 ) / 60 );
-  string SecString = UTIL_ToString( ( ms / 1000 ) % 60 );
+  string MinString = ToString( ( ms / 1000 ) / 60 );
+  string SecString = ToString( ( ms / 1000 ) % 60 );
 
   if ( MinString.size( ) == 1 )
     MinString.insert( 0, "0" );
@@ -409,7 +409,7 @@ inline string UTIL_MSToString( uint32_t ms )
   return MinString + "m" + SecString + "s";
 }
 
-inline bool UTIL_FileExists( string &file )
+inline bool FileExists( string &file )
 {
   struct stat fileinfo;
 
@@ -419,7 +419,7 @@ inline bool UTIL_FileExists( string &file )
   return false;
 }
 
-inline string UTIL_FileRead( const string &file, uint32_t start, uint32_t length )
+inline string FileRead( const string &file, uint32_t start, uint32_t length )
 {
   ifstream IS;
   IS.open( file.c_str( ), ios::binary );
@@ -453,7 +453,7 @@ inline string UTIL_FileRead( const string &file, uint32_t start, uint32_t length
   return BufferString;
 }
 
-inline string UTIL_FileRead( const string &file )
+inline string FileRead( const string &file )
 {
   ifstream IS;
   IS.open( file.c_str( ), ios::binary );
@@ -484,7 +484,7 @@ inline string UTIL_FileRead( const string &file )
     return string( );
 }
 
-inline bool UTIL_FileWrite( const string &file, unsigned char *data, uint32_t length )
+inline bool FileWrite( const string &file, unsigned char *data, uint32_t length )
 {
   ofstream OS;
   OS.open( file.c_str( ), ios::binary );
@@ -502,7 +502,7 @@ inline bool UTIL_FileWrite( const string &file, unsigned char *data, uint32_t le
   return true;
 }
 
-inline string UTIL_AddPathSeperator( const string &path )
+inline string AddPathSeperator( const string &path )
 {
   if ( path.empty( ) )
     return string( );
@@ -519,7 +519,7 @@ inline string UTIL_AddPathSeperator( const string &path )
     return path + string( 1, Seperator );
 }
 
-inline BYTEARRAY UTIL_EncodeStatString( BYTEARRAY &data )
+inline BYTEARRAY EncodeStatString( BYTEARRAY &data )
 {
   BYTEARRAY Result;
   unsigned char Mask = 1;
@@ -544,7 +544,7 @@ inline BYTEARRAY UTIL_EncodeStatString( BYTEARRAY &data )
   return Result;
 }
 
-inline BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
+inline BYTEARRAY DecodeStatString( BYTEARRAY &data )
 {
   unsigned char Mask = 1;
   BYTEARRAY Result;
@@ -565,7 +565,7 @@ inline BYTEARRAY UTIL_DecodeStatString( BYTEARRAY &data )
   return Result;
 }
 
-inline void UTIL_Replace( string &Text, const string &Key, const string &Value )
+inline void Replace( string &Text, const string &Key, const string &Value )
 {
   // don't allow any infinite loops
 
@@ -581,7 +581,7 @@ inline void UTIL_Replace( string &Text, const string &Key, const string &Value )
   }
 }
 
-inline vector<string> UTIL_Tokenize( const string &s, char delim )
+inline vector<string> Tokenize( const string &s, char delim )
 {
   vector<string> Tokens;
   string Token;

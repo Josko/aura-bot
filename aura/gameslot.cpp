@@ -27,7 +27,9 @@
 
 CGameSlot::CGameSlot( BYTEARRAY &n ) : m_PID( 0 ), m_DownloadStatus( 255 ), m_SlotStatus( SLOTSTATUS_OPEN ), m_Computer( 0 ), m_Team( 0 ), m_Colour( 1 ), m_Race( SLOTRACE_RANDOM ), m_ComputerType( SLOTCOMP_NORMAL ), m_Handicap( 100 )
 {
-  if ( n.size( ) >= 7 )
+  const size_t size = n.size();
+  
+  if ( size >= 7 )
   {
     m_PID = n[0];
     m_DownloadStatus = n[1];
@@ -37,11 +39,13 @@ CGameSlot::CGameSlot( BYTEARRAY &n ) : m_PID( 0 ), m_DownloadStatus( 255 ), m_Sl
     m_Colour = n[5];
     m_Race = n[6];
 
-    if ( n.size( ) >= 8 )
+    if ( size >= 8 )
+    {
       m_ComputerType = n[7];
-
-    if ( n.size( ) >= 9 )
-      m_Handicap = n[8];
+      
+      if ( size >= 9 )
+      m_Handicap = n[8];      
+    }   
   }
 }
 

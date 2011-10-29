@@ -19,8 +19,6 @@
  */
 
 #include "aura.h"
-#include "util.h"
-#include "socket.h"
 #include "bnet.h"
 #include "map.h"
 #include "gameplayer.h"
@@ -32,7 +30,9 @@
 // CPotentialPlayer
 //
 
-CPotentialPlayer::CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket ) : m_Protocol( nProtocol ), m_Game( nGame ), m_Socket( nSocket ), m_DeleteMe( false ), m_IncomingJoinPlayer( NULL )
+CPotentialPlayer::CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket )
+  : m_Protocol( nProtocol ), m_Game( nGame ), m_Socket( nSocket ),
+  m_IncomingJoinPlayer( NULL ), m_DeleteMe( false )
 {
 
 }
@@ -43,24 +43,6 @@ CPotentialPlayer::~CPotentialPlayer( )
     delete m_Socket;
   
   delete m_IncomingJoinPlayer;
-}
-
-BYTEARRAY CPotentialPlayer::GetExternalIP( ) const
-{
-  if ( m_Socket )
-    return m_Socket->GetIP( );
-
-  unsigned char Zeros[] = { 0, 0, 0, 0 };
-
-  return UTIL_CreateByteArray( Zeros, 4 );
-}
-
-string CPotentialPlayer::GetExternalIPString( ) const
-{
-  if ( m_Socket )
-    return m_Socket->GetIPString( );
-
-  return string( );
 }
 
 bool CPotentialPlayer::Update( void *fd )
@@ -76,7 +58,7 @@ bool CPotentialPlayer::Update( void *fd )
   // extract as many packets as possible from the socket's receive buffer and process them
 
   string *RecvBuffer = m_Socket->GetBytes( );
-  BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
+  BYTEARRAY Bytes = CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -86,7 +68,7 @@ bool CPotentialPlayer::Update( void *fd )
     {
       // bytes 2 and 3 contain the length of the packet
 
-      const uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+      const uint16_t Length = ByteArrayToUInt16( Bytes, false, 2 );
 
       if ( Bytes.size( ) >= Length )
       {
@@ -129,7 +111,20 @@ void CPotentialPlayer::Send( const BYTEARRAY &data ) const
 // CGamePlayer
 //
 
-CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved ) : m_Protocol( potential->m_Protocol ), m_Game( potential->m_Game ), m_Socket( potential->GetSocket( ) ), m_DeleteMe( false ), m_PID( nPID ), m_Name( nName ), m_InternalIP( nInternalIP ), m_JoinedRealm( nJoinedRealm ), m_TotalPacketsSent( 0 ), m_TotalPacketsReceived( 1 ), m_LeftCode( PLAYERLEAVE_LOBBY ), m_SyncCounter( 0 ), m_JoinTime( GetTime( ) ), m_LastMapPartSent( 0 ), m_LastMapPartAcked( 0 ), m_FinishedLoadingTicks( 0 ), m_StartedLaggingTicks( 0 ), m_LastGProxyWaitNoticeSentTime( 0 ), m_Spoofed( false ), m_Reserved( nReserved ), m_WhoisShouldBeSent( false ), m_WhoisSent( false ), m_DownloadAllowed( false ), m_DownloadStarted( false ), m_DownloadFinished( false ), m_FinishedLoading( false ), m_Lagging( false ), m_DropVote( false ), m_KickVote( false ), m_Muted( false ), m_LeftMessageSent( false ), m_GProxy( false ), m_GProxyDisconnectNoticeSent( false ), m_GProxyReconnectKey( GetTicks( ) ), m_LastGProxyAckTime( 0 )
+CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved )
+  : m_Protocol( potential->m_Protocol ), m_Game( potential->m_Game ),
+    m_Socket( potential->GetSocket( ) ), m_InternalIP( nInternalIP ),
+    m_JoinedRealm( nJoinedRealm ),
+    m_Name( nName ), m_TotalPacketsSent( 0 ), m_TotalPacketsReceived( 1 ),
+    m_LeftCode( PLAYERLEAVE_LOBBY ), m_SyncCounter( 0 ), m_JoinTime( GetTime( ) ),
+    m_LastMapPartSent( 0 ), m_LastMapPartAcked( 0 ), m_FinishedLoadingTicks( 0 ),
+    m_StartedLaggingTicks( 0 ), m_LastGProxyWaitNoticeSentTime( 0 ),
+    m_GProxyReconnectKey( GetTicks( ) ),
+    m_LastGProxyAckTime( 0 ), m_PID( nPID ), m_Spoofed( false ), m_Reserved( nReserved ),
+    m_WhoisShouldBeSent( false ), m_WhoisSent( false ), m_DownloadAllowed( false ),
+    m_DownloadStarted( false ), m_DownloadFinished( false ), m_FinishedLoading( false ),
+    m_Lagging( false ), m_DropVote( false ), m_KickVote( false ), m_Muted( false ),
+    m_LeftMessageSent( false ), m_GProxy( false ), m_GProxyDisconnectNoticeSent( false ), m_DeleteMe( false )
 {
 
 }
@@ -137,16 +132,6 @@ CGamePlayer::CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const
 CGamePlayer::~CGamePlayer( )
 {
     delete m_Socket;
-}
-
-BYTEARRAY CGamePlayer::GetExternalIP( ) const
-{
-    return m_Socket->GetIP( );
-}
-
-string CGamePlayer::GetExternalIPString( ) const
-{
-    return m_Socket->GetIPString( );
 }
 
 uint32_t CGamePlayer::GetPing( bool LCPing ) const
@@ -158,8 +143,8 @@ uint32_t CGamePlayer::GetPing( bool LCPing ) const
 
   uint32_t AvgPing = 0;
 
-  for ( unsigned int i = 0; i < m_Pings.size( ); ++i )
-    AvgPing += m_Pings[i];
+  for ( vector<uint32_t>::const_iterator i = m_Pings.begin( ); i != m_Pings.end( ); ++i )
+    AvgPing += (*i);
 
   AvgPing /= m_Pings.size( );
 
@@ -213,7 +198,7 @@ bool CGamePlayer::Update( void *fd )
   // extract as many packets as possible from the socket's receive buffer and process them
 
   string *RecvBuffer = m_Socket->GetBytes( );
-  BYTEARRAY Bytes = UTIL_CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
+  BYTEARRAY Bytes = CreateByteArray( (unsigned char *) RecvBuffer->c_str( ), RecvBuffer->size( ) );
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -228,7 +213,7 @@ bool CGamePlayer::Update( void *fd )
     {
       // bytes 2 and 3 contain the length of the packet
 
-       const uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+       const uint16_t Length = ByteArrayToUInt16( Bytes, false, 2 );
 
       ++m_TotalPacketsReceived;
 
@@ -337,7 +322,7 @@ bool CGamePlayer::Update( void *fd )
     }
     else if ( Bytes[0] == GPS_HEADER_CONSTANT )
     {
-      const uint16_t Length = UTIL_ByteArrayToUInt16( Bytes, false, 2 );
+      const uint16_t Length = ByteArrayToUInt16( Bytes, false, 2 );
 
       if ( Length >= 4 )
       {
@@ -347,7 +332,7 @@ bool CGamePlayer::Update( void *fd )
 
           if ( Bytes[1] == CGPSProtocol::GPS_ACK && Data.size( ) == 8 )
           {
-            uint32_t LastPacket = UTIL_ByteArrayToUInt32( Data, false, 4 );
+            uint32_t LastPacket = ByteArrayToUInt32( Data, false, 4 );
             uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
 
             if ( LastPacket > PacketsAlreadyUnqueued )

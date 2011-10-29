@@ -21,6 +21,8 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "util.h"
+
 #ifdef WIN32
 #include <winsock2.h>
 #include <errno.h>
@@ -102,26 +104,28 @@ extern int GetLastError( );
 class CTCPSocket
 {
 protected:
-  SOCKET m_Socket;
-  struct sockaddr_in m_SIN;
-  int m_Error;
-  bool m_HasError;
-  bool m_Connected;
+  struct sockaddr_in m_SIN; 
 
 private:
   string m_RecvBuffer;
   string m_SendBuffer;
   uint32_t m_LastRecv;
+  
+protected:
+  SOCKET m_Socket; 
+  int m_Error; 
+  bool m_HasError;
+  bool m_Connected;
 
 public:
   CTCPSocket( );
   CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN );
   ~CTCPSocket( );
 
-  BYTEARRAY GetPort( ) const;
-  BYTEARRAY GetIP( ) const;
-  string GetIPString( ) const;
   string GetErrorString( ) const;
+  inline BYTEARRAY GetPort( ) const                        { return CreateByteArray( m_SIN.sin_port, false ); }
+  inline BYTEARRAY GetIP( ) const                          { return CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false ); }
+  inline string GetIPString( ) const                       { return inet_ntoa( m_SIN.sin_addr ); }  
   inline string *GetBytes( )                               { return &m_RecvBuffer; }
   inline int GetError( ) const                             { return m_Error; }
   inline uint32_t GetLastRecv( ) const                     { return m_LastRecv; }
@@ -130,8 +134,8 @@ public:
 
   void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
   void Reset( );
-  void PutBytes( const string &bytes );
-  void PutBytes( const BYTEARRAY &bytes );
+  inline void PutBytes( const string &bytes )              { m_SendBuffer += bytes; }
+  inline void PutBytes( const BYTEARRAY &bytes )           { m_SendBuffer += string( bytes.begin( ), bytes.end( ) ); }
 
   inline void ClearRecvBuffer( )                           { m_RecvBuffer.clear( ); }
   inline void SubstrRecvBuffer( unsigned int i )           { m_RecvBuffer = m_RecvBuffer.substr( i ); }
@@ -149,25 +153,26 @@ public:
 class CTCPClient
 {
 protected:
-  SOCKET m_Socket;
   struct sockaddr_in m_SIN;
+
+private:
+  string m_RecvBuffer;
+  string m_SendBuffer;
+  
+protected:
+  SOCKET m_Socket;  
   int m_Error;
   bool m_HasError;
   bool m_Connected;
   bool m_Connecting;
 
-private:
-  string m_RecvBuffer;
-  string m_SendBuffer;
-
 public:
   CTCPClient( );
   ~CTCPClient( );
 
-  BYTEARRAY GetPort( ) const;
-  BYTEARRAY GetIP( ) const;
-  string GetIPString( ) const;
   string GetErrorString( ) const;
+  inline BYTEARRAY GetPort( ) const                        { return CreateByteArray( m_SIN.sin_port, false ); }
+  inline string GetIPString( ) const                       { return inet_ntoa( m_SIN.sin_addr ); }  
   inline string *GetBytes( )                               { return &m_RecvBuffer; }
   inline int GetError( ) const                             { return m_Error; }
   inline bool HasError( ) const                            { return m_HasError; }
@@ -176,8 +181,8 @@ public:
 
   void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
   void Reset( );
-  void PutBytes( const string &bytes );
-  void PutBytes( const BYTEARRAY &bytes );
+  inline void PutBytes( const string &bytes )              { m_SendBuffer += bytes; }
+  inline void PutBytes( const BYTEARRAY &bytes )           { m_SendBuffer += string( bytes.begin( ), bytes.end( ) ); }
 
   bool CheckConnect( );
   inline void ClearRecvBuffer( )                           { m_RecvBuffer.clear( ); }
@@ -198,8 +203,8 @@ public:
 class CTCPServer
 {
 protected:
-  SOCKET m_Socket;
   struct sockaddr_in m_SIN;
+  SOCKET m_Socket;  
   int m_Error;
   bool m_HasError;
 
@@ -223,9 +228,9 @@ public:
 class CUDPSocket
 {
 protected:
-  SOCKET m_Socket;
   struct sockaddr_in m_SIN;
   struct in_addr m_BroadcastTarget;
+  SOCKET m_Socket;  
   int m_Error;
   bool m_HasError;
 
@@ -233,10 +238,9 @@ public:
   CUDPSocket( );
   ~CUDPSocket( );
 
-  BYTEARRAY GetPort( ) const;
-  BYTEARRAY GetIP( ) const;
-  string GetIPString( ) const;
   string GetErrorString( ) const;
+  inline BYTEARRAY GetPort( ) const                        { return CreateByteArray( m_SIN.sin_port, false ); }
+  inline string GetIPString( ) const                       { return inet_ntoa( m_SIN.sin_addr ); }  
   inline bool HasError( ) const                            { return m_HasError; }
   inline int GetError( ) const                             { return m_Error; }
   

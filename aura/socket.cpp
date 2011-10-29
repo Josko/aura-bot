@@ -24,7 +24,6 @@
 #include <string.h>
 
 #ifndef WIN32
-
 int GetLastError( )
 {
   return errno;
@@ -35,7 +34,7 @@ int GetLastError( )
 // CTCPSocket
 //
 
-CTCPSocket::CTCPSocket( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Error( 0 ), m_HasError( false ), m_Connected( false ), m_LastRecv( GetTime( ) )
+CTCPSocket::CTCPSocket( ) : m_LastRecv( GetTime( ) ), m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Error( 0 ), m_HasError( false ), m_Connected( false ) 
 {
   memset( &m_SIN, 0, sizeof ( m_SIN ) );
 
@@ -62,7 +61,7 @@ CTCPSocket::CTCPSocket( ) : m_Socket( socket( AF_INET, SOCK_STREAM, 0 ) ), m_Err
     setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
 }
 
-CTCPSocket::CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_Socket( nSocket ), m_SIN( nSIN ), m_Error( 0 ), m_HasError( false ), m_Connected( true ), m_LastRecv( GetTime( ) )
+CTCPSocket::CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN ) : m_SIN( nSIN ), m_LastRecv( GetTime( ) ), m_Socket( nSocket ), m_Error( 0 ), m_HasError( false ), m_Connected( true )
 {
   // make socket non blocking
 
@@ -111,16 +110,6 @@ void CTCPSocket::Reset( )
 #else
   fcntl( m_Socket, F_SETFL, fcntl( m_Socket, F_GETFL ) | O_NONBLOCK );
 #endif
-}
-
-void CTCPSocket::PutBytes( const string &bytes )
-{
-  m_SendBuffer += bytes;
-}
-
-void CTCPSocket::PutBytes( const BYTEARRAY &bytes )
-{
-  m_SendBuffer += string( bytes.begin( ), bytes.end( ) );
 }
 
 void CTCPSocket::DoRecv( fd_set *fd )
@@ -198,21 +187,6 @@ void CTCPSocket::Disconnect( )
   m_Connected = false;
 }
 
-BYTEARRAY CTCPSocket::GetPort( ) const
-{
-  return UTIL_CreateByteArray( m_SIN.sin_port, false );
-}
-
-BYTEARRAY CTCPSocket::GetIP( ) const
-{
-  return UTIL_CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false );
-}
-
-string CTCPSocket::GetIPString( ) const
-{
-  return inet_ntoa( m_SIN.sin_addr );
-}
-
 string CTCPSocket::GetErrorString( ) const
 {
   if ( !m_HasError )
@@ -255,10 +229,10 @@ string CTCPSocket::GetErrorString( ) const
     case EDQUOT:            return "EDQUOT";
     case ESTALE:            return "ESTALE";
     case EREMOTE:           return "EREMOTE";
-    case ECONNRESET:        return "Connection reset by peer";
+    case ECONNRESET:        return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+  return "UNKNOWN ERROR (" + ToString( m_Error ) + ")";
 }
 
 void CTCPSocket::SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
@@ -448,16 +422,6 @@ bool CTCPClient::CheckConnect( )
   return false;
 }
 
-void CTCPClient::PutBytes( const string &bytes )
-{
-  m_SendBuffer += bytes;
-}
-
-void CTCPClient::PutBytes( const BYTEARRAY &bytes )
-{
-  m_SendBuffer += string( bytes.begin( ), bytes.end( ) );
-}
-
 void CTCPClient::FlushRecv( fd_set *fd )
 {
   if ( FD_ISSET( m_Socket, fd ) )
@@ -539,21 +503,6 @@ void CTCPClient::SetNoDelay( )
   setsockopt( m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof ( int) );
 }
 
-BYTEARRAY CTCPClient::GetPort( ) const
-{
-  return UTIL_CreateByteArray( m_SIN.sin_port, false );
-}
-
-BYTEARRAY CTCPClient::GetIP( ) const
-{
-  return UTIL_CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false );
-}
-
-string CTCPClient::GetIPString( ) const
-{
-  return inet_ntoa( m_SIN.sin_addr );
-}
-
 string CTCPClient::GetErrorString( ) const
 {
   if ( !m_HasError )
@@ -596,10 +545,10 @@ string CTCPClient::GetErrorString( ) const
     case EDQUOT:            return "EDQUOT";
     case ESTALE:            return "ESTALE";
     case EREMOTE:           return "EREMOTE";
-    case ECONNRESET:        return "Connection reset by peer";
+    case ECONNRESET:        return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+  return "UNKNOWN ERROR (" + ToString( m_Error ) + ")";
 }
 
 void CTCPClient::SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
@@ -766,10 +715,10 @@ string CTCPServer::GetErrorString( ) const
     case EDQUOT:            return "EDQUOT";
     case ESTALE:            return "ESTALE";
     case EREMOTE:           return "EREMOTE";
-    case ECONNRESET:        return "Connection reset by peer";
+    case ECONNRESET:        return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+  return "UNKNOWN ERROR (" + ToString( m_Error ) + ")";
 }
 
 void CTCPServer::SetFD( fd_set *fd, fd_set *send_fd, int *nfds )
@@ -871,7 +820,7 @@ bool CUDPSocket::Broadcast( uint16_t port, const BYTEARRAY &message )
 
   if ( sendto( m_Socket, MessageString.c_str( ), MessageString.size( ), 0, (struct sockaddr *) &sin, sizeof ( sin ) ) == -1 )
   {
-    Print( "[UDPSOCKET] failed to broadcast packet (port " + UTIL_ToString( port ) + ", size " + UTIL_ToString( MessageString.size( ) ) + " bytes)" );
+    Print( "[UDPSOCKET] failed to broadcast packet (port " + ToString( port ) + ", size " + ToString( MessageString.size( ) ) + " bytes)" );
     return false;
   }
 
@@ -916,21 +865,6 @@ void CUDPSocket::SetDontRoute( bool dontRoute )
   setsockopt( m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *) &OptVal, sizeof ( int) );
 }
 
-BYTEARRAY CUDPSocket::GetPort( ) const
-{
-  return UTIL_CreateByteArray( m_SIN.sin_port, false );
-}
-
-BYTEARRAY CUDPSocket::GetIP( ) const
-{
-  return UTIL_CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false );
-}
-
-string CUDPSocket::GetIPString( ) const
-{
-  return inet_ntoa( m_SIN.sin_addr );
-}
-
 string CUDPSocket::GetErrorString( ) const
 {
   if ( !m_HasError )
@@ -973,10 +907,10 @@ string CUDPSocket::GetErrorString( ) const
     case EDQUOT:            return "EDQUOT";
     case ESTALE:            return "ESTALE";
     case EREMOTE:           return "EREMOTE";
-    case ECONNRESET:        return "Connection reset by peer";
+    case ECONNRESET:        return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + UTIL_ToString( m_Error ) + ")";
+  return "UNKNOWN ERROR (" + ToString( m_Error ) + ")";
 }
 
 void CUDPSocket::SetFD( fd_set *fd, fd_set *send_fd, int *nfds )

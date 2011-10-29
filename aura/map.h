@@ -95,13 +95,22 @@ public:
   CAura *m_Aura;
 
 private:
-  bool m_Valid;
-  string m_CFGFile;
-  string m_MapPath;               // config value: map path
+  BYTEARRAY m_MapSHA1;            // config value: map sha1 (20 bytes)
   BYTEARRAY m_MapSize;            // config value: map size (4 bytes)
   BYTEARRAY m_MapInfo;            // config value: map info (4 bytes) -> this is the real CRC
   BYTEARRAY m_MapCRC;             // config value: map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
-  BYTEARRAY m_MapSHA1;            // config value: map sha1 (20 bytes)
+  BYTEARRAY m_MapWidth;           // config value: map width (2 bytes)
+  BYTEARRAY m_MapHeight;          // config value: map height (2 bytes)
+  vector<CGameSlot> m_Slots;
+  string m_CFGFile;
+  string m_MapPath;               // config value: map path  
+  string m_MapType;               // config value: map type (for stats class)
+  string m_MapDefaultHCL;         // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
+  string m_MapLocalPath;          // config value: map local path
+  string m_MapData;               // the map data itself, for sending the map to players
+  uint32_t m_MapOptions;
+  uint32_t m_MapNumPlayers;       // config value: max map number of players
+  uint32_t m_MapNumTeams;         // config value: max map number of teams
   unsigned char m_MapSpeed;
   unsigned char m_MapVisibility;
   unsigned char m_MapObservers;
@@ -109,17 +118,8 @@ private:
   unsigned char m_MapFilterMaker;
   unsigned char m_MapFilterType;
   unsigned char m_MapFilterSize;
-  unsigned char m_MapFilterObs;
-  uint32_t m_MapOptions;
-  BYTEARRAY m_MapWidth;           // config value: map width (2 bytes)
-  BYTEARRAY m_MapHeight;          // config value: map height (2 bytes)
-  string m_MapType;               // config value: map type (for stats class)
-  string m_MapDefaultHCL;         // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
-  string m_MapLocalPath;          // config value: map local path
-  string m_MapData;               // the map data itself, for sending the map to players
-  uint32_t m_MapNumPlayers;       // config value: max map number of players
-  uint32_t m_MapNumTeams;         // config value: max map number of teams
-  vector<CGameSlot> m_Slots;
+  unsigned char m_MapFilterObs;  
+  bool m_Valid;
 
 public:
   CMap( CAura *nAura, CConfig *CFG, const string &nCFGFile );

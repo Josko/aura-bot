@@ -41,15 +41,13 @@ protected:
   CGame *m_Game;
   CDBDotAPlayer *m_Players[12];
   uint32_t m_Winner;
-  uint32_t m_Min;
-  uint32_t m_Sec;
 
 public:
   CStats( CGame *nGame );
   ~CStats( );
 
   bool ProcessAction( CIncomingAction *Action );
-  void Save( CAura *CAura, CAuraDB *DB, uint32_t GameID );
+  void Save( CAura *CAura, CAuraDB *DB );
 };
 
 #endif

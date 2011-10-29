@@ -21,6 +21,8 @@
 #ifndef GAMEPLAYER_H
 #define GAMEPLAYER_H
 
+#include "socket.h"
+
 class CTCPSocket;
 class CGameProtocol;
 class CGame;
@@ -41,18 +43,18 @@ protected:
   // it also allows us to convert CPotentialPlayers to CGamePlayers without the CPotentialPlayer's destructor closing the socket
 
   CTCPSocket *m_Socket;
-  bool m_DeleteMe;
   CIncomingJoinPlayer *m_IncomingJoinPlayer;
+  bool m_DeleteMe;
 
 public:
   CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket );
   ~CPotentialPlayer( );
 
-  CTCPSocket *GetSocket( ) const                                { return m_Socket; }
-  BYTEARRAY GetExternalIP( ) const;
-  string GetExternalIPString( ) const;
-  bool GetDeleteMe( ) const                                     { return m_DeleteMe; }
-  CIncomingJoinPlayer *GetJoinPlayer( ) const                   { return m_IncomingJoinPlayer; }
+  inline CTCPSocket *GetSocket( ) const                         { return m_Socket; }
+  inline BYTEARRAY GetExternalIP( ) const                       { return m_Socket->GetIP( ); }
+  inline string GetExternalIPString( ) const                    { return m_Socket->GetIPString( ); }
+  inline bool GetDeleteMe( ) const                              { return m_DeleteMe; }
+  inline CIncomingJoinPlayer *GetJoinPlayer( ) const            { return m_IncomingJoinPlayer; }
   
   inline void SetSocket( CTCPSocket *nSocket )                  { m_Socket = nSocket; }
   inline void SetDeleteMe( bool nDeleteMe )                     { m_DeleteMe = nDeleteMe; }
@@ -77,21 +79,17 @@ public:
   CGame *m_Game;
 
 protected:
-  // note: we permit m_Socket to be NULL in this class to allow for the virtual host player which doesn't really exist
-
-  CTCPSocket *m_Socket;
-  bool m_DeleteMe;
+  CTCPSocket *m_Socket;                     // note: we permit m_Socket to be NULL in this class to allow for the virtual host player which doesn't really exist
 
 private:
-
-  unsigned char m_PID;                      // the player's PID
-  string m_Name;                            // the player's name
   BYTEARRAY m_InternalIP;                   // the player's internal IP address as reported by the player when connecting
   vector<uint32_t> m_Pings;                 // store the last few (10) pings received so we can take an average
   queue<uint32_t> m_CheckSums;              // the last few checksums the player has sent (for detecting desyncs)
+  queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++ 
   string m_LeftReason;                      // the reason the player left the game
   string m_SpoofedRealm;                    // the realm the player last spoof checked on
   string m_JoinedRealm;                     // the realm the player joined on (probable, can be spoofed)
+  string m_Name;                            // the player's name
   uint32_t m_TotalPacketsSent;              // the total number of packets sent to the player
   uint32_t m_TotalPacketsReceived;          // the total number of packets received from the player
   uint32_t m_LeftCode;                      // the code to be sent in W3GS_PLAYERLEAVE_OTHERS for why this player left the game
@@ -104,6 +102,9 @@ private:
   uint32_t m_FinishedLoadingTicks;          // GetTicks when the player finished loading the game
   uint32_t m_StartedLaggingTicks;           // GetTicks when the player started laggin
   uint32_t m_LastGProxyWaitNoticeSentTime;  // GetTime when the last disconnection notice has been sent when using GProxy++
+  uint32_t m_GProxyReconnectKey;            // the GProxy++ reconnect key
+  uint32_t m_LastGProxyAckTime;             // GetTime when we last acknowledged GProxy++ packet
+  unsigned char m_PID;                      // the player's PID
   bool m_Spoofed;                           // if the player has spoof checked or not
   bool m_Reserved;                          // if the player is reserved (VIP) or not
   bool m_WhoisShouldBeSent;                 // if a battle.net /whois should be sent for this player or not
@@ -119,18 +120,18 @@ private:
   bool m_LeftMessageSent;                   // if the playerleave message has been sent or not
   bool m_GProxy;                            // if the player is using GProxy++
   bool m_GProxyDisconnectNoticeSent;        // if a disconnection notice has been sent or not when using GProxy++
-  queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++   
-  uint32_t m_GProxyReconnectKey;            // the GProxy++ reconnect key
-  uint32_t m_LastGProxyAckTime;             // GetTime when we last acknowledged GProxy++ packet
+  
+protected:
+  bool m_DeleteMe;
 
 public:
   CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
   ~CGamePlayer( );
 
-  inline CTCPSocket *GetSocket( ) const                                { return m_Socket; }
-  BYTEARRAY GetExternalIP( ) const;
-  string GetExternalIPString( ) const;
   uint32_t GetPing( bool LCPing ) const;
+  inline CTCPSocket *GetSocket( ) const                                { return m_Socket; }
+  inline BYTEARRAY GetExternalIP( ) const                              { return m_Socket->GetIP( ); }
+  inline string GetExternalIPString( ) const                           { return m_Socket->GetIPString( ); }  
   inline bool GetDeleteMe( ) const                                     { return m_DeleteMe; }
   inline unsigned char GetPID( ) const                                 { return m_PID; }
   inline string GetName( ) const                                       { return m_Name; }

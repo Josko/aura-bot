@@ -1,7 +1,6 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 ARCH = $(shell uname -m)
-VERSION = $(shell git rev-parse --short HEAD)
 CC = gcc
 CXX = g++
 CCFLAGS = -fno-builtin
@@ -56,7 +55,7 @@ install:
 	@cp $(PROGS) ..
 
 $(OBJS): %.o: %.cpp
-	@$(CXX) -o $@ $(CXXFLAGS) -c $< -DVERSION=\"$(VERSION)\"
+	@$(CXX) -o $@ $(CXXFLAGS) -c $<
 	@echo "[$(CXX)] $@"
 
 $(COBJS): %.o: %.c
