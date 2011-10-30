@@ -160,9 +160,9 @@ public:
   bool BanAdd( const string &server, string user, const string &admin, const string &reason );
   bool BanRemove( const string &server, string user );
   bool BanRemove( string user );
-  bool GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duration, uint64_t left );
+  void GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duration, uint64_t left );
   CDBGamePlayerSummary *GamePlayerSummaryCheck( string name );
-  bool DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
+  void DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills );
   CDBDotAPlayerSummary *DotAPlayerSummaryCheck( string name );
 };
 

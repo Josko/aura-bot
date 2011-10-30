@@ -530,9 +530,8 @@ bool CAuraDB::BanRemove( string user )
   return Success;
 }
 
-bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duration, uint64_t left )
+void CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duration, uint64_t left )
 {
-  uint32_t Success = false;
   sqlite3_stmt *Statement;
   transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
   
@@ -562,7 +561,7 @@ bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duratio
   else
   {
     Print( "[SQLITE3] prepare error adding gameplayer [" + name + "] - " + m_DB->GetError( ) );
-    return false;
+    return;
   }
   
   if ( Games == 0 )
@@ -574,7 +573,7 @@ bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duratio
     if ( Statement == NULL )
     {
       Print( "[SQLITE3] prepare error inserting gameplayer [" + name + "] - " + m_DB->GetError( ) );
-      return false;
+      return;
     }
     
     sqlite3_bind_text( Statement, 1, name.c_str( ), -1, SQLITE_TRANSIENT );
@@ -592,7 +591,7 @@ bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duratio
     if ( Statement == NULL )
     {
       Print( "[SQLITE3] prepare error updating gameplayer [" + name + "] - " + m_DB->GetError( ) );
-      return false;
+      return;
     }
     
     sqlite3_bind_int( Statement, 1, Games );
@@ -604,13 +603,10 @@ bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duratio
   
   RC = m_DB->Step( Statement );
   
-  if( RC == SQLITE_DONE )
-    Success = true;
-  else
+  if( RC != SQLITE_DONE )
     Print( "[SQLITE3] error adding gameplayer [" + name + "] - " + m_DB->GetError( ) );
     
   m_DB->Finalize( Statement );
-  return Success;
 }
 
 CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck( string name )
@@ -651,7 +647,7 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck( string name )
   return GamePlayerSummary;
 }
 
-bool CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
+void CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills )
 {
   bool Success = false;
   sqlite3_stmt *Statement;
@@ -697,7 +693,7 @@ bool CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint3
   else
   {
     Print( "[SQLITE3] prepare error adding dotaplayer [" + name + "] - " + m_DB->GetError( ) );
-    return false;
+    return;
   }
   
   // there must be a row already because we add one, if not present, in GamePlayerAdd( ) before the call to DotAPlayerAdd( )
@@ -705,7 +701,7 @@ bool CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint3
   if ( Success == false )
   {
     Print( "[SQLITE3] error adding dotaplayer [" + name + "] - no existing row" );
-    return false;
+    return;
   } 
   
   m_DB->Prepare( "UPDATE players SET dotas=?, wins=?, losses=?, kills=?, deaths=?, creepkills=?, creepdenies=?, assists=?, neutralkills=?, towerkills=?, raxkills=?, courierkills=? WHERE name=?", (void **) &Statement );
@@ -713,7 +709,7 @@ bool CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint3
   if ( Statement == NULL )
   {
     Print( "[SQLITE3] prepare error updating dotalayer [" + name + "] - " + m_DB->GetError( ) );
-    return false;
+    return;
   }
 
   sqlite3_bind_int( Statement, 1, Dotas );
@@ -732,13 +728,10 @@ bool CAuraDB::DotAPlayerAdd( string name, uint32_t winner, uint32_t kills, uint3
 
   RC = m_DB->Step( Statement );
 
-  if( RC == SQLITE_DONE )
-    Success = true;
-  else
+  if( RC != SQLITE_DONE )
     Print( "[SQLITE3] error adding dotaplayer [" + name + "] - " + m_DB->GetError( ) );
     
   m_DB->Finalize( Statement );
-  return Success;
 }
 
 CDBDotAPlayerSummary *CAuraDB::DotAPlayerSummaryCheck( string name )
