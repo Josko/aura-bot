@@ -1,5 +1,4 @@
 #####################################################################
-###
 #
 # Makefile for compiling StormLib under linux
 #
@@ -11,7 +10,6 @@
 # Copyright (c) 2001 BMX-Chemnitz.DE All rights reserved.
 #
 #####################################################################
-###
 
 ##############################################
 # updated on October 6, 2008 by Trevor Hogan #
@@ -23,8 +21,9 @@
 
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
-CXX = g++
+ARCH = $(shell uname -m)
 CC = gcc
+CXX = g++
 DFLAGS = -D__SYS_ZLIB
 OFLAGS = -O2
 LFLAGS = -lbz2 -lz
@@ -40,6 +39,10 @@ OBJS = SCommon.o SCompression.o SFileCompactArchive.o \
        misc/crc32.o misc/md5.o
 
 COBJS = pklib/crc32.o pklib/explode.o pklib/implode.o
+
+ifeq ($(ARCH),x86_64)
+	CFLAGS += -m64
+endif
 
 ifeq ($(SYSTEM),Darwin)
 	CXX = /usr/bin/g++
@@ -77,3 +80,5 @@ install: $(LIB)
 	cp StormLib.h /usr/include/StormLib
 	cp StormPort.h /usr/include/StormLib
 	ldconfig
+
+# vim: set noexpandtab ts=4 sw=4:

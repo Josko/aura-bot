@@ -62,3 +62,4 @@ $(COBJS): %.o: %.c
 	@$(CC) -o $@ $(CCFLAGS) -c $<
 	@echo "[$(CC)] $@"
 
+# vim: set noexpandtab ts=4 sw=4:
