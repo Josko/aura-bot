@@ -3385,7 +3385,7 @@ void CGame::EventPlayerPongToHost( CGamePlayer *player )
 
 void CGame::EventGameStarted( )
 {
-  Print( "[GAME: " + m_GameName + "] started loading with " + ToString( GetNumHumanPlayers( ) ) + " players" );
+  Print2( "[GAME: " + m_GameName + "] started loading with " + ToString( GetNumHumanPlayers( ) ) + " players" );
 
   // encode the HCL command string in the slot handicaps
   // here's how it works:
