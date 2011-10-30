@@ -42,7 +42,7 @@ class CGamePlayerSortAscByPing
 {
 public:
 
-  bool operator( ) ( CGamePlayer *Player1, CGamePlayer *Player2 ) const
+  bool operator( ) ( const CGamePlayer *Player1, const CGamePlayer *Player2 ) const
   {
     return Player1->GetPing( false ) < Player2->GetPing( false );
   }
@@ -52,7 +52,7 @@ class CGamePlayerSortDescByPing
 {
 public:
 
-  bool operator( ) ( CGamePlayer *Player1, CGamePlayer *Player2 ) const
+  bool operator( ) ( const CGamePlayer *Player1, const CGamePlayer *Player2 ) const
   {
     return Player1->GetPing( false ) > Player2->GetPing( false );
   }
