@@ -30,67 +30,29 @@ class CBNCSUtilInterface
 private:
   void *m_NLS;
   BYTEARRAY m_EXEVersion;         // set in HELP_SID_AUTH_CHECK
-  BYTEARRAY m_EXEVersionHash;     // set in HELP_SID_AUTH_CHECK
-  string m_EXEInfo;               // set in HELP_SID_AUTH_CHECK
+  BYTEARRAY m_EXEVersionHash;     // set in HELP_SID_AUTH_CHECK  
   BYTEARRAY m_KeyInfoROC;         // set in HELP_SID_AUTH_CHECK
   BYTEARRAY m_KeyInfoTFT;         // set in HELP_SID_AUTH_CHECK
   BYTEARRAY m_ClientKey;          // set in HELP_SID_AUTH_ACCOUNTLOGON
   BYTEARRAY m_M1;                 // set in HELP_SID_AUTH_ACCOUNTLOGONPROOF
   BYTEARRAY m_PvPGNPasswordHash;  // set in HELP_PvPGNPasswordHash
+  string m_EXEInfo;               // set in HELP_SID_AUTH_CHECK
 
 public:
   CBNCSUtilInterface( const string &userName, const string &userPassword );
   ~CBNCSUtilInterface( );
 
-  BYTEARRAY GetEXEVersion( )
-  {
-    return m_EXEVersion;
-  }
-
-  BYTEARRAY GetEXEVersionHash( )
-  {
-    return m_EXEVersionHash;
-  }
-
-  string GetEXEInfo( )
-  {
-    return m_EXEInfo;
-  }
-
-  BYTEARRAY GetKeyInfoROC( )
-  {
-    return m_KeyInfoROC;
-  }
-
-  BYTEARRAY GetKeyInfoTFT( )
-  {
-    return m_KeyInfoTFT;
-  }
-
-  BYTEARRAY GetClientKey( )
-  {
-    return m_ClientKey;
-  }
-
-  BYTEARRAY GetM1( )
-  {
-    return m_M1;
-  }
-
-  BYTEARRAY GetPvPGNPasswordHash( )
-  {
-    return m_PvPGNPasswordHash;
-  }
-
-  void SetEXEVersion( BYTEARRAY &nEXEVersion )
-  {
-    m_EXEVersion = nEXEVersion;
-  }
-
-  void SetEXEVersionHash( BYTEARRAY &nEXEVersionHash )
-  {
-    m_EXEVersionHash = nEXEVersionHash;
-  }
+  inline BYTEARRAY GetEXEVersion( ) const               { return m_EXEVersion; }
+  inline BYTEARRAY GetEXEVersionHash( ) const           { return m_EXEVersionHash; }
+  inline string GetEXEInfo( ) const                     { return m_EXEInfo; }
+  inline BYTEARRAY GetKeyInfoROC( ) const               { return m_KeyInfoROC; }
+  inline BYTEARRAY GetKeyInfoTFT( ) const               { return m_KeyInfoTFT; }
+  inline BYTEARRAY GetClientKey( ) const                { return m_ClientKey; }
+  inline BYTEARRAY GetM1( ) const                       { return m_M1; }
+  inline BYTEARRAY GetPvPGNPasswordHash( ) const        { return m_PvPGNPasswordHash; }
+  
+  inline void SetEXEVersion( BYTEARRAY &nEXEVersion )         { m_EXEVersion = nEXEVersion; }
+  inline void SetEXEVersionHash( BYTEARRAY &nEXEVersionHash ) { m_EXEVersionHash = nEXEVersionHash; }
 
   void Reset( string &userName, string &userPassword );
 
