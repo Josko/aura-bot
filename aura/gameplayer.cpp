@@ -263,7 +263,6 @@ bool CGamePlayer::Update( void *fd )
               m_Game->EventPlayerChatToHost( this, ChatPlayer );
 
             delete ChatPlayer;
-            ChatPlayer = NULL;
             break;
 
           case CGameProtocol::W3GS_DROPREQ:
@@ -282,7 +281,6 @@ bool CGamePlayer::Update( void *fd )
               m_Game->EventPlayerMapSize( this, MapSize );
 
             delete MapSize;
-            MapSize = NULL;
             break;
 
           case CGameProtocol::W3GS_PONG_TO_HOST:
@@ -332,8 +330,8 @@ bool CGamePlayer::Update( void *fd )
 
           if ( Bytes[1] == CGPSProtocol::GPS_ACK && Data.size( ) == 8 )
           {
-            uint32_t LastPacket = ByteArrayToUInt32( Data, false, 4 );
-            uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
+            const uint32_t LastPacket = ByteArrayToUInt32( Data, false, 4 );
+            const uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size( );
 
             if ( LastPacket > PacketsAlreadyUnqueued )
             {
