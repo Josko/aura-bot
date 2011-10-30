@@ -596,9 +596,9 @@ bool CAuraDB::GamePlayerAdd( string name, uint64_t loadingtime, uint64_t duratio
     }
     
     sqlite3_bind_int( Statement, 1, Games );
-    sqlite3_bind_int( Statement, 2, loadingtime );
-    sqlite3_bind_int( Statement, 3, duration );
-    sqlite3_bind_int( Statement, 4, left );
+    sqlite3_bind_int64( Statement, 2, loadingtime );
+    sqlite3_bind_int64( Statement, 3, duration );
+    sqlite3_bind_int64( Statement, 4, left );
     sqlite3_bind_text( Statement, 5, name.c_str( ), -1, SQLITE_TRANSIENT );
   }
   
