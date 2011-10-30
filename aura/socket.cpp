@@ -422,15 +422,6 @@ bool CTCPClient::CheckConnect( )
   return false;
 }
 
-void CTCPClient::FlushRecv( fd_set *fd )
-{
-  if ( FD_ISSET( m_Socket, fd ) )
-  {
-    char buffer[1024];
-    recv( m_Socket, buffer, 1024, 0 );
-  }
-}
-
 void CTCPClient::DoRecv( fd_set *fd )
 {
   if ( m_Socket == INVALID_SOCKET || m_HasError || !m_Connected )

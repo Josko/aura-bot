@@ -188,7 +188,6 @@ public:
   inline void ClearRecvBuffer( )                           { m_RecvBuffer.clear( ); }
   inline void SubstrRecvBuffer( unsigned int i )           { m_RecvBuffer = m_RecvBuffer.substr( i ); }
   inline void ClearSendBuffer( )                           { m_SendBuffer.clear( ); }
-  void FlushRecv( fd_set *fd );
   void DoRecv( fd_set *fd );
   void DoSend( fd_set *send_fd );
   void SetNoDelay( );
