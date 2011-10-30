@@ -627,11 +627,11 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck( string name )
       if ( sqlite3_column_count( Statement ) == 4 )
       {
         const uint32_t TotalGames = sqlite3_column_int( Statement, 0 );
-        const uint32_t LoadingTime = sqlite3_column_int( Statement, 1 );
-        const uint32_t Left = sqlite3_column_int( Statement, 2 );
-        const uint32_t Duration = sqlite3_column_int( Statement, 3 );
+        const uint64_t LoadingTime = sqlite3_column_int64( Statement, 1 );
+        const uint64_t Left = sqlite3_column_int64( Statement, 2 );
+        const uint64_t Duration = sqlite3_column_int64( Statement, 3 );
         
-        GamePlayerSummary = new CDBGamePlayerSummary( TotalGames, (float) LoadingTime / TotalGames / 1000, (float) Left / Duration * 100 );
+        GamePlayerSummary = new CDBGamePlayerSummary( TotalGames, (float) LoadingTime / TotalGames / 1000, (float) Duration / Left * 100 );
       }
       else
         Print( "[SQLITE3] error checking gameplayersummary [" + name + "] - row doesn't have 4 columns" );
