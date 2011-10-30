@@ -29,7 +29,7 @@
 
 CSQLITE3::CSQLITE3( const string &filename ) : m_Ready( true )
 {
-  if ( sqlite3_open_v2( filename.c_str( ), ( sqlite3 ** ) & m_DB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL ) != SQLITE_OK )
+  if ( sqlite3_open_v2( filename.c_str( ), ( sqlite3 ** ) &m_DB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL ) != SQLITE_OK )
     m_Ready = false;
 }
 
@@ -42,7 +42,7 @@ CSQLITE3::~CSQLITE3( )
 // CAuraDB
 //
 
-CAuraDB::CAuraDB( CConfig *CFG ) : m_HasError( false ), FromAddStmt( NULL ), FromCheckStmt( NULL ), BanCheckStmt( NULL ), AdminCheckStmt( NULL ), RootAdminCheckStmt( NULL )
+CAuraDB::CAuraDB( CConfig *CFG ) : FromAddStmt( NULL ), FromCheckStmt( NULL ), BanCheckStmt( NULL ), AdminCheckStmt( NULL ), RootAdminCheckStmt( NULL ), m_HasError( false )
 {
   Print( "[SQLITE3] version " + string( SQLITE_VERSION ) );
   m_File = CFG->GetString( "db_sqlite3_file", "aura.dbs" );

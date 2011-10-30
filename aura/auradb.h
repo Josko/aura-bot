@@ -92,8 +92,8 @@ CREATE TEMPORARY TABLE rootadmins (
 class CSQLITE3
 {
 private:
-  bool m_Ready;
   void *m_DB;  
+  bool m_Ready;
 
 public:
   CSQLITE3( const string &filename );
@@ -120,9 +120,8 @@ class CDBBan;
 class CAuraDB
 {
 private:
-  string m_File;
   CSQLITE3 *m_DB;
-  bool m_HasError;
+  string m_File;
   string m_Error;
 
   // we keep some prepared statements in memory rather than recreating them each function call
@@ -135,6 +134,7 @@ private:
   void *AdminCheckStmt;       // frequently used
   void *RootAdminCheckStmt;   // frequently used
 
+  bool m_HasError;
 public:
   CAuraDB( CConfig *CFG );
   ~CAuraDB( );

@@ -42,7 +42,7 @@ CIRC::CIRC( CAura *nAura, const string &nServer, const string &nNickname, const 
     m_CommandTrigger( nCommandTrigger ), m_Exiting( false ),
     m_WaitingToConnect( true ), m_OriginalNick( true )
 {
-	sort(m_RootAdmins.begin(), m_RootAdmins.end());
+	sort( m_RootAdmins.begin( ), m_RootAdmins.end( ) );
 }
 
 CIRC::~CIRC( )
@@ -65,7 +65,7 @@ unsigned int CIRC::SetFD( void *fd, void *send_fd, int *nfds )
 
 bool CIRC::Update( void *fd, void *send_fd )
 {
-  uint32_t Time = GetTime( );
+  const uint32_t Time = GetTime( );
 
   if ( m_Socket->HasError( ) )
   {
