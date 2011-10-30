@@ -838,7 +838,13 @@ void CAura::ExtractScripts( )
     SFileCloseArchive( PatchMPQ );
   }
   else
-    Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + ToString( GetLastError( ) ) );
+  {
+#ifdef WIN32
+    Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + ToString( (uint32_t) GetLastError( ) ) );
+#else
+    Print( "[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + ToString( (int32_t) GetLastError( ) ) );
+#endif
+  }
 }
 
 void CAura::LoadIPToCountryData( )
