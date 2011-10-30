@@ -9,15 +9,34 @@ Using ZLIB1.DLL with Microsoft Visual C++
    1. Install the supplied header files "zlib.h" and "zconf.h"
       into a directory found in the INCLUDE path list.
 
-   2. Install the supplied library files "zdll.exp" and "zdll.lib"
-      into a directory found in the LIB path list.
+   2. Install the supplied library file "zdll.lib" into a
+      directory found in the LIB path list.
 
-   3. Add "zdll.exp" or "zdll.lib" to your project.
+   3. Add "zdll.lib" to your project.
 
-   Notes:
-   - Usually, you don't need both the .exp file and the .lib file.
-   - If you wish, you may rename "zdll.exp" to "zlib1.exp", and/or
-     rename "zdll.lib" to "zlib1.lib".
+
+Using ZLIB1.DLL with gcc/MinGW
+==============================
+   1. Install the supplied header files "zlib.h" and "zconf.h"
+      into the INCLUDE directory.
+
+   2. Copy the supplied library file "zdll.lib" to "libzdll.a":
+        cp lib/zdll.lib lib/libzdll.a
+
+      OR
+
+   2' Build the import library from the supplied "zlib.def":
+        dlltool -D zlib1.dll -d lib/zlib.def -l lib/libzdll.a
+
+   3. Install "libzdll.a" into the LIB directory.
+
+   4. Add "libzdll.a" to your project, or use the -lzdll option.
+
+
+Using ZLIB1.DLL with gcc/Cygwin
+===============================
+  ZLIB1.DLL is not designed to work with Cygwin.  The Cygwin
+  system has its own DLL build of zlib, named CYGZ.DLL.
 
 
 Using ZLIB1.DLL with Borland C++
@@ -45,30 +64,6 @@ Using ZLIB1.DLL with Borland C++
         bcc32 -a -c myprog.c
         bcc32 myprog.obj zdllbor.lib
   - If you wish, you may use "zlib1.lib" instead of "zdllbor.lib".
-
-
-Using ZLIB1.DLL with gcc/MinGW
-==============================
-   1. Install the supplied header files "zlib.h" and "zconf.h"
-      into the INCLUDE directory.
-
-   2. Build the import library from the supplied "zlib.def":
-        dlltool -D zlib1.dll -d lib/zlib.def -l lib/libzdll.a
-
-      OR
-
-   2' Copy the supplied library file "zdll.lib" to "libzdll.a":
-        cp lib/zdll.lib lib/libzdll.a
-
-   3. Install "libzdll.a" into the LIB directory.
-
-   4. Add "libzdll.a" to your project, or use the -lzdll option.
-
-
-Using ZLIB1.DLL with gcc/Cygwin
-===============================
-  ZLIB1.DLL is not designed to work with Cygwin.  The Cygwin
-  system has its own DLL build of zlib, named CYGZ.DLL.
 
 
 Rebuilding ZLIB1.DLL

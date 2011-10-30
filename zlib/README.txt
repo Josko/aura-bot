@@ -6,7 +6,7 @@ What's here
 
 Source
 ======
-  zlib version 1.2.3
+  zlib version 1.2.5
   available at http://www.gzip.org/zlib/
 
 
@@ -22,15 +22,27 @@ Usage
 
 Build info
 ==========
-  Contributed by Gilles Vollant <info@winimage.com>
+  Contributed by Cosmin Truta.
+  Import lib file (zdll.lib) contributed by Gilles Vollant.
 
-  Compiler: Microsoft Visual C++ Toolkit 2003
-  Library:  Microsoft Visual C++ 6.0  (to link with MSVCRT.DLL)
+  Compiler:
+    gcc-4.5.0-1-mingw32
+  Library:
+    mingwrt-3.17, w32api-3.14
+  Build commands:
+    gcc -c -DASMV contrib/asm686/match.S
+    gcc -c -DASMINF -I. -O3 contrib/inflate86/inffas86.c
+    make -f win32/Makefile.gcc LOC="-DASMV -DASMINF" OBJA="inffas86.o match.o"
+
+
+Changes from zlib125-dll.zip
+============================
+   Built zdll.lib using Microsoft Visual Studio 2010
 
 
 Copyright notice
 ================
- (C) 1995-2005 Jean-loup Gailly and Mark Adler
+  Copyright (C) 1995-2010 Jean-loup Gailly and Mark Adler
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
