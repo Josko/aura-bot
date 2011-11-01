@@ -63,7 +63,7 @@ public:
 //
 
 CGame::CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer ) 
-  : m_Aura( nAura ), m_Socket( new CTCPServer( ) ), m_DBBanLast( NULL ),
+  : m_Aura( nAura ), m_Socket( new CTCPServer( ) ), m_DBBanLast( NULL ), m_Stats( NULL ),
     m_Protocol( new CGameProtocol( nAura ) ), m_Slots( nMap->GetSlots( ) ),
     m_Map( new CMap( *nMap ) ),  m_GameName( nGameName ), m_LastGameName( nGameName ),
     m_VirtualHostName( nAura->m_VirtualHostName ), m_OwnerName( nOwnerName ),
@@ -108,11 +108,6 @@ CGame::CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameS
     Print2( "[GAME: " + m_GameName + "] error listening on port " + ToString( m_HostPort ) );    
     m_Exiting = true;
   }
-
-  if ( m_Map->GetMapType( ) == "dota" )
-    m_Stats = new CStats( this );
-  else
-    m_Stats = NULL;
 }
 
 CGame::~CGame( )
@@ -135,7 +130,7 @@ CGame::~CGame( )
 
   // store the dota stats in the database
 
-  if ( m_Stats && m_StartPlayers >= 5 )
+  if ( m_Stats )
       m_Stats->Save( m_Aura, m_Aura->m_DB );  
 
   while ( !m_Actions.empty( ) )
@@ -834,7 +829,7 @@ void CGame::SendAllChat( unsigned char fromPID, const string &message )
 
   if ( GetNumHumanPlayers( ) > 0 )
   {
-    Print( "[GAME: " + m_GameName + "] [Local]: " + message );
+    Print( "[GAME: " + m_GameName + "] [Local] " + message );
 
     if ( !m_GameLoading && !m_GameLoaded )
     {
@@ -1537,34 +1532,24 @@ void CGame::EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *cha
 
       if ( !ExtraFlags.empty( ) )
       {
-        if ( ExtraFlags[0] == 1 )
-        {
-          Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Allies] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
-        }
-        else if ( ExtraFlags[0] == 0 )
+        if ( ExtraFlags[0] == 0 )
         {
           // this is an ingame [All] message, print it to the console
 
-          Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [All] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+          Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [All] [" + player->GetName( ) + "] " + chatPlayer->GetMessage( ) );
 
           // don't relay ingame messages targeted for all players if we're currently muting all
           // note that commands will still be processed even when muting all because we only stop relaying the messages, the rest of the function is unaffected
-
+  
           if ( m_MuteAll )
             Relay = false;
-        }
-        else if ( ExtraFlags[0] == 2 )
-        {
-          // this is an ingame [Obs/Ref] message, print it to the console
-
-          Print( "[GAME: " + m_GameName + "] (" + MinString + ":" + SecString + ") [Obs/Ref] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
         }
       }
       else
       {
         // this is a lobby message, print it to the console
 
-        Print( "[GAME: " + m_GameName + "] [Lobby] [" + player->GetName( ) + "]: " + chatPlayer->GetMessage( ) );
+        Print( "[GAME: " + m_GameName + "] [Lobby] [" + player->GetName( ) + "] " + chatPlayer->GetMessage( ) );
 
         if ( m_MuteLobby )
           Relay = false;
@@ -1602,14 +1587,20 @@ void CGame::EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *cha
       if ( Relay )
         Send( chatPlayer->GetToPIDs( ), m_Protocol->SEND_W3GS_CHAT_FROM_HOST( chatPlayer->GetFromPID( ), chatPlayer->GetToPIDs( ), chatPlayer->GetFlag( ), chatPlayer->GetExtraFlags( ), chatPlayer->GetMessage( ) ) );
     }
-    else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_TEAMCHANGE && !m_CountDownStarted )
-      EventPlayerChangeTeam( player, chatPlayer->GetByte( ) );
-    else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_COLOURCHANGE && !m_CountDownStarted )
-      EventPlayerChangeColour( player, chatPlayer->GetByte( ) );
-    else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_RACECHANGE && !m_CountDownStarted )
-      EventPlayerChangeRace( player, chatPlayer->GetByte( ) );
-    else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_HANDICAPCHANGE && !m_CountDownStarted )
-      EventPlayerChangeHandicap( player, chatPlayer->GetByte( ) );
+    else
+    {
+      if ( !m_CountDownStarted )
+      {
+        if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_TEAMCHANGE )
+          EventPlayerChangeTeam( player, chatPlayer->GetByte( ) );
+        else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_COLOURCHANGE )
+          EventPlayerChangeColour( player, chatPlayer->GetByte( ) );
+        else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_RACECHANGE )
+          EventPlayerChangeRace( player, chatPlayer->GetByte( ) );
+        else if ( chatPlayer->GetType( ) == CIncomingChatPlayer::CTH_HANDICAPCHANGE )
+          EventPlayerChangeHandicap( player, chatPlayer->GetByte( ) );
+      }
+    }
   }
 }
 
@@ -3479,13 +3470,14 @@ void CGame::EventGameStarted( )
 
   m_StartPlayers = GetNumHumanPlayers( );
 
-  // disable stats if not enough players (6)
+  // enable stats
 
-  if ( m_StartPlayers < 6 )
+  if ( m_Map->GetMapType( ) == "dota" )
   {
-    Print( "[STATS] disabling dotastats due to too few players" );
-    delete m_Stats;
-    m_Stats = NULL;
+    if ( m_StartPlayers < 6 )
+      Print( "[STATS] not using dotastats due to too few players" );
+    else
+      m_Stats = new CStats( this );
   }
 
   // close the listening socket
@@ -4191,6 +4183,7 @@ bool CGame::IsOwner( string name )
   string OwnerLower = m_OwnerName;
   transform( name.begin( ), name.end( ), name.begin( ), (int(* )(int) )tolower );
   transform( OwnerLower.begin( ), OwnerLower.end( ), OwnerLower.begin( ), (int(* )(int) )tolower );
+
   return name == OwnerLower;
 }
 

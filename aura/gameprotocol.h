@@ -25,7 +25,7 @@
 // CGameProtocol
 //
 
-#define W3GS_HEADER_CONSTANT        247
+#define W3GS_HEADER_CONSTANT      247
 
 #define GAME_NONE                   0   // this case isn't part of the protocol, it's for internal use only
 #define GAME_FULL                   2
@@ -156,10 +156,10 @@ private:
 class CIncomingJoinPlayer
 {
 private:
-  uint32_t m_HostCounter;
-  uint32_t m_EntryKey;
   string m_Name;
   BYTEARRAY m_InternalIP;
+  uint32_t m_HostCounter;
+  uint32_t m_EntryKey;  
 
 public:
   CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, const string &nName, BYTEARRAY &nInternalIP );
@@ -178,9 +178,9 @@ public:
 class CIncomingAction
 {
 private:
-  unsigned char m_PID;
   BYTEARRAY m_CRC;
   BYTEARRAY m_Action;
+  unsigned char m_PID;
 
 public:
   CIncomingAction( unsigned char nPID, BYTEARRAY &nCRC, BYTEARRAY &nAction );
@@ -211,13 +211,13 @@ public:
   };
 
 private:
+  string m_Message;
+  BYTEARRAY m_ToPIDs;
+  BYTEARRAY m_ExtraFlags;
   ChatToHostType m_Type;
   unsigned char m_FromPID;
-  BYTEARRAY m_ToPIDs;
   unsigned char m_Flag;
-  string m_Message;
   unsigned char m_Byte;
-  BYTEARRAY m_ExtraFlags;
 
 public:
   CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage );
@@ -237,8 +237,8 @@ public:
 class CIncomingMapSize
 {
 private:
-  unsigned char m_SizeFlag;
   uint32_t m_MapSize;
+  unsigned char m_SizeFlag;
 
 public:
   CIncomingMapSize( unsigned char nSizeFlag, uint32_t nMapSize );

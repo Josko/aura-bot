@@ -30,7 +30,6 @@
 // so the idea is that you parse the actions to gather data about the game, storing the results in any member variables you need in your subclass
 // and in the Save function you write the results to the database
 // e.g. for dota the number of kills/deaths/assists, etc...
-// the base class is almost completely empty
 
 class CIncomingAction;
 class CAuraDB;

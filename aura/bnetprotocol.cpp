@@ -24,7 +24,7 @@
 
 CBNETProtocol::CBNETProtocol( )
 {
-  unsigned char ClientToken[] = { 220, 1, 203, 7 };
+  const unsigned char ClientToken[] = { 220, 1, 203, 7 };
   m_ClientToken = CreateByteArray( ClientToken, 4 );
 }
 
@@ -842,7 +842,7 @@ bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
 // CIncomingGameHost
 //
 
-CIncomingGameHost::CIncomingGameHost( BYTEARRAY &nIP, uint16_t nPort, string nGameName, BYTEARRAY &nHostCounter ) : m_IP( nIP ), m_Port( nPort ), m_GameName( nGameName ), m_HostCounter( nHostCounter )
+CIncomingGameHost::CIncomingGameHost( BYTEARRAY &nIP, uint16_t nPort, string nGameName, BYTEARRAY &nHostCounter ) : m_GameName( nGameName ), m_IP( nIP ), m_HostCounter( nHostCounter ), m_Port( nPort )
 {
 
 }
@@ -874,7 +874,7 @@ string CIncomingGameHost::GetIPString( ) const
 // CIncomingChatEvent
 //
 
-CIncomingChatEvent::CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage ) : m_ChatEvent( nChatEvent ), m_User( nUser ), m_Message( nMessage )
+CIncomingChatEvent::CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage ) : m_User( nUser ), m_Message( nMessage ), m_ChatEvent( nChatEvent )
 {
 
 }

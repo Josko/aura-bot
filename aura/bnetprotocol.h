@@ -174,10 +174,10 @@ private:
 class CIncomingGameHost
 {
 private:
-  BYTEARRAY m_IP;
-  uint16_t m_Port;
   string m_GameName;
+  BYTEARRAY m_IP;
   BYTEARRAY m_HostCounter;
+  uint16_t m_Port;
 
 public:
   CIncomingGameHost( BYTEARRAY &nIP, uint16_t nPort, string nGameName, BYTEARRAY &nHostCounter );
@@ -197,9 +197,9 @@ public:
 class CIncomingChatEvent
 {
 private:
-  CBNETProtocol::IncomingChatEvent m_ChatEvent;
   string m_User;
   string m_Message;
+  CBNETProtocol::IncomingChatEvent m_ChatEvent;
 
 public:
   CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage );

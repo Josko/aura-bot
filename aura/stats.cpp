@@ -30,7 +30,7 @@
 // CStats
 //
 
-CStats::CStats( CGame *nGame ) : m_Game( nGame ),  m_Winner( 0 )
+CStats::CStats( CGame *nGame ) : m_Game( nGame ), m_Winner( 0 )
 {
   Print( "[STATS] using dota stats" );
 
@@ -196,20 +196,12 @@ bool CStats::ProcessAction( CIncomingAction *Action )
 
                 m_Winner = ValueInt;
                 
-                switch( m_Winner )
-                {
-                  case 1:
+                if ( m_Winner  == 1 )
                     Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: Sentinel" );
-                    break;
-                    
-                  case 2:
+                else if ( m_Winner == 2 )
                     Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: Scourge" );
-                    break;
-                  
-                  default:
-                    Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: " + ToString( ValueInt ) );
-                    break;
-                }                  
+                else
+                    Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: " + ToString( ValueInt ) );                  
               }
             }
             else if ( DataString.size( ) <= 2 && DataString.find_first_not_of( "1234567890" ) == string::npos )
@@ -259,7 +251,8 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                     
                     break;
                     
-                  default: break;
+                  default:
+                    break;
                 }
               }
             }
