@@ -267,7 +267,7 @@ inline void AppendByteArray( BYTEARRAY &b, const BYTEARRAY &append )
   b.insert( b.end( ), append.begin( ), append.end( ) );
 }
 
-inline void AppendByteArrayFast( BYTEARRAY &b, BYTEARRAY &append )
+inline void AppendByteArrayFast( BYTEARRAY &b, const BYTEARRAY &append )
 {
   b.insert( b.end( ), append.begin( ), append.end( ) );
 }
@@ -277,7 +277,7 @@ inline void AppendByteArray( BYTEARRAY &b, unsigned char *a, int size )
   AppendByteArray( b, CreateByteArray( a, size ) );
 }
 
-inline void AppendByteArray( BYTEARRAY &b, string append, bool terminator = true )
+inline void AppendByteArray( BYTEARRAY &b, const string &append, bool terminator = true )
 {
   // append the string plus a null terminator
 
@@ -287,7 +287,7 @@ inline void AppendByteArray( BYTEARRAY &b, string append, bool terminator = true
     b.push_back( 0 );
 }
 
-inline void AppendByteArrayFast( BYTEARRAY &b, string &append, bool terminator = true )
+inline void AppendByteArrayFast( BYTEARRAY &b, const string &append, bool terminator = true )
 {
   // append the string plus a null terminator
 
