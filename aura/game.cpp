@@ -1489,7 +1489,7 @@ void CGame::EventPlayerKeepAlive( CGamePlayer *player )
 
   const uint32_t FirstCheckSum = player->GetCheckSums( )->front( );
 
-  for ( vector<CGamePlayer *> ::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+  for ( vector<CGamePlayer *>::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
   {
     if ( (*i)->GetCheckSums( )->empty( ) )
       return;
@@ -1504,7 +1504,7 @@ void CGame::EventPlayerKeepAlive( CGamePlayer *player )
     }
   }
 
-  for ( vector<CGamePlayer *> ::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
+  for ( vector<CGamePlayer *>::const_iterator i = m_Players.begin( ); i != m_Players.end( ); ++i )
     (*i)->GetCheckSums( )->pop( );
 }
 

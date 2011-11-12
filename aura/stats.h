@@ -39,7 +39,7 @@ class CStats
 protected:
   CGame *m_Game;
   CDBDotAPlayer *m_Players[12];
-  uint32_t m_Winner;
+  unsigned char m_Winner;
 
 public:
   CStats( CGame *nGame );

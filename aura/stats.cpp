@@ -61,7 +61,7 @@ bool CStats::ProcessAction( CIncomingAction *Action )
 
   do
   {
-    if ( ( *ActionData )[i] == 0x6b && ( *ActionData )[i + 1] == 0x64 && ( *ActionData )[i + 2] == 0x72 && ( *ActionData )[i + 3] == 0x2e && ( *ActionData )[i + 4] == 0x78 && ( *ActionData )[i + 5] == 0x00 )
+    if ( ( *ActionData )[i] == 0x6b && ( *ActionData )[i+1] == 0x64 && ( *ActionData )[i+2] == 0x72 && ( *ActionData )[i+3] == 0x2e && ( *ActionData )[i+4] == 0x78 && ( *ActionData )[i+5] == 0x00 )
     {
       // we think we've found an action with real time replay data (but we can't be 100% sure)
       // next we parse out two null terminated strings and a 4 byte integer
@@ -97,7 +97,7 @@ bool CStats::ProcessAction( CIncomingAction *Action )
               
               if ( KeyString.size( ) >= 5 && KeyString.substr( 0, 4 ) == "Hero" )
               {
-                // a hero died                
+                // a hero died
 
                 string VictimName = KeyString.substr( 4 );
                 const uint32_t KillerColour = ValueInt;
@@ -109,14 +109,14 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                   m_Players[ValueInt] = new CDBDotAPlayer( );
                 
                 if ( !m_Players[VictimColour] )
-                  m_Players[VictimColour] = new CDBDotAPlayer( );          
+                  m_Players[VictimColour] = new CDBDotAPlayer( );
                 
                 if ( Victim )
                 {
                   if ( Killer )
                   {
                     // check for hero denies
-                     
+                    
                     if ( !( ( KillerColour <= 5 && VictimColour <= 5 ) || ( KillerColour >= 7 && VictimColour >= 7 ) ) )
                     {
                       // non-leaver killed a non-leaver
@@ -131,7 +131,7 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                     
                     m_Players[VictimColour]->IncDeaths( );
                   }
-                }       
+                }
               }
               else if ( KeyString.size( ) >= 7 && KeyString.substr( 0, 6 ) == "Assist" )
               {
@@ -221,7 +221,7 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                 // Key "3"		-> Creep Kills
                 // Key "4"		-> Creep Denies
                 // Key "7"		-> Neutral Kills
-                // Key "id"   -> ID (1-5 for sentinel, 6-10 for scourge, accurate after using -sp and/or -switch)
+                // Key "id"     -> ID (1-5 for sentinel, 6-10 for scourge, accurate after using -sp and/or -switch)
                 
                 switch( KeyString[0] )
                 {
@@ -247,8 +247,7 @@ bool CStats::ProcessAction( CIncomingAction *Action )
                         m_Players[ID]->SetNewColour( ValueInt + 1 );
                       else
                         m_Players[ID]->SetNewColour( ValueInt );
-                    }
-                    
+                    }                    
                     break;
                     
                   default:
