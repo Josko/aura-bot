@@ -2454,9 +2454,9 @@ bool CGame::EventPlayerBotCommand( CGamePlayer *player, string &command, string 
         string message = "Status: ";
 
         for ( vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin( ); i != m_Aura->m_BNETs.end( ); ++i )
-          message += (*i)->GetServer( ) + ( (*i)->GetLoggedIn( ) ? " [Online], " : " [Offline], " );
+          message += (*i)->GetServer( ) + ( (*i)->GetLoggedIn( ) ? " [online], " : " [offline], " );
 
-        SendAllChat( message + m_Aura->m_IRC->m_Server + ( !m_Aura->m_IRC->m_WaitingToConnect ? " [Online]" : " [Offline]" ) );
+        SendAllChat( message + m_Aura->m_IRC->m_Server + ( !m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]" ) );
       }
 
         //
