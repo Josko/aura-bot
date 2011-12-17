@@ -1,10 +1,10 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 CXX = g++
-CXXFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
+CXXFLAGS = -O3 -I ../ -Wno-multichar -fPIC
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
 CC = gcc
-CCFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
+CCFLAGS = -O3 -I ../ -Wno-multichar -fPIC
 CCOBJ = nls.o pe.o sha1.o stack.o
 
 ifeq ($(SYSTEM),Darwin)
