@@ -23,13 +23,13 @@
 
 // Include functions from zlib
 #ifndef __SYS_ZLIB
-#include "zlib/zlib.h"      // Include functions from zlib
+#include "zlib.h"			// Include functions from zlib
 #else
 #include <zlib.h>           // If zlib is available on system, use this instead
 #endif
 
 // Include functions from Huffmann compression
-#include "huffman/huff.h"  
+#include "huffman/huff.h"
 
 // Include functions from WAVe compression
 #include "wave/wave.h"  

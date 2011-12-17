@@ -1,26 +1,22 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
-ARCH = $(shell uname -m)
-CC = gcc
 CXX = g++
-CCFLAGS = -O3 -I ../ -Wno-multichar -fPIC
-CXXFLAGS = -O3 -I ../ -Wno-multichar -fPIC
-CCOBJ = nls.o pe.o sha1.o stack.o
+CXXFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
-
-ifeq ($(ARCH),x86_64)
-	CCFLAGS += -m64
-	CXXFLAGS += -m64
-endif
+CC = gcc
+CCFLAGS = -Wall -O3 -I ../ -Wno-multichar -fPIC
+CCOBJ = nls.o pe.o sha1.o stack.o
 
 ifeq ($(SYSTEM),Darwin)
-	CXX = /usr/bin/g++
-	CC = /usr/bin/gcc
-	LDFLAGS = -dynamiclib -lgmp -L/opt/local/lib
-	TARGET = libbncsutil.a
+CXX = /usr/bin/g++
+CC = /usr/bin/gcc
+LDFLAGS = -dynamiclib -lgmp -L/opt/local/lib
+TARGET = libbncsutil.a
+CCFLAGS += -m64
+CXXFLAGS += -m64
 else
-	LDFLAGS = -shared -lgmp
-	TARGET = libbncsutil.so
+LDFLAGS = -shared -lgmp
+TARGET = libbncsutil.so
 endif
 
 $(TARGET): $(CXXOBJ) $(CCOBJ) 
@@ -42,5 +38,3 @@ install: $(TARGET)
 	cp *.h /usr/include/bncsutil
 	cp $(TARGET) /usr/lib
 	ldconfig
-
-# vim: set noexpandtab ts=4 sw=4:

@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{7bf5e270-c21a-4c87-a0c0-d7155f314fa9}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Source Files\pklib">
+      <UniqueIdentifier>{ac1ad8fb-c4b9-4e2d-997a-7d27039e0ca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\zlib">
+      <UniqueIdentifier>{1b2096c9-a227-4b62-ba84-d27f541ceb76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\huffman">
+      <UniqueIdentifier>{46cfb9ee-1787-4a26-a602-4c24cca29619}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\wave">
+      <UniqueIdentifier>{6b75df86-e047-487f-82e3-dd970d21eb61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\bzip2">
+      <UniqueIdentifier>{705790a3-4fd3-4e34-83ac-4ead98630c11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\misc">
+      <UniqueIdentifier>{a16a745e-ed95-4897-95ba-5881d647b6e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4b6e845f-0e3c-42f4-b1f5-40e6ce510fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Doc Files">
+      <UniqueIdentifier>{65549413-58ad-45aa-8a49-83b7f1114b5a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stormlib\SAttrFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SCompression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileCompactArchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileCreateArchiveEx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileExtractFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileFindFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileOpenArchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileOpenFileEx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SFileReadFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\SListFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\StormPortLinux.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\StormPortMac.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\pklib\explode.c">
+      <Filter>Source Files\pklib</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\pklib\implode.c">
+      <Filter>Source Files\pklib</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\huffman\huff.cpp">
+      <Filter>Source Files\huffman</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\wave\wave.cpp">
+      <Filter>Source Files\wave</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\blocksort.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\bzlib.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\compress.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\crctable.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\decompress.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\huffman.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\bzip2\randtable.c">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\misc\crc32.cpp">
+      <Filter>Source Files\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="stormlib\misc\md5.cpp">
+      <Filter>Source Files\misc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stormlib\pklib\pklib.h">
+      <Filter>Source Files\pklib</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\zlib\zconf.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\zlib\zutil.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\huffman\huff.h">
+      <Filter>Source Files\huffman</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\wave\wave.h">
+      <Filter>Source Files\wave</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\bzip2\bzlib.h">
+      <Filter>Source Files\bzip2</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\SCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\StormLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stormlib\StormPort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="doc\History.txt">
+      <Filter>Doc Files</Filter>
+    </None>
+    <None Include="doc\The MoPaQ File Format 0.9.txt">
+      <Filter>Doc Files</Filter>
+    </None>
+    <None Include="doc\The MoPaQ File Format 1.0.txt">
+      <Filter>Doc Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
