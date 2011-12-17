@@ -13,7 +13,7 @@ Boost
 -----
 
 You will need the [Boost](http://www.boost.org/users/download/) libraries. Specifically
-boost date-time, system and filesystemV2.
+boost date-time, system and filesystem.
 
 ### Windows
 
@@ -21,14 +21,21 @@ Windows users can build by:
 	
 	... cd to the boost directory
 	bootstrap
-	bjam date_time filesystem system link=static threading=multi variant=release
+
+Then, depending on platform, for Win32:
+
+	bjam date_time filesystem system link=static threading=multi variant=release address-model=32
+
+and for x64:
+
+	bjam date_time filesystem system link=static threading=multi variant=release address-model=64
 	
-Then move the library files from the bin.v2 folder to `~/aura-bot/aura/boost/lib` (create the folder
-if it doesn't exist).
+Then move the library files from the bin.v2 folder to `~/aura-bot/boost/lib` or `~/aura-bot/boost/lib64`, depnding on
+the platform.
 
 ### Linux
 
-Linux users can usually fetch them from the repo:
+Linux users can usually fetch them from the repository:
 
 * Arch Linux -- `pacman -S boost`
 * Debian/Ubuntu -- `apt-get install libboost-date-time-dev libboost-system-dev libboost-filesystem-dev`
@@ -52,10 +59,8 @@ Building
 ### Windows
 
 Windows users should use VS2010 as there are the necessary .sln and .vcxproj files. Before
-building, choose the Release option. The binary shall be generated in the `..\aura-bot\aura\Release` folder.
+building, choose the Win32 or x64 platform. The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 Run it from `aura-bot` folder.
-
-note: supplied project settings produce a x86 binary.
 
 ### Linux
 
