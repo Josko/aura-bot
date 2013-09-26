@@ -44,110 +44,53 @@ CGPSProtocol::~CGPSProtocol( )
 
 BYTEARRAY CGPSProtocol::SEND_GPSC_INIT( uint32_t version )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_INIT );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 8, 0};
   AppendByteArray( packet, version, false );
-  AssignLength( packet );
   return packet;
 }
 
 BYTEARRAY CGPSProtocol::SEND_GPSC_RECONNECT( unsigned char PID, uint32_t reconnectKey, uint32_t lastPacket )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_RECONNECT );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
-  packet.push_back( PID );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 13, 0, PID};
   AppendByteArray( packet, reconnectKey, false );
   AppendByteArray( packet, lastPacket, false );
-  AssignLength( packet );
   return packet;
 }
 
 BYTEARRAY CGPSProtocol::SEND_GPSC_ACK( uint32_t lastPacket )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_ACK );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_ACK, 8, 0};
   AppendByteArray( packet, lastPacket, false );
-  AssignLength( packet );
   return packet;
 }
 
 BYTEARRAY CGPSProtocol::SEND_GPSS_INIT( uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_INIT );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 14, 0};
   AppendByteArray( packet, reconnectPort, false );
   packet.push_back( PID );
   AppendByteArray( packet, reconnectKey, false );
   packet.push_back( numEmptyActions );
-  AssignLength( packet );
   return packet;
 }
 
 BYTEARRAY CGPSProtocol::SEND_GPSS_RECONNECT( uint32_t lastPacket )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_RECONNECT );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 8, 0};
   AppendByteArray( packet, lastPacket, false );
-  AssignLength( packet );
   return packet;
 }
 
 BYTEARRAY CGPSProtocol::SEND_GPSS_ACK( uint32_t lastPacket )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_ACK );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_ACK, 8, 0};
   AppendByteArray( packet, lastPacket, false );
-  AssignLength( packet );
   return packet;
 }
 
 BYTEARRAY CGPSProtocol::SEND_GPSS_REJECT( uint32_t reason )
 {
-  BYTEARRAY packet;
-  packet.push_back( GPS_HEADER_CONSTANT );
-  packet.push_back( GPS_REJECT );
-  packet.push_back( 0 );
-  packet.push_back( 0 );
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_REJECT, 8, 0};
   AppendByteArray( packet, reason, false );
-  AssignLength( packet );
   return packet;
-}
-
-/////////////////////
-// OTHER FUNCTIONS //
-/////////////////////
-
-bool CGPSProtocol::AssignLength( BYTEARRAY &content )
-{
-  // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
-
-  BYTEARRAY LengthBytes;
-
-  if ( content.size( ) >= 4 && content.size( ) <= 65535 )
-  {
-    LengthBytes = CreateByteArray( (uint16_t) content.size( ), false );
-    content[2] = LengthBytes[0];
-    content[3] = LengthBytes[1];
-    return true;
-  }
-
-  return false;
 }

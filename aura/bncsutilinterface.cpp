@@ -28,130 +28,126 @@
 // CBNCSUtilInterface
 //
 
-CBNCSUtilInterface::CBNCSUtilInterface( const string &userName, const string &userPassword )
+CBNCSUtilInterface::CBNCSUtilInterface(const string &userName, const string &userPassword)
 {
-  // m_nls = (void *)nls_init( userName.c_str( ), userPassword.c_str( ) );
-  m_NLS = new NLS( userName, userPassword );
+  m_NLS = new NLS(userName, userPassword);
 }
 
-CBNCSUtilInterface::~CBNCSUtilInterface( )
+CBNCSUtilInterface::~CBNCSUtilInterface()
 {
-  // nls_free( (nls_t *)m_nls );
-  delete (NLS *) m_NLS;
+  delete(NLS *) m_NLS;
 }
 
-void CBNCSUtilInterface::Reset( string &userName, string &userPassword )
+void CBNCSUtilInterface::Reset(const string &userName, const string &userPassword)
 {
-  // nls_free( (nls_t *)m_nls );
-  // m_nls = (void *)nls_init( userName.c_str( ), userPassword.c_str( ) );
-  delete (NLS *) m_NLS;
-  m_NLS = new NLS( userName, userPassword );
+  delete(NLS *) m_NLS;
+  m_NLS = new NLS(userName, userPassword);
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK( string &war3Path, string &keyROC, string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken )
+bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string &war3Path, const string &keyROC, const string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken)
 {
   // set m_EXEVersion, m_EXEVersionHash, m_EXEInfo, m_InfoROC, m_InfoTFT
 
-  string FileWar3EXE = war3Path + "war3.exe";
+  const string FileWar3EXE = war3Path + "war3.exe";
   string FileStormDLL = war3Path + "Storm.dll";
 
-  if ( !FileExists( FileStormDLL ) )
+  if (!FileExists(FileStormDLL))
     FileStormDLL = war3Path + "storm.dll";
 
-  string FileGameDLL = war3Path + "game.dll";
-  bool ExistsWar3EXE = FileExists( FileWar3EXE );
-  bool ExistsStormDLL = FileExists( FileStormDLL );
-  bool ExistsGameDLL = FileExists( FileGameDLL );
+  const string FileGameDLL = war3Path + "game.dll";
 
-  if ( ExistsWar3EXE && ExistsStormDLL && ExistsGameDLL )
+  const bool ExistsWar3EXE = FileExists(FileWar3EXE);
+  const bool ExistsStormDLL = FileExists(FileStormDLL);
+  const bool ExistsGameDLL = FileExists(FileGameDLL);
+
+  if (ExistsWar3EXE && ExistsStormDLL && ExistsGameDLL)
   {
     // TODO: check getExeInfo return value to ensure 1024 bytes was enough
 
     char buf[1024];
     uint32_t EXEVersion;
-    getExeInfo( FileWar3EXE.c_str( ), (char *) &buf, 1024, ( uint32_t * ) & EXEVersion, BNCSUTIL_PLATFORM_X86 );
-    m_EXEInfo = buf;
-    m_EXEVersion = CreateByteArray( EXEVersion, false );
     uint32_t EXEVersionHash;
-    checkRevisionFlat( valueStringFormula.c_str( ), FileWar3EXE.c_str( ), FileStormDLL.c_str( ), FileGameDLL.c_str( ), extractMPQNumber( mpqFileName.c_str( ) ), (unsigned long *) &EXEVersionHash );
-    m_EXEVersionHash = CreateByteArray( EXEVersionHash, false );
-    m_KeyInfoROC = CreateKeyInfo( keyROC, ByteArrayToUInt32( clientToken, false ), ByteArrayToUInt32( serverToken, false ) );
-    m_KeyInfoTFT = CreateKeyInfo( keyTFT, ByteArrayToUInt32( clientToken, false ), ByteArrayToUInt32( serverToken, false ) );
 
-    if ( m_KeyInfoROC.size( ) == 36 && m_KeyInfoTFT.size( ) == 36 )
+    getExeInfo(FileWar3EXE.c_str(), buf, 1024, &EXEVersion, BNCSUTIL_PLATFORM_X86);
+    checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long *) &EXEVersionHash);
+    m_EXEInfo = buf;
+    m_EXEVersion = CreateByteArray(EXEVersion, false);
+    m_EXEVersionHash = CreateByteArray(EXEVersionHash, false);
+    m_KeyInfoROC = CreateKeyInfo(keyROC, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
+    m_KeyInfoTFT = CreateKeyInfo(keyTFT, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
+
+    if (m_KeyInfoROC.size() == 36 && m_KeyInfoTFT.size() == 36)
       return true;
     else
     {
-      if ( m_KeyInfoROC.size( ) != 36 )
-        Print( "[BNCSUI] unable to create ROC key info - invalid ROC key" );
+      if (m_KeyInfoROC.size() != 36)
+        Print("[BNCSUI] unable to create ROC key info - invalid ROC key");
 
-      if ( m_KeyInfoTFT.size( ) != 36 )
-        Print( "[BNCSUI] unable to create TFT key info - invalid TFT key" );
+      if (m_KeyInfoTFT.size() != 36)
+        Print("[BNCSUI] unable to create TFT key info - invalid TFT key");
     }
   }
   else
   {
-    if ( !ExistsWar3EXE )
-      Print( "[BNCSUI] unable to open [" + FileWar3EXE + "]" );
+    if (!ExistsWar3EXE)
+      Print("[BNCSUI] unable to open [" + FileWar3EXE + "]");
 
-    if ( !ExistsStormDLL )
-      Print( "[BNCSUI] unable to open [" + FileStormDLL + "]" );
+    if (!ExistsStormDLL)
+      Print("[BNCSUI] unable to open [" + FileStormDLL + "]");
 
-    if ( !ExistsGameDLL )
-      Print( "[BNCSUI] unable to open [" + FileGameDLL + "]" );
+    if (!ExistsGameDLL)
+      Print("[BNCSUI] unable to open [" + FileGameDLL + "]");
   }
 
   return false;
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON( )
+bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON()
 {
   // set m_ClientKey
 
   char buf[32];
-  // nls_get_A( (nls_t *)m_nls, buf );
-  ( (NLS *) m_NLS )->getPublicKey( buf );
-  m_ClientKey = CreateByteArray( (unsigned char *) buf, 32 );
+  ((NLS *) m_NLS)->getPublicKey(buf);
+  m_ClientKey = CreateByteArray((unsigned char *) buf, 32);
   return true;
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF( const BYTEARRAY &salt, const BYTEARRAY &serverKey )
+bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &salt, const BYTEARRAY &serverKey)
 {
   // set m_M1
 
   char buf[20];
-  // nls_get_M1( (nls_t *)m_nls, buf, string( serverKey.begin( ), serverKey.end( ) ).c_str( ), string( salt.begin( ), salt.end( ) ).c_str( ) );
-  ( (NLS *) m_NLS )->getClientSessionKey( buf, string( salt.begin( ), salt.end( ) ).c_str( ), string( serverKey.begin( ), serverKey.end( ) ).c_str( ) );
-  m_M1 = CreateByteArray( (unsigned char *) buf, 20 );
+  ((NLS *) m_NLS)->getClientSessionKey(buf, string(salt.begin(), salt.end()).c_str(), string(serverKey.begin(), serverKey.end()).c_str());
+  m_M1 = CreateByteArray((unsigned char *) buf, 20);
   return true;
 }
 
-bool CBNCSUtilInterface::HELP_PvPGNPasswordHash( string &userPassword )
+bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string &userPassword)
 {
   // set m_PvPGNPasswordHash
 
   char buf[20];
-  hashPassword( userPassword.c_str( ), buf );
-  m_PvPGNPasswordHash = CreateByteArray( (unsigned char *) buf, 20 );
+  hashPassword(userPassword.c_str(), buf);
+  m_PvPGNPasswordHash = CreateByteArray((unsigned char *) buf, 20);
   return true;
 }
 
-BYTEARRAY CBNCSUtilInterface::CreateKeyInfo( string &key, uint32_t clientToken, uint32_t serverToken )
+BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string &key, uint32_t clientToken, uint32_t serverToken)
 {
-  unsigned char Zeros[] = { 0, 0, 0, 0 };
   BYTEARRAY KeyInfo;
-  CDKeyDecoder Decoder( key.c_str( ), key.size( ) );
+  CDKeyDecoder Decoder(key.c_str(), key.size());
+  const unsigned char Zeros[] = { 0, 0, 0, 0 };
 
-  if ( Decoder.isKeyValid( ) )
+  if (Decoder.isKeyValid())
   {
-    AppendByteArray( KeyInfo, CreateByteArray( (uint32_t) key.size( ), false ) );
-    AppendByteArray( KeyInfo, CreateByteArray( Decoder.getProduct( ), false ) );
-    AppendByteArray( KeyInfo, CreateByteArray( Decoder.getVal1( ), false ) );
-    AppendByteArray( KeyInfo, CreateByteArray( Zeros, 4 ) );
-    size_t Length = Decoder.calculateHash( clientToken, serverToken );
+    AppendByteArray(KeyInfo, CreateByteArray((uint32_t) key.size(), false));
+    AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
+    AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
+    AppendByteArray(KeyInfo, CreateByteArray(Zeros, 4));
+    size_t Length = Decoder.calculateHash(clientToken, serverToken);
     char *buf = new char[Length];
-    Length = Decoder.getHash( buf );
-    AppendByteArray( KeyInfo, CreateByteArray( (unsigned char *) buf, Length ) );
+    Length = Decoder.getHash(buf);
+    AppendByteArray(KeyInfo, CreateByteArray((unsigned char *) buf, Length));
     delete [] buf;
   }
 

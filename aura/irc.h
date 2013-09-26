@@ -46,16 +46,16 @@ public:
   char m_CommandTrigger;
   bool m_Exiting;
   bool m_WaitingToConnect;
-  bool m_OriginalNick;  
+  bool m_OriginalNick;
 
-  CIRC( CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins,uint16_t nPort, char nCommandTrigger );
-  ~CIRC( );
+  CIRC(CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger);
+  ~CIRC();
 
-  unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-  bool Update( void *fd, void *send_fd );
-  void ExtractPackets( );
-  void SendIRC( const string &message );
-  void SendMessageIRC( const string &message, const string &target );
+  unsigned int SetFD(void *fd, void *send_fd, int *nfds);
+  bool Update(void *fd, void *send_fd);
+  void ExtractPackets();
+  void SendIRC(const string &message);
+  void SendMessageIRC(const string &message, const string &target);
 };
 
 #endif

@@ -22,13 +22,12 @@
 #include "util.h"
 #include "bnetprotocol.h"
 
-CBNETProtocol::CBNETProtocol( )
+CBNETProtocol::CBNETProtocol()
 {
-  const unsigned char ClientToken[] = { 220, 1, 203, 7 };
-  m_ClientToken = CreateByteArray( ClientToken, 4 );
+  m_ClientToken = BYTEARRAY {220, 1, 203, 7};
 }
 
-CBNETProtocol::~CBNETProtocol( )
+CBNETProtocol::~CBNETProtocol()
 {
 
 }
@@ -37,7 +36,7 @@ CBNETProtocol::~CBNETProtocol( )
 // RECEIVE FUNCTIONS //
 ///////////////////////
 
-bool CBNETProtocol::RECEIVE_SID_NULL( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_NULL(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_NULL" );
   // DEBUG_Print( data );
@@ -45,10 +44,10 @@ bool CBNETProtocol::RECEIVE_SID_NULL( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
 
-  return ValidateLength( data );
+  return ValidateLength(data);
 }
 
-CIncomingGameHost *CBNETProtocol::RECEIVE_SID_GETADVLISTEX( BYTEARRAY data )
+CIncomingGameHost *CBNETProtocol::RECEIVE_SID_GETADVLISTEX(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_GETADVLISTEX" );
   // DEBUG_Print( data );
@@ -64,35 +63,38 @@ CIncomingGameHost *CBNETProtocol::RECEIVE_SID_GETADVLISTEX( BYTEARRAY data )
   //		2 bytes				-> ???
   //		8 bytes				-> HostCounter
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
+  if (ValidateLength(data) && data.size() >= 8)
   {
-    BYTEARRAY GamesFound = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
+    const BYTEARRAY GamesFound = BYTEARRAY(data.begin() + 4, data.begin() + 8);
 
-    if ( ByteArrayToUInt32( GamesFound, false ) > 0 && data.size( ) >= 25 )
+    if (ByteArrayToUInt32(GamesFound, false) > 0 && data.size() >= 25)
     {
-      BYTEARRAY Port = BYTEARRAY( data.begin( ) + 18, data.begin( ) + 20 );
-      BYTEARRAY IP = BYTEARRAY( data.begin( ) + 20, data.begin( ) + 24 );
-      BYTEARRAY GameName = ExtractCString( data, 24 );
+      const BYTEARRAY Port = BYTEARRAY(data.begin() + 18, data.begin() + 20);
+      const BYTEARRAY IP = BYTEARRAY(data.begin() + 20, data.begin() + 24);
+      const BYTEARRAY GameName = ExtractCString(data, 24);
 
-      if ( data.size( ) >= GameName.size( ) + 35 )
+      if (data.size() >= GameName.size() + 35)
       {
-        BYTEARRAY HostCounter;
-        HostCounter.push_back( ExtractHex( data, GameName.size( ) + 27, true ) );
-        HostCounter.push_back( ExtractHex( data, GameName.size( ) + 29, true ) );
-        HostCounter.push_back( ExtractHex( data, GameName.size( ) + 31, true ) );
-        HostCounter.push_back( ExtractHex( data, GameName.size( ) + 33, true ) );
-        return new CIncomingGameHost( IP,
-                ByteArrayToUInt16( Port, false ),
-                string( GameName.begin( ), GameName.end( ) ),
-                HostCounter );
+        const BYTEARRAY HostCounter =
+        {
+          ExtractHex(data, GameName.size() + 27, true),
+          ExtractHex(data, GameName.size() + 29, true),
+          ExtractHex(data, GameName.size() + 31, true),
+          ExtractHex(data, GameName.size() + 33, true)
+        };
+
+        return new CIncomingGameHost(IP,
+                                     ByteArrayToUInt16(Port, false),
+                                     string(GameName.begin(), GameName.end()),
+                                     HostCounter);
       }
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
-bool CBNETProtocol::RECEIVE_SID_ENTERCHAT( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_ENTERCHAT(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_ENTERCHAT" );
   // DEBUG_Print( data );
@@ -101,16 +103,16 @@ bool CBNETProtocol::RECEIVE_SID_ENTERCHAT( BYTEARRAY data )
   // 2 bytes					-> Length
   // null terminated string	-> UniqueName
 
-  if ( ValidateLength( data ) && data.size( ) >= 5 )
+  if (ValidateLength(data) && data.size() >= 5)
   {
-    m_UniqueName = ExtractCString( data, 4 );
+    m_UniqueName = ExtractCString(data, 4);
     return true;
   }
 
   return false;
 }
 
-CIncomingChatEvent *CBNETProtocol::RECEIVE_SID_CHATEVENT( BYTEARRAY data )
+CIncomingChatEvent *CBNETProtocol::RECEIVE_SID_CHATEVENT(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_CHATEVENT" );
   // DEBUG_Print( data );
@@ -124,22 +126,22 @@ CIncomingChatEvent *CBNETProtocol::RECEIVE_SID_CHATEVENT( BYTEARRAY data )
   // null terminated string	-> User
   // null terminated string	-> Message
 
-  if ( ValidateLength( data ) && data.size( ) >= 29 )
+  if (ValidateLength(data) && data.size() >= 29)
   {
-    BYTEARRAY EventID = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
+    const BYTEARRAY EventID = BYTEARRAY(data.begin() + 4, data.begin() + 8);
     // BYTEARRAY Ping = BYTEARRAY( data.begin( ) + 12, data.begin( ) + 16 );
-    BYTEARRAY User = ExtractCString( data, 28 );
-    BYTEARRAY Message = ExtractCString( data, User.size( ) + 29 );
+    const BYTEARRAY User = ExtractCString(data, 28);
+    const BYTEARRAY Message = ExtractCString(data, User.size() + 29);
 
-    return new CIncomingChatEvent( ( CBNETProtocol::IncomingChatEvent )ByteArrayToUInt32( EventID, false ),
-                string( User.begin( ), User.end( ) ),
-                string( Message.begin( ), Message.end( ) ) );
+    return new CIncomingChatEvent((CBNETProtocol::IncomingChatEvent)ByteArrayToUInt32(EventID, false),
+                                  string(User.begin(), User.end()),
+                                  string(Message.begin(), Message.end()));
   }
 
-  return NULL;
+  return nullptr;
 }
 
-bool CBNETProtocol::RECEIVE_SID_CHECKAD( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_CHECKAD(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_CHECKAD" );
   // DEBUG_Print( data );
@@ -147,10 +149,10 @@ bool CBNETProtocol::RECEIVE_SID_CHECKAD( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
 
-  return ValidateLength( data );
+  return ValidateLength(data);
 }
 
-bool CBNETProtocol::RECEIVE_SID_STARTADVEX3( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_STARTADVEX3(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_STARTADVEX3" );
   // DEBUG_Print( data );
@@ -159,18 +161,18 @@ bool CBNETProtocol::RECEIVE_SID_STARTADVEX3( BYTEARRAY data )
   // 2 bytes					-> Length
   // 4 bytes					-> Status
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
+  if (ValidateLength(data) && data.size() >= 8)
   {
-    BYTEARRAY Status = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
+    const BYTEARRAY Status = BYTEARRAY(data.begin() + 4, data.begin() + 8);
 
-    if ( ByteArrayToUInt32( Status, false ) == 0 )
+    if (ByteArrayToUInt32(Status, false) == 0)
       return true;
   }
 
   return false;
 }
 
-BYTEARRAY CBNETProtocol::RECEIVE_SID_PING( BYTEARRAY data )
+BYTEARRAY CBNETProtocol::RECEIVE_SID_PING(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_PING" );
   // DEBUG_Print( data );
@@ -179,13 +181,13 @@ BYTEARRAY CBNETProtocol::RECEIVE_SID_PING( BYTEARRAY data )
   // 2 bytes					-> Length
   // 4 bytes					-> Ping
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
-    return BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
+  if (ValidateLength(data) && data.size() >= 8)
+    return BYTEARRAY(data.begin() + 4, data.begin() + 8);
 
-  return BYTEARRAY( );
+  return BYTEARRAY();
 }
 
-bool CBNETProtocol::RECEIVE_SID_LOGONRESPONSE( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_LOGONRESPONSE(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_LOGONRESPONSE" );
   // DEBUG_Print( data );
@@ -194,45 +196,45 @@ bool CBNETProtocol::RECEIVE_SID_LOGONRESPONSE( BYTEARRAY data )
   // 2 bytes					-> Length
   // 4 bytes					-> Status
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
+  if (ValidateLength(data) && data.size() >= 8)
   {
-    BYTEARRAY Status = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
+    const BYTEARRAY Status = BYTEARRAY(data.begin() + 4, data.begin() + 8);
 
-    if ( ByteArrayToUInt32( Status, false ) == 1 )
+    if (ByteArrayToUInt32(Status, false) == 1)
       return true;
   }
 
   return false;
 }
 
-bool CBNETProtocol::RECEIVE_SID_AUTH_INFO( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_AUTH_INFO(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_AUTH_INFO" );
   // DEBUG_Print( data );
 
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 4 bytes					-> LogonType
-  // 4 bytes					-> ServerToken
-  // 4 bytes					-> ???
-  // 8 bytes					-> MPQFileTime
-  // null terminated string	-> IX86VerFileName
-  // null terminated string	-> ValueStringFormula
+  // 2 bytes				    -> Header
+  // 2 bytes				    -> Length
+  // 4 bytes				    -> LogonType
+  // 4 bytes				    -> ServerToken
+  // 4 bytes				    -> ???
+  // 8 bytes				    -> MPQFileTime
+  // null terminated string	    -> IX86VerFileName
+  // null terminated string	    -> ValueStringFormula
 
-  if ( ValidateLength( data ) && data.size( ) >= 25 )
+  if (ValidateLength(data) && data.size() >= 25)
   {
-    m_LogonType = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
-    m_ServerToken = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 12 );
-    m_MPQFileTime = BYTEARRAY( data.begin( ) + 16, data.begin( ) + 24 );
-    m_IX86VerFileName = ExtractCString( data, 24 );
-    m_ValueStringFormula = ExtractCString( data, m_IX86VerFileName.size( ) + 25 );
+    m_LogonType = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    m_ServerToken = BYTEARRAY(data.begin() + 8, data.begin() + 12);
+    m_MPQFileTime = BYTEARRAY(data.begin() + 16, data.begin() + 24);
+    m_IX86VerFileName = ExtractCString(data, 24);
+    m_ValueStringFormula = ExtractCString(data, m_IX86VerFileName.size() + 25);
     return true;
   }
 
   return false;
 }
 
-bool CBNETProtocol::RECEIVE_SID_AUTH_CHECK( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_AUTH_CHECK(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_AUTH_CHECK" );
   // DEBUG_Print( data );
@@ -240,21 +242,21 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_CHECK( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
   // 4 bytes					-> KeyState
-  // null terminated string	-> KeyStateDescription
+  // null terminated string	    -> KeyStateDescription
 
-  if ( ValidateLength( data ) && data.size( ) >= 9 )
+  if (ValidateLength(data) && data.size() >= 9)
   {
-    m_KeyState = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
-    m_KeyStateDescription = ExtractCString( data, 8 );
+    m_KeyState = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    m_KeyStateDescription = ExtractCString(data, 8);
 
-    if ( ByteArrayToUInt32( m_KeyState, false ) == KR_GOOD )
+    if (ByteArrayToUInt32(m_KeyState, false) == KR_GOOD)
       return true;
   }
 
   return false;
 }
 
-bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGON( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_AUTH_ACCOUNTLOGON" );
   // DEBUG_Print( data );
@@ -266,14 +268,14 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGON( BYTEARRAY data )
   //		32 bytes			-> Salt
   //		32 bytes			-> ServerPublicKey
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
+  if (ValidateLength(data) && data.size() >= 8)
   {
-    BYTEARRAY status = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
+    const BYTEARRAY status = BYTEARRAY(data.begin() + 4, data.begin() + 8);
 
-    if ( ByteArrayToUInt32( status, false ) == 0 && data.size( ) >= 72 )
+    if (ByteArrayToUInt32(status, false) == 0 && data.size() >= 72)
     {
-      m_Salt = BYTEARRAY( data.begin( ) + 8, data.begin( ) + 40 );
-      m_ServerPublicKey = BYTEARRAY( data.begin( ) + 40, data.begin( ) + 72 );
+      m_Salt = BYTEARRAY(data.begin() + 8, data.begin() + 40);
+      m_ServerPublicKey = BYTEARRAY(data.begin() + 40, data.begin() + 72);
       return true;
     }
   }
@@ -281,7 +283,7 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGON( BYTEARRAY data )
   return false;
 }
 
-bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY data )
+bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_AUTH_ACCOUNTLOGONPROOF" );
   // DEBUG_Print( data );
@@ -290,25 +292,25 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY data )
   // 2 bytes					-> Length
   // 4 bytes					-> Status
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
+  if (ValidateLength(data) && data.size() >= 8)
   {
-    uint32_t Status = ByteArrayToUInt32( BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 ), false );
+    uint32_t Status = ByteArrayToUInt32(BYTEARRAY(data.begin() + 4, data.begin() + 8), false);
 
-    if ( Status == 0 || Status == 0xE )
+    if (Status == 0 || Status == 0xE)
       return true;
   }
 
   return false;
 }
 
-vector<string> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
+vector<string> CBNETProtocol::RECEIVE_SID_FRIENDLIST(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_FRIENDSLIST" );
   // DEBUG_Print( data );
 
   // 2 bytes					-> Header
   // 2 bytes					-> Length
-  // 1 byte					-> Total
+  // 1 byte					    -> Total
   // for( 1 .. Total )
   //		null term string	-> Account
   //		1 byte				-> Status
@@ -318,35 +320,35 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDSLIST( BYTEARRAY data )
 
   vector<string> Friends;
 
-  if ( ValidateLength( data ) && data.size( ) >= 5 )
+  if (ValidateLength(data) && data.size() >= 5)
   {
     unsigned int i = 5;
     unsigned char Total = data[4];
 
-    while ( Total > 0 )
+    while (Total > 0)
     {
       --Total;
 
-      if( data.size( ) < i + 1 )
-              break;
+      if (data.size() < i + 1)
+        break;
 
-      BYTEARRAY Account = ExtractCString( data, i );
-      i += Account.size( ) + 1;
+      const BYTEARRAY Account = ExtractCString(data, i);
+      i += Account.size() + 1;
 
-      if( data.size( ) < i + 7 )
+      if (data.size() < i + 7)
         break;
 
       i += 6;
-      i += ExtractCString( data, i ).size( ) + 1;
+      i += ExtractCString(data, i).size() + 1;
 
-      Friends.push_back( string( Account.begin( ), Account.end( ) ) );
+      Friends.push_back(string(Account.begin(), Account.end()));
     }
   }
 
   return Friends;
 }
 
-vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
+vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_CLANMEMBERLIST" );
   // DEBUG_Print( data );
@@ -354,7 +356,7 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
   // 4 bytes					-> ???
-  // 1 byte					-> Total
+  // 1 byte					    -> Total
   // for( 1 .. Total )
   //		null term string	-> Name
   //		1 byte				-> Rank
@@ -363,30 +365,30 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
 
   vector<string> ClanList;
 
-  if ( ValidateLength( data ) && data.size( ) >= 9 )
+  if (ValidateLength(data) && data.size() >= 9)
   {
     unsigned int i = 9;
     unsigned char Total = data[8];
 
-    while ( Total > 0 )
+    while (Total > 0)
     {
       --Total;
 
-      if( data.size( ) < i + 1 )
-              break;
+      if (data.size() < i + 1)
+        break;
 
-      BYTEARRAY Name = ExtractCString( data, i );
-      i += Name.size( ) + 1;
+      const BYTEARRAY Name = ExtractCString(data, i);
+      i += Name.size() + 1;
 
-      if( data.size( ) < i + 3 )
+      if (data.size() < i + 3)
         break;
 
       i += 2;
 
       // in the original VB source the location string is read but discarded, so that's what I do here
 
-      i += ExtractCString( data, i ).size( ) + 1;
-      ClanList.push_back( string( Name.begin( ), Name.end( ) ) );
+      i += ExtractCString(data, i).size() + 1;
+      ClanList.push_back(string(Name.begin(), Name.end()));
     }
   }
 
@@ -397,472 +399,344 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST( BYTEARRAY data )
 // SEND FUNCTIONS //
 ////////////////////
 
-BYTEARRAY CBNETProtocol::SEND_PROTOCOL_INITIALIZE_SELECTOR( )
+BYTEARRAY CBNETProtocol::SEND_PROTOCOL_INITIALIZE_SELECTOR()
 {
-  BYTEARRAY packet;
-  packet.push_back( 1 );
+  return BYTEARRAY {1};
+}
 
-  // DEBUG_Print( "SENT PROTOCOL_INITIALIZE_SELECTOR" );
-  // DEBUG_Print( packet );
+BYTEARRAY CBNETProtocol::SEND_SID_NULL()
+{
+  return BYTEARRAY {BNET_HEADER_CONSTANT, SID_NULL, 4, 0};
+}
+
+BYTEARRAY CBNETProtocol::SEND_SID_STOPADV()
+{
+  return BYTEARRAY {BNET_HEADER_CONSTANT, SID_STOPADV, 4, 0};
+}
+
+BYTEARRAY CBNETProtocol::SEND_SID_GETADVLISTEX(const string &gameName)
+{
+  BYTEARRAY packet = {BNET_HEADER_CONSTANT, SID_GETADVLISTEX, 0, 0, 255, 3, 0, 0, 255, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+  AppendByteArrayFast(packet, gameName);  // Game Name
+  packet.push_back(0);                    // Game Password is NULL
+  packet.push_back(0);                    // Game Stats is NULL
+  AssignLength(packet);
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_NULL( )
+BYTEARRAY CBNETProtocol::SEND_SID_ENTERCHAT()
 {
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_NULL ); // SID_NULL
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_NULL" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {BNET_HEADER_CONSTANT, SID_ENTERCHAT, 6, 0, 0, 0};
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_STOPADV( )
+BYTEARRAY CBNETProtocol::SEND_SID_JOINCHANNEL(const string &channel)
 {
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_STOPADV ); // SID_STOPADV
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AssignLength( packet );
+  BYTEARRAY packet = {BNET_HEADER_CONSTANT, SID_JOINCHANNEL, 0, 0};
 
-  // DEBUG_Print( "SENT SID_STOPADV" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CBNETProtocol::SEND_SID_GETADVLISTEX( string gameName )
-{
-  unsigned char MapFilter1[] = { 255, 3, 0, 0 };
-  unsigned char MapFilter2[] = { 255, 3, 0, 0 };
-  unsigned char MapFilter3[] = { 0, 0, 0, 0 };
-  unsigned char NumGames[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_GETADVLISTEX ); // SID_GETADVLISTEX
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, MapFilter1, 4 ); // Map Filter
-  AppendByteArray( packet, MapFilter2, 4 ); // Map Filter
-  AppendByteArray( packet, MapFilter3, 4 ); // Map Filter
-  AppendByteArray( packet, NumGames, 4 ); // maximum number of games to list
-  AppendByteArrayFast( packet, gameName ); // Game Name
-  packet.push_back( 0 ); // Game Password is NULL
-  packet.push_back( 0 ); // Game Stats is NULL
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_GETADVLISTEX" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CBNETProtocol::SEND_SID_ENTERCHAT( )
-{
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_ENTERCHAT ); // SID_ENTERCHAT
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // Account Name is NULL on Warcraft III/The Frozen Throne
-  packet.push_back( 0 ); // Stat String is NULL on CDKEY'd products
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_ENTERCHAT" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CBNETProtocol::SEND_SID_JOINCHANNEL( string channel )
-{
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_JOINCHANNEL ); // SID_JOINCHANNEL
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-
-  if ( channel.size( ) > 0 )
+  if (channel.size() > 0)
   {
-    unsigned char NoCreateJoin[] = { 2, 0, 0, 0 };
-    AppendByteArray( packet, NoCreateJoin, 4 ); // flags for no create join
+    const unsigned char NoCreateJoin[] = { 2, 0, 0, 0 };
+    AppendByteArray(packet, NoCreateJoin, 4);   // flags for no create join
   }
   else
   {
-    unsigned char FirstJoin[] = { 1, 0, 0, 0 };
-    AppendByteArray( packet, FirstJoin, 4 ); // flags for first join
+    const unsigned char FirstJoin[] = { 1, 0, 0, 0 };
+    AppendByteArray(packet, FirstJoin, 4);   // flags for first join
   }
 
-  AppendByteArrayFast( packet, channel );
-  AssignLength( packet );
+  AppendByteArrayFast(packet, channel);
+  AssignLength(packet);
 
-  // DEBUG_Print( "SENT SID_JOINCHANNEL" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_CHATCOMMAND( string command )
+BYTEARRAY CBNETProtocol::SEND_SID_CHATCOMMAND(const string &command)
 {
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_CHATCOMMAND ); // SID_CHATCOMMAND
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArrayFast( packet, command ); // Message
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_CHATCOMMAND" );
-  // DEBUG_Print( packet );
+  BYTEARRAY packet = {BNET_HEADER_CONSTANT, SID_CHATCOMMAND, 0, 0};
+  AppendByteArrayFast(packet, command);   // Message
+  AssignLength(packet);
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_CHECKAD( )
+BYTEARRAY CBNETProtocol::SEND_SID_CHECKAD()
 {
-  unsigned char Zeros[] = { 0, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_CHECKAD ); // SID_CHECKAD
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, Zeros, 4 ); // ???
-  AppendByteArray( packet, Zeros, 4 ); // ???
-  AppendByteArray( packet, Zeros, 4 ); // ???
-  AppendByteArray( packet, Zeros, 4 ); // ???
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_CHECKAD" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {BNET_HEADER_CONSTANT, SID_CHECKAD, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3( unsigned char state, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, BYTEARRAY mapSHA1, uint32_t hostCounter )
+BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3(unsigned char state, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1, uint32_t hostCounter)
 {
   // TODO: sort out how GameType works, the documentation is horrendous
 
-  unsigned char Unknown[] = { 255, 3, 0, 0 };
-  unsigned char CustomGame[] = { 0, 0, 0, 0 };
+  const unsigned char Unknown[] = { 255, 3, 0, 0 };
+  const unsigned char CustomGame[] = { 0, 0, 0, 0 };
 
-  string HostCounterString = ToHexString( hostCounter );
+  string HostCounterString = ToHexString(hostCounter);
 
-  if ( HostCounterString.size( ) < 8 )
-    HostCounterString.insert( (size_t) 0, (size_t) 8 - HostCounterString.size( ), '0' );
+  if (HostCounterString.size() < 8)
+    HostCounterString.insert((size_t) 0, (size_t) 8 - HostCounterString.size(), '0');
 
-  HostCounterString = string( HostCounterString.rbegin( ), HostCounterString.rend( ) );
+  HostCounterString = string(HostCounterString.rbegin(), HostCounterString.rend());
 
   BYTEARRAY packet;
 
   // make the stat string
 
   BYTEARRAY StatString;
-  AppendByteArrayFast( StatString, mapFlags );
-  StatString.push_back( 0 );
-  AppendByteArrayFast( StatString, mapWidth );
-  AppendByteArrayFast( StatString, mapHeight );
-  AppendByteArrayFast( StatString, mapCRC );
-  AppendByteArrayFast( StatString, mapPath );
-  AppendByteArrayFast( StatString, hostName );
-  StatString.push_back( 0 );
-  AppendByteArrayFast( StatString, mapSHA1 );
-  StatString = EncodeStatString( StatString );
+  AppendByteArrayFast(StatString, mapFlags);
+  StatString.push_back(0);
+  AppendByteArrayFast(StatString, mapWidth);
+  AppendByteArrayFast(StatString, mapHeight);
+  AppendByteArrayFast(StatString, mapCRC);
+  AppendByteArrayFast(StatString, mapPath);
+  AppendByteArrayFast(StatString, hostName);
+  StatString.push_back(0);
+  AppendByteArrayFast(StatString, mapSHA1);
+  StatString = EncodeStatString(StatString);
 
-  if ( mapGameType.size( ) == 4 && mapFlags.size( ) == 4 && mapWidth.size( ) == 2 && mapHeight.size( ) == 2 && !gameName.empty( ) && !hostName.empty( ) && !mapPath.empty( ) && mapCRC.size( ) == 4 && mapSHA1.size( ) == 20 && StatString.size( ) < 128 && HostCounterString.size( ) == 8 )
+  if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4 && mapSHA1.size() == 20 && StatString.size() < 128 && HostCounterString.size() == 8)
   {
     // make the rest of the packet
 
-    packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-    packet.push_back( SID_STARTADVEX3 ); // SID_STARTADVEX3
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( state ); // State (16 = public, 17 = private, 18 = close)
-    packet.push_back( 0 ); // State continued...
-    packet.push_back( 0 ); // State continued...
-    packet.push_back( 0 ); // State continued...
-    AppendByteArray( packet, upTime, false ); // time since creation
-    AppendByteArrayFast( packet, mapGameType ); // Game Type, Parameter
-    AppendByteArray( packet, Unknown, 4 ); // ???
-    AppendByteArray( packet, CustomGame, 4 ); // Custom Game
-    AppendByteArrayFast( packet, gameName ); // Game Name
-    packet.push_back( 0 ); // Game Password is NULL
-    packet.push_back( 98 ); // Slots Free (ascii 98 = char 'b' = 11 slots free) - note: do not reduce this as this is the # of PID's Warcraft III will allocate
-    AppendByteArrayFast( packet, HostCounterString, false ); // Host Counter
-    AppendByteArrayFast( packet, StatString ); // Stat String
-    packet.push_back( 0 ); // Stat String null terminator (the stat string is encoded to remove all even numbers i.e. zeros)
-    AssignLength( packet );
+    packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+    packet.push_back(SID_STARTADVEX3);   // SID_STARTADVEX3
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(state);   // State (16 = public, 17 = private, 18 = close)
+    packet.push_back(0);   // State continued...
+    packet.push_back(0);   // State continued...
+    packet.push_back(0);   // State continued...
+    AppendByteArray(packet, upTime, false);   // time since creation
+    AppendByteArrayFast(packet, mapGameType);   // Game Type, Parameter
+    AppendByteArray(packet, Unknown, 4);   // ???
+    AppendByteArray(packet, CustomGame, 4);   // Custom Game
+    AppendByteArrayFast(packet, gameName);   // Game Name
+    packet.push_back(0);   // Game Password is NULL
+    packet.push_back(98);   // Slots Free (ascii 98 = char 'b' = 11 slots free) - note: do not reduce this as this is the # of PID's Warcraft III will allocate
+    AppendByteArrayFast(packet, HostCounterString, false);   // Host Counter
+    AppendByteArrayFast(packet, StatString);   // Stat String
+    packet.push_back(0);   // Stat String null terminator (the stat string is encoded to remove all even numbers i.e. zeros)
+    AssignLength(packet);
   }
   else
-    Print( "[BNETPROTO] invalid parameters passed to SEND_SID_STARTADVEX3" );
+    Print("[BNETPROTO] invalid parameters passed to SEND_SID_STARTADVEX3");
 
-  // DEBUG_Print( "SENT SID_STARTADVEX3" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_NOTIFYJOIN( string gameName )
+BYTEARRAY CBNETProtocol::SEND_SID_NOTIFYJOIN(const string &gameName)
 {
-  unsigned char ProductID[] = { 0, 0, 0, 0 };
-  unsigned char ProductVersion[] = { 14, 0, 0, 0 }; // Warcraft III is 14
+  BYTEARRAY packet = {BNET_HEADER_CONSTANT, SID_NOTIFYJOIN, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0};
+  AppendByteArrayFast(packet, gameName);  // Game Name
+  packet.push_back(0);                    // Game Password is NULL
+  AssignLength(packet);
 
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_NOTIFYJOIN ); // SID_NOTIFYJOIN
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, ProductID, 4 ); // Product ID
-  AppendByteArray( packet, ProductVersion, 4 ); // Product Version
-  AppendByteArrayFast( packet, gameName ); // Game Name
-  packet.push_back( 0 ); // Game Password is NULL
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_NOTIFYJOIN" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_PING( BYTEARRAY pingValue )
+BYTEARRAY CBNETProtocol::SEND_SID_PING(const BYTEARRAY &pingValue)
 {
-  BYTEARRAY packet;
-
-  if ( pingValue.size( ) == 4 )
+  if (pingValue.size() == 4)
   {
-    packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-    packet.push_back( SID_PING ); // SID_PING
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArrayFast( packet, pingValue ); // Ping Value
-    AssignLength( packet );
+    BYTEARRAY packet = {BNET_HEADER_CONSTANT, SID_PING, 0, 0};
+    AppendByteArrayFast(packet, pingValue);   // Ping Value
+    AssignLength(packet);
+    return packet;
   }
-  else
-    Print( "[BNETPROTO] invalid parameters passed to SEND_SID_PING" );
 
-  // DEBUG_Print( "SENT SID_PING" );
-  // DEBUG_Print( packet );
-  return packet;
+  Print("[BNETPROTO] invalid parameters passed to SEND_SID_PING");
+  return BYTEARRAY();
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_LOGONRESPONSE( BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, string accountName )
+BYTEARRAY CBNETProtocol::SEND_SID_LOGONRESPONSE(BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, string accountName)
 {
   // TODO: check that the passed BYTEARRAY sizes are correct (don't know what they should be right now so I can't do this today)
 
   BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_LOGONRESPONSE ); // SID_LOGONRESPONSE
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArrayFast( packet, clientToken ); // Client Token
-  AppendByteArrayFast( packet, serverToken ); // Server Token
-  AppendByteArrayFast( packet, passwordHash ); // Password Hash
-  AppendByteArrayFast( packet, accountName ); // Account Name
-  AssignLength( packet );
+  packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+  packet.push_back(SID_LOGONRESPONSE);   // SID_LOGONRESPONSE
+  packet.push_back(0);   // packet length will be assigned later
+  packet.push_back(0);   // packet length will be assigned later
+  AppendByteArrayFast(packet, clientToken);   // Client Token
+  AppendByteArrayFast(packet, serverToken);   // Server Token
+  AppendByteArrayFast(packet, passwordHash);   // Password Hash
+  AppendByteArrayFast(packet, accountName);   // Account Name
+  AssignLength(packet);
 
-  // DEBUG_Print( "SENT SID_LOGONRESPONSE" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_NETGAMEPORT( uint16_t serverPort )
+BYTEARRAY CBNETProtocol::SEND_SID_NETGAMEPORT(uint16_t serverPort)
 {
   BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_NETGAMEPORT ); // SID_NETGAMEPORT
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, serverPort, false ); // local game server port
-  AssignLength( packet );
+  packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+  packet.push_back(SID_NETGAMEPORT);   // SID_NETGAMEPORT
+  packet.push_back(0);   // packet length will be assigned later
+  packet.push_back(0);   // packet length will be assigned later
+  AppendByteArray(packet, serverPort, false);   // local game server port
+  AssignLength(packet);
 
-  // DEBUG_Print( "SENT SID_NETGAMEPORT" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO( unsigned char ver, uint32_t localeID, string countryAbbrev, string country )
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO(unsigned char ver, uint32_t localeID, string countryAbbrev, string country)
 {
-  unsigned char ProtocolID[] = { 0, 0, 0, 0 };
-  unsigned char PlatformID[] = { 54, 56, 88, 73 }; // "IX86"
-  unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
-  unsigned char Version[] = { ver, 0, 0, 0 };
-  unsigned char Language[] = { 83, 85, 110, 101 }; // "enUS"
-  unsigned char LocalIP[] = { 127, 0, 0, 1 };
-  unsigned char TimeZoneBias[] = { 60, 0, 0, 0 }; // 60 minutes (GMT +0100) but this is probably -0100
+  const unsigned char ProtocolID[] = { 0, 0, 0, 0 };
+  const unsigned char PlatformID[] = { 54, 56, 88, 73 }; // "IX86"
+  const unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
+  const unsigned char Version[] = { ver, 0, 0, 0 };
+  const unsigned char Language[] = { 83, 85, 110, 101 }; // "enUS"
+  const unsigned char LocalIP[] = { 127, 0, 0, 1 };
+  const unsigned char TimeZoneBias[] = { 60, 0, 0, 0 }; // 60 minutes (GMT +0100) but this is probably -0100
 
   BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_AUTH_INFO ); // SID_AUTH_INFO
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, ProtocolID, 4 ); // Protocol ID
-  AppendByteArray( packet, PlatformID, 4 ); // Platform ID
-  AppendByteArray( packet, ProductID_TFT, 4 ); // Product ID (TFT)
-  AppendByteArray( packet, Version, 4 ); // Version
-  AppendByteArray( packet, Language, 4 ); // Language (hardcoded as enUS to ensure battle.net sends the bot messages in English)
-  AppendByteArray( packet, LocalIP, 4 ); // Local IP for NAT compatibility
-  AppendByteArray( packet, TimeZoneBias, 4 ); // Time Zone Bias
-  AppendByteArray( packet, localeID, false ); // Locale ID
-  AppendByteArray( packet, localeID, false ); // Language ID (copying the locale ID should be sufficient since we don't care about sublanguages)
-  AppendByteArrayFast( packet, countryAbbrev ); // Country Abbreviation
-  AppendByteArrayFast( packet, country ); // Country
-  AssignLength( packet );
+  packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+  packet.push_back(SID_AUTH_INFO);   // SID_AUTH_INFO
+  packet.push_back(0);   // packet length will be assigned later
+  packet.push_back(0);   // packet length will be assigned later
+  AppendByteArray(packet, ProtocolID, 4);   // Protocol ID
+  AppendByteArray(packet, PlatformID, 4);   // Platform ID
+  AppendByteArray(packet, ProductID_TFT, 4);   // Product ID (TFT)
+  AppendByteArray(packet, Version, 4);   // Version
+  AppendByteArray(packet, Language, 4);   // Language (hardcoded as enUS to ensure battle.net sends the bot messages in English)
+  AppendByteArray(packet, LocalIP, 4);   // Local IP for NAT compatibility
+  AppendByteArray(packet, TimeZoneBias, 4);   // Time Zone Bias
+  AppendByteArray(packet, localeID, false);   // Locale ID
+  AppendByteArray(packet, localeID, false);   // Language ID (copying the locale ID should be sufficient since we don't care about sublanguages)
+  AppendByteArrayFast(packet, countryAbbrev);   // Country Abbreviation
+  AppendByteArrayFast(packet, country);   // Country
+  AssignLength(packet);
 
-  // DEBUG_Print( "SENT SID_AUTH_INFO" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_CHECK( BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, string exeInfo, string keyOwnerName )
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_CHECK(BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, string exeInfo, string keyOwnerName)
 {
   BYTEARRAY packet;
 
-  if ( clientToken.size( ) == 4 && exeVersion.size( ) == 4 && exeVersionHash.size( ) == 4 )
+  if (clientToken.size() == 4 && exeVersion.size() == 4 && exeVersionHash.size() == 4)
   {
     uint32_t NumKeys = 2;
-    
-    packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-    packet.push_back( SID_AUTH_CHECK ); // SID_AUTH_CHECK
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArrayFast( packet, clientToken ); // Client Token
-    AppendByteArrayFast( packet, exeVersion ); // EXE Version
-    AppendByteArrayFast( packet, exeVersionHash ); // EXE Version Hash
-    AppendByteArray( packet, NumKeys, false ); // number of keys in this packet
-    AppendByteArray( packet, (uint32_t) 0, false ); // boolean Using Spawn (32 bit)
-    AppendByteArrayFast( packet, keyInfoROC ); // ROC Key Info
-    AppendByteArrayFast( packet, keyInfoTFT ); // TFT Key Info
-    AppendByteArrayFast( packet, exeInfo ); // EXE Info
-    AppendByteArrayFast( packet, keyOwnerName ); // CD Key Owner Name
-    AssignLength( packet );
+
+    packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+    packet.push_back(SID_AUTH_CHECK);   // SID_AUTH_CHECK
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(0);   // packet length will be assigned later
+    AppendByteArrayFast(packet, clientToken);   // Client Token
+    AppendByteArrayFast(packet, exeVersion);   // EXE Version
+    AppendByteArrayFast(packet, exeVersionHash);   // EXE Version Hash
+    AppendByteArray(packet, NumKeys, false);   // number of keys in this packet
+    AppendByteArray(packet, (uint32_t) 0, false);   // boolean Using Spawn (32 bit)
+    AppendByteArrayFast(packet, keyInfoROC);   // ROC Key Info
+    AppendByteArrayFast(packet, keyInfoTFT);   // TFT Key Info
+    AppendByteArrayFast(packet, exeInfo);   // EXE Info
+    AppendByteArrayFast(packet, keyOwnerName);   // CD Key Owner Name
+    AssignLength(packet);
   }
   else
-    Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_CHECK" );
+    Print("[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_CHECK");
 
-  // DEBUG_Print( "SENT SID_AUTH_CHECK" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGON( BYTEARRAY clientPublicKey, string accountName )
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGON(BYTEARRAY clientPublicKey, string accountName)
 {
   BYTEARRAY packet;
 
-  if ( clientPublicKey.size( ) == 32 )
+  if (clientPublicKey.size() == 32)
   {
-    packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-    packet.push_back( SID_AUTH_ACCOUNTLOGON ); // SID_AUTH_ACCOUNTLOGON
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArrayFast( packet, clientPublicKey ); // Client Key
-    AppendByteArrayFast( packet, accountName ); // Account Name
-    AssignLength( packet );
+    packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+    packet.push_back(SID_AUTH_ACCOUNTLOGON);   // SID_AUTH_ACCOUNTLOGON
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(0);   // packet length will be assigned later
+    AppendByteArrayFast(packet, clientPublicKey);   // Client Key
+    AppendByteArrayFast(packet, accountName);   // Account Name
+    AssignLength(packet);
   }
   else
-    Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
+    Print("[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON");
 
-  // DEBUG_Print( "SENT SID_AUTH_ACCOUNTLOGON" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGONPROOF( BYTEARRAY clientPasswordProof )
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGONPROOF(BYTEARRAY clientPasswordProof)
 {
   BYTEARRAY packet;
 
-  if ( clientPasswordProof.size( ) == 20 )
+  if (clientPasswordProof.size() == 20)
   {
-    packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-    packet.push_back( SID_AUTH_ACCOUNTLOGONPROOF ); // SID_AUTH_ACCOUNTLOGONPROOF
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArrayFast( packet, clientPasswordProof ); // Client Password Proof
-    AssignLength( packet );
+    packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
+    packet.push_back(SID_AUTH_ACCOUNTLOGONPROOF);   // SID_AUTH_ACCOUNTLOGONPROOF
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(0);   // packet length will be assigned later
+    AppendByteArrayFast(packet, clientPasswordProof);   // Client Password Proof
+    AssignLength(packet);
   }
   else
-    Print( "[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON" );
+    Print("[BNETPROTO] invalid parameters passed to SEND_SID_AUTH_ACCOUNTLOGON");
 
-  // DEBUG_Print( "SENT SID_AUTH_ACCOUNTLOGONPROOF" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_FRIENDSLIST( )
+BYTEARRAY CBNETProtocol::SEND_SID_FRIENDLIST()
 {
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_FRIENDSLIST ); // SID_FRIENDSLIST
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_FRIENDSLIST" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {BNET_HEADER_CONSTANT, SID_FRIENDLIST, 4, 0};
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_CLANMEMBERLIST( )
+BYTEARRAY CBNETProtocol::SEND_SID_CLANMEMBERLIST()
 {
-  unsigned char Cookie[] = { 0, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( BNET_HEADER_CONSTANT ); // BNET header constant
-  packet.push_back( SID_CLANMEMBERLIST ); // SID_CLANMEMBERLIST
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, Cookie, 4 ); // cookie
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT SID_CLANMEMBERLIST" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {BNET_HEADER_CONSTANT, SID_CLANMEMBERLIST, 8, 0, 0, 0, 0, 0};
 }
 
 /////////////////////
 // OTHER FUNCTIONS //
 /////////////////////
 
-void CBNETProtocol::AssignLength( BYTEARRAY &content )
+void CBNETProtocol::AssignLength(BYTEARRAY &content)
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-  content[2] = (unsigned char) ( (uint16_t ) content.size( ) );
-  content[3] = (unsigned char) ( (uint16_t ) content.size( ) >> 8 );
+  const uint16_t size = (uint16_t) content.size();
+
+  content[2] = (unsigned char) size;
+  content[3] = (unsigned char) size >> 8;
 }
 
-bool CBNETProtocol::ValidateLength( BYTEARRAY &content )
+bool CBNETProtocol::ValidateLength(const BYTEARRAY &content)
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  if ( (uint16_t) ( content[3] << 8 | content[2] ) == content.size( ) )
-    return true;
-
-  return false;
+  return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
 }
 
 //
 // CIncomingGameHost
 //
 
-CIncomingGameHost::CIncomingGameHost( BYTEARRAY &nIP, uint16_t nPort, string nGameName, BYTEARRAY &nHostCounter ) : m_GameName( nGameName ), m_IP( nIP ), m_HostCounter( nHostCounter ), m_Port( nPort )
+CIncomingGameHost::CIncomingGameHost(const BYTEARRAY &nIP, uint16_t nPort, const string &nGameName, const BYTEARRAY &nHostCounter)
+  : m_GameName(nGameName),
+    m_IP(nIP),
+    m_HostCounter(nHostCounter),
+    m_Port(nPort)
 {
 
 }
 
-CIncomingGameHost::~CIncomingGameHost( )
+CIncomingGameHost::~CIncomingGameHost()
 {
 
 }
 
-string CIncomingGameHost::GetIPString( ) const
+string CIncomingGameHost::GetIPString() const
 {
   string Result;
 
-  if ( m_IP.size( ) >= 4 )
+  if (m_IP.size() >= 4)
   {
-    for ( unsigned int i = 0; i < 4; ++i )
+    for (unsigned int i = 0; i < 4; ++i)
     {
-      Result += ToString( (unsigned int) m_IP[i] );
+      Result += ToString((unsigned int) m_IP[i]);
 
-      if ( i < 3 )
+      if (i < 3)
         Result += ".";
     }
   }
@@ -874,12 +748,15 @@ string CIncomingGameHost::GetIPString( ) const
 // CIncomingChatEvent
 //
 
-CIncomingChatEvent::CIncomingChatEvent( CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage ) : m_User( nUser ), m_Message( nMessage ), m_ChatEvent( nChatEvent )
+CIncomingChatEvent::CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage)
+  : m_User(nUser),
+    m_Message(nMessage),
+    m_ChatEvent(nChatEvent)
 {
 
 }
 
-CIncomingChatEvent::~CIncomingChatEvent( )
+CIncomingChatEvent::~CIncomingChatEvent()
 {
 
 }

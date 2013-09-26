@@ -82,7 +82,7 @@ typedef int SOCKET;
 
 #define closesocket close
 
-extern int GetLastError( );
+extern int GetLastError();
 #endif
 
 #ifndef INADDR_NONE
@@ -104,46 +104,46 @@ extern int GetLastError( );
 class CTCPSocket
 {
 protected:
-  struct sockaddr_in m_SIN; 
+  struct sockaddr_in m_SIN;
 
 private:
   string m_RecvBuffer;
   string m_SendBuffer;
   uint32_t m_LastRecv;
-  
+
 protected:
-  SOCKET m_Socket; 
-  int m_Error; 
+  SOCKET m_Socket;
+  int m_Error;
   bool m_HasError;
   bool m_Connected;
 
 public:
-  CTCPSocket( );
-  CTCPSocket( SOCKET nSocket, struct sockaddr_in nSIN );
-  ~CTCPSocket( );
+  CTCPSocket();
+  CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN);
+  ~CTCPSocket();
 
-  string GetErrorString( ) const;
-  inline BYTEARRAY GetPort( ) const                        { return CreateByteArray( m_SIN.sin_port, false ); }
-  inline BYTEARRAY GetIP( ) const                          { return CreateByteArray( (uint32_t) m_SIN.sin_addr.s_addr, false ); }
-  inline string GetIPString( ) const                       { return inet_ntoa( m_SIN.sin_addr ); }  
-  inline string *GetBytes( )                               { return &m_RecvBuffer; }
-  inline int GetError( ) const                             { return m_Error; }
-  inline uint32_t GetLastRecv( ) const                     { return m_LastRecv; }
-  inline bool HasError( ) const                            { return m_HasError; }
-  inline bool GetConnected( ) const                        { return m_Connected; }
+  string GetErrorString() const;
+  inline BYTEARRAY GetPort() const                        { return CreateByteArray(m_SIN.sin_port, false); }
+  inline BYTEARRAY GetIP() const                          { return CreateByteArray((uint32_t) m_SIN.sin_addr.s_addr, false); }
+  inline string GetIPString() const                       { return inet_ntoa(m_SIN.sin_addr); }
+  inline string *GetBytes()                               { return &m_RecvBuffer; }
+  inline int GetError() const                             { return m_Error; }
+  inline uint32_t GetLastRecv() const                     { return m_LastRecv; }
+  inline bool HasError() const                            { return m_HasError; }
+  inline bool GetConnected() const                        { return m_Connected; }
 
-  void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-  void Reset( );
-  inline void PutBytes( const string &bytes )              { m_SendBuffer += bytes; }
-  inline void PutBytes( const BYTEARRAY &bytes )           { m_SendBuffer += string( bytes.begin( ), bytes.end( ) ); }
+  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  void Reset();
+  inline void PutBytes(const string &bytes)              { m_SendBuffer += bytes; }
+  inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += string(bytes.begin(), bytes.end()); }
 
-  inline void ClearRecvBuffer( )                           { m_RecvBuffer.clear( ); }
-  inline void SubstrRecvBuffer( unsigned int i )           { m_RecvBuffer = m_RecvBuffer.substr( i ); }
-  inline void ClearSendBuffer( )                           { m_SendBuffer.clear( ); }
+  inline void ClearRecvBuffer()                           { m_RecvBuffer.clear(); }
+  inline void SubstrRecvBuffer(unsigned int i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
+  inline void ClearSendBuffer()                           { m_SendBuffer.clear(); }
 
-  void DoRecv( fd_set *fd );
-  void DoSend( fd_set *send_fd );
-  void Disconnect( );
+  void DoRecv(fd_set *fd);
+  void DoSend(fd_set *send_fd);
+  void Disconnect();
 };
 
 //
@@ -158,41 +158,41 @@ protected:
 private:
   string m_RecvBuffer;
   string m_SendBuffer;
-  
+
 protected:
-  SOCKET m_Socket;  
+  SOCKET m_Socket;
   int m_Error;
   bool m_HasError;
   bool m_Connected;
   bool m_Connecting;
 
 public:
-  CTCPClient( );
-  ~CTCPClient( );
+  CTCPClient();
+  ~CTCPClient();
 
-  string GetErrorString( ) const;
-  inline BYTEARRAY GetPort( ) const                        { return CreateByteArray( m_SIN.sin_port, false ); }
-  inline string GetIPString( ) const                       { return inet_ntoa( m_SIN.sin_addr ); }  
-  inline string *GetBytes( )                               { return &m_RecvBuffer; }
-  inline int GetError( ) const                             { return m_Error; }
-  inline bool HasError( ) const                            { return m_HasError; }
-  inline bool GetConnected( ) const                        { return m_Connected; }
-  inline bool GetConnecting( ) const                       { return m_Connecting; }
+  string GetErrorString() const;
+  inline BYTEARRAY GetPort() const                        { return CreateByteArray(m_SIN.sin_port, false); }
+  inline string GetIPString() const                       { return inet_ntoa(m_SIN.sin_addr); }
+  inline string *GetBytes()                               { return &m_RecvBuffer; }
+  inline int GetError() const                             { return m_Error; }
+  inline bool HasError() const                            { return m_HasError; }
+  inline bool GetConnected() const                        { return m_Connected; }
+  inline bool GetConnecting() const                       { return m_Connecting; }
 
-  void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-  void Reset( );
-  inline void PutBytes( const string &bytes )              { m_SendBuffer += bytes; }
-  inline void PutBytes( const BYTEARRAY &bytes )           { m_SendBuffer += string( bytes.begin( ), bytes.end( ) ); }
+  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  void Reset();
+  inline void PutBytes(const string &bytes)              { m_SendBuffer += bytes; }
+  inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += string(bytes.begin(), bytes.end()); }
 
-  bool CheckConnect( );
-  inline void ClearRecvBuffer( )                           { m_RecvBuffer.clear( ); }
-  inline void SubstrRecvBuffer( unsigned int i )           { m_RecvBuffer = m_RecvBuffer.substr( i ); }
-  inline void ClearSendBuffer( )                           { m_SendBuffer.clear( ); }
-  void DoRecv( fd_set *fd );
-  void DoSend( fd_set *send_fd );
-  void SetNoDelay( );
-  void Disconnect( );
-  void Connect( const string &localaddress, const string &address, uint16_t port );
+  bool CheckConnect();
+  inline void ClearRecvBuffer()                           { m_RecvBuffer.clear(); }
+  inline void SubstrRecvBuffer(unsigned int i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
+  inline void ClearSendBuffer()                           { m_SendBuffer.clear(); }
+  void DoRecv(fd_set *fd);
+  void DoSend(fd_set *send_fd);
+  void SetNoDelay();
+  void Disconnect();
+  void Connect(const string &localaddress, const string &address, uint16_t port);
 };
 
 //
@@ -203,21 +203,21 @@ class CTCPServer
 {
 protected:
   struct sockaddr_in m_SIN;
-  SOCKET m_Socket;  
+  SOCKET m_Socket;
   int m_Error;
   bool m_HasError;
 
 public:
-  CTCPServer( );
-  ~CTCPServer( );
+  CTCPServer();
+  ~CTCPServer();
 
-  string GetErrorString( ) const;
-  inline bool HasError( ) const                            { return m_HasError; }
-  inline int GetError( ) const                             { return m_Error; }
+  string GetErrorString() const;
+  inline bool HasError() const                            { return m_HasError; }
+  inline int GetError() const                             { return m_Error; }
 
-  bool Listen( const string &address, uint16_t port );
-  void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-  CTCPSocket *Accept( fd_set *fd );
+  bool Listen(const string &address, uint16_t port);
+  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  CTCPSocket *Accept(fd_set *fd);
 };
 
 //
@@ -229,29 +229,29 @@ class CUDPSocket
 protected:
   struct sockaddr_in m_SIN;
   struct in_addr m_BroadcastTarget;
-  SOCKET m_Socket;  
+  SOCKET m_Socket;
   int m_Error;
   bool m_HasError;
 
 public:
-  CUDPSocket( );
-  ~CUDPSocket( );
+  CUDPSocket();
+  ~CUDPSocket();
 
-  string GetErrorString( ) const;
-  inline BYTEARRAY GetPort( ) const                        { return CreateByteArray( m_SIN.sin_port, false ); }
-  inline string GetIPString( ) const                       { return inet_ntoa( m_SIN.sin_addr ); }  
-  inline bool HasError( ) const                            { return m_HasError; }
-  inline int GetError( ) const                             { return m_Error; }
-  
-  bool SendTo( struct sockaddr_in sin, const BYTEARRAY &message );
-  bool SendTo( const string &address, uint16_t port, const BYTEARRAY &message );
-  bool Broadcast( uint16_t port, const BYTEARRAY &message );
+  string GetErrorString() const;
+  inline BYTEARRAY GetPort() const                        { return CreateByteArray(m_SIN.sin_port, false); }
+  inline string GetIPString() const                       { return inet_ntoa(m_SIN.sin_addr); }
+  inline bool HasError() const                            { return m_HasError; }
+  inline int GetError() const                             { return m_Error; }
 
-  void SetFD( fd_set *fd, fd_set *send_fd, int *nfds );
-  void Allocate( int type );
-  void Reset( );
-  void SetBroadcastTarget( const string &subnet );
-  void SetDontRoute( bool dontRoute );
+  bool SendTo(struct sockaddr_in sin, const BYTEARRAY &message);
+  bool SendTo(const string &address, uint16_t port, const BYTEARRAY &message);
+  bool Broadcast(uint16_t port, const BYTEARRAY &message);
+
+  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  void Allocate(int type);
+  void Reset();
+  void SetBroadcastTarget(const string &subnet);
+  void SetDontRoute(bool dontRoute);
 };
 
 #endif

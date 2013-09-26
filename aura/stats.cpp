@@ -30,30 +30,32 @@
 // CStats
 //
 
-CStats::CStats( CGame *nGame ) : m_Game( nGame ), m_Winner( 0 )
+CStats::CStats(CGame *nGame)
+  : m_Game(nGame),
+    m_Winner(0)
 {
-  Print( "[STATS] using dota stats" );
+  Print("[STATS] using dota stats");
 
-  for( unsigned int i = 0; i < 12; ++i )
-    m_Players[i] = NULL;
+  for (unsigned int i = 0; i < 12; ++i)
+    m_Players[i] = nullptr;
 }
 
-CStats::~CStats( )
+CStats::~CStats()
 {
-  for( unsigned int i = 0; i < 12; ++i )
+  for (unsigned int i = 0; i < 12; ++i)
   {
-    if ( m_Players[i] )
+    if (m_Players[i])
       delete m_Players[i];
   }
 }
 
-bool CStats::ProcessAction( CIncomingAction *Action )
+bool CStats::ProcessAction(CIncomingAction *Action)
 {
   unsigned int i = 0;
-  BYTEARRAY *ActionData = Action->GetAction( );
+  const BYTEARRAY *ActionData = Action->GetAction();
   BYTEARRAY Data, Key, Value;
 
-  // dota actions with real time replay data start with 0x6b then the null terminated string "dr.x"
+  // dota actions with real time replay data start with 0x6b then the nullptr terminated string "dr.x"
   // unfortunately more than one action can be sent in a single packet and the length of each action isn't explicitly represented in the packet
   // so we have to either parse all the actions and calculate the length based on the type or we can search for an identifying sequence
   // parsing the actions would be more correct but would be a lot more difficult to write for relatively little gain
@@ -61,202 +63,203 @@ bool CStats::ProcessAction( CIncomingAction *Action )
 
   do
   {
-    if ( ( *ActionData )[i] == 0x6b && ( *ActionData )[i+1] == 0x64 && ( *ActionData )[i+2] == 0x72 && ( *ActionData )[i+3] == 0x2e && ( *ActionData )[i+4] == 0x78 && ( *ActionData )[i+5] == 0x00 )
+    if ((*ActionData)[i] == 0x6b && (*ActionData)[i + 1] == 0x64 && (*ActionData)[i + 2] == 0x72 && (*ActionData)[i + 3] == 0x2e && (*ActionData)[i + 4] == 0x78 && (*ActionData)[i + 5] == 0x00)
     {
       // we think we've found an action with real time replay data (but we can't be 100% sure)
-      // next we parse out two null terminated strings and a 4 byte integer
+      // next we parse out two nullptr terminated strings and a 4 byte integer
 
-      if ( ActionData->size( ) >= i + 7 )
+      if (ActionData->size() >= i + 7)
       {
-        // the first null terminated string should either be the strings "Data" or "Global" or a player id in ASCII representation, e.g. "1" or "2"
+        // the first nullptr terminated string should either be the strings "Data" or "Global" or a player id in ASCII representation, e.g. "1" or "2"
 
-        Data = ExtractCString( *ActionData, i + 6 );
+        Data = ExtractCString(*ActionData, i + 6);
 
-        if ( ActionData->size( ) >= i + 8 + Data.size( ) )
+        if (ActionData->size() >= i + 8 + Data.size())
         {
-          // the second null terminated string should be the key
+          // the second nullptr terminated string should be the key
 
-          Key = ExtractCString( *ActionData, i + 7 + Data.size( ) );
+          Key = ExtractCString(*ActionData, i + 7 + Data.size());
 
-          if ( ActionData->size( ) >= i + 12 + Data.size( ) + Key.size( ) )
+          if (ActionData->size() >= i + 12 + Data.size() + Key.size())
           {
             // the 4 byte integer should be the value
 
-            Value = BYTEARRAY( ActionData->begin( ) + i + 8 + Data.size( ) + Key.size( ), ActionData->begin( ) + i + 12 + Data.size( ) + Key.size( ) );
-            string DataString = string( Data.begin( ), Data.end( ) );
-            string KeyString = string( Key.begin( ), Key.end( ) );
-            uint32_t ValueInt = ByteArrayToUInt32( Value, false );
-            
+            Value = BYTEARRAY(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
+            const string DataString = string(Data.begin(), Data.end());
+            const string KeyString = string(Key.begin(), Key.end());
+            const uint32_t ValueInt = ByteArrayToUInt32(Value, false);
+
             //Print( "[STATS] " + DataString + ", " + KeyString + ", " + ToString( ValueInt ) );
 
-            if ( DataString == "Data" )
+            if (DataString == "Data")
             {
               // these are received during the game
               // you could use these to calculate killing sprees and double or triple kills (you'd have to make up your own time restrictions though)
               // you could also build a table of "who killed who" data
-              
-              if ( KeyString.size( ) >= 5 && KeyString.substr( 0, 4 ) == "Hero" )
+
+              if (KeyString.size() >= 5 && KeyString.substr(0, 4) == "Hero")
               {
                 // a hero died
 
-                string VictimName = KeyString.substr( 4 );
+                const string VictimName = KeyString.substr(4);
                 const uint32_t KillerColour = ValueInt;
-                const uint32_t VictimColour = ToUInt32( VictimName );
-                CGamePlayer *Killer = m_Game->GetPlayerFromColour( ValueInt );
-                CGamePlayer *Victim = m_Game->GetPlayerFromColour( VictimColour );
-                
-                if ( !m_Players[ValueInt] )
-                  m_Players[ValueInt] = new CDBDotAPlayer( );
-                
-                if ( !m_Players[VictimColour] )
-                  m_Players[VictimColour] = new CDBDotAPlayer( );
-                
-                if ( Victim )
+                const uint32_t VictimColour = ToUInt32(VictimName);
+                CGamePlayer *Killer = m_Game->GetPlayerFromColour(ValueInt);
+                CGamePlayer *Victim = m_Game->GetPlayerFromColour(VictimColour);
+
+                if (!m_Players[ValueInt])
+                  m_Players[ValueInt] = new CDBDotAPlayer();
+
+                if (!m_Players[VictimColour])
+                  m_Players[VictimColour] = new CDBDotAPlayer();
+
+                if (Victim)
                 {
-                  if ( Killer )
+                  if (Killer)
                   {
                     // check for hero denies
-                    
-                    if ( !( ( KillerColour <= 5 && VictimColour <= 5 ) || ( KillerColour >= 7 && VictimColour >= 7 ) ) )
+
+                    if (!((KillerColour <= 5 && VictimColour <= 5) || (KillerColour >= 7 && VictimColour >= 7)))
                     {
                       // non-leaver killed a non-leaver
-                      
-                      m_Players[KillerColour]->IncKills( );
-                      m_Players[VictimColour]->IncDeaths( );
+
+                      m_Players[KillerColour]->IncKills();
+                      m_Players[VictimColour]->IncDeaths();
                     }
                   }
                   else
                   {
                     // Scourge/Sentinel/leaver killed a non-leaver
-                    
-                    m_Players[VictimColour]->IncDeaths( );
+
+                    m_Players[VictimColour]->IncDeaths();
                   }
                 }
               }
-              else if ( KeyString.size( ) >= 7 && KeyString.substr( 0, 6 ) == "Assist" )
+              else if (KeyString.size() >= 7 && KeyString.substr(0, 6) == "Assist")
               {
                 // check if the assist was on a non-leaver
-                
-                if ( m_Game->GetPlayerFromColour( ValueInt ) )
+
+                if (m_Game->GetPlayerFromColour(ValueInt))
                 {
-                  string AssisterName = KeyString.substr( 6 );
-                  const uint32_t AssisterColour = ToUInt32( AssisterName );
-                  
-                  if ( !m_Players[AssisterColour] )
-                    m_Players[AssisterColour] = new CDBDotAPlayer( );
-                  
-                  m_Players[AssisterColour]->IncAssists( );
-                }                
-              }              
-              else if ( KeyString.size( ) >= 8 && KeyString.substr( 0, 5 ) == "Tower" )
+                  string AssisterName = KeyString.substr(6);
+                  const uint32_t AssisterColour = ToUInt32(AssisterName);
+
+                  if (!m_Players[AssisterColour])
+                    m_Players[AssisterColour] = new CDBDotAPlayer();
+
+                  m_Players[AssisterColour]->IncAssists();
+                }
+              }
+              else if (KeyString.size() >= 8 && KeyString.substr(0, 5) == "Tower")
               {
                 // a tower died
 
-                if ( ( ValueInt >= 1 && ValueInt <= 5 ) || ( ValueInt >= 7 && ValueInt <= 11 ) )
+                if ((ValueInt >= 1 && ValueInt <= 5) || (ValueInt >= 7 && ValueInt <= 11))
                 {
-                  if ( !m_Players[ValueInt] )
-                    m_Players[ValueInt] = new CDBDotAPlayer( );
+                  if (!m_Players[ValueInt])
+                    m_Players[ValueInt] = new CDBDotAPlayer();
 
-                  m_Players[ValueInt]->IncTowerKills( );
+                  m_Players[ValueInt]->IncTowerKills();
                 }
               }
-              else if ( KeyString.size( ) >= 6 && KeyString.substr( 0, 3 ) == "Rax" )
+              else if (KeyString.size() >= 6 && KeyString.substr(0, 3) == "Rax")
               {
                 // a rax died
 
-                if ( ( ValueInt >= 1 && ValueInt <= 5 ) || ( ValueInt >= 7 && ValueInt <= 11 ) )
+                if ((ValueInt >= 1 && ValueInt <= 5) || (ValueInt >= 7 && ValueInt <= 11))
                 {
-                  if ( !m_Players[ValueInt] )
-                    m_Players[ValueInt] = new CDBDotAPlayer( );
+                  if (!m_Players[ValueInt])
+                    m_Players[ValueInt] = new CDBDotAPlayer();
 
-                  m_Players[ValueInt]->IncRaxKills( );
+                  m_Players[ValueInt]->IncRaxKills();
                 }
               }
-              else if ( KeyString.size( ) >= 8 && KeyString.substr( 0, 7 ) == "Courier" )
+              else if (KeyString.size() >= 8 && KeyString.substr(0, 7) == "Courier")
               {
                 // a courier died
-                
-                if ( ( ValueInt >= 1 && ValueInt <= 5 ) || ( ValueInt >= 7 && ValueInt <= 11 ) )
-                {
-                  if ( !m_Players[ValueInt] )
-                    m_Players[ValueInt] = new CDBDotAPlayer( );
 
-                  m_Players[ValueInt]->IncCourierKills( );
+                if ((ValueInt >= 1 && ValueInt <= 5) || (ValueInt >= 7 && ValueInt <= 11))
+                {
+                  if (!m_Players[ValueInt])
+                    m_Players[ValueInt] = new CDBDotAPlayer();
+
+                  m_Players[ValueInt]->IncCourierKills();
                 }
               }
             }
-            else if ( DataString == "Global" )
+            else if (DataString == "Global")
             {
               // these are only received at the end of the game
 
-              if ( KeyString == "Winner" )
+              if (KeyString == "Winner")
               {
                 // Value 1 -> sentinel
                 // Value 2 -> scourge
 
                 m_Winner = ValueInt;
-                
-                if ( m_Winner  == 1 )
-                    Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: Sentinel" );
-                else if ( m_Winner == 2 )
-                    Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: Scourge" );
+
+                if (m_Winner  == 1)
+                  Print("[STATS: " + m_Game->GetGameName() + "] detected winner: Sentinel");
+                else if (m_Winner == 2)
+                  Print("[STATS: " + m_Game->GetGameName() + "] detected winner: Scourge");
                 else
-                    Print( "[STATS: " + m_Game->GetGameName( ) + "] detected winner: " + ToString( ValueInt ) );                  
+                  Print("[STATS: " + m_Game->GetGameName() + "] detected winner: " + ToString(ValueInt));
               }
             }
-            else if ( DataString.size( ) <= 2 && DataString.find_first_not_of( "1234567890" ) == string::npos )
+            else if (DataString.size() <= 2 && DataString.find_first_not_of("1234567890") == string::npos)
             {
               // these are only received at the end of the game
 
-              const uint32_t ID = ToUInt32( DataString );
+              const uint32_t ID = ToUInt32(DataString);
 
-              if ( ( ID >= 1 && ID <= 5 ) || ( ID >= 7 && ID <= 11 ) )
+              if ((ID >= 1 && ID <= 5) || (ID >= 7 && ID <= 11))
               {
-                if ( !m_Players[ID] )
+                if (!m_Players[ID])
                 {
-                  m_Players[ID] = new CDBDotAPlayer( );
-                  m_Players[ID]->SetColour( ID );
+                  m_Players[ID] = new CDBDotAPlayer();
+                  m_Players[ID]->SetColour(ID);
                 }
-                
+
                 // Key "3"		-> Creep Kills
                 // Key "4"		-> Creep Denies
                 // Key "7"		-> Neutral Kills
                 // Key "id"     -> ID (1-5 for sentinel, 6-10 for scourge, accurate after using -sp and/or -switch)
-                
-                switch( KeyString[0] )
+
+                switch (KeyString[0])
                 {
                   case '3':
-                    m_Players[ID]->SetCreepKills( ValueInt );
+                    m_Players[ID]->SetCreepKills(ValueInt);
                     break;
-                  
+
                   case '4':
-                    m_Players[ID]->SetCreepDenies( ValueInt );
+                    m_Players[ID]->SetCreepDenies(ValueInt);
                     break;
-                  
+
                   case '7':
-                    m_Players[ID]->SetNeutralKills( ValueInt );
+                    m_Players[ID]->SetNeutralKills(ValueInt);
                     break;
-                    
+
                   case 'i':
-                    if( KeyString[1] == 'd' )
+                    if (KeyString[1] == 'd')
                     {
                       // DotA sends id values from 1-10 with 1-5 being sentinel players and 6-10 being scourge players
                       // unfortunately the actual player colours are from 1-5 and from 7-11 so we need to deal with this case here
 
-                      if ( ValueInt >= 6 )
-                        m_Players[ID]->SetNewColour( ValueInt + 1 );
+                      if (ValueInt >= 6)
+                        m_Players[ID]->SetNewColour(ValueInt + 1);
                       else
-                        m_Players[ID]->SetNewColour( ValueInt );
-                    }                    
+                        m_Players[ID]->SetNewColour(ValueInt);
+                    }
+
                     break;
-                    
+
                   default:
                     break;
                 }
               }
             }
 
-            i += 12 + Data.size( ) + Key.size( );
+            i += 12 + Data.size() + Key.size();
           }
           else
             ++i;
@@ -269,14 +272,15 @@ bool CStats::ProcessAction( CIncomingAction *Action )
     }
     else
       ++i;
-  } while ( ActionData->size( ) >= i + 6 );
+  }
+  while (ActionData->size() >= i + 6);
 
   return m_Winner != 0;
 }
 
-void CStats::Save( CAura *Aura, CAuraDB *DB )
+void CStats::Save(CAura *Aura, CAuraDB *DB)
 {
-  if ( DB->Begin( ) )
+  if (DB->Begin())
   {
     // since we only record the end game information it's possible we haven't recorded anything yet if the game didn't end with a tree/throne death
     // this will happen if all the players leave before properly finishing the game
@@ -284,63 +288,63 @@ void CStats::Save( CAura *Aura, CAuraDB *DB )
     // the dotaplayer stats are only saved if the game is properly finished
 
     unsigned int Players = 0;
-    
+
     // check for invalid colours and duplicates
     // this can only happen if DotA sends us garbage in the "id" value but we should check anyway
-    
-    for ( unsigned int i = 0; i < 12; ++i )
-    {
-      if ( m_Players[i] )
-      {
-        const uint32_t Colour = m_Players[i]->GetNewColour( );
 
-        if ( !( ( Colour >= 1 && Colour <= 5 ) || ( Colour >= 7 && Colour <= 11 ) ) )
+    for (unsigned int i = 0; i < 12; ++i)
+    {
+      if (m_Players[i])
+      {
+        const uint32_t Colour = m_Players[i]->GetNewColour();
+
+        if (!((Colour >= 1 && Colour <= 5) || (Colour >= 7 && Colour <= 11)))
         {
-          Print( "[STATS: " + m_Game->GetGameName( ) + "] discarding player data, invalid colour found" );
+          Print("[STATS: " + m_Game->GetGameName() + "] discarding player data, invalid colour found");
           delete m_Players[i];
-          m_Players[i] = NULL;
+          m_Players[i] = nullptr;
           continue;
         }
 
-        for ( unsigned int j = i + 1; j < 12; ++j )
+        for (unsigned int j = i + 1; j < 12; ++j)
         {
-          if ( m_Players[j] && Colour == m_Players[j]->GetNewColour( ) )
+          if (m_Players[j] && Colour == m_Players[j]->GetNewColour())
           {
-            Print( "[STATS: " + m_Game->GetGameName( ) + "] discarding player data, duplicate colour found" );
+            Print("[STATS: " + m_Game->GetGameName() + "] discarding player data, duplicate colour found");
             delete m_Players[j];
-            m_Players[j] = NULL;
+            m_Players[j] = nullptr;
           }
-        }  
+        }
       }
     }
 
-    for ( unsigned int i = 0; i < 12; ++i )
+    for (unsigned int i = 0; i < 12; ++i)
     {
-      if ( m_Players[i] )
+      if (m_Players[i])
       {
-        const uint32_t Colour = m_Players[i]->GetNewColour( );
-        const string Name = m_Game->GetDBPlayerNameFromColour( Colour );
+        const uint32_t Colour = m_Players[i]->GetNewColour();
+        const string Name = m_Game->GetDBPlayerNameFromColour(Colour);
 
-        if( Name.empty( ) )
+        if (Name.empty())
           continue;
-          
+
         unsigned char Win = 0;
 
-        if( ( m_Winner == 1 && Colour >= 1 && Colour <= 5 ) || ( m_Winner == 2 && Colour >= 7 && Colour <= 11 ) )
+        if ((m_Winner == 1 && Colour >= 1 && Colour <= 5) || (m_Winner == 2 && Colour >= 7 && Colour <= 11))
           Win = 1;
-        else if( ( m_Winner == 2 && Colour >= 1 && Colour <= 5 ) || ( m_Winner == 1 && Colour >= 7 && Colour <= 11 ) )
+        else if ((m_Winner == 2 && Colour >= 1 && Colour <= 5) || (m_Winner == 1 && Colour >= 7 && Colour <= 11))
           Win = 2;
-        
-        Aura->m_DB->DotAPlayerAdd( m_Game->GetDBPlayerNameFromColour( Colour ), Win, m_Players[i]->GetKills( ), m_Players[i]->GetDeaths( ), m_Players[i]->GetCreepKills( ), m_Players[i]->GetCreepDenies( ), m_Players[i]->GetAssists( ), m_Players[i]->GetNeutralKills( ), m_Players[i]->GetTowerKills( ), m_Players[i]->GetRaxKills( ), m_Players[i]->GetCourierKills( ) );
+
+        Aura->m_DB->DotAPlayerAdd(m_Game->GetDBPlayerNameFromColour(Colour), Win, m_Players[i]->GetKills(), m_Players[i]->GetDeaths(), m_Players[i]->GetCreepKills(), m_Players[i]->GetCreepDenies(), m_Players[i]->GetAssists(), m_Players[i]->GetNeutralKills(), m_Players[i]->GetTowerKills(), m_Players[i]->GetRaxKills(), m_Players[i]->GetCourierKills());
         ++Players;
       }
     }
 
-    if ( DB->Commit( ) )
-      Print( "[STATS: " + m_Game->GetGameName( ) + "] saving " + ToString( Players ) + " players" );
+    if (DB->Commit())
+      Print("[STATS: " + m_Game->GetGameName() + "] saving " + ToString(Players) + " players");
     else
-      Print( "[STATS: " + m_Game->GetGameName( ) + "] unable to commit database transaction, data not saved" );
+      Print("[STATS: " + m_Game->GetGameName() + "] unable to commit database transaction, data not saved");
   }
   else
-    Print( "[STATS: " + m_Game->GetGameName( ) + "] unable to begin database transaction, data not saved" );
+    Print("[STATS: " + m_Game->GetGameName() + "] unable to begin database transaction, data not saved");
 }

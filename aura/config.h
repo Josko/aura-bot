@@ -31,14 +31,14 @@ private:
   map<string, string> m_CFG;
 
 public:
-  CConfig( );
-  ~CConfig( );
+  CConfig();
+  ~CConfig();
 
-  void Read( const string &file );
-  bool Exists( const string &key );
-  int GetInt( const string &key, int x );
-  string GetString( const string &key, const string &x );
-  void Set( const string &key, const string &x );
+  void Read(const string &file);
+  bool Exists(const string &key);
+  int GetInt(const string &key, int x);
+  string GetString(const string &key, const string &x);
+  void Set(const string &key, const string &x);
 };
 
 #endif

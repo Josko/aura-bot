@@ -27,82 +27,82 @@
 // CConfig
 //
 
-CConfig::CConfig( )
+CConfig::CConfig()
 {
 
 }
 
-CConfig::~CConfig( )
+CConfig::~CConfig()
 {
 
 }
 
-void CConfig::Read( const string &file )
+void CConfig::Read(const string &file)
 {
   ifstream in;
-  in.open( file.c_str( ) );
+  in.open(file.c_str());
 
-  if ( in.fail( ) )
-    Print( "[CONFIG] warning - unable to read file [" + file + "]" );
+  if (in.fail())
+    Print("[CONFIG] warning - unable to read file [" + file + "]");
   else
   {
-    Print( "[CONFIG] loading file [" + file + "]" );
+    Print("[CONFIG] loading file [" + file + "]");
     string Line;
 
-    while ( !in.eof( ) )
+    while (!in.eof())
     {
-      getline( in, Line );
+      getline(in, Line);
 
       // ignore blank lines and comments
 
-      if ( Line.empty( ) || Line[0] == '#' || Line == "\n" )
+      if (Line.empty() || Line[0] == '#' || Line == "\n")
         continue;
 
       // remove newlines and partial newlines to help fix issues with Windows formatted config files on Linux systems
 
-      Line.erase( remove( Line.begin( ), Line.end( ), '\r' ), Line.end( ) );
-      Line.erase( remove( Line.begin( ), Line.end( ), '\n' ), Line.end( ) );
+      Line.erase(remove(Line.begin(), Line.end(), '\r'), Line.end());
+      Line.erase(remove(Line.begin(), Line.end(), '\n'), Line.end());
 
-      string::size_type Split = Line.find( "=" );
+      string::size_type Split = Line.find("=");
 
-      if ( Split == string::npos )
+      if (Split == string::npos)
         continue;
 
-      string::size_type KeyStart = Line.find_first_not_of( " " );
-      string::size_type KeyEnd = Line.find( " ", KeyStart );
-      string::size_type ValueStart = Line.find_first_not_of( " ", Split + 1 );
-      string::size_type ValueEnd = Line.size( );
+      string::size_type KeyStart = Line.find_first_not_of(" ");
+      string::size_type KeyEnd = Line.find(" ", KeyStart);
+      string::size_type ValueStart = Line.find_first_not_of(" ", Split + 1);
+      string::size_type ValueEnd = Line.size();
 
-      if ( ValueStart != string::npos )
-        m_CFG[Line.substr( KeyStart, KeyEnd - KeyStart )] = Line.substr( ValueStart, ValueEnd - ValueStart );
+      if (ValueStart != string::npos)
+        m_CFG[Line.substr(KeyStart, KeyEnd - KeyStart)] = Line.substr(ValueStart, ValueEnd - ValueStart);
     }
 
-    in.close( );
+    in.close();
   }
 }
 
-bool CConfig::Exists( const string &key )
+bool CConfig::Exists(const string &key)
 {
-  return m_CFG.find( key ) != m_CFG.end( );
+  return m_CFG.find(key) != m_CFG.end();
 }
 
-int CConfig::GetInt( const string &key, int x )
+int CConfig::GetInt(const string &key, int x)
 {
-  if ( m_CFG.find( key ) == m_CFG.end( ) )
+  if (m_CFG.find(key) == m_CFG.end())
     return x;
   else
-    return atoi( m_CFG[key].c_str( ) );
+    return atoi(m_CFG[key].c_str());
 }
 
-string CConfig::GetString( const string &key, const string &x )
+string CConfig::GetString(const string &key, const string &x)
 {
-  if ( m_CFG.find( key ) == m_CFG.end( ) )
+  if (m_CFG.find(key) == m_CFG.end())
     return x;
   else
     return m_CFG[key];
 }
 
-void CConfig::Set( const string &key, const string &x )
+void CConfig::Set(const string &key, const string &x)
 {
   m_CFG[key] = x;
 }

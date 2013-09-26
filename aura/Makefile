@@ -4,7 +4,7 @@ ARCH = $(shell uname -m)
 CC = gcc
 CXX = g++
 CCFLAGS = -fno-builtin
-CXXFLAGS = -pipe -Wall -Wextra -fno-builtin
+CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
 OFLAGS = -O3
 LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time -lboost_system -lboost_filesystem
@@ -45,7 +45,9 @@ all: $(OBJS) $(COBJS) $(PROGS)
 
 aura++: $(OBJS) $(COBJS)
 	@$(CXX) -o aura++ $(OBJS) $(COBJS) $(LFLAGS)
-	@echo "[BIN] Success. $@ created."
+	@echo "[BIN] $@ created."
+	@strip aura++
+	@echo "[BIN] Stripping the binary."
 
 clean:
 	@rm -f $(OBJS) $(COBJS) $(PROGS)

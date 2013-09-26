@@ -60,7 +60,7 @@ protected:
   vector<string> m_Reserved;                // vector of player names with reserved slots (from the !hold command)
   set<string> m_IgnoredNames;               // set of player names to NOT print ban messages for when joining because they've already been printed
   vector<unsigned char> m_FakePlayers;      // the fake player's PIDs (if present)
-  CMap *m_Map;                              // map data    
+  CMap *m_Map;                              // map data
   string m_GameName;                        // game name
   string m_LastGameName;                    // last game name (the previous game name before it was rehosted)
   string m_VirtualHostName;                 // host's name
@@ -114,130 +114,130 @@ protected:
   bool m_Desynced;                          // if the game has desynced or not
 
 public:
-  CGame( CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer );
-  ~CGame( );
+  CGame(CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer);
+  ~CGame();
 
-  inline CMap *GetMap( ) const                             { return m_Map; }
-  inline CGameProtocol *GetProtocol( ) const               { return m_Protocol; }
-  inline uint32_t GetEntryKey( ) const                     { return m_EntryKey; }
-  inline uint16_t GetHostPort( ) const                     { return m_HostPort; }
-  inline unsigned char GetGameState( ) const               { return m_GameState; }
-  inline unsigned char GetGProxyEmptyActions( ) const      { return m_GProxyEmptyActions; }
-  inline string GetGameName( ) const                       { return m_GameName; }
-  inline string GetLastGameName( ) const                   { return m_LastGameName; }
-  inline string GetVirtualHostName( ) const                { return m_VirtualHostName; }
-  inline string GetOwnerName( ) const                      { return m_OwnerName; }
-  inline string GetCreatorName( ) const                    { return m_CreatorName; }
-  inline string GetCreatorServer( ) const                  { return m_CreatorServer; }
-  inline uint32_t GetHostCounter( ) const                  { return m_HostCounter; }
-  inline uint32_t GetLastLagScreenTime( ) const            { return m_LastLagScreenTime; }
-  inline bool GetLocked( ) const                           { return m_Locked; }
-  inline bool GetCountDownStarted( ) const                 { return m_CountDownStarted; }
-  inline bool GetGameLoading( ) const                      { return m_GameLoading; }
-  inline bool GetGameLoaded( ) const                       { return m_GameLoaded; }
-  inline bool GetLagging( ) const                          { return m_Lagging; }
+  inline CMap *GetMap() const                             { return m_Map; }
+  inline CGameProtocol *GetProtocol() const               { return m_Protocol; }
+  inline uint32_t GetEntryKey() const                     { return m_EntryKey; }
+  inline uint16_t GetHostPort() const                     { return m_HostPort; }
+  inline unsigned char GetGameState() const               { return m_GameState; }
+  inline unsigned char GetGProxyEmptyActions() const      { return m_GProxyEmptyActions; }
+  inline string GetGameName() const                       { return m_GameName; }
+  inline string GetLastGameName() const                   { return m_LastGameName; }
+  inline string GetVirtualHostName() const                { return m_VirtualHostName; }
+  inline string GetOwnerName() const                      { return m_OwnerName; }
+  inline string GetCreatorName() const                    { return m_CreatorName; }
+  inline string GetCreatorServer() const                  { return m_CreatorServer; }
+  inline uint32_t GetHostCounter() const                  { return m_HostCounter; }
+  inline uint32_t GetLastLagScreenTime() const            { return m_LastLagScreenTime; }
+  inline bool GetLocked() const                           { return m_Locked; }
+  inline bool GetCountDownStarted() const                 { return m_CountDownStarted; }
+  inline bool GetGameLoading() const                      { return m_GameLoading; }
+  inline bool GetGameLoaded() const                       { return m_GameLoaded; }
+  inline bool GetLagging() const                          { return m_Lagging; }
 
-  uint32_t GetNextTimedActionTicks( ) const;
-  uint32_t GetSlotsOccupied( ) const;
-  uint32_t GetSlotsOpen( ) const;
-  uint32_t GetNumPlayers( ) const;
-  uint32_t GetNumHumanPlayers( ) const;
-  string GetDescription( ) const;
-  string GetPlayers( ) const;
+  uint32_t GetNextTimedActionTicks() const;
+  uint32_t GetSlotsOccupied() const;
+  uint32_t GetSlotsOpen() const;
+  uint32_t GetNumPlayers() const;
+  uint32_t GetNumHumanPlayers() const;
+  string GetDescription() const;
+  string GetPlayers() const;
 
-  inline void SetExiting( bool nExiting )                      { m_Exiting = nExiting; }
-  inline void SetRefreshError( bool nRefreshError )            { m_RefreshError = nRefreshError; }
+  inline void SetExiting(bool nExiting)                      { m_Exiting = nExiting; }
+  inline void SetRefreshError(bool nRefreshError)            { m_RefreshError = nRefreshError; }
 
   // processing functions
 
-  unsigned int SetFD( void *fd, void *send_fd, int *nfds );
-  bool Update( void *fd, void *send_fd );
-  void UpdatePost( void *send_fd );
+  unsigned int SetFD(void *fd, void *send_fd, int *nfds);
+  bool Update(void *fd, void *send_fd);
+  void UpdatePost(void *send_fd);
 
   // generic functions to send packets to players
 
-  void Send( CGamePlayer *player, const BYTEARRAY &data );
-  void Send( unsigned char PID, const BYTEARRAY &data );
-  void Send( const BYTEARRAY &PIDs, const BYTEARRAY &data );
-  void SendAll( const BYTEARRAY &data );
+  void Send(CGamePlayer *player, const BYTEARRAY &data);
+  void Send(unsigned char PID, const BYTEARRAY &data);
+  void Send(const BYTEARRAY &PIDs, const BYTEARRAY &data);
+  void SendAll(const BYTEARRAY &data);
 
   // functions to send packets to players
 
-  void SendChat( unsigned char fromPID, CGamePlayer *player, const string &message );
-  void SendChat( unsigned char fromPID, unsigned char toPID, const string &message );
-  void SendChat( CGamePlayer *player, const string &message );
-  void SendChat( unsigned char toPID, const string &message );
-  void SendAllChat( unsigned char fromPID, const string &message );
-  void SendAllChat( const string &message );
-  void SendAllSlotInfo( );
-  void SendVirtualHostPlayerInfo( CGamePlayer *player );
-  void SendFakePlayerInfo( CGamePlayer *player );
-  void SendAllActions( );
+  void SendChat(unsigned char fromPID, CGamePlayer *player, const string &message);
+  void SendChat(unsigned char fromPID, unsigned char toPID, const string &message);
+  void SendChat(CGamePlayer *player, const string &message);
+  void SendChat(unsigned char toPID, const string &message);
+  void SendAllChat(unsigned char fromPID, const string &message);
+  void SendAllChat(const string &message);
+  void SendAllSlotInfo();
+  void SendVirtualHostPlayerInfo(CGamePlayer *player);
+  void SendFakePlayerInfo(CGamePlayer *player);
+  void SendAllActions();
 
   // events
   // note: these are only called while iterating through the m_Potentials or m_Players vectors
   // therefore you can't modify those vectors and must use the player's m_DeleteMe member to flag for deletion
 
-  void EventPlayerDeleted( CGamePlayer *player );
-  void EventPlayerDisconnectTimedOut( CGamePlayer *player );
-  void EventPlayerDisconnectSocketError( CGamePlayer *player );
-  void EventPlayerDisconnectConnectionClosed( CGamePlayer *player );
-  void EventPlayerJoined( CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer );
-  void EventPlayerLeft( CGamePlayer *player, uint32_t reason );
-  void EventPlayerLoaded( CGamePlayer *player );
-  void EventPlayerAction( CGamePlayer *player, CIncomingAction *action );
-  void EventPlayerKeepAlive( CGamePlayer *player );
-  void EventPlayerChatToHost( CGamePlayer *player, CIncomingChatPlayer *chatPlayer );
-  bool EventPlayerBotCommand( CGamePlayer *player, string &command, string &payload );
-  void EventPlayerChangeTeam( CGamePlayer *player, unsigned char team );
-  void EventPlayerChangeColour( CGamePlayer *player, unsigned char colour );
-  void EventPlayerChangeRace( CGamePlayer *player, unsigned char race );
-  void EventPlayerChangeHandicap( CGamePlayer *player, unsigned char handicap );
-  void EventPlayerDropRequest( CGamePlayer *player );
-  void EventPlayerMapSize( CGamePlayer *player, CIncomingMapSize *mapSize );
-  void EventPlayerPongToHost( CGamePlayer *player );
+  void EventPlayerDeleted(CGamePlayer *player);
+  void EventPlayerDisconnectTimedOut(CGamePlayer *player);
+  void EventPlayerDisconnectSocketError(CGamePlayer *player);
+  void EventPlayerDisconnectConnectionClosed(CGamePlayer *player);
+  void EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *joinPlayer);
+  void EventPlayerLeft(CGamePlayer *player, uint32_t reason);
+  void EventPlayerLoaded(CGamePlayer *player);
+  void EventPlayerAction(CGamePlayer *player, CIncomingAction *action);
+  void EventPlayerKeepAlive(CGamePlayer *player);
+  void EventPlayerChatToHost(CGamePlayer *player, CIncomingChatPlayer *chatPlayer);
+  bool EventPlayerBotCommand(CGamePlayer *player, string &command, string &payload);
+  void EventPlayerChangeTeam(CGamePlayer *player, unsigned char team);
+  void EventPlayerChangeColour(CGamePlayer *player, unsigned char colour);
+  void EventPlayerChangeRace(CGamePlayer *player, unsigned char race);
+  void EventPlayerChangeHandicap(CGamePlayer *player, unsigned char handicap);
+  void EventPlayerDropRequest(CGamePlayer *player);
+  void EventPlayerMapSize(CGamePlayer *player, CIncomingMapSize *mapSize);
+  void EventPlayerPongToHost(CGamePlayer *player);
 
   // these events are called outside of any iterations
 
-  void EventGameStarted( );
-  void EventGameLoaded( );
+  void EventGameStarted();
+  void EventGameLoaded();
 
   // other functions
 
-  unsigned char GetSIDFromPID( unsigned char PID );
-  CGamePlayer *GetPlayerFromPID( unsigned char PID );
-  CGamePlayer *GetPlayerFromSID( unsigned char SID );
-  CGamePlayer *GetPlayerFromName( string name, bool sensitive );
-  uint32_t GetPlayerFromNamePartial( string name, CGamePlayer **player );
-  string GetDBPlayerNameFromColour( unsigned char colour ) const;
-  CGamePlayer *GetPlayerFromColour( unsigned char colour );
-  unsigned char GetNewPID( );
-  unsigned char GetNewColour( );
-  BYTEARRAY GetPIDs( );
-  BYTEARRAY GetPIDs( unsigned char excludePID );
-  unsigned char GetHostPID( );
-  unsigned char GetEmptySlot( bool reserved );
-  unsigned char GetEmptySlot( unsigned char team, unsigned char PID );
-  void SwapSlots( unsigned char SID1, unsigned char SID2 );
-  void OpenSlot( unsigned char SID, bool kick );
-  void CloseSlot( unsigned char SID, bool kick );
-  void ComputerSlot( unsigned char SID, unsigned char skill, bool kick );
-  void ColourSlot( unsigned char SID, unsigned char colour );
-  void OpenAllSlots( );
-  void CloseAllSlots( );
-  void ShuffleSlots( );
-  void AddToSpoofed( const string &server, const string &name, bool sendMessage );
-  void AddToReserved( string name );
-  bool IsOwner( string name );
-  bool IsReserved( string name );
-  bool IsDownloading( );
-  void StartCountDown( bool force );
-  void StopPlayers( const string &reason );
-  void StopLaggers( const string &reason );
-  void CreateVirtualHost( );
-  void DeleteVirtualHost( );
-  void CreateFakePlayer( );
-  void DeleteFakePlayers( );
+  unsigned char GetSIDFromPID(unsigned char PID);
+  CGamePlayer *GetPlayerFromPID(unsigned char PID);
+  CGamePlayer *GetPlayerFromSID(unsigned char SID);
+  CGamePlayer *GetPlayerFromName(string name, bool sensitive);
+  uint32_t GetPlayerFromNamePartial(string name, CGamePlayer **player);
+  string GetDBPlayerNameFromColour(unsigned char colour) const;
+  CGamePlayer *GetPlayerFromColour(unsigned char colour);
+  unsigned char GetNewPID();
+  unsigned char GetNewColour();
+  BYTEARRAY GetPIDs();
+  BYTEARRAY GetPIDs(unsigned char excludePID);
+  unsigned char GetHostPID();
+  unsigned char GetEmptySlot(bool reserved);
+  unsigned char GetEmptySlot(unsigned char team, unsigned char PID);
+  void SwapSlots(unsigned char SID1, unsigned char SID2);
+  void OpenSlot(unsigned char SID, bool kick);
+  void CloseSlot(unsigned char SID, bool kick);
+  void ComputerSlot(unsigned char SID, unsigned char skill, bool kick);
+  void ColourSlot(unsigned char SID, unsigned char colour);
+  void OpenAllSlots();
+  void CloseAllSlots();
+  void ShuffleSlots();
+  void AddToSpoofed(const string &server, const string &name, bool sendMessage);
+  void AddToReserved(string name);
+  bool IsOwner(string name);
+  bool IsReserved(string name);
+  bool IsDownloading();
+  void StartCountDown(bool force);
+  void StopPlayers(const string &reason);
+  void StopLaggers(const string &reason);
+  void CreateVirtualHost();
+  void DeleteVirtualHost();
+  void CreateFakePlayer();
+  void DeleteFakePlayers();
 };
 
 #endif

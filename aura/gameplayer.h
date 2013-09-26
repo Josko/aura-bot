@@ -47,25 +47,25 @@ protected:
   bool m_DeleteMe;
 
 public:
-  CPotentialPlayer( CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket );
-  ~CPotentialPlayer( );
+  CPotentialPlayer(CGameProtocol *nProtocol, CGame *nGame, CTCPSocket *nSocket);
+  ~CPotentialPlayer();
 
-  inline CTCPSocket *GetSocket( ) const                         { return m_Socket; }
-  inline BYTEARRAY GetExternalIP( ) const                       { return m_Socket->GetIP( ); }
-  inline string GetExternalIPString( ) const                    { return m_Socket->GetIPString( ); }
-  inline bool GetDeleteMe( ) const                              { return m_DeleteMe; }
-  inline CIncomingJoinPlayer *GetJoinPlayer( ) const            { return m_IncomingJoinPlayer; }
-  
-  inline void SetSocket( CTCPSocket *nSocket )                  { m_Socket = nSocket; }
-  inline void SetDeleteMe( bool nDeleteMe )                     { m_DeleteMe = nDeleteMe; }
+  inline CTCPSocket *GetSocket() const                         { return m_Socket; }
+  inline BYTEARRAY GetExternalIP() const                       { return m_Socket->GetIP(); }
+  inline string GetExternalIPString() const                    { return m_Socket->GetIPString(); }
+  inline bool GetDeleteMe() const                              { return m_DeleteMe; }
+  inline CIncomingJoinPlayer *GetJoinPlayer() const            { return m_IncomingJoinPlayer; }
+
+  inline void SetSocket(CTCPSocket *nSocket)                  { m_Socket = nSocket; }
+  inline void SetDeleteMe(bool nDeleteMe)                     { m_DeleteMe = nDeleteMe; }
 
   // processing functions
 
-  bool Update( void *fd );
+  bool Update(void *fd);
 
   // other functions
 
-  void Send( const BYTEARRAY &data ) const;
+  void Send(const BYTEARRAY &data) const;
 };
 
 //
@@ -85,7 +85,7 @@ private:
   BYTEARRAY m_InternalIP;                   // the player's internal IP address as reported by the player when connecting
   vector<uint32_t> m_Pings;                 // store the last few (10) pings received so we can take an average
   queue<uint32_t> m_CheckSums;              // the last few checksums the player has sent (for detecting desyncs)
-  queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++ 
+  queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++
   string m_LeftReason;                      // the reason the player left the game
   string m_SpoofedRealm;                    // the realm the player last spoof checked on
   string m_JoinedRealm;                     // the realm the player joined on (probable, can be spoofed)
@@ -120,88 +120,88 @@ private:
   bool m_LeftMessageSent;                   // if the playerleave message has been sent or not
   bool m_GProxy;                            // if the player is using GProxy++
   bool m_GProxyDisconnectNoticeSent;        // if a disconnection notice has been sent or not when using GProxy++
-  
+
 protected:
   bool m_DeleteMe;
 
 public:
-  CGamePlayer( CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved );
-  ~CGamePlayer( );
+  CGamePlayer(CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved);
+  ~CGamePlayer();
 
-  uint32_t GetPing( bool LCPing ) const;
-  inline CTCPSocket *GetSocket( ) const                                { return m_Socket; }
-  inline BYTEARRAY GetExternalIP( ) const                              { return m_Socket->GetIP( ); }
-  inline string GetExternalIPString( ) const                           { return m_Socket->GetIPString( ); }  
-  inline bool GetDeleteMe( ) const                                     { return m_DeleteMe; }
-  inline unsigned char GetPID( ) const                                 { return m_PID; }
-  inline string GetName( ) const                                       { return m_Name; }
-  inline BYTEARRAY GetInternalIP( ) const                              { return m_InternalIP; }
-  inline unsigned int GetNumPings( ) const                             { return m_Pings.size( ); }
-  inline unsigned int GetNumCheckSums( ) const                         { return m_CheckSums.size( ); }
-  inline queue<uint32_t> *GetCheckSums( )                              { return &m_CheckSums; }
-  inline string GetLeftReason( ) const                                 { return m_LeftReason; }
-  inline string GetSpoofedRealm( ) const                               { return m_SpoofedRealm; }
-  inline string GetJoinedRealm( ) const                                { return m_JoinedRealm; }
-  inline uint32_t GetLeftCode( ) const                                 { return m_LeftCode; }
-  inline uint32_t GetSyncCounter( ) const                              { return m_SyncCounter; }
-  inline uint32_t GetJoinTime( ) const                                 { return m_JoinTime; }
-  inline uint32_t GetLastMapPartSent( ) const                          { return m_LastMapPartSent; }
-  inline uint32_t GetLastMapPartAcked( ) const                         { return m_LastMapPartAcked; }
-  inline uint32_t GetStartedDownloadingTicks( ) const                  { return m_StartedDownloadingTicks; }
-  inline uint32_t GetFinishedDownloadingTime( ) const                  { return m_FinishedDownloadingTime; }
-  inline uint32_t GetFinishedLoadingTicks( ) const                     { return m_FinishedLoadingTicks; }
-  inline uint32_t GetStartedLaggingTicks( ) const                      { return m_StartedLaggingTicks; }
-  inline uint32_t GetLastGProxyWaitNoticeSentTime( ) const             { return m_LastGProxyWaitNoticeSentTime; }
-  inline uint32_t GetGProxyReconnectKey( ) const                       { return m_GProxyReconnectKey; }
-  inline bool GetGProxy( ) const                                       { return m_GProxy; }
-  inline bool GetGProxyDisconnectNoticeSent( ) const                   { return m_GProxyDisconnectNoticeSent; }
-  inline bool GetSpoofed( ) const                                      { return m_Spoofed; }
-  inline bool GetReserved( ) const                                     { return m_Reserved; }
-  inline bool GetWhoisShouldBeSent( ) const                            { return m_WhoisShouldBeSent; }
-  inline bool GetWhoisSent( ) const                                    { return m_WhoisSent; }
-  inline bool GetDownloadAllowed( ) const                              { return m_DownloadAllowed; }
-  inline bool GetDownloadStarted( ) const                              { return m_DownloadStarted; }
-  inline bool GetDownloadFinished( ) const                             { return m_DownloadFinished; }
-  inline bool GetFinishedLoading( ) const                              { return m_FinishedLoading; }
-  inline bool GetLagging( ) const                                      { return m_Lagging; }
-  inline bool GetDropVote( ) const                                     { return m_DropVote; }
-  inline bool GetKickVote( ) const                                     { return m_KickVote; }
-  inline bool GetMuted( ) const                                        { return m_Muted; }
-  inline bool GetLeftMessageSent( ) const                              { return m_LeftMessageSent; }
+  uint32_t GetPing(bool LCPing) const;
+  inline CTCPSocket *GetSocket() const                                { return m_Socket; }
+  inline BYTEARRAY GetExternalIP() const                              { return m_Socket->GetIP(); }
+  inline string GetExternalIPString() const                           { return m_Socket->GetIPString(); }
+  inline bool GetDeleteMe() const                                     { return m_DeleteMe; }
+  inline unsigned char GetPID() const                                 { return m_PID; }
+  inline string GetName() const                                       { return m_Name; }
+  inline BYTEARRAY GetInternalIP() const                              { return m_InternalIP; }
+  inline unsigned int GetNumPings() const                             { return m_Pings.size(); }
+  inline unsigned int GetNumCheckSums() const                         { return m_CheckSums.size(); }
+  inline queue<uint32_t> *GetCheckSums()                              { return &m_CheckSums; }
+  inline string GetLeftReason() const                                 { return m_LeftReason; }
+  inline string GetSpoofedRealm() const                               { return m_SpoofedRealm; }
+  inline string GetJoinedRealm() const                                { return m_JoinedRealm; }
+  inline uint32_t GetLeftCode() const                                 { return m_LeftCode; }
+  inline uint32_t GetSyncCounter() const                              { return m_SyncCounter; }
+  inline uint32_t GetJoinTime() const                                 { return m_JoinTime; }
+  inline uint32_t GetLastMapPartSent() const                          { return m_LastMapPartSent; }
+  inline uint32_t GetLastMapPartAcked() const                         { return m_LastMapPartAcked; }
+  inline uint32_t GetStartedDownloadingTicks() const                  { return m_StartedDownloadingTicks; }
+  inline uint32_t GetFinishedDownloadingTime() const                  { return m_FinishedDownloadingTime; }
+  inline uint32_t GetFinishedLoadingTicks() const                     { return m_FinishedLoadingTicks; }
+  inline uint32_t GetStartedLaggingTicks() const                      { return m_StartedLaggingTicks; }
+  inline uint32_t GetLastGProxyWaitNoticeSentTime() const             { return m_LastGProxyWaitNoticeSentTime; }
+  inline uint32_t GetGProxyReconnectKey() const                       { return m_GProxyReconnectKey; }
+  inline bool GetGProxy() const                                       { return m_GProxy; }
+  inline bool GetGProxyDisconnectNoticeSent() const                   { return m_GProxyDisconnectNoticeSent; }
+  inline bool GetSpoofed() const                                      { return m_Spoofed; }
+  inline bool GetReserved() const                                     { return m_Reserved; }
+  inline bool GetWhoisShouldBeSent() const                            { return m_WhoisShouldBeSent; }
+  inline bool GetWhoisSent() const                                    { return m_WhoisSent; }
+  inline bool GetDownloadAllowed() const                              { return m_DownloadAllowed; }
+  inline bool GetDownloadStarted() const                              { return m_DownloadStarted; }
+  inline bool GetDownloadFinished() const                             { return m_DownloadFinished; }
+  inline bool GetFinishedLoading() const                              { return m_FinishedLoading; }
+  inline bool GetLagging() const                                      { return m_Lagging; }
+  inline bool GetDropVote() const                                     { return m_DropVote; }
+  inline bool GetKickVote() const                                     { return m_KickVote; }
+  inline bool GetMuted() const                                        { return m_Muted; }
+  inline bool GetLeftMessageSent() const                              { return m_LeftMessageSent; }
 
-  inline void SetSocket( CTCPSocket *nSocket )                                           { m_Socket = nSocket; }
-  inline void SetDeleteMe( bool nDeleteMe )                                              { m_DeleteMe = nDeleteMe; }
-  inline void SetLeftReason( const string &nLeftReason )                                 { m_LeftReason = nLeftReason; }
-  inline void SetSpoofedRealm( const string &nSpoofedRealm )                             { m_SpoofedRealm = nSpoofedRealm; }
-  inline void SetLeftCode( uint32_t nLeftCode )                                          { m_LeftCode = nLeftCode; }
-  inline void SetSyncCounter( uint32_t nSyncCounter )                                    { m_SyncCounter = nSyncCounter; }
-  inline void SetLastMapPartSent( uint32_t nLastMapPartSent )                            { m_LastMapPartSent = nLastMapPartSent; }
-  inline void SetLastMapPartAcked( uint32_t nLastMapPartAcked )                          { m_LastMapPartAcked = nLastMapPartAcked; }
-  inline void SetStartedDownloadingTicks( uint32_t nStartedDownloadingTicks )            { m_StartedDownloadingTicks = nStartedDownloadingTicks; }
-  inline void SetFinishedDownloadingTime( uint32_t nFinishedDownloadingTime )            { m_FinishedDownloadingTime = nFinishedDownloadingTime; }
-  inline void SetStartedLaggingTicks( uint32_t nStartedLaggingTicks )                    { m_StartedLaggingTicks = nStartedLaggingTicks; }
-  inline void SetSpoofed( bool nSpoofed )                                                { m_Spoofed = nSpoofed; }
-  inline void SetReserved( bool nReserved )                                              { m_Reserved = nReserved; }
-  inline void SetWhoisShouldBeSent( bool nWhoisShouldBeSent )                            { m_WhoisShouldBeSent = nWhoisShouldBeSent; }
-  inline void SetDownloadAllowed( bool nDownloadAllowed )                                { m_DownloadAllowed = nDownloadAllowed; }
-  inline void SetDownloadStarted( bool nDownloadStarted )                                { m_DownloadStarted = nDownloadStarted; }
-  inline void SetDownloadFinished( bool nDownloadFinished )                              { m_DownloadFinished = nDownloadFinished; }
-  inline void SetLagging( bool nLagging )                                                { m_Lagging = nLagging; }
-  inline void SetDropVote( bool nDropVote )                                              { m_DropVote = nDropVote; }
-  inline void SetKickVote( bool nKickVote )                                              { m_KickVote = nKickVote; }
-  inline void SetMuted( bool nMuted )                                                    { m_Muted = nMuted; }
-  inline void SetLeftMessageSent( bool nLeftMessageSent )                                { m_LeftMessageSent = nLeftMessageSent; }
-  inline void SetGProxyDisconnectNoticeSent( bool nGProxyDisconnectNoticeSent )          { m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent; }
-  inline void SetLastGProxyWaitNoticeSentTime( uint32_t nLastGProxyWaitNoticeSentTime )  { m_LastGProxyWaitNoticeSentTime = nLastGProxyWaitNoticeSentTime; }
+  inline void SetSocket(CTCPSocket *nSocket)                                           { m_Socket = nSocket; }
+  inline void SetDeleteMe(bool nDeleteMe)                                              { m_DeleteMe = nDeleteMe; }
+  inline void SetLeftReason(const string &nLeftReason)                                 { m_LeftReason = nLeftReason; }
+  inline void SetSpoofedRealm(const string &nSpoofedRealm)                             { m_SpoofedRealm = nSpoofedRealm; }
+  inline void SetLeftCode(uint32_t nLeftCode)                                          { m_LeftCode = nLeftCode; }
+  inline void SetSyncCounter(uint32_t nSyncCounter)                                    { m_SyncCounter = nSyncCounter; }
+  inline void SetLastMapPartSent(uint32_t nLastMapPartSent)                            { m_LastMapPartSent = nLastMapPartSent; }
+  inline void SetLastMapPartAcked(uint32_t nLastMapPartAcked)                          { m_LastMapPartAcked = nLastMapPartAcked; }
+  inline void SetStartedDownloadingTicks(uint32_t nStartedDownloadingTicks)            { m_StartedDownloadingTicks = nStartedDownloadingTicks; }
+  inline void SetFinishedDownloadingTime(uint32_t nFinishedDownloadingTime)            { m_FinishedDownloadingTime = nFinishedDownloadingTime; }
+  inline void SetStartedLaggingTicks(uint32_t nStartedLaggingTicks)                    { m_StartedLaggingTicks = nStartedLaggingTicks; }
+  inline void SetSpoofed(bool nSpoofed)                                                { m_Spoofed = nSpoofed; }
+  inline void SetReserved(bool nReserved)                                              { m_Reserved = nReserved; }
+  inline void SetWhoisShouldBeSent(bool nWhoisShouldBeSent)                            { m_WhoisShouldBeSent = nWhoisShouldBeSent; }
+  inline void SetDownloadAllowed(bool nDownloadAllowed)                                { m_DownloadAllowed = nDownloadAllowed; }
+  inline void SetDownloadStarted(bool nDownloadStarted)                                { m_DownloadStarted = nDownloadStarted; }
+  inline void SetDownloadFinished(bool nDownloadFinished)                              { m_DownloadFinished = nDownloadFinished; }
+  inline void SetLagging(bool nLagging)                                                { m_Lagging = nLagging; }
+  inline void SetDropVote(bool nDropVote)                                              { m_DropVote = nDropVote; }
+  inline void SetKickVote(bool nKickVote)                                              { m_KickVote = nKickVote; }
+  inline void SetMuted(bool nMuted)                                                    { m_Muted = nMuted; }
+  inline void SetLeftMessageSent(bool nLeftMessageSent)                                { m_LeftMessageSent = nLeftMessageSent; }
+  inline void SetGProxyDisconnectNoticeSent(bool nGProxyDisconnectNoticeSent)          { m_GProxyDisconnectNoticeSent = nGProxyDisconnectNoticeSent; }
+  inline void SetLastGProxyWaitNoticeSentTime(uint32_t nLastGProxyWaitNoticeSentTime)  { m_LastGProxyWaitNoticeSentTime = nLastGProxyWaitNoticeSentTime; }
 
   // processing functions
 
-  bool Update( void *fd );
+  bool Update(void *fd);
 
   // other functions
-  
-  void Send( const BYTEARRAY &data );
-  void EventGProxyReconnect( CTCPSocket *NewSocket, uint32_t LastPacket );
+
+  void Send(const BYTEARRAY &data);
+  void EventGProxyReconnect(CTCPSocket *NewSocket, uint32_t LastPacket);
 };
 
 #endif

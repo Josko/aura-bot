@@ -35,66 +35,71 @@
 // CMap
 //
 
-CMap::CMap( CAura *nAura, CConfig *CFG, const string &nCFGFile ) : m_Aura( nAura )
+CMap::CMap(CAura *nAura, CConfig *CFG, const string &nCFGFile)
+  : m_Aura(nAura)
 {
-  Load( CFG, nCFGFile );
+  Load(CFG, nCFGFile);
 }
 
-CMap::~CMap( )
+CMap::~CMap()
 {
 
 }
 
-BYTEARRAY CMap::GetMapGameFlags( ) const
+BYTEARRAY CMap::GetMapGameFlags() const
 {
   uint32_t GameFlags = 0;
 
   // speed
 
-  if ( m_MapSpeed == MAPSPEED_SLOW )
+  if (m_MapSpeed == MAPSPEED_SLOW)
     GameFlags = 0x00000000;
-  else if ( m_MapSpeed == MAPSPEED_NORMAL )
+  else if (m_MapSpeed == MAPSPEED_NORMAL)
     GameFlags = 0x00000001;
   else
     GameFlags = 0x00000002;
 
   // visibility
 
-  if ( m_MapVisibility == MAPVIS_HIDETERRAIN )
+  if (m_MapVisibility == MAPVIS_HIDETERRAIN)
     GameFlags |= 0x00000100;
-  else if ( m_MapVisibility == MAPVIS_EXPLORED )
+  else if (m_MapVisibility == MAPVIS_EXPLORED)
     GameFlags |= 0x00000200;
-  else if ( m_MapVisibility == MAPVIS_ALWAYSVISIBLE )
+  else if (m_MapVisibility == MAPVIS_ALWAYSVISIBLE)
     GameFlags |= 0x00000400;
   else
     GameFlags |= 0x00000800;
 
   // observers
 
-  if ( m_MapObservers == MAPOBS_ONDEFEAT )
+  if (m_MapObservers == MAPOBS_ONDEFEAT)
     GameFlags |= 0x00002000;
-  else if ( m_MapObservers == MAPOBS_ALLOWED )
+  else if (m_MapObservers == MAPOBS_ALLOWED)
     GameFlags |= 0x00003000;
-  else if ( m_MapObservers == MAPOBS_REFEREES )
+  else if (m_MapObservers == MAPOBS_REFEREES)
     GameFlags |= 0x40000000;
 
   // teams/units/hero/race
 
-  if ( m_MapFlags & MAPFLAG_TEAMSTOGETHER )
+  if (m_MapFlags & MAPFLAG_TEAMSTOGETHER)
     GameFlags |= 0x00004000;
-  if ( m_MapFlags & MAPFLAG_FIXEDTEAMS )
+
+  if (m_MapFlags & MAPFLAG_FIXEDTEAMS)
     GameFlags |= 0x00060000;
-  if ( m_MapFlags & MAPFLAG_UNITSHARE )
+
+  if (m_MapFlags & MAPFLAG_UNITSHARE)
     GameFlags |= 0x01000000;
-  if ( m_MapFlags & MAPFLAG_RANDOMHERO )
+
+  if (m_MapFlags & MAPFLAG_RANDOMHERO)
     GameFlags |= 0x02000000;
-  if ( m_MapFlags & MAPFLAG_RANDOMRACES )
+
+  if (m_MapFlags & MAPFLAG_RANDOMRACES)
     GameFlags |= 0x04000000;
 
-  return CreateByteArray( GameFlags, false );
+  return CreateByteArray(GameFlags, false);
 }
 
-uint32_t CMap::GetMapGameType( ) const
+uint32_t CMap::GetMapGameType() const
 {
   /* spec stolen from Strilanc as follows:
 
@@ -136,67 +141,73 @@ uint32_t CMap::GetMapGameType( ) const
 
   // maker
 
-  if ( m_MapFilterMaker & MAPFILTER_MAKER_USER )
+  if (m_MapFilterMaker & MAPFILTER_MAKER_USER)
     GameType |= MAPGAMETYPE_MAKERUSER;
-  if ( m_MapFilterMaker & MAPFILTER_MAKER_BLIZZARD )
+
+  if (m_MapFilterMaker & MAPFILTER_MAKER_BLIZZARD)
     GameType |= MAPGAMETYPE_MAKERBLIZZARD;
 
   // type
 
-  if ( m_MapFilterType & MAPFILTER_TYPE_MELEE )
+  if (m_MapFilterType & MAPFILTER_TYPE_MELEE)
     GameType |= MAPGAMETYPE_TYPEMELEE;
-  if ( m_MapFilterType & MAPFILTER_TYPE_SCENARIO )
+
+  if (m_MapFilterType & MAPFILTER_TYPE_SCENARIO)
     GameType |= MAPGAMETYPE_TYPESCENARIO;
 
   // size
 
-  if ( m_MapFilterSize & MAPFILTER_SIZE_SMALL )
+  if (m_MapFilterSize & MAPFILTER_SIZE_SMALL)
     GameType |= MAPGAMETYPE_SIZESMALL;
-  if ( m_MapFilterSize & MAPFILTER_SIZE_MEDIUM )
+
+  if (m_MapFilterSize & MAPFILTER_SIZE_MEDIUM)
     GameType |= MAPGAMETYPE_SIZEMEDIUM;
-  if ( m_MapFilterSize & MAPFILTER_SIZE_LARGE )
+
+  if (m_MapFilterSize & MAPFILTER_SIZE_LARGE)
     GameType |= MAPGAMETYPE_SIZELARGE;
 
   // obs
 
-  if ( m_MapFilterObs & MAPFILTER_OBS_FULL )
+  if (m_MapFilterObs & MAPFILTER_OBS_FULL)
     GameType |= MAPGAMETYPE_OBSFULL;
-  if ( m_MapFilterObs & MAPFILTER_OBS_ONDEATH )
+
+  if (m_MapFilterObs & MAPFILTER_OBS_ONDEATH)
     GameType |= MAPGAMETYPE_OBSONDEATH;
-  if ( m_MapFilterObs & MAPFILTER_OBS_NONE )
+
+  if (m_MapFilterObs & MAPFILTER_OBS_NONE)
     GameType |= MAPGAMETYPE_OBSNONE;
 
   return GameType;
 }
 
-unsigned char CMap::GetMapLayoutStyle( ) const
+unsigned char CMap::GetMapLayoutStyle() const
 {
   // 0 = melee
   // 1 = custom forces
   // 2 = fixed player settings (not possible with the Warcraft III map editor)
   // 3 = custom forces + fixed player settings
 
-  if ( !( m_MapOptions & MAPOPT_CUSTOMFORCES ) )
+  if (!(m_MapOptions & MAPOPT_CUSTOMFORCES))
     return 0;
 
-  if ( !( m_MapOptions & MAPOPT_FIXEDPLAYERSETTINGS ) )
+  if (!(m_MapOptions & MAPOPT_FIXEDPLAYERSETTINGS))
     return 1;
 
   return 3;
 }
 
-void CMap::Load( CConfig *CFG, const string &nCFGFile )
+void CMap::Load(CConfig *CFG, const string &nCFGFile)
 {
   m_Valid = true;
   m_CFGFile = nCFGFile;
 
   // load the map data
 
-  m_MapLocalPath = CFG->GetString( "map_localpath", string( ) );
-  m_MapData.clear( );
+  m_MapLocalPath = CFG->GetString("map_localpath", string());
+  m_MapData.clear();
 
-  if ( !m_MapLocalPath.empty( ) )
-    m_MapData = FileRead( m_Aura->m_MapPath + m_MapLocalPath );
+  if (!m_MapLocalPath.empty())
+    m_MapData = FileRead(m_Aura->m_MapPath + m_MapLocalPath);
 
   // load the map MPQ
 
@@ -204,45 +215,45 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
   HANDLE MapMPQ;
   bool MapMPQReady = false;
 
-  if ( SFileOpenArchive( MapMPQFileName.c_str( ), 0, MPQ_OPEN_FORCE_MPQ_V1, &MapMPQ ) )
+  if (SFileOpenArchive(MapMPQFileName.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &MapMPQ))
   {
-    Print( "[MAP] loading MPQ file [" + MapMPQFileName + "]" );
+    Print("[MAP] loading MPQ file [" + MapMPQFileName + "]");
     MapMPQReady = true;
   }
   else
-    Print( "[MAP] warning - unable to load MPQ file [" + MapMPQFileName + "]" );
+    Print("[MAP] warning - unable to load MPQ file [" + MapMPQFileName + "]");
 
   // try to calculate map_size, map_info, map_crc, map_sha1
 
   BYTEARRAY MapSize, MapInfo, MapCRC, MapSHA1;
 
-  if ( !m_MapData.empty( ) )
+  if (!m_MapData.empty())
   {
-    m_Aura->m_SHA->Reset( );
+    m_Aura->m_SHA->Reset();
 
     // calculate map_size
 
-    MapSize = CreateByteArray( (uint32_t) m_MapData.size( ), false );
-    Print( "[MAP] calculated map_size = " + ByteArrayToDecString( MapSize ) );
+    MapSize = CreateByteArray((uint32_t) m_MapData.size(), false);
+    Print("[MAP] calculated map_size = " + ByteArrayToDecString(MapSize));
 
     // calculate map_info (this is actually the CRC)
 
-    MapInfo = CreateByteArray( (uint32_t) m_Aura->m_CRC->FullCRC( (unsigned char *) m_MapData.c_str( ), m_MapData.size( ) ), false );
-    Print( "[MAP] calculated map_info = " + ByteArrayToDecString( MapInfo ) );
+    MapInfo = CreateByteArray((uint32_t) m_Aura->m_CRC->FullCRC((unsigned char *) m_MapData.c_str(), m_MapData.size()), false);
+    Print("[MAP] calculated map_info = " + ByteArrayToDecString(MapInfo));
 
     // calculate map_crc (this is not the CRC) and map_sha1
     // a big thank you to Strilanc for figuring the map_crc algorithm out
 
-    string CommonJ = FileRead( m_Aura->m_MapCFGPath + "common.j" );
+    string CommonJ = FileRead(m_Aura->m_MapCFGPath + "common.j");
 
-    if ( CommonJ.empty( ) )
-      Print( "[MAP] unable to calculate map_crc/sha1 - unable to read file [" + m_Aura->m_MapCFGPath + "common.j]" );
+    if (CommonJ.empty())
+      Print("[MAP] unable to calculate map_crc/sha1 - unable to read file [" + m_Aura->m_MapCFGPath + "common.j]");
     else
     {
-      string BlizzardJ = FileRead( m_Aura->m_MapCFGPath + "blizzard.j" );
+      string BlizzardJ = FileRead(m_Aura->m_MapCFGPath + "blizzard.j");
 
-      if ( BlizzardJ.empty( ) )
-        Print( "[MAP] unable to calculate map_crc/sha1 - unable to read file [" + m_Aura->m_MapCFGPath + "blizzard.j]" );
+      if (BlizzardJ.empty())
+        Print("[MAP] unable to calculate map_crc/sha1 - unable to read file [" + m_Aura->m_MapCFGPath + "blizzard.j]");
       else
       {
         uint32_t Val = 0;
@@ -253,152 +264,152 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
         bool OverrodeCommonJ = false;
         bool OverrodeBlizzardJ = false;
 
-        if ( MapMPQReady )
+        if (MapMPQReady)
         {
           HANDLE SubFile;
 
           // override common.j
 
-          if ( SFileOpenFileEx( MapMPQ, "Scripts\\common.j", 0, &SubFile ) )
+          if (SFileOpenFileEx(MapMPQ, "Scripts\\common.j", 0, &SubFile))
           {
-            uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
+            uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
 
-            if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
+            if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
               char *SubFileData = new char[FileLength];
               DWORD BytesRead = 0;
 
-              if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
+              if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
               {
-                Print( "[MAP] overriding default common.j with map copy while calculating map_crc/sha1" );
+                Print("[MAP] overriding default common.j with map copy while calculating map_crc/sha1");
                 OverrodeCommonJ = true;
-                Val = Val ^ XORRotateLeft( (unsigned char *) SubFileData, BytesRead );
-                m_Aura->m_SHA->Update( (unsigned char *) SubFileData, BytesRead );
+                Val = Val ^ XORRotateLeft((unsigned char *) SubFileData, BytesRead);
+                m_Aura->m_SHA->Update((unsigned char *) SubFileData, BytesRead);
               }
 
               delete [] SubFileData;
             }
 
-            SFileCloseFile( SubFile );
+            SFileCloseFile(SubFile);
           }
         }
 
-        if ( !OverrodeCommonJ )
+        if (!OverrodeCommonJ)
         {
-          Val = Val ^ XORRotateLeft( (unsigned char *) CommonJ.c_str( ), CommonJ.size( ) );
-          m_Aura->m_SHA->Update( (unsigned char *) CommonJ.c_str( ), CommonJ.size( ) );
+          Val = Val ^ XORRotateLeft((unsigned char *) CommonJ.c_str(), CommonJ.size());
+          m_Aura->m_SHA->Update((unsigned char *) CommonJ.c_str(), CommonJ.size());
         }
 
-        if ( MapMPQReady )
+        if (MapMPQReady)
         {
           HANDLE SubFile;
 
           // override blizzard.j
 
-          if ( SFileOpenFileEx( MapMPQ, "Scripts\\blizzard.j", 0, &SubFile ) )
+          if (SFileOpenFileEx(MapMPQ, "Scripts\\blizzard.j", 0, &SubFile))
           {
-            uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
+            uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
 
-            if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
+            if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
               char *SubFileData = new char[FileLength];
               DWORD BytesRead = 0;
 
-              if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
+              if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
               {
-                Print( "[MAP] overriding default blizzard.j with map copy while calculating map_crc/sha1" );
+                Print("[MAP] overriding default blizzard.j with map copy while calculating map_crc/sha1");
                 OverrodeBlizzardJ = true;
-                Val = Val ^ XORRotateLeft( (unsigned char *) SubFileData, BytesRead );
-                m_Aura->m_SHA->Update( (unsigned char *) SubFileData, BytesRead );
+                Val = Val ^ XORRotateLeft((unsigned char *) SubFileData, BytesRead);
+                m_Aura->m_SHA->Update((unsigned char *) SubFileData, BytesRead);
               }
 
               delete [] SubFileData;
             }
 
-            SFileCloseFile( SubFile );
+            SFileCloseFile(SubFile);
           }
         }
 
-        if ( !OverrodeBlizzardJ )
+        if (!OverrodeBlizzardJ)
         {
-          Val = Val ^ XORRotateLeft( (unsigned char *) BlizzardJ.c_str( ), BlizzardJ.size( ) );
-          m_Aura->m_SHA->Update( (unsigned char *) BlizzardJ.c_str( ), BlizzardJ.size( ) );
+          Val = Val ^ XORRotateLeft((unsigned char *) BlizzardJ.c_str(), BlizzardJ.size());
+          m_Aura->m_SHA->Update((unsigned char *) BlizzardJ.c_str(), BlizzardJ.size());
         }
 
-        Val = ROTL( Val, 3 );
-        Val = ROTL( Val ^ 0x03F1379E, 3 );
-        m_Aura->m_SHA->Update( (unsigned char *) "\x9E\x37\xF1\x03", 4 );
+        Val = ROTL(Val, 3);
+        Val = ROTL(Val ^ 0x03F1379E, 3);
+        m_Aura->m_SHA->Update((unsigned char *) "\x9E\x37\xF1\x03", 4);
 
-        if ( MapMPQReady )
+        if (MapMPQReady)
         {
           vector<string> FileList;
-          FileList.push_back( "war3map.j" );
-          FileList.push_back( "scripts\\war3map.j" );
-          FileList.push_back( "war3map.w3e" );
-          FileList.push_back( "war3map.wpm" );
-          FileList.push_back( "war3map.doo" );
-          FileList.push_back( "war3map.w3u" );
-          FileList.push_back( "war3map.w3b" );
-          FileList.push_back( "war3map.w3d" );
-          FileList.push_back( "war3map.w3a" );
-          FileList.push_back( "war3map.w3q" );
+          FileList.push_back("war3map.j");
+          FileList.push_back("scripts\\war3map.j");
+          FileList.push_back("war3map.w3e");
+          FileList.push_back("war3map.wpm");
+          FileList.push_back("war3map.doo");
+          FileList.push_back("war3map.w3u");
+          FileList.push_back("war3map.w3b");
+          FileList.push_back("war3map.w3d");
+          FileList.push_back("war3map.w3a");
+          FileList.push_back("war3map.w3q");
           bool FoundScript = false;
 
-          for ( vector<string> ::const_iterator i = FileList.begin( ); i != FileList.end( ); ++i )
+          for (vector<string> ::const_iterator i = FileList.begin(); i != FileList.end(); ++i)
           {
             // don't use scripts\war3map.j if we've already used war3map.j (yes, some maps have both but only war3map.j is used)
 
-            if ( FoundScript && *i == "scripts\\war3map.j" )
+            if (FoundScript && *i == "scripts\\war3map.j")
               continue;
 
             HANDLE SubFile;
 
-            if ( SFileOpenFileEx( MapMPQ, ( *i ).c_str( ), 0, &SubFile ) )
+            if (SFileOpenFileEx(MapMPQ, (*i).c_str(), 0, &SubFile))
             {
-              uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
+              uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
 
-              if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
+              if (FileLength > 0 && FileLength != 0xFFFFFFFF)
               {
                 char *SubFileData = new char[FileLength];
                 DWORD BytesRead = 0;
 
-                if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
+                if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
                 {
-                  if ( *i == "war3map.j" || *i == "scripts\\war3map.j" )
+                  if (*i == "war3map.j" || *i == "scripts\\war3map.j")
                     FoundScript = true;
 
-                  Val = ROTL( Val ^ XORRotateLeft( (unsigned char *) SubFileData, BytesRead ), 3 );
-                  m_Aura->m_SHA->Update( (unsigned char *) SubFileData, BytesRead );
+                  Val = ROTL(Val ^ XORRotateLeft((unsigned char *) SubFileData, BytesRead), 3);
+                  m_Aura->m_SHA->Update((unsigned char *) SubFileData, BytesRead);
                   // DEBUG_Print( "*** found: " + *i );
                 }
 
                 delete [] SubFileData;
               }
 
-              SFileCloseFile( SubFile );
+              SFileCloseFile(SubFile);
             }
           }
 
-          if ( !FoundScript )
-            Print( "[MAP] couldn't find war3map.j or scripts\\war3map.j in MPQ file, calculated map_crc/sha1 is probably wrong" );
+          if (!FoundScript)
+            Print("[MAP] couldn't find war3map.j or scripts\\war3map.j in MPQ file, calculated map_crc/sha1 is probably wrong");
 
-          MapCRC = CreateByteArray( Val, false );
-          Print( "[MAP] calculated map_crc = " + ByteArrayToDecString( MapCRC ) );
+          MapCRC = CreateByteArray(Val, false);
+          Print("[MAP] calculated map_crc = " + ByteArrayToDecString(MapCRC));
 
-          m_Aura->m_SHA->Final( );
+          m_Aura->m_SHA->Final();
           unsigned char SHA1[20];
-          memset( SHA1, 0, sizeof ( unsigned char) * 20 );
-          m_Aura->m_SHA->GetHash( SHA1 );
-          MapSHA1 = CreateByteArray( SHA1, 20 );
-          Print( "[MAP] calculated map_sha1 = " + ByteArrayToDecString( MapSHA1 ) );
+          memset(SHA1, 0, sizeof(unsigned char) * 20);
+          m_Aura->m_SHA->GetHash(SHA1);
+          MapSHA1 = CreateByteArray(SHA1, 20);
+          Print("[MAP] calculated map_sha1 = " + ByteArrayToDecString(MapSHA1));
         }
         else
-          Print( "[MAP] unable to calculate map_crc/sha1 - map MPQ file not loaded" );
+          Print("[MAP] unable to calculate map_crc/sha1 - map MPQ file not loaded");
       }
     }
   }
   else
-    Print( "[MAP] no map data available, using config file for map_size, map_info, map_crc, map_sha1" );
+    Print("[MAP] no map data available, using config file for map_size, map_info, map_crc, map_sha1");
 
   // try to calculate map_width, map_height, map_slot<x>, map_numplayers, map_numteams, map_filtertype
 
@@ -410,24 +421,24 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
   uint32_t MapNumTeams = 0;
   vector<CGameSlot> Slots;
 
-  if ( !m_MapData.empty( ) )
+  if (!m_MapData.empty())
   {
-    if ( MapMPQReady )
+    if (MapMPQReady)
     {
       HANDLE SubFile;
 
-      if ( SFileOpenFileEx( MapMPQ, "war3map.w3i", 0, &SubFile ) )
+      if (SFileOpenFileEx(MapMPQ, "war3map.w3i", 0, &SubFile))
       {
-        uint32_t FileLength = SFileGetFileSize( SubFile, NULL );
+        uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
 
-        if ( FileLength > 0 && FileLength != 0xFFFFFFFF )
+        if (FileLength > 0 && FileLength != 0xFFFFFFFF)
         {
           char *SubFileData = new char[FileLength];
           DWORD BytesRead = 0;
 
-          if ( SFileReadFile( SubFile, SubFileData, FileLength, &BytesRead ) )
+          if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
           {
-            istringstream ISS( string( SubFileData, BytesRead ) );
+            istringstream ISS(string(SubFileData, BytesRead));
 
             // war3map.w3i format found at http://www.wc3campaigns.net/tools/specs/index.html by Zepir/PitzerMike
 
@@ -439,354 +450,354 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
             uint32_t RawMapNumPlayers;
             uint32_t RawMapNumTeams;
 
-            ISS.read( (char *) &FileFormat, 4 ); // file format (18 = ROC, 25 = TFT)
+            ISS.read((char *) &FileFormat, 4);   // file format (18 = ROC, 25 = TFT)
 
-            if ( FileFormat == 18 || FileFormat == 25 )
+            if (FileFormat == 18 || FileFormat == 25)
             {
-              ISS.seekg( 4, ios::cur ); // number of saves
-              ISS.seekg( 4, ios::cur ); // editor version
-              getline( ISS, GarbageString, '\0' ); // map name
-              getline( ISS, GarbageString, '\0' ); // map author
-              getline( ISS, GarbageString, '\0' ); // map description
-              getline( ISS, GarbageString, '\0' ); // players recommended
-              ISS.seekg( 32, ios::cur ); // camera bounds
-              ISS.seekg( 16, ios::cur ); // camera bounds complements
-              ISS.read( (char *) &RawMapWidth, 4 ); // map width
-              ISS.read( (char *) &RawMapHeight, 4 ); // map height
-              ISS.read( (char *) &RawMapFlags, 4 ); // flags
-              ISS.seekg( 1, ios::cur ); // map main ground type
+              ISS.seekg(4, ios::cur);   // number of saves
+              ISS.seekg(4, ios::cur);   // editor version
+              getline(ISS, GarbageString, '\0');   // map name
+              getline(ISS, GarbageString, '\0');   // map author
+              getline(ISS, GarbageString, '\0');   // map description
+              getline(ISS, GarbageString, '\0');   // players recommended
+              ISS.seekg(32, ios::cur);   // camera bounds
+              ISS.seekg(16, ios::cur);   // camera bounds complements
+              ISS.read((char *) &RawMapWidth, 4);   // map width
+              ISS.read((char *) &RawMapHeight, 4);   // map height
+              ISS.read((char *) &RawMapFlags, 4);   // flags
+              ISS.seekg(1, ios::cur);   // map main ground type
 
-              if ( FileFormat == 18 )
-                ISS.seekg( 4, ios::cur ); // campaign background number
-              else if ( FileFormat == 25 )
+              if (FileFormat == 18)
+                ISS.seekg(4, ios::cur);   // campaign background number
+              else if (FileFormat == 25)
               {
-                ISS.seekg( 4, ios::cur ); // loading screen background number
-                getline( ISS, GarbageString, '\0' ); // path of custom loading screen model
+                ISS.seekg(4, ios::cur);   // loading screen background number
+                getline(ISS, GarbageString, '\0');   // path of custom loading screen model
               }
 
-              getline( ISS, GarbageString, '\0' ); // map loading screen text
-              getline( ISS, GarbageString, '\0' ); // map loading screen title
-              getline( ISS, GarbageString, '\0' ); // map loading screen subtitle
+              getline(ISS, GarbageString, '\0');   // map loading screen text
+              getline(ISS, GarbageString, '\0');   // map loading screen title
+              getline(ISS, GarbageString, '\0');   // map loading screen subtitle
 
-              if ( FileFormat == 18 )
-                ISS.seekg( 4, ios::cur ); // map loading screen number
-              else if ( FileFormat == 25 )
+              if (FileFormat == 18)
+                ISS.seekg(4, ios::cur);   // map loading screen number
+              else if (FileFormat == 25)
               {
-                ISS.seekg( 4, ios::cur ); // used game data set
-                getline( ISS, GarbageString, '\0' ); // prologue screen path
+                ISS.seekg(4, ios::cur);   // used game data set
+                getline(ISS, GarbageString, '\0');   // prologue screen path
               }
 
-              getline( ISS, GarbageString, '\0' ); // prologue screen text
-              getline( ISS, GarbageString, '\0' ); // prologue screen title
-              getline( ISS, GarbageString, '\0' ); // prologue screen subtitle
+              getline(ISS, GarbageString, '\0');   // prologue screen text
+              getline(ISS, GarbageString, '\0');   // prologue screen title
+              getline(ISS, GarbageString, '\0');   // prologue screen subtitle
 
-              if ( FileFormat == 25 )
+              if (FileFormat == 25)
               {
-                ISS.seekg( 4, ios::cur ); // uses terrain fog
-                ISS.seekg( 4, ios::cur ); // fog start z height
-                ISS.seekg( 4, ios::cur ); // fog end z height
-                ISS.seekg( 4, ios::cur ); // fog density
-                ISS.seekg( 1, ios::cur ); // fog red value
-                ISS.seekg( 1, ios::cur ); // fog green value
-                ISS.seekg( 1, ios::cur ); // fog blue value
-                ISS.seekg( 1, ios::cur ); // fog alpha value
-                ISS.seekg( 4, ios::cur ); // global weather id
-                getline( ISS, GarbageString, '\0' ); // custom sound environment
-                ISS.seekg( 1, ios::cur ); // tileset id of the used custom light environment
-                ISS.seekg( 1, ios::cur ); // custom water tinting red value
-                ISS.seekg( 1, ios::cur ); // custom water tinting green value
-                ISS.seekg( 1, ios::cur ); // custom water tinting blue value
-                ISS.seekg( 1, ios::cur ); // custom water tinting alpha value
+                ISS.seekg(4, ios::cur);   // uses terrain fog
+                ISS.seekg(4, ios::cur);   // fog start z height
+                ISS.seekg(4, ios::cur);   // fog end z height
+                ISS.seekg(4, ios::cur);   // fog density
+                ISS.seekg(1, ios::cur);   // fog red value
+                ISS.seekg(1, ios::cur);   // fog green value
+                ISS.seekg(1, ios::cur);   // fog blue value
+                ISS.seekg(1, ios::cur);   // fog alpha value
+                ISS.seekg(4, ios::cur);   // global weather id
+                getline(ISS, GarbageString, '\0');   // custom sound environment
+                ISS.seekg(1, ios::cur);   // tileset id of the used custom light environment
+                ISS.seekg(1, ios::cur);   // custom water tinting red value
+                ISS.seekg(1, ios::cur);   // custom water tinting green value
+                ISS.seekg(1, ios::cur);   // custom water tinting blue value
+                ISS.seekg(1, ios::cur);   // custom water tinting alpha value
               }
 
-              ISS.read( (char *) &RawMapNumPlayers, 4 ); // number of players
+              ISS.read((char *) &RawMapNumPlayers, 4);   // number of players
               uint32_t ClosedSlots = 0;
 
-              for ( uint32_t i = 0; i < RawMapNumPlayers; ++i )
+              for (uint32_t i = 0; i < RawMapNumPlayers; ++i)
               {
-                CGameSlot Slot( 0, 255, SLOTSTATUS_OPEN, 0, 0, 1, SLOTRACE_RANDOM );
+                CGameSlot Slot(0, 255, SLOTSTATUS_OPEN, 0, 0, 1, SLOTRACE_RANDOM);
                 uint32_t Colour;
                 uint32_t Status;
                 uint32_t Race;
 
-                ISS.read( (char *) &Colour, 4 ); // colour
-                Slot.SetColour( Colour );
-                ISS.read( (char *) &Status, 4 ); // status
+                ISS.read((char *) &Colour, 4);   // colour
+                Slot.SetColour(Colour);
+                ISS.read((char *) &Status, 4);   // status
 
-                if ( Status == 1 )
-                  Slot.SetSlotStatus( SLOTSTATUS_OPEN );
-                else if ( Status == 2 )
+                if (Status == 1)
+                  Slot.SetSlotStatus(SLOTSTATUS_OPEN);
+                else if (Status == 2)
                 {
-                  Slot.SetSlotStatus( SLOTSTATUS_OCCUPIED );
-                  Slot.SetComputer( 1 );
-                  Slot.SetComputerType( SLOTCOMP_NORMAL );
+                  Slot.SetSlotStatus(SLOTSTATUS_OCCUPIED);
+                  Slot.SetComputer(1);
+                  Slot.SetComputerType(SLOTCOMP_NORMAL);
                 }
                 else
                 {
-                  Slot.SetSlotStatus( SLOTSTATUS_CLOSED );
+                  Slot.SetSlotStatus(SLOTSTATUS_CLOSED);
                   ++ClosedSlots;
                 }
 
-                ISS.read( (char *) &Race, 4 ); // race
+                ISS.read((char *) &Race, 4);   // race
 
-                if ( Race == 1 )
-                  Slot.SetRace( SLOTRACE_HUMAN );
-                else if ( Race == 2 )
-                  Slot.SetRace( SLOTRACE_ORC );
-                else if ( Race == 3 )
-                  Slot.SetRace( SLOTRACE_UNDEAD );
-                else if ( Race == 4 )
-                  Slot.SetRace( SLOTRACE_NIGHTELF );
+                if (Race == 1)
+                  Slot.SetRace(SLOTRACE_HUMAN);
+                else if (Race == 2)
+                  Slot.SetRace(SLOTRACE_ORC);
+                else if (Race == 3)
+                  Slot.SetRace(SLOTRACE_UNDEAD);
+                else if (Race == 4)
+                  Slot.SetRace(SLOTRACE_NIGHTELF);
                 else
-                  Slot.SetRace( SLOTRACE_RANDOM );
+                  Slot.SetRace(SLOTRACE_RANDOM);
 
-                ISS.seekg( 4, ios::cur );             // fixed start position
-                getline( ISS, GarbageString, '\0' );  // player name
-                ISS.seekg( 4, ios::cur );             // start position x
-                ISS.seekg( 4, ios::cur );             // start position y
-                ISS.seekg( 4, ios::cur );             // ally low priorities
-                ISS.seekg( 4, ios::cur );             // ally high priorities
+                ISS.seekg(4, ios::cur);               // fixed start position
+                getline(ISS, GarbageString, '\0');    // player name
+                ISS.seekg(4, ios::cur);               // start position x
+                ISS.seekg(4, ios::cur);               // start position y
+                ISS.seekg(4, ios::cur);               // ally low priorities
+                ISS.seekg(4, ios::cur);               // ally high priorities
 
-                if ( Slot.GetSlotStatus( ) != SLOTSTATUS_CLOSED )
-                  Slots.push_back( Slot );
+                if (Slot.GetSlotStatus() != SLOTSTATUS_CLOSED)
+                  Slots.push_back(Slot);
               }
 
-              ISS.read( (char *) &RawMapNumTeams, 4 ); // number of teams
+              ISS.read((char *) &RawMapNumTeams, 4);   // number of teams
 
-              for ( uint32_t i = 0; i < RawMapNumTeams; ++i )
+              for (uint32_t i = 0; i < RawMapNumTeams; ++i)
               {
                 uint32_t Flags;
                 uint32_t PlayerMask;
 
-                ISS.read( (char *) &Flags, 4 ); // flags
-                ISS.read( (char *) &PlayerMask, 4 ); // player mask
+                ISS.read((char *) &Flags, 4);   // flags
+                ISS.read((char *) &PlayerMask, 4);   // player mask
 
-                for ( unsigned char j = 0; j < 12; ++j )
+                for (unsigned char j = 0; j < 12; ++j)
                 {
-                  if ( PlayerMask & 1 )
+                  if (PlayerMask & 1)
                   {
-                    for ( vector<CGameSlot> ::iterator k = Slots.begin( ); k != Slots.end( ); ++k )
+                    for (vector<CGameSlot> ::iterator k = Slots.begin(); k != Slots.end(); ++k)
                     {
-                      if ( (*k).GetColour( ) == j )
-                        (*k).SetTeam( i );
+                      if ((*k).GetColour() == j)
+                        (*k).SetTeam(i);
                     }
                   }
 
                   PlayerMask >>= 1;
                 }
 
-                getline( ISS, GarbageString, '\0' ); // team name
+                getline(ISS, GarbageString, '\0');   // team name
               }
 
               // the bot only cares about the following options: melee, fixed player settings, custom forces
               // let's not confuse the user by displaying erroneous map options so zero them out now
 
-              MapOptions = RawMapFlags & ( MAPOPT_MELEE | MAPOPT_FIXEDPLAYERSETTINGS | MAPOPT_CUSTOMFORCES );
-              Print( "[MAP] calculated map_options = " + ToString( MapOptions ) );
-              MapWidth = CreateByteArray( (uint16_t) RawMapWidth, false );
-              Print( "[MAP] calculated map_width = " + ByteArrayToDecString( MapWidth ) );
-              MapHeight = CreateByteArray( (uint16_t) RawMapHeight, false );
-              Print( "[MAP] calculated map_height = " + ByteArrayToDecString( MapHeight ) );
+              MapOptions = RawMapFlags & (MAPOPT_MELEE | MAPOPT_FIXEDPLAYERSETTINGS | MAPOPT_CUSTOMFORCES);
+              Print("[MAP] calculated map_options = " + ToString(MapOptions));
+              MapWidth = CreateByteArray((uint16_t) RawMapWidth, false);
+              Print("[MAP] calculated map_width = " + ByteArrayToDecString(MapWidth));
+              MapHeight = CreateByteArray((uint16_t) RawMapHeight, false);
+              Print("[MAP] calculated map_height = " + ByteArrayToDecString(MapHeight));
               MapNumPlayers = RawMapNumPlayers - ClosedSlots;
-              Print( "[MAP] calculated map_numplayers = " + ToString( MapNumPlayers ) );
+              Print("[MAP] calculated map_numplayers = " + ToString(MapNumPlayers));
               MapNumTeams = RawMapNumTeams;
-              Print( "[MAP] calculated map_numteams = " + ToString( MapNumTeams ) );
+              Print("[MAP] calculated map_numteams = " + ToString(MapNumTeams));
 
               uint32_t SlotNum = 1;
 
-              for ( vector<CGameSlot> ::const_iterator i = Slots.begin( ); i != Slots.end( ); ++i )
+              for (vector<CGameSlot> ::const_iterator i = Slots.begin(); i != Slots.end(); ++i)
               {
-                Print( "[MAP] calculated map_slot" + ToString( SlotNum ) + " = " + ByteArrayToDecString( ( *i ).GetByteArray( ) ) );
+                Print("[MAP] calculated map_slot" + ToString(SlotNum) + " = " + ByteArrayToDecString((*i).GetByteArray()));
                 ++SlotNum;
               }
 
-              if ( MapOptions & MAPOPT_MELEE )
+              if (MapOptions & MAPOPT_MELEE)
               {
-                Print( "[MAP] found melee map, initializing slots" );
+                Print("[MAP] found melee map, initializing slots");
 
                 // give each slot a different team and set the race to random
 
                 unsigned char Team = 0;
 
-                for ( vector<CGameSlot> ::iterator i = Slots.begin( ); i != Slots.end( ); ++i )
+                for (vector<CGameSlot> ::iterator i = Slots.begin(); i != Slots.end(); ++i)
                 {
-                  (*i).SetTeam( Team++ );
-                  (*i).SetRace( SLOTRACE_RANDOM );
+                  (*i).SetTeam(Team++);
+                  (*i).SetRace(SLOTRACE_RANDOM);
                 }
-                
+
                 MapFilterType = MAPFILTER_TYPE_MELEE;
               }
 
-              if ( !( MapOptions & MAPOPT_FIXEDPLAYERSETTINGS ) )
+              if (!(MapOptions & MAPOPT_FIXEDPLAYERSETTINGS))
               {
                 // make races selectable
 
-                for ( vector<CGameSlot> ::iterator i = Slots.begin( ); i != Slots.end( ); ++i )
-                  (*i).SetRace( ( *i ).GetRace( ) | SLOTRACE_SELECTABLE );
+                for (vector<CGameSlot> ::iterator i = Slots.begin(); i != Slots.end(); ++i)
+                  (*i).SetRace((*i).GetRace() | SLOTRACE_SELECTABLE);
               }
             }
           }
           else
-            Print( "[MAP] unable to calculate map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams - unable to extract war3map.w3i from MPQ file" );
+            Print("[MAP] unable to calculate map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams - unable to extract war3map.w3i from MPQ file");
 
           delete [] SubFileData;
         }
 
-        SFileCloseFile( SubFile );
+        SFileCloseFile(SubFile);
       }
       else
-        Print( "[MAP] unable to calculate map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams - couldn't find war3map.w3i in MPQ file" );
+        Print("[MAP] unable to calculate map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams - couldn't find war3map.w3i in MPQ file");
     }
     else
-      Print( "[MAP] unable to calculate map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams - map MPQ file not loaded" );
+      Print("[MAP] unable to calculate map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams - map MPQ file not loaded");
   }
   else
-    Print( "[MAP] no map data available, using config file for map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams" );
+    Print("[MAP] no map data available, using config file for map_options, map_width, map_height, map_slot<x>, map_numplayers, map_numteams");
 
   // close the map MPQ
 
-  if ( MapMPQReady )
-    SFileCloseArchive( MapMPQ );
+  if (MapMPQReady)
+    SFileCloseArchive(MapMPQ);
 
-  m_MapPath = CFG->GetString( "map_path", string( ) );
+  m_MapPath = CFG->GetString("map_path", string());
 
-  if ( MapSize.empty( ) )
-    MapSize = ExtractNumbers( CFG->GetString( "map_size", string( ) ), 4 );
-  else if ( CFG->Exists( "map_size" ) )
+  if (MapSize.empty())
+    MapSize = ExtractNumbers(CFG->GetString("map_size", string()), 4);
+  else if (CFG->Exists("map_size"))
   {
-    Print( "[MAP] overriding calculated map_size with config value map_size = " + CFG->GetString( "map_size", string( ) ) );
-    MapSize = ExtractNumbers( CFG->GetString( "map_size", string( ) ), 4 );
+    Print("[MAP] overriding calculated map_size with config value map_size = " + CFG->GetString("map_size", string()));
+    MapSize = ExtractNumbers(CFG->GetString("map_size", string()), 4);
   }
 
   m_MapSize = MapSize;
 
-  if ( MapInfo.empty( ) )
-    MapInfo = ExtractNumbers( CFG->GetString( "map_info", string( ) ), 4 );
-  else if ( CFG->Exists( "map_info" ) )
+  if (MapInfo.empty())
+    MapInfo = ExtractNumbers(CFG->GetString("map_info", string()), 4);
+  else if (CFG->Exists("map_info"))
   {
-    Print( "[MAP] overriding calculated map_info with config value map_info = " + CFG->GetString( "map_info", string( ) ) );
-    MapInfo = ExtractNumbers( CFG->GetString( "map_info", string( ) ), 4 );
+    Print("[MAP] overriding calculated map_info with config value map_info = " + CFG->GetString("map_info", string()));
+    MapInfo = ExtractNumbers(CFG->GetString("map_info", string()), 4);
   }
 
   m_MapInfo = MapInfo;
 
-  if ( MapCRC.empty( ) )
-    MapCRC = ExtractNumbers( CFG->GetString( "map_crc", string( ) ), 4 );
-  else if ( CFG->Exists( "map_crc" ) )
+  if (MapCRC.empty())
+    MapCRC = ExtractNumbers(CFG->GetString("map_crc", string()), 4);
+  else if (CFG->Exists("map_crc"))
   {
-    Print( "[MAP] overriding calculated map_crc with config value map_crc = " + CFG->GetString( "map_crc", string( ) ) );
-    MapCRC = ExtractNumbers( CFG->GetString( "map_crc", string( ) ), 4 );
+    Print("[MAP] overriding calculated map_crc with config value map_crc = " + CFG->GetString("map_crc", string()));
+    MapCRC = ExtractNumbers(CFG->GetString("map_crc", string()), 4);
   }
 
   m_MapCRC = MapCRC;
 
-  if ( MapSHA1.empty( ) )
-    MapSHA1 = ExtractNumbers( CFG->GetString( "map_sha1", string( ) ), 20 );
-  else if ( CFG->Exists( "map_sha1" ) )
+  if (MapSHA1.empty())
+    MapSHA1 = ExtractNumbers(CFG->GetString("map_sha1", string()), 20);
+  else if (CFG->Exists("map_sha1"))
   {
-    Print( "[MAP] overriding calculated map_sha1 with config value map_sha1 = " + CFG->GetString( "map_sha1", string( ) ) );
-    MapSHA1 = ExtractNumbers( CFG->GetString( "map_sha1", string( ) ), 20 );
+    Print("[MAP] overriding calculated map_sha1 with config value map_sha1 = " + CFG->GetString("map_sha1", string()));
+    MapSHA1 = ExtractNumbers(CFG->GetString("map_sha1", string()), 20);
   }
-  
+
   m_MapSHA1 = MapSHA1;
-  
-  if ( CFG->Exists( "map_filter_type" ) )
+
+  if (CFG->Exists("map_filter_type"))
   {
-    Print( "[MAP] overriding calculated map_filter_type with config value map_filter_type = " + CFG->GetString( "map_filter_type", string( ) ) );
-    MapFilterType = CFG->GetInt( "map_filter_type", MAPFILTER_TYPE_SCENARIO );
-  }  
-  
+    Print("[MAP] overriding calculated map_filter_type with config value map_filter_type = " + CFG->GetString("map_filter_type", string()));
+    MapFilterType = CFG->GetInt("map_filter_type", MAPFILTER_TYPE_SCENARIO);
+  }
+
   m_MapFilterType = MapFilterType;
-  
-  m_MapSpeed = CFG->GetInt( "map_speed", MAPSPEED_FAST );
-  m_MapVisibility = CFG->GetInt( "map_visibility", MAPVIS_DEFAULT );
-  m_MapObservers = CFG->GetInt( "map_observers", MAPOBS_NONE );
-  m_MapFlags = CFG->GetInt( "map_flags", MAPFLAG_TEAMSTOGETHER | MAPFLAG_FIXEDTEAMS );
-  m_MapFilterMaker = CFG->GetInt( "map_filter_maker", MAPFILTER_MAKER_USER );
-  m_MapFilterSize = CFG->GetInt( "map_filter_size", MAPFILTER_SIZE_LARGE );
-  m_MapFilterObs = CFG->GetInt( "map_filter_obs", MAPFILTER_OBS_NONE );
+
+  m_MapSpeed = CFG->GetInt("map_speed", MAPSPEED_FAST);
+  m_MapVisibility = CFG->GetInt("map_visibility", MAPVIS_DEFAULT);
+  m_MapObservers = CFG->GetInt("map_observers", MAPOBS_NONE);
+  m_MapFlags = CFG->GetInt("map_flags", MAPFLAG_TEAMSTOGETHER | MAPFLAG_FIXEDTEAMS);
+  m_MapFilterMaker = CFG->GetInt("map_filter_maker", MAPFILTER_MAKER_USER);
+  m_MapFilterSize = CFG->GetInt("map_filter_size", MAPFILTER_SIZE_LARGE);
+  m_MapFilterObs = CFG->GetInt("map_filter_obs", MAPFILTER_OBS_NONE);
 
   // TODO: it might be possible for MapOptions to legitimately be zero so this is not a valid way of checking if it wasn't parsed out earlier
 
-  if ( MapOptions == 0 )
-    MapOptions = CFG->GetInt( "map_options", 0 );
-  else if ( CFG->Exists( "map_options" ) )
+  if (MapOptions == 0)
+    MapOptions = CFG->GetInt("map_options", 0);
+  else if (CFG->Exists("map_options"))
   {
-    Print( "[MAP] overriding calculated map_options with config value map_options = " + CFG->GetString( "map_options", string( ) ) );
-    MapOptions = CFG->GetInt( "map_options", 0 );
+    Print("[MAP] overriding calculated map_options with config value map_options = " + CFG->GetString("map_options", string()));
+    MapOptions = CFG->GetInt("map_options", 0);
   }
 
   m_MapOptions = MapOptions;
 
-  if ( MapWidth.empty( ) )
-    MapWidth = ExtractNumbers( CFG->GetString( "map_width", string( ) ), 2 );
-  else if ( CFG->Exists( "map_width" ) )
+  if (MapWidth.empty())
+    MapWidth = ExtractNumbers(CFG->GetString("map_width", string()), 2);
+  else if (CFG->Exists("map_width"))
   {
-    Print( "[MAP] overriding calculated map_width with config value map_width = " + CFG->GetString( "map_width", string( ) ) );
-    MapWidth = ExtractNumbers( CFG->GetString( "map_width", string( ) ), 2 );
+    Print("[MAP] overriding calculated map_width with config value map_width = " + CFG->GetString("map_width", string()));
+    MapWidth = ExtractNumbers(CFG->GetString("map_width", string()), 2);
   }
 
   m_MapWidth = MapWidth;
 
-  if ( MapHeight.empty( ) )
-    MapHeight = ExtractNumbers( CFG->GetString( "map_height", string( ) ), 2 );
-  else if ( CFG->Exists( "map_height" ) )
+  if (MapHeight.empty())
+    MapHeight = ExtractNumbers(CFG->GetString("map_height", string()), 2);
+  else if (CFG->Exists("map_height"))
   {
-    Print( "[MAP] overriding calculated map_height with config value map_height = " + CFG->GetString( "map_height", string( ) ) );
-    MapHeight = ExtractNumbers( CFG->GetString( "map_height", string( ) ), 2 );
+    Print("[MAP] overriding calculated map_height with config value map_height = " + CFG->GetString("map_height", string()));
+    MapHeight = ExtractNumbers(CFG->GetString("map_height", string()), 2);
   }
 
   m_MapHeight = MapHeight;
-  m_MapType = CFG->GetString( "map_type", string( ) );
-  m_MapDefaultHCL = CFG->GetString( "map_defaulthcl", string( ) );
+  m_MapType = CFG->GetString("map_type", string());
+  m_MapDefaultHCL = CFG->GetString("map_defaulthcl", string());
 
-  if ( MapNumPlayers == 0 )
-    MapNumPlayers = CFG->GetInt( "map_numplayers", 0 );
-  else if ( CFG->Exists( "map_numplayers" ) )
+  if (MapNumPlayers == 0)
+    MapNumPlayers = CFG->GetInt("map_numplayers", 0);
+  else if (CFG->Exists("map_numplayers"))
   {
-    Print( "[MAP] overriding calculated map_numplayers with config value map_numplayers = " + CFG->GetString( "map_numplayers", string( ) ) );
-    MapNumPlayers = CFG->GetInt( "map_numplayers", 0 );
+    Print("[MAP] overriding calculated map_numplayers with config value map_numplayers = " + CFG->GetString("map_numplayers", string()));
+    MapNumPlayers = CFG->GetInt("map_numplayers", 0);
   }
 
   m_MapNumPlayers = MapNumPlayers;
 
-  if ( MapNumTeams == 0 )
-    MapNumTeams = CFG->GetInt( "map_numteams", 0 );
-  else if ( CFG->Exists( "map_numteams" ) )
+  if (MapNumTeams == 0)
+    MapNumTeams = CFG->GetInt("map_numteams", 0);
+  else if (CFG->Exists("map_numteams"))
   {
-    Print( "[MAP] overriding calculated map_numteams with config value map_numteams = " + CFG->GetString( "map_numteams", string( ) ) );
-    MapNumTeams = CFG->GetInt( "map_numteams", 0 );
+    Print("[MAP] overriding calculated map_numteams with config value map_numteams = " + CFG->GetString("map_numteams", string()));
+    MapNumTeams = CFG->GetInt("map_numteams", 0);
   }
 
   m_MapNumTeams = MapNumTeams;
 
-  if ( Slots.empty( ) )
+  if (Slots.empty())
   {
-    for ( uint32_t Slot = 1; Slot <= 12; ++Slot )
+    for (uint32_t Slot = 1; Slot <= 12; ++Slot)
     {
-      string SlotString = CFG->GetString( "map_slot" + ToString( Slot ), string( ) );
+      string SlotString = CFG->GetString("map_slot" + ToString(Slot), string());
 
-      if ( SlotString.empty( ) )
+      if (SlotString.empty())
         break;
 
-      BYTEARRAY SlotData = ExtractNumbers( SlotString, 9 );
-      Slots.push_back( CGameSlot( SlotData ) );
+      BYTEARRAY SlotData = ExtractNumbers(SlotString, 9);
+      Slots.push_back(CGameSlot(SlotData));
     }
   }
-  else if ( CFG->Exists( "map_slot1" ) )
+  else if (CFG->Exists("map_slot1"))
   {
-    Print( "[MAP] overriding slots" );
-    Slots.clear( );
+    Print("[MAP] overriding slots");
+    Slots.clear();
 
-    for ( uint32_t Slot = 1; Slot <= 12; ++Slot )
+    for (uint32_t Slot = 1; Slot <= 12; ++Slot)
     {
-      string SlotString = CFG->GetString( "map_slot" + ToString( Slot ), string( ) );
+      string SlotString = CFG->GetString("map_slot" + ToString(Slot), string());
 
-      if ( SlotString.empty( ) )
+      if (SlotString.empty())
         break;
 
-      BYTEARRAY SlotData = ExtractNumbers( SlotString, 9 );
-      Slots.push_back( CGameSlot( SlotData ) );
+      BYTEARRAY SlotData = ExtractNumbers(SlotString, 9);
+      Slots.push_back(CGameSlot(SlotData));
     }
   }
 
@@ -794,137 +805,137 @@ void CMap::Load( CConfig *CFG, const string &nCFGFile )
 
   // if random races is set force every slot's race to random
 
-  if ( m_MapFlags & MAPFLAG_RANDOMRACES )
+  if (m_MapFlags & MAPFLAG_RANDOMRACES)
   {
-    Print( "[MAP] forcing races to random" );
+    Print("[MAP] forcing races to random");
 
-    for ( vector<CGameSlot> ::iterator i = m_Slots.begin( ); i != m_Slots.end( ); ++i )
-      ( *i ).SetRace( SLOTRACE_RANDOM );
+    for (vector<CGameSlot> ::iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+      (*i).SetRace(SLOTRACE_RANDOM);
   }
 
   // add observer slots
 
-  if ( m_MapObservers == MAPOBS_ALLOWED || m_MapObservers == MAPOBS_REFEREES )
+  if (m_MapObservers == MAPOBS_ALLOWED || m_MapObservers == MAPOBS_REFEREES)
   {
-    Print( "[MAP] adding " + ToString( 12 - m_Slots.size( ) ) + " observer slots" );
+    Print("[MAP] adding " + ToString(12 - m_Slots.size()) + " observer slots");
 
-    while ( m_Slots.size( ) < 12 )
-      m_Slots.push_back( CGameSlot( 0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM ) );
+    while (m_Slots.size() < 12)
+      m_Slots.push_back(CGameSlot(0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM));
   }
 
-  CheckValid( );
+  CheckValid();
 }
 
-void CMap::CheckValid( )
+void CMap::CheckValid()
 {
   // TODO: should this code fix any errors it sees rather than just warning the user?
 
-  if ( m_MapPath.empty( ) || m_MapPath.length( ) > 53 )
+  if (m_MapPath.empty() || m_MapPath.length() > 53)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_path detected" );
+    Print("[MAP] invalid map_path detected");
   }
 
-  if ( m_MapPath.find( '/' ) != string::npos )
-    Print( "[MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\\'" );
+  if (m_MapPath.find('/') != string::npos)
+    Print("[MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\\'");
 
-  if ( m_MapSize.size( ) != 4 )
+  if (m_MapSize.size() != 4)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_size detected" );
+    Print("[MAP] invalid map_size detected");
   }
-  else if ( !m_MapData.empty( ) && m_MapData.size( ) != ByteArrayToUInt32( m_MapSize, false ) )
+  else if (!m_MapData.empty() && m_MapData.size() != ByteArrayToUInt32(m_MapSize, false))
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_size detected - size mismatch with actual map data" );
-  }
-
-  if ( m_MapInfo.size( ) != 4 )
-  {
-    m_Valid = false;
-    Print( "[MAP] invalid map_info detected" );
+    Print("[MAP] invalid map_size detected - size mismatch with actual map data");
   }
 
-  if ( m_MapCRC.size( ) != 4 )
+  if (m_MapInfo.size() != 4)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_crc detected" );
+    Print("[MAP] invalid map_info detected");
   }
 
-  if ( m_MapSHA1.size( ) != 20 )
+  if (m_MapCRC.size() != 4)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_sha1 detected" );
+    Print("[MAP] invalid map_crc detected");
   }
 
-  if ( m_MapSpeed != MAPSPEED_SLOW && m_MapSpeed != MAPSPEED_NORMAL && m_MapSpeed != MAPSPEED_FAST )
+  if (m_MapSHA1.size() != 20)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_speed detected" );
+    Print("[MAP] invalid map_sha1 detected");
   }
 
-  if ( m_MapVisibility != MAPVIS_HIDETERRAIN && m_MapVisibility != MAPVIS_EXPLORED && m_MapVisibility != MAPVIS_ALWAYSVISIBLE && m_MapVisibility != MAPVIS_DEFAULT )
+  if (m_MapSpeed != MAPSPEED_SLOW && m_MapSpeed != MAPSPEED_NORMAL && m_MapSpeed != MAPSPEED_FAST)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_visibility detected" );
+    Print("[MAP] invalid map_speed detected");
   }
 
-  if ( m_MapObservers != MAPOBS_NONE && m_MapObservers != MAPOBS_ONDEFEAT && m_MapObservers != MAPOBS_ALLOWED && m_MapObservers != MAPOBS_REFEREES )
+  if (m_MapVisibility != MAPVIS_HIDETERRAIN && m_MapVisibility != MAPVIS_EXPLORED && m_MapVisibility != MAPVIS_ALWAYSVISIBLE && m_MapVisibility != MAPVIS_DEFAULT)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_observers detected" );
+    Print("[MAP] invalid map_visibility detected");
   }
 
-  if ( m_MapWidth.size( ) != 2 )
+  if (m_MapObservers != MAPOBS_NONE && m_MapObservers != MAPOBS_ONDEFEAT && m_MapObservers != MAPOBS_ALLOWED && m_MapObservers != MAPOBS_REFEREES)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_width detected" );
+    Print("[MAP] invalid map_observers detected");
   }
 
-  if ( m_MapHeight.size( ) != 2 )
+  if (m_MapWidth.size() != 2)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_height detected" );
+    Print("[MAP] invalid map_width detected");
   }
 
-  if ( m_MapNumPlayers == 0 || m_MapNumPlayers > 12 )
+  if (m_MapHeight.size() != 2)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_numplayers detected" );
+    Print("[MAP] invalid map_height detected");
   }
 
-  if ( m_MapNumTeams == 0 || m_MapNumTeams > 12 )
+  if (m_MapNumPlayers == 0 || m_MapNumPlayers > 12)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_numteams detected" );
+    Print("[MAP] invalid map_numplayers detected");
   }
 
-  if ( m_Slots.empty( ) || m_Slots.size( ) > 12 )
+  if (m_MapNumTeams == 0 || m_MapNumTeams > 12)
   {
     m_Valid = false;
-    Print( "[MAP] invalid map_slot<x> detected" );
+    Print("[MAP] invalid map_numteams detected");
+  }
+
+  if (m_Slots.empty() || m_Slots.size() > 12)
+  {
+    m_Valid = false;
+    Print("[MAP] invalid map_slot<x> detected");
   }
 }
 
-uint32_t CMap::XORRotateLeft( unsigned char *data, uint32_t length )
+uint32_t CMap::XORRotateLeft(unsigned char *data, uint32_t length)
 {
   // a big thank you to Strilanc for figuring this out
 
   uint32_t i = 0;
   uint32_t Val = 0;
 
-  if ( length > 3 )
+  if (length > 3)
   {
-    while ( i < length - 3 )
+    while (i < length - 3)
     {
-      Val = ROTL( Val ^ ( (uint32_t) data[i] + (uint32_t) ( data[i + 1] << 8 ) + (uint32_t) ( data[i + 2] << 16 ) + (uint32_t) ( data[i + 3] << 24 ) ), 3 );
+      Val = ROTL(Val ^ ((uint32_t) data[i] + (uint32_t)(data[i + 1] << 8) + (uint32_t)(data[i + 2] << 16) + (uint32_t)(data[i + 3] << 24)), 3);
       i += 4;
     }
   }
 
-  while ( i < length )
+  while (i < length)
   {
-    Val = ROTL( Val ^ data[i], 3 );
+    Val = ROTL(Val ^ data[i], 3);
     ++i;
   }
 

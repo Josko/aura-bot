@@ -29,12 +29,13 @@
 // CGameProtocol
 //
 
-CGameProtocol::CGameProtocol( CAura *nAura ) : m_Aura( nAura )
+CGameProtocol::CGameProtocol(CAura *nAura)
+  : m_Aura(nAura)
 {
 
 }
 
-CGameProtocol::~CGameProtocol( )
+CGameProtocol::~CGameProtocol()
 {
 
 }
@@ -43,7 +44,7 @@ CGameProtocol::~CGameProtocol( )
 // RECEIVE FUNCTIONS //
 ///////////////////////
 
-CIncomingJoinPlayer *CGameProtocol::RECEIVE_W3GS_REQJOIN( BYTEARRAY data )
+CIncomingJoinPlayer *CGameProtocol::RECEIVE_W3GS_REQJOIN(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_REQJOIN" );
   // DEBUG_Print( data );
@@ -60,23 +61,23 @@ CIncomingJoinPlayer *CGameProtocol::RECEIVE_W3GS_REQJOIN( BYTEARRAY data )
   // 2 bytes                    -> InternalPort (???)
   // 4 bytes                    -> InternalIP
 
-  if ( ValidateLength( data ) && data.size( ) >= 20 )
+  if (ValidateLength(data) && data.size() >= 20)
   {
-    uint32_t HostCounter = ByteArrayToUInt32( data, false, 4 );
-    uint32_t EntryKey = ByteArrayToUInt32( data, false, 8 );
-    BYTEARRAY Name = ExtractCString( data, 19 );
+    const uint32_t HostCounter = ByteArrayToUInt32(data, false, 4);
+    const uint32_t EntryKey = ByteArrayToUInt32(data, false, 8);
+    const BYTEARRAY Name = ExtractCString(data, 19);
 
-    if ( !Name.empty( ) && data.size( ) >= Name.size( ) + 30 )
+    if (!Name.empty() && data.size() >= Name.size() + 30)
     {
-      BYTEARRAY InternalIP = BYTEARRAY( data.begin( ) + Name.size( ) + 26, data.begin( ) + Name.size( ) + 30 );
-      return new CIncomingJoinPlayer( HostCounter, EntryKey, string( Name.begin( ), Name.end( ) ), InternalIP );
+      const BYTEARRAY InternalIP = BYTEARRAY(data.begin() + Name.size() + 26, data.begin() + Name.size() + 30);
+      return new CIncomingJoinPlayer(HostCounter, EntryKey, string(Name.begin(), Name.end()), InternalIP);
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
-uint32_t CGameProtocol::RECEIVE_W3GS_LEAVEGAME( BYTEARRAY data )
+uint32_t CGameProtocol::RECEIVE_W3GS_LEAVEGAME(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_LEAVEGAME" );
   // DEBUG_Print( data );
@@ -85,13 +86,13 @@ uint32_t CGameProtocol::RECEIVE_W3GS_LEAVEGAME( BYTEARRAY data )
   // 2 bytes					-> Length
   // 4 bytes					-> Reason
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
-    return ByteArrayToUInt32( data, false, 4 );
+  if (ValidateLength(data) && data.size() >= 8)
+    return ByteArrayToUInt32(data, false, 4);
 
   return 0;
 }
 
-bool CGameProtocol::RECEIVE_W3GS_GAMELOADED_SELF( BYTEARRAY data )
+bool CGameProtocol::RECEIVE_W3GS_GAMELOADED_SELF(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_GAMELOADED_SELF" );
   // DEBUG_Print( data );
@@ -99,13 +100,13 @@ bool CGameProtocol::RECEIVE_W3GS_GAMELOADED_SELF( BYTEARRAY data )
   // 2 bytes					-> Header
   // 2 bytes					-> Length
 
-  if ( ValidateLength( data ) )
+  if (ValidateLength(data))
     return true;
 
   return false;
 }
 
-CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY data, unsigned char PID )
+CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION(const BYTEARRAY &data, unsigned char PID)
 {
   // DEBUG_Print( "RECEIVED W3GS_OUTGOING_ACTION" );
   // DEBUG_Print( data );
@@ -115,17 +116,17 @@ CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION( BYTEARRAY data, un
   // 4 bytes                -> CRC
   // remainder of packet		-> Action
 
-  if ( PID != 255 && ValidateLength( data ) && data.size( ) >= 8 )
+  if (PID != 255 && ValidateLength(data) && data.size() >= 8)
   {
-    BYTEARRAY CRC = BYTEARRAY( data.begin( ) + 4, data.begin( ) + 8 );
-    BYTEARRAY Action = BYTEARRAY( data.begin( ) + 8, data.end( ) );
-    return new CIncomingAction( PID, CRC, Action );
+    const BYTEARRAY CRC = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    const BYTEARRAY Action = BYTEARRAY(data.begin() + 8, data.end());
+    return new CIncomingAction(PID, CRC, Action);
   }
 
-  return NULL;
+  return nullptr;
 }
 
-uint32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY data )
+uint32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_OUTGOING_KEEPALIVE" );
   // DEBUG_Print( data );
@@ -135,13 +136,13 @@ uint32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE( BYTEARRAY data )
   // 1 byte           -> ???
   // 4 bytes					-> CheckSum
 
-  if ( ValidateLength( data ) && data.size( ) == 9 )
-    return ByteArrayToUInt32( data, false, 5 );
+  if (ValidateLength(data) && data.size() == 9)
+    return ByteArrayToUInt32(data, false, 5);
 
   return 0;
 }
 
-CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data )
+CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_CHAT_TO_HOST" );
   // DEBUG_Print( data );
@@ -167,48 +168,48 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST( BYTEARRAY data )
   //		4 bytes           -> ExtraFlags
   //		null term string	-> Message
 
-  if ( ValidateLength( data ) )
+  if (ValidateLength(data))
   {
     unsigned int i = 5;
-    unsigned char Total = data[4];
+    const unsigned char Total = data[4];
 
-    if ( Total > 0 && data.size( ) >= i + Total )
+    if (Total > 0 && data.size() >= i + Total)
     {
-      BYTEARRAY ToPIDs = BYTEARRAY( data.begin( ) + i, data.begin( ) + i + Total );
+      const BYTEARRAY ToPIDs = BYTEARRAY(data.begin() + i, data.begin() + i + Total);
       i += Total;
-      unsigned char FromPID = data[i];
-      unsigned char Flag = data[i + 1];
+      const unsigned char FromPID = data[i];
+      const unsigned char Flag = data[i + 1];
       i += 2;
 
-      if ( Flag == 16 && data.size( ) >= i + 1 )
+      if (Flag == 16 && data.size() >= i + 1)
       {
         // chat message
 
-        BYTEARRAY Message = ExtractCString( data, i );
-        return new CIncomingChatPlayer( FromPID, ToPIDs, Flag, string( Message.begin( ), Message.end( ) ) );
+        const BYTEARRAY Message = ExtractCString(data, i);
+        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, string(Message.begin(), Message.end()));
       }
-      else if ( ( Flag >= 17 && Flag <= 20 ) && data.size( ) >= i + 1 )
+      else if ((Flag >= 17 && Flag <= 20) && data.size() >= i + 1)
       {
         // team/colour/race/handicap change request
 
-        unsigned char Byte = data[i];
-        return new CIncomingChatPlayer( FromPID, ToPIDs, Flag, Byte );
+        const unsigned char Byte = data[i];
+        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, Byte);
       }
-      else if ( Flag == 32 && data.size( ) >= i + 5 )
+      else if (Flag == 32 && data.size() >= i + 5)
       {
         // chat message with extra flags
 
-        BYTEARRAY ExtraFlags = BYTEARRAY( data.begin( ) + i, data.begin( ) + i + 4 );
-        BYTEARRAY Message = ExtractCString( data, i + 4 );
-        return new CIncomingChatPlayer( FromPID, ToPIDs, Flag, string( Message.begin( ), Message.end( ) ), ExtraFlags );
+        const BYTEARRAY ExtraFlags = BYTEARRAY(data.begin() + i, data.begin() + i + 4);
+        const BYTEARRAY Message = ExtractCString(data, i + 4);
+        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, string(Message.begin(), Message.end()), ExtraFlags);
       }
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
-CIncomingMapSize *CGameProtocol::RECEIVE_W3GS_MAPSIZE( BYTEARRAY data )
+CIncomingMapSize *CGameProtocol::RECEIVE_W3GS_MAPSIZE(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_MAPSIZE" );
   // DEBUG_Print( data );
@@ -219,13 +220,13 @@ CIncomingMapSize *CGameProtocol::RECEIVE_W3GS_MAPSIZE( BYTEARRAY data )
   // 1 byte           -> SizeFlag (1 = have map, 3 = continue download)
   // 4 bytes					-> MapSize
 
-  if ( ValidateLength( data ) && data.size( ) >= 13 )
-    return new CIncomingMapSize( data[8], ByteArrayToUInt32( data, false, 9 ) );
+  if (ValidateLength(data) && data.size() >= 13)
+    return new CIncomingMapSize(data[8], ByteArrayToUInt32(data, false, 9));
 
-  return NULL;
+  return nullptr;
 }
 
-uint32_t CGameProtocol::RECEIVE_W3GS_MAPPARTOK( BYTEARRAY data )
+uint32_t CGameProtocol::RECEIVE_W3GS_MAPPARTOK(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_MAPPARTOK" );
   // DEBUG_Print( data );
@@ -237,13 +238,13 @@ uint32_t CGameProtocol::RECEIVE_W3GS_MAPPARTOK( BYTEARRAY data )
   // 4 bytes					-> ???
   // 4 bytes					-> MapSize
 
-  if ( ValidateLength( data ) && data.size( ) >= 14 )
-    return ByteArrayToUInt32( data, false, 10 );
+  if (ValidateLength(data) && data.size() >= 14)
+    return ByteArrayToUInt32(data, false, 10);
 
   return 0;
 }
 
-uint32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY data )
+uint32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_PONG_TO_HOST" );
   // DEBUG_Print( data );
@@ -256,8 +257,8 @@ uint32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY data )
   // so as long as we trust that the client isn't trying to fake us out and mess with the pong value we can find the round trip time by simple subtraction
   // (the subtraction is done elsewhere because the very first pong value seems to be 1 and we want to discard that one)
 
-  if ( ValidateLength( data ) && data.size( ) >= 8 )
-    return ByteArrayToUInt32( data, false, 4 );
+  if (ValidateLength(data) && data.size() >= 8)
+    return ByteArrayToUInt32(data, false, 4);
 
   return 1;
 }
@@ -266,562 +267,372 @@ uint32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST( BYTEARRAY data )
 // SEND FUNCTIONS //
 ////////////////////
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PING_FROM_HOST( )
+BYTEARRAY CGameProtocol::SEND_W3GS_PING_FROM_HOST()
 {
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_PING_FROM_HOST ); // W3GS_PING_FROM_HOST
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, GetTicks( ), false ); // ping value
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_PING_FROM_HOST" );
-  // DEBUG_Print( packet );
+  BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_PING_FROM_HOST, 8, 0};
+  AppendByteArray(packet, GetTicks(), false);    // ping value
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN( unsigned char PID, BYTEARRAY port, BYTEARRAY externalIP, vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots )
+BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN(unsigned char PID, BYTEARRAY port, BYTEARRAY externalIP, vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
 {
-  unsigned char Zeros[] = { 0, 0, 0, 0 };
+  const unsigned char Zeros[] = {0, 0, 0, 0};
 
-  BYTEARRAY SlotInfo = EncodeSlotInfo( slots, randomSeed, layoutStyle, playerSlots );
+  const BYTEARRAY SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
   BYTEARRAY packet;
 
-  if ( port.size( ) == 2 && externalIP.size( ) == 4 )
+  if (port.size() == 2 && externalIP.size() == 4)
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_SLOTINFOJOIN ); // W3GS_SLOTINFOJOIN
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArray( packet, (uint16_t) SlotInfo.size( ), false ); // SlotInfo length
-    AppendByteArrayFast( packet, SlotInfo ); // SlotInfo
-    packet.push_back( PID ); // PID
-    packet.push_back( 2 ); // AF_INET
-    packet.push_back( 0 ); // AF_INET continued...
-    AppendByteArray( packet, port ); // port
-    AppendByteArrayFast( packet, externalIP ); // external IP
-    AppendByteArray( packet, Zeros, 4 ); // ???
-    AppendByteArray( packet, Zeros, 4 ); // ???
-    AssignLength( packet );
+    packet.push_back(W3GS_HEADER_CONSTANT);   // W3GS header constant
+    packet.push_back(W3GS_SLOTINFOJOIN);   // W3GS_SLOTINFOJOIN
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(0);   // packet length will be assigned later
+    AppendByteArray(packet, (uint16_t) SlotInfo.size(), false);    // SlotInfo length
+    AppendByteArrayFast(packet, SlotInfo);   // SlotInfo
+    packet.push_back(PID);   // PID
+    packet.push_back(2);   // AF_INET
+    packet.push_back(0);   // AF_INET continued...
+    AppendByteArray(packet, port);   // port
+    AppendByteArrayFast(packet, externalIP);   // external IP
+    AppendByteArray(packet, Zeros, 4);   // ???
+    AppendByteArray(packet, Zeros, 4);   // ???
+    AssignLength(packet);
   }
   else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_SLOTINFOJOIN" );
+    Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_SLOTINFOJOIN");
 
-  // DEBUG_Print( "SENT W3GS_SLOTINFOJOIN" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN( uint32_t reason )
+BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN(uint32_t reason)
 {
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_REJECTJOIN ); // W3GS_REJECTJOIN
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, reason, false ); // reason
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_REJECTJOIN" );
-  // DEBUG_Print( packet );
+  BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_REJECTJOIN, 8, 0};
+  AppendByteArray(packet, reason, false);   // reason
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO( unsigned char PID, string name, BYTEARRAY externalIP, BYTEARRAY internalIP )
+BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(unsigned char PID, const string &name, BYTEARRAY externalIP, BYTEARRAY internalIP)
 {
-  unsigned char PlayerJoinCounter[] = { 2, 0, 0, 0 };
-  unsigned char Zeros[] = { 0, 0, 0, 0 };
+  const unsigned char PlayerJoinCounter[] = {2, 0, 0, 0};
+  const unsigned char Zeros[] = {0, 0, 0, 0};
 
   BYTEARRAY packet;
 
-  if ( !name.empty( ) && name.size( ) <= 15 && externalIP.size( ) == 4 && internalIP.size( ) == 4 )
+  if (!name.empty() && name.size() <= 15 && externalIP.size() == 4 && internalIP.size() == 4)
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_PLAYERINFO ); // W3GS_PLAYERINFO
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArray( packet, PlayerJoinCounter, 4 ); // player join counter
-    packet.push_back( PID ); // PID
-    AppendByteArrayFast( packet, name ); // player name
-    packet.push_back( 1 ); // ???
-    packet.push_back( 0 ); // ???
-    packet.push_back( 2 ); // AF_INET
-    packet.push_back( 0 ); // AF_INET continued...
-    packet.push_back( 0 ); // port
-    packet.push_back( 0 ); // port continued...
-    AppendByteArrayFast( packet, externalIP ); // external IP
-    AppendByteArray( packet, Zeros, 4 ); // ???
-    AppendByteArray( packet, Zeros, 4 ); // ???
-    packet.push_back( 2 ); // AF_INET
-    packet.push_back( 0 ); // AF_INET continued...
-    packet.push_back( 0 ); // port
-    packet.push_back( 0 ); // port continued...
-    AppendByteArrayFast( packet, internalIP ); // internal IP
-    AppendByteArray( packet, Zeros, 4 ); // ???
-    AppendByteArray( packet, Zeros, 4 ); // ???
-    AssignLength( packet );
+    packet.push_back(W3GS_HEADER_CONSTANT);   // W3GS header constant
+    packet.push_back(W3GS_PLAYERINFO);   // W3GS_PLAYERINFO
+    packet.push_back(0);   // packet length will be assigned later
+    packet.push_back(0);   // packet length will be assigned later
+    AppendByteArray(packet, PlayerJoinCounter, 4);   // player join counter
+    packet.push_back(PID);   // PID
+    AppendByteArrayFast(packet, name);   // player name
+    packet.push_back(1);   // ???
+    packet.push_back(0);   // ???
+    packet.push_back(2);   // AF_INET
+    packet.push_back(0);   // AF_INET continued...
+    packet.push_back(0);   // port
+    packet.push_back(0);   // port continued...
+    AppendByteArrayFast(packet, externalIP);   // external IP
+    AppendByteArray(packet, Zeros, 4);   // ???
+    AppendByteArray(packet, Zeros, 4);   // ???
+    packet.push_back(2);   // AF_INET
+    packet.push_back(0);   // AF_INET continued...
+    packet.push_back(0);   // port
+    packet.push_back(0);   // port continued...
+    AppendByteArrayFast(packet, internalIP);   // internal IP
+    AppendByteArray(packet, Zeros, 4);   // ???
+    AppendByteArray(packet, Zeros, 4);   // ???
+    AssignLength(packet);
   }
   else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_PLAYERINFO" );
+    Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_PLAYERINFO");
 
-  // DEBUG_Print( "SENT W3GS_PLAYERINFO" );
-  // DEBUG_Print( packet );
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS( unsigned char PID, uint32_t leftCode )
+BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS(unsigned char PID, uint32_t leftCode)
 {
-  BYTEARRAY packet;
-
-  if ( PID != 255 )
+  if (PID != 255)
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_PLAYERLEAVE_OTHERS ); // W3GS_PLAYERLEAVE_OTHERS
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( PID ); // PID
-    AppendByteArray( packet, leftCode, false ); // left code (see PLAYERLEAVE_ constants in gameprotocol.h)
-    AssignLength( packet );
+    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_PLAYERLEAVE_OTHERS, 9, 0, PID};
+    AppendByteArray(packet, leftCode, false);   // left code (see PLAYERLEAVE_ constants in gameprotocol.h)
+    return packet;
   }
-  else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_PLAYERLEAVE_OTHERS" );
 
-  // DEBUG_Print( "SENT W3GS_PLAYERLEAVE_OTHERS" );
-  // DEBUG_Print( packet );
+  Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_PLAYERLEAVE_OTHERS");
+  return BYTEARRAY();
+}
+
+BYTEARRAY CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(unsigned char PID)
+{
+  if (PID != 255)
+    return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_GAMELOADED_OTHERS, 5, 0, PID};
+
+  Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_GAMELOADED_OTHERS");
+
+  return BYTEARRAY();
+}
+
+BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
+{
+  const BYTEARRAY SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
+  const uint16_t SlotInfoSize = (uint16_t) SlotInfo.size();
+
+  BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_SLOTINFO, 0, 0};
+  AppendByteArray(packet, SlotInfoSize, false); // SlotInfo length
+  AppendByteArrayFast(packet, SlotInfo);        // SlotInfo
+  AssignLength(packet);
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS( unsigned char PID )
+BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_START()
 {
-  BYTEARRAY packet;
-
-  if ( PID != 255 )
-  {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_GAMELOADED_OTHERS ); // W3GS_GAMELOADED_OTHERS
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( PID ); // PID
-    AssignLength( packet );
-  }
-  else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_GAMELOADED_OTHERS" );
-
-  // DEBUG_Print( "SENT W3GS_GAMELOADED_OTHERS" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_COUNTDOWN_START, 4, 0};
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFO( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots )
+BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_END()
 {
-  BYTEARRAY SlotInfo = EncodeSlotInfo( slots, randomSeed, layoutStyle, playerSlots );
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_SLOTINFO ); // W3GS_SLOTINFO
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, (uint16_t) SlotInfo.size( ), false ); // SlotInfo length
-  AppendByteArrayFast( packet, SlotInfo ); // SlotInfo
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_SLOTINFO" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_COUNTDOWN_END, 4, 0};
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_START( )
+BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *> actions, uint16_t sendInterval)
 {
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_COUNTDOWN_START ); // W3GS_COUNTDOWN_START
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_COUNTDOWN_START" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_END( )
-{
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_COUNTDOWN_END ); // W3GS_COUNTDOWN_END
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_COUNTDOWN_END" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION( queue<CIncomingAction *> actions, uint16_t sendInterval )
-{
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_INCOMING_ACTION ); // W3GS_INCOMING_ACTION
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, sendInterval, false ); // send interval
+  BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_INCOMING_ACTION, 0, 0};
+  AppendByteArray(packet, sendInterval, false);   // send interval
 
   // create subpacket
 
-  if ( !actions.empty( ) )
+  if (!actions.empty())
   {
     BYTEARRAY subpacket;
 
     do
     {
-      CIncomingAction *Action = actions.front( );
-      actions.pop( );
-      subpacket.push_back( Action->GetPID( ) );
-      AppendByteArray( subpacket, (uint16_t) Action->GetAction( )->size( ), false );
-      AppendByteArrayFast( subpacket, *Action->GetAction( ) );
-    } while ( !actions.empty( ) );
+      CIncomingAction *Action = actions.front();
+      actions.pop();
+      subpacket.push_back(Action->GetPID());
+      AppendByteArray(subpacket, (uint16_t) Action->GetAction()->size(), false);
+      AppendByteArrayFast(subpacket, *Action->GetAction());
+    }
+    while (!actions.empty());
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray( m_Aura->m_CRC->FullCRC( (unsigned char *) string( subpacket.begin( ), subpacket.end( ) ).c_str( ), subpacket.size( ) ), false );
-    crc32.resize( 2 );
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((unsigned char *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
+    crc32.resize(2);
 
     // finish subpacket
 
-    AppendByteArrayFast( packet, crc32 ); // crc
-    AppendByteArrayFast( packet, subpacket ); // subpacket
+    AppendByteArrayFast(packet, crc32);   // crc
+    AppendByteArrayFast(packet, subpacket);   // subpacket
   }
 
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_INCOMING_ACTION" );
-  // DEBUG_Print( packet );
+  AssignLength(packet);
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_CHAT_FROM_HOST( unsigned char fromPID, BYTEARRAY toPIDs, unsigned char flag, BYTEARRAY flagExtra, string message )
+BYTEARRAY CGameProtocol::SEND_W3GS_CHAT_FROM_HOST(unsigned char fromPID, const BYTEARRAY &toPIDs, unsigned char flag, const BYTEARRAY &flagExtra, const string &message)
 {
-  BYTEARRAY packet;
-
-  if ( !toPIDs.empty( ) && !message.empty( ) && message.size( ) < 255 )
+  if (!toPIDs.empty() && !message.empty() && message.size() < 255)
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_CHAT_FROM_HOST ); // W3GS_CHAT_FROM_HOST
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( toPIDs.size( ) ); // number of receivers
-    AppendByteArrayFast( packet, toPIDs ); // receivers
-    packet.push_back( fromPID ); // sender
-    packet.push_back( flag ); // flag
-    AppendByteArrayFast( packet, flagExtra ); // extra flag
-    AppendByteArrayFast( packet, message ); // message
-    AssignLength( packet );
+    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_CHAT_FROM_HOST, 0, 0, (unsigned char) toPIDs.size()};
+    AppendByteArrayFast(packet, toPIDs);      // receivers
+    packet.push_back(fromPID);                // sender
+    packet.push_back(flag);                   // flag
+    AppendByteArrayFast(packet, flagExtra);   // extra flag
+    AppendByteArrayFast(packet, message);     // message
+    AssignLength(packet);
+    return packet;
   }
-  else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_CHAT_FROM_HOST" );
 
-  // DEBUG_Print( "SENT W3GS_CHAT_FROM_HOST" );
-  // DEBUG_Print( packet );
-  return packet;
+  Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_CHAT_FROM_HOST");
+  return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG( vector<CGamePlayer *> players )
+BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG(vector<CGamePlayer *> players)
 {
-  BYTEARRAY packet;
-
   unsigned char NumLaggers = 0;
 
-  for ( vector<CGamePlayer *> ::const_iterator i = players.begin( ); i != players.end( ); ++i )
+  for (vector<CGamePlayer *> ::const_iterator i = players.begin(); i != players.end(); ++i)
   {
-    if ( ( *i )->GetLagging( ) )
+    if ((*i)->GetLagging())
       ++NumLaggers;
   }
 
-  if ( NumLaggers > 0 )
+  if (NumLaggers > 0)
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_START_LAG ); // W3GS_START_LAG
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( NumLaggers );
+    BYTEARRAY packet = { W3GS_HEADER_CONSTANT, W3GS_START_LAG, 0, 0, NumLaggers };
 
-    for ( vector<CGamePlayer *> ::const_iterator i = players.begin( ); i != players.end( ); ++i )
+    for (vector<CGamePlayer *> ::const_iterator i = players.begin(); i != players.end(); ++i)
     {
-      if ( ( *i )->GetLagging( ) )
+      if ((*i)->GetLagging())
       {
-        packet.push_back( ( *i )->GetPID( ) );
-        AppendByteArray( packet, GetTicks( ) - ( *i )->GetStartedLaggingTicks( ), false );
+        packet.push_back((*i)->GetPID());
+        AppendByteArray(packet, GetTicks() - (*i)->GetStartedLaggingTicks(), false);
       }
     }
 
-    AssignLength( packet );
+    AssignLength(packet);
+    return packet;
   }
-  else
-    Print( "[GAMEPROTO] no laggers passed to SEND_W3GS_START_LAG" );
 
-  // DEBUG_Print( "SENT W3GS_START_LAG" );
-  // DEBUG_Print( packet );
+  Print("[GAMEPROTO] no laggers passed to SEND_W3GS_START_LAG");
+  return BYTEARRAY();
+}
+
+BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG(CGamePlayer *player)
+{
+  BYTEARRAY packet = { W3GS_HEADER_CONSTANT, W3GS_STOP_LAG, 9, 0, player->GetPID() };
+  AppendByteArray(packet, GetTicks() - player->GetStartedLaggingTicks(), false);
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG( CGamePlayer *player )
+BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO(unsigned char war3Version, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
 {
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_STOP_LAG ); // W3GS_STOP_LAG
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( player->GetPID( ) );
-  AppendByteArray( packet, GetTicks( ) - player->GetStartedLaggingTicks( ), false );
-  AssignLength( packet );
+  const unsigned char Unknown2[] = { 1, 0, 0, 0 };
 
-  // DEBUG_Print( "SENT W3GS_STOP_LAG" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO( unsigned char war3Version, BYTEARRAY mapGameType, BYTEARRAY mapFlags, BYTEARRAY mapWidth, BYTEARRAY mapHeight, string gameName, string hostName, uint32_t upTime, string mapPath, BYTEARRAY mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey )
-{
-  unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
-  unsigned char Version[] = { war3Version, 0, 0, 0 };
-  unsigned char Unknown2[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-
-  if ( mapGameType.size( ) == 4 && mapFlags.size( ) == 4 && mapWidth.size( ) == 2 && mapHeight.size( ) == 2 && !gameName.empty( ) && !hostName.empty( ) && !mapPath.empty( ) && mapCRC.size( ) == 4 )
+  if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4)
   {
     // make the stat string
 
     BYTEARRAY StatString;
-    AppendByteArrayFast( StatString, mapFlags );
-    StatString.push_back( 0 );
-    AppendByteArrayFast( StatString, mapWidth );
-    AppendByteArrayFast( StatString, mapHeight );
-    AppendByteArrayFast( StatString, mapCRC );
-    AppendByteArrayFast( StatString, mapPath );
-    AppendByteArrayFast( StatString, hostName );
-    StatString.push_back( 0 );
-    StatString = EncodeStatString( StatString );
+    AppendByteArrayFast(StatString, mapFlags);
+    StatString.push_back(0);
+    AppendByteArrayFast(StatString, mapWidth);
+    AppendByteArrayFast(StatString, mapHeight);
+    AppendByteArrayFast(StatString, mapCRC);
+    AppendByteArrayFast(StatString, mapPath);
+    AppendByteArrayFast(StatString, hostName);
+    StatString.push_back(0);
+    StatString = EncodeStatString(StatString);
 
     // make the rest of the packet
 
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_GAMEINFO ); // W3GS_GAMEINFO
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-
-    AppendByteArray( packet, ProductID_TFT, 4 ); // Product ID (TFT)
-    AppendByteArray( packet, Version, 4 ); // Version
-    AppendByteArray( packet, hostCounter, false ); // Host Counter
-    AppendByteArray( packet, entryKey, false ); // Entry Key
-    AppendByteArrayFast( packet, gameName ); // Game Name
-    packet.push_back( 0 ); // ??? (maybe game password)
-    AppendByteArrayFast( packet, StatString ); // Stat String
-    packet.push_back( 0 ); // Stat String null terminator (the stat string is encoded to remove all even numbers i.e. zeros)
-    AppendByteArray( packet, slotsTotal, false ); // Slots Total
-    AppendByteArrayFast( packet, mapGameType ); // Game Type
-    AppendByteArray( packet, Unknown2, 4 ); // ???
-    AppendByteArray( packet, slotsOpen, false ); // Slots Open
-    AppendByteArray( packet, upTime, false ); // time since creation
-    AppendByteArray( packet, port, false ); // port
-    AssignLength( packet );
+    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_GAMEINFO, 0, 0, 80, 88, 51, 87, war3Version, 0, 0, 0};
+    AppendByteArray(packet, hostCounter, false);  // Host Counter
+    AppendByteArray(packet, entryKey, false);     // Entry Key
+    AppendByteArrayFast(packet, gameName);        // Game Name
+    packet.push_back(0);                          // ??? (maybe game password)
+    AppendByteArrayFast(packet, StatString);      // Stat String
+    packet.push_back(0);                            // Stat String null terminator (the stat string is encoded to remove all even numbers i.e. zeros)
+    AppendByteArray(packet, slotsTotal, false);   // Slots Total
+    AppendByteArrayFast(packet, mapGameType);     // Game Type
+    AppendByteArray(packet, Unknown2, 4);         // ???
+    AppendByteArray(packet, slotsOpen, false);    // Slots Open
+    AppendByteArray(packet, upTime, false);       // time since creation
+    AppendByteArray(packet, port, false);         // port
+    AssignLength(packet);
+    return packet;
   }
-  else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_GAMEINFO" );
 
-  // DEBUG_Print( "SENT W3GS_GAMEINFO" );
-  // DEBUG_Print( packet );
+  Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_GAMEINFO");
+  return BYTEARRAY();
+}
+
+BYTEARRAY CGameProtocol::SEND_W3GS_CREATEGAME(unsigned char war3Version)
+{
+  return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_CREATEGAME, 16, 0, 80, 88, 51, 87, war3Version, 0, 0, 0, 1, 0, 0, 0};
+}
+
+BYTEARRAY CGameProtocol::SEND_W3GS_REFRESHGAME(uint32_t players, uint32_t playerSlots)
+{
+  BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_REFRESHGAME, 16, 0, 1, 0, 0, 0};
+  AppendByteArray(packet, players, false);      // Players
+  AppendByteArray(packet, playerSlots, false);  // Player Slots
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_CREATEGAME( unsigned char war3Version )
+BYTEARRAY CGameProtocol::SEND_W3GS_DECREATEGAME()
 {
-  unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
-  unsigned char Version[] = { war3Version, 0, 0, 0 };
-  unsigned char HostCounter[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_CREATEGAME ); // W3GS_CREATEGAME
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-
-  AppendByteArray( packet, ProductID_TFT, 4 ); // Product ID (TFT)
-  AppendByteArray( packet, Version, 4 ); // Version
-  AppendByteArray( packet, HostCounter, 4 ); // Host Counter
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_CREATEGAME" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_DECREATEGAME, 8, 0, 1, 0, 0, 0};
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_REFRESHGAME( uint32_t players, uint32_t playerSlots )
+BYTEARRAY CGameProtocol::SEND_W3GS_MAPCHECK(const string &mapPath, const BYTEARRAY &mapSize, const BYTEARRAY &mapInfo, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1)
 {
-  unsigned char HostCounter[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_REFRESHGAME ); // W3GS_REFRESHGAME
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, HostCounter, 4 ); // Host Counter
-  AppendByteArray( packet, players, false ); // Players
-  AppendByteArray( packet, playerSlots, false ); // Player Slots
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_REFRESHGAME" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CGameProtocol::SEND_W3GS_DECREATEGAME( )
-{
-  unsigned char HostCounter[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_DECREATEGAME ); // W3GS_DECREATEGAME
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, HostCounter, 4 ); // Host Counter
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_DECREATEGAME" );
-  // DEBUG_Print( packet );
-  return packet;
-}
-
-BYTEARRAY CGameProtocol::SEND_W3GS_MAPCHECK( string mapPath, BYTEARRAY mapSize, BYTEARRAY mapInfo, BYTEARRAY mapCRC, BYTEARRAY mapSHA1 )
-{
-  unsigned char Unknown[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-
-  if ( !mapPath.empty( ) && mapSize.size( ) == 4 && mapInfo.size( ) == 4 && mapCRC.size( ) == 4 && mapSHA1.size( ) == 20 )
+  if (!mapPath.empty() && mapSize.size() == 4 && mapInfo.size() == 4 && mapCRC.size() == 4 && mapSHA1.size() == 20)
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_MAPCHECK ); // W3GS_MAPCHECK
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    AppendByteArray( packet, Unknown, 4 ); // ???
-    AppendByteArrayFast( packet, mapPath ); // map path
-    AppendByteArrayFast( packet, mapSize ); // map size
-    AppendByteArrayFast( packet, mapInfo ); // map info
-    AppendByteArrayFast( packet, mapCRC ); // map crc
-    AppendByteArrayFast( packet, mapSHA1 ); // map sha1
-    AssignLength( packet );
+    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_MAPCHECK, 0, 0, 1, 0, 0, 0};
+    AppendByteArrayFast(packet, mapPath);     // map path
+    AppendByteArrayFast(packet, mapSize);     // map size
+    AppendByteArrayFast(packet, mapInfo);     // map info
+    AppendByteArrayFast(packet, mapCRC);      // map crc
+    AppendByteArrayFast(packet, mapSHA1);     // map sha1
+    AssignLength(packet);
+    return packet;
   }
-  else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_MAPCHECK" );
 
-  // DEBUG_Print( "SENT W3GS_MAPCHECK" );
-  // DEBUG_Print( packet );
-  return packet;
+  Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_MAPCHECK");
+  return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_STARTDOWNLOAD( unsigned char fromPID )
+BYTEARRAY CGameProtocol::SEND_W3GS_STARTDOWNLOAD(unsigned char fromPID)
 {
-  unsigned char Unknown[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_STARTDOWNLOAD ); // W3GS_STARTDOWNLOAD
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  AppendByteArray( packet, Unknown, 4 ); // ???
-  packet.push_back( fromPID ); // from PID
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_STARTDOWNLOAD" );
-  // DEBUG_Print( packet );
-  return packet;
+  return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_STARTDOWNLOAD, 9, 0, 1, 0, 0, 0, fromPID};
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_MAPPART( unsigned char fromPID, unsigned char toPID, uint32_t start, string *mapData )
+BYTEARRAY CGameProtocol::SEND_W3GS_MAPPART(unsigned char fromPID, unsigned char toPID, uint32_t start, const string *mapData)
 {
-  unsigned char Unknown[] = { 1, 0, 0, 0 };
-
-  BYTEARRAY packet;
-
-  if ( start < mapData->size( ) )
+  if (start < mapData->size())
   {
-    packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-    packet.push_back( W3GS_MAPPART ); // W3GS_MAPPART
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( 0 ); // packet length will be assigned later
-    packet.push_back( toPID ); // to PID
-    packet.push_back( fromPID ); // from PID
-    AppendByteArray( packet, Unknown, 4 ); // ???
-    AppendByteArray( packet, start, false ); // start position
+    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_MAPPART, 0, 0, toPID, fromPID, 1, 0, 0, 0};
+    AppendByteArray(packet, start, false);   // start position
 
     // calculate end position (don't send more than 1442 map bytes in one packet)
 
     uint32_t End = start + 1442;
 
-    if ( End > mapData->size( ) )
-      End = mapData->size( );
+    if (End > mapData->size())
+      End = mapData->size();
 
     // calculate crc
 
-    BYTEARRAY crc32 = CreateByteArray( m_Aura->m_CRC->FullCRC( (unsigned char *) mapData->c_str( ) + start, End - start ), false );
-    AppendByteArrayFast( packet, crc32 );
+    const BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((unsigned char *) mapData->c_str() + start, End - start), false);
+    AppendByteArrayFast(packet, crc32);
 
     // map data
 
-    BYTEARRAY Data = CreateByteArray( (unsigned char *) mapData->c_str( ) + start, End - start );
-    AppendByteArrayFast( packet, Data );
-    AssignLength( packet );
+    const BYTEARRAY data = CreateByteArray((unsigned char *) mapData->c_str() + start, End - start);
+    AppendByteArrayFast(packet, data);
+    AssignLength(packet);
+    return packet;
   }
-  else
-    Print( "[GAMEPROTO] invalid parameters passed to SEND_W3GS_MAPPART" );
 
-  // DEBUG_Print( "SENT W3GS_MAPPART" );
-  // DEBUG_Print( packet );
-  return packet;
+  Print("[GAMEPROTO] invalid parameters passed to SEND_W3GS_MAPPART");
+  return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> actions )
+BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncomingAction *> actions)
 {
-  BYTEARRAY packet;
-  packet.push_back( W3GS_HEADER_CONSTANT ); // W3GS header constant
-  packet.push_back( W3GS_INCOMING_ACTION2 ); // W3GS_INCOMING_ACTION2
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // packet length will be assigned later
-  packet.push_back( 0 ); // ??? (send interval?)
-  packet.push_back( 0 ); // ??? (send interval?)
+  BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_INCOMING_ACTION2, 0, 0, 0, 0};
 
   // create subpacket
 
-  if ( !actions.empty( ) )
+  if (!actions.empty())
   {
     BYTEARRAY subpacket;
 
-    while ( !actions.empty( ) )
+    while (!actions.empty())
     {
-      CIncomingAction *Action = actions.front( );
-      actions.pop( );
-      subpacket.push_back( Action->GetPID( ) );
-      AppendByteArray( subpacket, (uint16_t) Action->GetAction( )->size( ), false );
-      AppendByteArrayFast( subpacket, *Action->GetAction( ) );
+      CIncomingAction *Action = actions.front();
+      actions.pop();
+      subpacket.push_back(Action->GetPID());
+      AppendByteArray(subpacket, (uint16_t) Action->GetAction()->size(), false);
+      AppendByteArrayFast(subpacket, *Action->GetAction());
     }
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray( m_Aura->m_CRC->FullCRC( (unsigned char *) string( subpacket.begin( ), subpacket.end( ) ).c_str( ), subpacket.size( ) ), false );
-    crc32.resize( 2 );
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((unsigned char *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
+    crc32.resize(2);
 
     // finish subpacket
 
-    AppendByteArrayFast( packet, crc32 ); // crc
-    AppendByteArrayFast( packet, subpacket ); // subpacket
+    AppendByteArrayFast(packet, crc32);     // crc
+    AppendByteArrayFast(packet, subpacket); // subpacket
   }
 
-  AssignLength( packet );
-
-  // DEBUG_Print( "SENT W3GS_INCOMING_ACTION2" );
-  // DEBUG_Print( packet );
+  AssignLength(packet);
   return packet;
 }
 
@@ -829,35 +640,34 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2( queue<CIncomingAction *> ac
 // OTHER FUNCTIONS //
 /////////////////////
 
-void CGameProtocol::AssignLength( BYTEARRAY &content )
+void CGameProtocol::AssignLength(BYTEARRAY &content)
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-  content[2] = (unsigned char) ( (uint16_t ) content.size( ) );
-  content[3] = (unsigned char) ( (uint16_t ) content.size( ) >> 8 );
+  const uint16_t size = (uint16_t) content.size();
+
+  content[2] = (unsigned char) size;
+  content[3] = (unsigned char) size >> 8;
 }
 
-bool CGameProtocol::ValidateLength( BYTEARRAY &content )
+bool CGameProtocol::ValidateLength(const BYTEARRAY &content)
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  if ( (uint16_t) ( content[3] << 8 | content[2] ) == content.size( ) )
-    return true;
-
-  return false;
+  return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
 }
 
-BYTEARRAY CGameProtocol::EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots )
+BYTEARRAY CGameProtocol::EncodeSlotInfo(vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
 {
   BYTEARRAY SlotInfo;
-  SlotInfo.push_back( (unsigned char) slots.size( ) ); // number of slots
+  SlotInfo.push_back((unsigned char) slots.size()); // number of slots
 
-  for ( unsigned int i = 0; i < slots.size( ); ++i )
-    AppendByteArray( SlotInfo, slots[i].GetByteArray( ) );
+  for (unsigned int i = 0; i < slots.size(); ++i)
+    AppendByteArray(SlotInfo, slots[i].GetByteArray());
 
-  AppendByteArray( SlotInfo, randomSeed, false ); // random seed
-  SlotInfo.push_back( layoutStyle ); // LayoutStyle (0 = melee, 1 = custom forces, 3 = custom forces + fixed player settings)
-  SlotInfo.push_back( playerSlots ); // number of player slots (non observer)
+  AppendByteArray(SlotInfo, randomSeed, false);     // random seed
+  SlotInfo.push_back(layoutStyle);                  // LayoutStyle (0 = melee, 1 = custom forces, 3 = custom forces + fixed player settings)
+  SlotInfo.push_back(playerSlots);                  // number of player slots (non observer)
   return SlotInfo;
 }
 
@@ -865,12 +675,16 @@ BYTEARRAY CGameProtocol::EncodeSlotInfo( vector<CGameSlot> &slots, uint32_t rand
 // CIncomingJoinPlayer
 //
 
-CIncomingJoinPlayer::CIncomingJoinPlayer( uint32_t nHostCounter, uint32_t nEntryKey, const string &nName, BYTEARRAY &nInternalIP ) : m_Name( nName ), m_InternalIP( nInternalIP ), m_HostCounter( nHostCounter ), m_EntryKey( nEntryKey )
+CIncomingJoinPlayer::CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, const string &nName, const BYTEARRAY &nInternalIP)
+  : m_Name(nName),
+    m_InternalIP(nInternalIP),
+    m_HostCounter(nHostCounter),
+    m_EntryKey(nEntryKey)
 {
 
 }
 
-CIncomingJoinPlayer::~CIncomingJoinPlayer( )
+CIncomingJoinPlayer::~CIncomingJoinPlayer()
 {
 
 }
@@ -879,12 +693,15 @@ CIncomingJoinPlayer::~CIncomingJoinPlayer( )
 // CIncomingAction
 //
 
-CIncomingAction::CIncomingAction( unsigned char nPID, BYTEARRAY &nCRC, BYTEARRAY &nAction ) : m_CRC( nCRC ), m_Action( nAction ), m_PID( nPID )
+CIncomingAction::CIncomingAction(unsigned char nPID, const BYTEARRAY &nCRC, const BYTEARRAY &nAction)
+  : m_CRC(nCRC),
+    m_Action(nAction),
+    m_PID(nPID)
 {
 
 }
 
-CIncomingAction::~CIncomingAction( )
+CIncomingAction::~CIncomingAction()
 {
 
 }
@@ -893,29 +710,44 @@ CIncomingAction::~CIncomingAction( )
 // CIncomingChatPlayer
 //
 
-CIncomingChatPlayer::CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage ) : m_Message( nMessage ), m_ToPIDs( nToPIDs ), m_Type( CTH_MESSAGE ), m_FromPID( nFromPID ), m_Flag( nFlag )
+CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage)
+  : m_Message(nMessage),
+    m_ToPIDs(nToPIDs),
+    m_Type(CTH_MESSAGE),
+    m_FromPID(nFromPID),
+    m_Flag(nFlag)
 {
 
 }
 
-CIncomingChatPlayer::CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage, BYTEARRAY &nExtraFlags ) : m_Message( nMessage ), m_ToPIDs( nToPIDs ), m_ExtraFlags( nExtraFlags ), m_Type( CTH_MESSAGE ), m_FromPID( nFromPID ), m_Flag( nFlag )
+CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage, const BYTEARRAY &nExtraFlags)
+  : m_Message(nMessage),
+    m_ToPIDs(nToPIDs),
+    m_ExtraFlags(nExtraFlags),
+    m_Type(CTH_MESSAGE),
+    m_FromPID(nFromPID),
+    m_Flag(nFlag)
 {
 
 }
 
-CIncomingChatPlayer::CIncomingChatPlayer( unsigned char nFromPID, BYTEARRAY &nToPIDs, unsigned char nFlag, unsigned char nByte ) : m_ToPIDs( nToPIDs ), m_FromPID( nFromPID ), m_Flag( nFlag ), m_Byte( nByte )
+CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, unsigned char nByte)
+  : m_ToPIDs(nToPIDs),
+    m_FromPID(nFromPID),
+    m_Flag(nFlag),
+    m_Byte(nByte)
 {
-  if ( nFlag == 17 )
+  if (nFlag == 17)
     m_Type = CTH_TEAMCHANGE;
-  else if ( nFlag == 18 )
+  else if (nFlag == 18)
     m_Type = CTH_COLOURCHANGE;
-  else if ( nFlag == 19 )
+  else if (nFlag == 19)
     m_Type = CTH_RACECHANGE;
-  else if ( nFlag == 20 )
+  else if (nFlag == 20)
     m_Type = CTH_HANDICAPCHANGE;
 }
 
-CIncomingChatPlayer::~CIncomingChatPlayer( )
+CIncomingChatPlayer::~CIncomingChatPlayer()
 {
 
 }
@@ -924,12 +756,14 @@ CIncomingChatPlayer::~CIncomingChatPlayer( )
 // CIncomingMapSize
 //
 
-CIncomingMapSize::CIncomingMapSize( unsigned char nSizeFlag, uint32_t nMapSize ) : m_MapSize( nMapSize ), m_SizeFlag( nSizeFlag )
+CIncomingMapSize::CIncomingMapSize(unsigned char nSizeFlag, uint32_t nMapSize)
+  : m_MapSize(nMapSize),
+    m_SizeFlag(nSizeFlag)
 {
 
 }
 
-CIncomingMapSize::~CIncomingMapSize( )
+CIncomingMapSize::~CIncomingMapSize()
 {
 
 }

@@ -103,7 +103,7 @@ private:
   BYTEARRAY m_MapHeight;          // config value: map height (2 bytes)
   vector<CGameSlot> m_Slots;
   string m_CFGFile;
-  string m_MapPath;               // config value: map path  
+  string m_MapPath;               // config value: map path
   string m_MapType;               // config value: map type (for stats class)
   string m_MapDefaultHCL;         // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
   string m_MapLocalPath;          // config value: map local path
@@ -118,41 +118,41 @@ private:
   unsigned char m_MapFilterMaker;
   unsigned char m_MapFilterType;
   unsigned char m_MapFilterSize;
-  unsigned char m_MapFilterObs;  
+  unsigned char m_MapFilterObs;
   bool m_Valid;
 
 public:
-  CMap( CAura *nAura, CConfig *CFG, const string &nCFGFile );
-  ~CMap( );
+  CMap(CAura *nAura, CConfig *CFG, const string &nCFGFile);
+  ~CMap();
 
-  inline bool GetValid( ) const                               { return m_Valid; }
-  inline string GetCFGFile( ) const                           { return m_CFGFile; }
-  inline string GetMapPath( ) const                           { return m_MapPath; }
-  inline BYTEARRAY GetMapSize( ) const                        { return m_MapSize; }
-  inline BYTEARRAY GetMapInfo( ) const                        { return m_MapInfo; }
-  inline BYTEARRAY GetMapCRC( ) const                         { return m_MapCRC; }
-  inline BYTEARRAY GetMapSHA1( ) const                        { return m_MapSHA1; }
-  inline unsigned char GetMapSpeed( ) const                   { return m_MapSpeed; }
-  inline unsigned char GetMapVisibility( ) const              { return m_MapVisibility; }
-  inline unsigned char GetMapObservers( ) const               { return m_MapObservers; }
-  inline unsigned char GetMapFlags( ) const                   { return m_MapFlags; }
-  BYTEARRAY GetMapGameFlags( ) const;
-  uint32_t GetMapGameType( ) const;
-  inline uint32_t GetMapOptions( ) const                      { return m_MapOptions; }
-  unsigned char GetMapLayoutStyle( ) const;
-  inline BYTEARRAY GetMapWidth( ) const                       { return m_MapWidth; }
-  inline BYTEARRAY GetMapHeight( ) const                      { return m_MapHeight; }
-  inline string GetMapType( ) const                           { return m_MapType; }
-  inline string GetMapDefaultHCL( ) const                     { return m_MapDefaultHCL; }
-  inline string GetMapLocalPath( ) const                      { return m_MapLocalPath; }
-  inline string *GetMapData( )                                { return &m_MapData; }
-  inline uint32_t GetMapNumPlayers( ) const                   { return m_MapNumPlayers; }
-  inline uint32_t GetMapNumTeams( ) const                     { return m_MapNumTeams; }
-  inline vector<CGameSlot> GetSlots( ) const                  { return m_Slots; }
+  inline bool GetValid() const                               { return m_Valid; }
+  inline string GetCFGFile() const                           { return m_CFGFile; }
+  inline string GetMapPath() const                           { return m_MapPath; }
+  inline BYTEARRAY GetMapSize() const                        { return m_MapSize; }
+  inline BYTEARRAY GetMapInfo() const                        { return m_MapInfo; }
+  inline BYTEARRAY GetMapCRC() const                         { return m_MapCRC; }
+  inline BYTEARRAY GetMapSHA1() const                        { return m_MapSHA1; }
+  inline unsigned char GetMapSpeed() const                   { return m_MapSpeed; }
+  inline unsigned char GetMapVisibility() const              { return m_MapVisibility; }
+  inline unsigned char GetMapObservers() const               { return m_MapObservers; }
+  inline unsigned char GetMapFlags() const                   { return m_MapFlags; }
+  BYTEARRAY GetMapGameFlags() const;
+  uint32_t GetMapGameType() const;
+  inline uint32_t GetMapOptions() const                      { return m_MapOptions; }
+  unsigned char GetMapLayoutStyle() const;
+  inline BYTEARRAY GetMapWidth() const                       { return m_MapWidth; }
+  inline BYTEARRAY GetMapHeight() const                      { return m_MapHeight; }
+  inline string GetMapType() const                           { return m_MapType; }
+  inline string GetMapDefaultHCL() const                     { return m_MapDefaultHCL; }
+  inline string GetMapLocalPath() const                      { return m_MapLocalPath; }
+  inline string *GetMapData()                                { return &m_MapData; }
+  inline uint32_t GetMapNumPlayers() const                   { return m_MapNumPlayers; }
+  inline uint32_t GetMapNumTeams() const                     { return m_MapNumTeams; }
+  inline vector<CGameSlot> GetSlots() const                  { return m_Slots; }
 
-  void Load( CConfig *CFG, const string &nCFGFile );
-  void CheckValid( );
-  uint32_t XORRotateLeft( unsigned char *data, uint32_t length );
+  void Load(CConfig *CFG, const string &nCFGFile);
+  void CheckValid();
+  uint32_t XORRotateLeft(unsigned char *data, uint32_t length);
 };
 
 #endif

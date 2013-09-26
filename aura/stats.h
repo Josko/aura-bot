@@ -42,11 +42,11 @@ protected:
   unsigned char m_Winner;
 
 public:
-  CStats( CGame *nGame );
-  ~CStats( );
+  CStats(CGame *nGame);
+  ~CStats();
 
-  bool ProcessAction( CIncomingAction *Action );
-  void Save( CAura *CAura, CAuraDB *DB );
+  bool ProcessAction(CIncomingAction *Action);
+  void Save(CAura *CAura, CAuraDB *DB);
 };
 
 #endif

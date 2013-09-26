@@ -18,8 +18,8 @@
 
  */
 
-#ifndef BNCSUTIL_INTERFACE_H_
-#define BNCSUTIL_INTERFACE_H_
+#ifndef BNCSUTIL_INTERFACE_H
+#define BNCSUTIL_INTERFACE_H
 
 //
 // CBNCSUtilInterface
@@ -30,7 +30,7 @@ class CBNCSUtilInterface
 private:
   void *m_NLS;
   BYTEARRAY m_EXEVersion;         // set in HELP_SID_AUTH_CHECK
-  BYTEARRAY m_EXEVersionHash;     // set in HELP_SID_AUTH_CHECK  
+  BYTEARRAY m_EXEVersionHash;     // set in HELP_SID_AUTH_CHECK
   BYTEARRAY m_KeyInfoROC;         // set in HELP_SID_AUTH_CHECK
   BYTEARRAY m_KeyInfoTFT;         // set in HELP_SID_AUTH_CHECK
   BYTEARRAY m_ClientKey;          // set in HELP_SID_AUTH_ACCOUNTLOGON
@@ -39,30 +39,30 @@ private:
   string m_EXEInfo;               // set in HELP_SID_AUTH_CHECK
 
 public:
-  CBNCSUtilInterface( const string &userName, const string &userPassword );
-  ~CBNCSUtilInterface( );
+  CBNCSUtilInterface(const string &userName, const string &userPassword);
+  ~CBNCSUtilInterface();
 
-  inline BYTEARRAY GetEXEVersion( ) const               { return m_EXEVersion; }
-  inline BYTEARRAY GetEXEVersionHash( ) const           { return m_EXEVersionHash; }
-  inline string GetEXEInfo( ) const                     { return m_EXEInfo; }
-  inline BYTEARRAY GetKeyInfoROC( ) const               { return m_KeyInfoROC; }
-  inline BYTEARRAY GetKeyInfoTFT( ) const               { return m_KeyInfoTFT; }
-  inline BYTEARRAY GetClientKey( ) const                { return m_ClientKey; }
-  inline BYTEARRAY GetM1( ) const                       { return m_M1; }
-  inline BYTEARRAY GetPvPGNPasswordHash( ) const        { return m_PvPGNPasswordHash; }
-  
-  inline void SetEXEVersion( BYTEARRAY &nEXEVersion )         { m_EXEVersion = nEXEVersion; }
-  inline void SetEXEVersionHash( BYTEARRAY &nEXEVersionHash ) { m_EXEVersionHash = nEXEVersionHash; }
+  inline BYTEARRAY GetEXEVersion() const               { return m_EXEVersion; }
+  inline BYTEARRAY GetEXEVersionHash() const           { return m_EXEVersionHash; }
+  inline string GetEXEInfo() const                     { return m_EXEInfo; }
+  inline BYTEARRAY GetKeyInfoROC() const               { return m_KeyInfoROC; }
+  inline BYTEARRAY GetKeyInfoTFT() const               { return m_KeyInfoTFT; }
+  inline BYTEARRAY GetClientKey() const                { return m_ClientKey; }
+  inline BYTEARRAY GetM1() const                       { return m_M1; }
+  inline BYTEARRAY GetPvPGNPasswordHash() const        { return m_PvPGNPasswordHash; }
 
-  void Reset( string &userName, string &userPassword );
+  inline void SetEXEVersion(const BYTEARRAY &nEXEVersion)         { m_EXEVersion = nEXEVersion; }
+  inline void SetEXEVersionHash(const BYTEARRAY &nEXEVersionHash) { m_EXEVersionHash = nEXEVersionHash; }
 
-  bool HELP_SID_AUTH_CHECK( string &war3Path, string &keyROC, string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken );
-  bool HELP_SID_AUTH_ACCOUNTLOGON( );
-  bool HELP_SID_AUTH_ACCOUNTLOGONPROOF( const BYTEARRAY &salt, const BYTEARRAY &serverKey );
-  bool HELP_PvPGNPasswordHash( string &userPassword );
+  void Reset(const string &userName, const string &userPassword);
+
+  bool HELP_SID_AUTH_CHECK(const string &war3Path, const string &keyROC, const string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken);
+  bool HELP_SID_AUTH_ACCOUNTLOGON();
+  bool HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &salt, const BYTEARRAY &serverKey);
+  bool HELP_PvPGNPasswordHash(const string &userPassword);
 
 private:
-  BYTEARRAY CreateKeyInfo( string &key, uint32_t clientToken, uint32_t serverToken );
+  BYTEARRAY CreateKeyInfo(const string &key, uint32_t clientToken, uint32_t serverToken);
 };
 
 #endif

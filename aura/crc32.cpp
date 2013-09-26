@@ -18,7 +18,7 @@ uint32_t CCRC32::Reflect( uint32_t ulReflect, char cChar )
 {
   uint32_t ulValue = 0;
 
-  for ( unsigned int iPos = 1; iPos < ( cChar + 1 ); ++iPos )
+  for ( int iPos = 1; iPos < ( cChar + 1 ); ++iPos )
   {
     if ( ulReflect & 1 )
       ulValue |= 1 << ( cChar - iPos );
