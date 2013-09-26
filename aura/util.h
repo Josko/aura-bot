@@ -22,8 +22,6 @@
 #define UTIL_H
 
 #include "aura.h"
-#include "util.h"
-
 #include <sys/stat.h>
 
 
