@@ -26,6 +26,17 @@
 
 #include <sys/stat.h>
 
+
+
+inline string ToString(size_t i)
+{
+  string result;
+  stringstream SS;
+  SS << i;
+  SS >> result;
+  return result;
+}
+
 inline string ToString(uint64_t i)
 {
   string result;
