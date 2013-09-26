@@ -19,7 +19,7 @@ ifeq ($(SYSTEM),Darwin)
 	CC = clang
 	CXX = clang++
 	DFLAGS += -D__APPLE__
-	LFLAGS += -L/usr/local/lib/ -stdlib=libc++ -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
+	LFLAGS += -L/usr/local/lib/ -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
 else
 	LFLAGS += -lrt -lboost_date_time -lboost_system -lboost_filesystem
 endif
@@ -44,7 +44,7 @@ all: $(OBJS) $(COBJS) $(PROGS)
 	@echo "Used CFLAGS: $(CXXFLAGS)"
 
 aura++: $(OBJS) $(COBJS)
-	@$(CXX) -o aura++ $(OBJS) $(COBJS) $(LFLAGS)
+	@$(CXX) -o aura++ $(OBJS) $(COBJS) $(CXXFLAGS) $(LFLAGS)
 	@echo "[BIN] $@ created."
 	@strip aura++
 	@echo "[BIN] Stripping the binary."
