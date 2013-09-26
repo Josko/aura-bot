@@ -7,7 +7,7 @@ CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
 OFLAGS = -O3
-LFLAGS = -L. -L/usr/local/lib/ -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time -lboost_system -lboost_filesystem
+LFLAGS = -L. -L/usr/local/lib/ -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz
 
 ifeq ($(ARCH),x86_64)
 	CCFLAGS += -m64
@@ -19,10 +19,9 @@ ifeq ($(SYSTEM),Darwin)
 	CC = clang
 	CXX = clang++
 	DFLAGS += -D__APPLE__
-	OFLAGS += -flat_namespace
-	LFLAGS += -L/usr/local/lib/ -stdlib=libc++
+	LFLAGS += -L/usr/local/lib/ -stdlib=libc++ -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
 else
-	LFLAGS += -lrt
+	LFLAGS += -lrt -lboost_date_time -lboost_system -lboost_filesystem
 endif
 
 ifeq ($(SYSTEM),FreeBSD)
