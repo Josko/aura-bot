@@ -7,7 +7,7 @@ CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
 OFLAGS = -O3
-LFLAGS = -L. -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time -lboost_system -lboost_filesystem
+LFLAGS = -L. -L/usr/local/lib/ -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lpthread -ldl -lz -lboost_date_time -lboost_system -lboost_filesystem
 
 ifeq ($(ARCH),x86_64)
 	CCFLAGS += -m64
@@ -15,11 +15,12 @@ ifeq ($(ARCH),x86_64)
 endif
 
 ifeq ($(SYSTEM),Darwin)
+	CXXFLAGS += -stdlib=libc++
 	CC = clang
 	CXX = clang++
 	DFLAGS += -D__APPLE__
 	OFLAGS += -flat_namespace
-	LFLAGS += -L/opt/local/lib/
+	LFLAGS += -L/usr/local/lib/ -stdlib=libc++
 else
 	LFLAGS += -lrt
 endif
@@ -63,5 +64,3 @@ $(OBJS): %.o: %.cpp
 $(COBJS): %.o: %.c
 	@$(CC) -o $@ $(CCFLAGS) -c $<
 	@echo "[$(CC)] $@"
-
-# vim: set noexpandtab ts=4 sw=4:
