@@ -15,8 +15,8 @@ ifeq ($(ARCH),x86_64)
 endif
 
 ifeq ($(SYSTEM),Darwin)
-	CC = /usr/bin/gcc
-	CXX = /usr/bin/g++
+	CC = clang
+	CXX = clang++
 	DFLAGS += -D__APPLE__
 	OFLAGS += -flat_namespace
 	LFLAGS += -L/opt/local/lib/
