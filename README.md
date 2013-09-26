@@ -43,7 +43,7 @@ Linux users can usually fetch them from the repository:
 ### OS X
 
 [Xcode](https://developer.apple.com/xcode/) is the basic dependency for building anything on OS X.
-Apple's development tool is a free download from the MacAppStore or downloadable in Apple's Developer Area (a free membership is sufficient).
+Apple's development tool is a free download from the MacAppStore or downloadable in Apple's Developer Area (a free membership is sufficient). After you installed Xcode, go to its preferences and install the `Command Line Tools`.
 Without Xcode installed you cannot proceed any further and won't be able to build boost.
 
 The easiest way to go for boost is by using [Homebrew](http://brew.sh/).
