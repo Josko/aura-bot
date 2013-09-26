@@ -412,7 +412,7 @@ void CTCPClient::Connect(const string &localaddress, const string &address, uint
 
     LocalSIN.sin_port = htons(0);
 
-    if (bind(m_Socket, (struct sockaddr *) &LocalSIN, sizeof(LocalSIN)) == SOCKET_ERROR)
+    if (::bind(m_Socket, (struct sockaddr *) &LocalSIN, sizeof(LocalSIN)) == SOCKET_ERROR)
     {
       m_HasError = true;
       m_Error = GetLastError();
@@ -762,7 +762,7 @@ bool CTCPServer::Listen(const string &address, uint16_t port)
 
   m_SIN.sin_port = htons(port);
 
-  if (bind(m_Socket, (struct sockaddr *) &m_SIN, sizeof(m_SIN)) == SOCKET_ERROR)
+  if (::bind(m_Socket, (struct sockaddr *) &m_SIN, sizeof(m_SIN)) == SOCKET_ERROR)
   {
     m_HasError = true;
     m_Error = GetLastError();
