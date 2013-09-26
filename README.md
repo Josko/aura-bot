@@ -93,10 +93,7 @@ Now you can run Aura by executing `./aura++`.
 
 ### OS X
 
-Most likely you'll need a more recent version of libgmp because Apple ships an older one built for i386 only
-what would result in problems since we are linking x86_64.
-
-Using [Homebrew](http://brew.sh/):
+Most likely you'll need a more recent version of libgmp. Using [Homebrew](http://brew.sh/):
 
 	brew install gmp
    
