@@ -42,16 +42,16 @@ Linux users can usually fetch them from the repository:
 
 ### OS X
 
-[Xcode](http://developer.apple.com/technologies/xcode.html) is the basic dependency for building anything on OS X.
-Apple's development tool is shipped for free with every Mac located on your system CD/DVD.
+[Xcode](https://developer.apple.com/xcode/) is the basic dependency for building anything on OS X.
+Apple's development tool is a free download from the MacAppStore or downloadable in Apple's Developer Area (a free membership is sufficient). After you installed Xcode, go to its preferences and install the `Command Line Tools`.
 Without Xcode installed you cannot proceed any further and won't be able to build boost.
 
-The easiest way to go for boost is by using [Macports](http://www.macports.org/).
-After a successful install open (or reopen) Terminal.app located in /Applications/Utilities and execute
+The easiest way to go for boost is by using [Homebrew](http://brew.sh/).
+After a successful install open (or reopen) `Terminal.app` located in `/Applications/Utilities` and execute
 
-	sudo port install boost
+	brew install boost
 	
-Building boost will take some time.
+Building boost may take some time.
 
 Building
 --------
@@ -93,14 +93,11 @@ Now you can run Aura by executing `./aura++`.
 
 ### OS X
 
-Most likely you'll need a more recent version of libgmp because Apple ships an older one built for i386 only
-what would result in problems since we are linking x86_64.
+Most likely you'll need a more recent version of libgmp. Using [Homebrew](http://brew.sh/):
 
-Using [Macports](http://www.macports.org/):
-
-	sudo port install gmp
+	brew install gmp
    
-When finished type `cd ` (append a space after!) in Terminal, drag&drop your `aura-bot`-folder into the Terminal 
+When finished type `cd ` (mind the space!) in Terminal, drag&drop your `aura-bot`-folder into the Terminal 
 window to get the folder's path and execute with enter.
 
 For building StormLib execute the following commands (line by line):
