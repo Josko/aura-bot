@@ -24,8 +24,7 @@
 #include "aura.h"
 #include <sys/stat.h>
 
-
-
+#ifdef __APPLE__
 inline string ToString(size_t i)
 {
   string result;
@@ -34,6 +33,7 @@ inline string ToString(size_t i)
   SS >> result;
   return result;
 }
+#endif
 
 inline string ToString(uint64_t i)
 {
