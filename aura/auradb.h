@@ -103,10 +103,10 @@ public:
   inline string GetError() const                                 { return sqlite3_errmsg((sqlite3 *) m_DB); }
 
   inline int Step(void *Statement)                              { return sqlite3_step((sqlite3_stmt *) Statement); }
-  inline int Prepare(const string &query, void **Statement)     { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, NULL); }
+  inline int Prepare(const string &query, void **Statement)     { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, nullptr); }
   inline int Finalize(void *Statement)                          { return sqlite3_finalize((sqlite3_stmt *) Statement); }
   inline int Reset(void *Statement)                             { return sqlite3_reset((sqlite3_stmt *) Statement); }
-  inline int Exec(const string &query)                          { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), NULL, NULL, NULL); }
+  inline int Exec(const string &query)                          { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), nullptr, nullptr, nullptr); }
 };
 
 //

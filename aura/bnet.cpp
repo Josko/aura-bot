@@ -1962,7 +1962,7 @@ CDBBan *CBNET::IsBannedName(string name)
   if (CDBBan *Ban = m_Aura->m_DB->BanCheck(m_Server, name))
     return Ban;
 
-  return NULL;
+  return nullptr;
 }
 
 void CBNET::HoldFriends(CGame *game)

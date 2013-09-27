@@ -272,7 +272,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
           if (SFileOpenFileEx(MapMPQ, "Scripts\\common.j", 0, &SubFile))
           {
-            uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
+            uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
             if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
@@ -308,7 +308,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
           if (SFileOpenFileEx(MapMPQ, "Scripts\\blizzard.j", 0, &SubFile))
           {
-            uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
+            uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
             if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
@@ -366,7 +366,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
             if (SFileOpenFileEx(MapMPQ, (*i).c_str(), 0, &SubFile))
             {
-              uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
+              uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
               if (FileLength > 0 && FileLength != 0xFFFFFFFF)
               {
@@ -429,7 +429,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
       if (SFileOpenFileEx(MapMPQ, "war3map.w3i", 0, &SubFile))
       {
-        uint32_t FileLength = SFileGetFileSize(SubFile, NULL);
+        uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
         if (FileLength > 0 && FileLength != 0xFFFFFFFF)
         {
