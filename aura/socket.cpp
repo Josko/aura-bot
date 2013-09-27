@@ -42,7 +42,7 @@ CTCPSocket::CTCPSocket() : m_LastRecv(GetTime()), m_Socket(socket(AF_INET, SOCK_
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[TCPSOCKET] error (socket) - " + GetErrorString());
     return;
   }
 
@@ -90,7 +90,7 @@ void CTCPSocket::Reset()
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[TCPSOCKET] error (socket) - " + GetErrorString());
     return;
   }
 
@@ -334,7 +334,7 @@ CTCPClient::CTCPClient() : m_Socket(socket(AF_INET, SOCK_STREAM, 0)), m_Error(0)
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[TCPCLIENT] error (socket) - " + GetErrorString());
     return;
   }
 
@@ -365,7 +365,7 @@ void CTCPClient::Reset()
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[TCPCLIENT] error (socket) - " + GetErrorString());
     return;
   }
 
@@ -520,14 +520,14 @@ void CTCPClient::DoRecv(fd_set *fd)
 
       m_HasError = true;
       m_Error = GetLastError();
-      Print("[TCPSOCKET] error (recv) - " + GetErrorString());
+      Print("[TCPCLIENT] error (recv) - " + GetErrorString());
       return;
     }
     else if (c == 0)
     {
       // the other end closed the connection
 
-      Print("[TCPSOCKET] closed by remote host");
+      Print("[TCPCLIENT] closed by remote host");
       m_Connected = false;
     }
   }
@@ -556,7 +556,7 @@ void CTCPClient::DoSend(fd_set *send_fd)
 
       m_HasError = true;
       m_Error = GetLastError();
-      Print("[TCPSOCKET] error (send) - " + GetErrorString());
+      Print("[TCPCLIENT] error (send) - " + GetErrorString());
       return;
     }
   }
@@ -715,7 +715,7 @@ CTCPServer::CTCPServer() : m_Socket(socket(AF_INET, SOCK_STREAM, 0)), m_Error(0)
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[TCPSERVER] error (socket) - " + GetErrorString());
     return;
   }
 
@@ -957,7 +957,7 @@ CUDPSocket::CUDPSocket() : m_Socket(socket(AF_INET, SOCK_DGRAM, 0)), m_Error(0),
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[UDPSOCKET] error (socket) - " + GetErrorString());
     return;
   }
 
@@ -1223,7 +1223,7 @@ void CUDPSocket::Reset()
   {
     m_HasError = true;
     m_Error = GetLastError();
-    Print("[SOCKET] error (socket) - " + GetErrorString());
+    Print("[UDPSOCKET] error (socket) - " + GetErrorString());
     return;
   }
 
