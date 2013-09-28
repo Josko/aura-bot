@@ -1882,8 +1882,6 @@ void CBNET::QueueGameRefresh(unsigned char state, const string &gameName, CMap *
 {
   if (m_LoggedIn && map)
   {
-    BYTEARRAY UniqueName = m_Protocol->GetUniqueName();
-
     // construct a fixed host counter which will be used to identify players from this realm
     // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
     // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
