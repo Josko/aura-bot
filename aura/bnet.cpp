@@ -1793,12 +1793,6 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
   }
 }
 
-void CBNET::SendJoinChannel(const string &channel)
-{
-  if (m_LoggedIn && m_InChat)
-    m_Socket->PutBytes(m_Protocol->SEND_SID_JOINCHANNEL(channel));
-}
-
 void CBNET::SendGetFriendsList()
 {
   if (m_LoggedIn)

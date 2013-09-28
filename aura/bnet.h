@@ -112,8 +112,7 @@ public:
   void ProcessChatEvent(CIncomingChatEvent *chatEvent);
 
   // functions to send packets to battle.net
-
-  void SendJoinChannel(const string &channel);
+  
   void SendGetFriendsList();
   void SendGetClanList();
   void QueueEnterChat();
