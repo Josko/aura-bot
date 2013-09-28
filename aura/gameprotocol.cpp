@@ -226,24 +226,6 @@ CIncomingMapSize *CGameProtocol::RECEIVE_W3GS_MAPSIZE(const BYTEARRAY &data)
   return nullptr;
 }
 
-uint32_t CGameProtocol::RECEIVE_W3GS_MAPPARTOK(const BYTEARRAY &data)
-{
-  // DEBUG_Print( "RECEIVED W3GS_MAPPARTOK" );
-  // DEBUG_Print( data );
-
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 1 byte           -> SenderPID
-  // 1 byte           -> ReceiverPID
-  // 4 bytes					-> ???
-  // 4 bytes					-> MapSize
-
-  if (ValidateLength(data) && data.size() >= 14)
-    return ByteArrayToUInt32(data, false, 10);
-
-  return 0;
-}
-
 uint32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED W3GS_PONG_TO_HOST" );
