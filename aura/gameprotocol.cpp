@@ -714,7 +714,8 @@ CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY
     m_ToPIDs(nToPIDs),
     m_Type(CTH_MESSAGE),
     m_FromPID(nFromPID),
-    m_Flag(nFlag)
+    m_Flag(nFlag),
+    m_Byte(255)
 {
 
 }
@@ -725,7 +726,8 @@ CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY
     m_ExtraFlags(nExtraFlags),
     m_Type(CTH_MESSAGE),
     m_FromPID(nFromPID),
-    m_Flag(nFlag)
+    m_Flag(nFlag),
+    m_Byte(255)
 {
 
 }
