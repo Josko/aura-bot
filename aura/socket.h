@@ -190,7 +190,6 @@ public:
   inline void ClearSendBuffer()                           { m_SendBuffer.clear(); }
   void DoRecv(fd_set *fd);
   void DoSend(fd_set *send_fd);
-  void SetNoDelay();
   void Disconnect();
   void Connect(const string &localaddress, const string &address, uint16_t port);
 };

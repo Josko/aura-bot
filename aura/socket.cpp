@@ -562,12 +562,6 @@ void CTCPClient::DoSend(fd_set *send_fd)
   }
 }
 
-void CTCPClient::SetNoDelay()
-{
-  int OptVal = 1;
-  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof(int));
-}
-
 string CTCPClient::GetErrorString() const
 {
   if (!m_HasError)
