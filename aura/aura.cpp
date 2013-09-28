@@ -140,7 +140,8 @@ void Print2(const string &message)
 {
   cout << message << endl;
 
-  gAura->m_IRC->SendMessageIRC(message, string());
+  if (gAura->m_IRC)
+    gAura->m_IRC->SendMessageIRC(message, string());
 }
 
 //
@@ -345,12 +346,8 @@ CAura::CAura(CConfig *CFG)
       IRC_RootAdmins.push_back(RootAdmin);
   }
 
-  if (IRC_Server.empty() || IRC_UserName.empty() || IRC_NickName.empty() || IRC_Port == 0 || IRC_Port >= 65535)
-  {
-    Print("[AURA] error - irc connection not found in config file");
-    m_Ready = false;
-    return;
-  }
+  if (IRC_Server.empty() || IRC_NickName.empty() || IRC_Port == 0 || IRC_Port >= 65535)
+    Print("[AURA] warning - irc connection not found in config file");
   else
     m_IRC = new CIRC(this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, IRC_Channels, IRC_RootAdmins, IRC_Port, IRC_CommandTrigger[0]);
 
@@ -417,6 +414,13 @@ CAura::CAura(CConfig *CFG)
   if (m_BNETs.empty())
     Print("[AURA] warning - no battle.net connections found in config file");
 
+  if (m_BNETs.empty() && !m_IRC)
+  {
+    Print("[AURA] error - no battle.net connections and no irc connection specified");
+    m_Ready = false;
+    return;
+  }
+
   // extract common.j and blizzard.j from War3Patch.mpq if we can
   // these two files are necessary for calculating "map_crc" when loading maps so we make sure to do it before loading the default map
   // see CMap :: Load for more information
@@ -458,7 +462,9 @@ CAura::~CAura()
     delete *i;
 
   delete m_DB;
-  delete m_IRC;
+
+  if (m_IRC)
+    delete m_IRC;
 }
 
 bool CAura::Update()
@@ -489,7 +495,8 @@ bool CAura::Update()
 
   // 4. irc socket
 
-  NumFDs += m_IRC->SetFD(&fd, &send_fd, &nfds);
+  if (m_IRC)
+    NumFDs += m_IRC->SetFD(&fd, &send_fd, &nfds);
 
   // 5. reconnect socket
 
@@ -597,7 +604,7 @@ bool CAura::Update()
 
   // update irc
 
-  if (m_IRC->Update(&fd, &send_fd))
+  if (m_IRC && m_IRC->Update(&fd, &send_fd))
     Exit = true;
 
   // update GProxy++ reliable reconnect sockets

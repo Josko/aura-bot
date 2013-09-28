@@ -41,7 +41,6 @@ CIRC::CIRC(CAura *nAura, const string &nServer, const string &nNickname, const s
     m_Server(nServer),
     m_Nickname(nNickname),
     m_NicknameCpy(nNickname),
-    m_Username(nUsername),
     m_Password(nPassword),
     m_LastConnectionAttemptTime(0),
     m_LastPacketTime(GetTime()),
@@ -53,6 +52,11 @@ CIRC::CIRC(CAura *nAura, const string &nServer, const string &nNickname, const s
     m_OriginalNick(true)
 {
   sort(m_RootAdmins.begin(), m_RootAdmins.end());
+
+  if (!nUsername.empty())
+    m_Username = nUsername;
+  else
+    m_Username = m_Nickname;
 }
 
 CIRC::~CIRC()
