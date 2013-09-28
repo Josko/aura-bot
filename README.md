@@ -28,6 +28,7 @@ Other changes:
 * Uses DotA stats automagically on maps with 'DotA' in the filename
 * Uses fewer boost libraries
 * Single-threaded execution
+* Auto spoofcheck in private games on PvPGNs
 * More commands added either ingame or bnet
 
 Multi-platform
