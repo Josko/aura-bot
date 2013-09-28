@@ -11,6 +11,7 @@ Removed features from GHost++:
 * No language.cfg
 * No W3MMD
 * No replay saving
+* No save games
 
 Other changes:
 * Uses C++11
