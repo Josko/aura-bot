@@ -274,7 +274,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PING_FROM_HOST()
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN(unsigned char PID, BYTEARRAY port, BYTEARRAY externalIP, vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
+BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN(unsigned char PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
 {
   const unsigned char Zeros[] = {0, 0, 0, 0};
 
@@ -657,7 +657,7 @@ bool CGameProtocol::ValidateLength(const BYTEARRAY &content)
   return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
 }
 
-BYTEARRAY CGameProtocol::EncodeSlotInfo(vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
+BYTEARRAY CGameProtocol::EncodeSlotInfo(const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
 {
   BYTEARRAY SlotInfo;
   SlotInfo.push_back((unsigned char) slots.size()); // number of slots

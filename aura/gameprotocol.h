@@ -120,7 +120,7 @@ public:
   // send functions
 
   BYTEARRAY SEND_W3GS_PING_FROM_HOST();
-  BYTEARRAY SEND_W3GS_SLOTINFOJOIN(unsigned char PID, const BYTEARRAY port, BYTEARRAY externalIP, vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
+  BYTEARRAY SEND_W3GS_SLOTINFOJOIN(unsigned char PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
   BYTEARRAY SEND_W3GS_REJECTJOIN(uint32_t reason);
   BYTEARRAY SEND_W3GS_PLAYERINFO(unsigned char PID, const string &name, BYTEARRAY externalIP, BYTEARRAY internalIP);
   BYTEARRAY SEND_W3GS_PLAYERLEAVE_OTHERS(unsigned char PID, uint32_t leftCode);
@@ -146,7 +146,7 @@ public:
 private:
   void AssignLength(BYTEARRAY &content);
   bool ValidateLength(const BYTEARRAY &content);
-  BYTEARRAY EncodeSlotInfo(vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
+  BYTEARRAY EncodeSlotInfo(const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
 };
 
 //
