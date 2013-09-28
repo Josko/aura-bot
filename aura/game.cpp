@@ -2644,7 +2644,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       //
       // !DELETEFAKE
 
-      else if ((Command == "deletefake" || Command == "deletefakes" || Command == "df" || Command == "deletefakes") && !m_FakePlayers.empty() && !m_CountDownStarted)
+      else if ((Command == "deletefake" || Command == "deletefakes" || Command == "df") && !m_FakePlayers.empty() && !m_CountDownStarted)
         DeleteFakePlayers();
 
       //
