@@ -10,7 +10,7 @@ modification, are permitted provided that the following conditions are
 met:
 
  * Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.  
+this list of conditions and the following disclaimer.
 
  * Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
@@ -42,15 +42,15 @@ class CSVParser
 private:
   string m_sData;
   string::size_type m_nPos;
-  void SkipSpaces( );
+  void SkipSpaces();
 
 public:
-  CSVParser( );
-  const CSVParser & operator <<(const string &sIn );
-  const CSVParser & operator <<(const char *sIn );
-  CSVParser & operator >>(int &nOut );
-  CSVParser & operator >>(double &nOut );
-  CSVParser & operator >>( string &sOut );
+  CSVParser();
+  const CSVParser &operator <<(const string &sIn);
+  const CSVParser &operator <<(const char *sIn);
+  CSVParser &operator >>(int &nOut);
+  CSVParser &operator >>(double &nOut);
+  CSVParser &operator >>(string &sOut);
 };
 
 #endif

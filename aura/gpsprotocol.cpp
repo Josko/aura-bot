@@ -24,12 +24,12 @@
 // CGPSProtocol
 //
 
-CGPSProtocol::CGPSProtocol( )
+CGPSProtocol::CGPSProtocol()
 {
 
 }
 
-CGPSProtocol::~CGPSProtocol( )
+CGPSProtocol::~CGPSProtocol()
 {
 
 }
@@ -42,55 +42,55 @@ CGPSProtocol::~CGPSProtocol( )
 // SEND FUNCTIONS //
 ////////////////////
 
-BYTEARRAY CGPSProtocol::SEND_GPSC_INIT( uint32_t version )
+BYTEARRAY CGPSProtocol::SEND_GPSC_INIT(uint32_t version)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 8, 0};
-  AppendByteArray( packet, version, false );
+  AppendByteArray(packet, version, false);
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSC_RECONNECT( unsigned char PID, uint32_t reconnectKey, uint32_t lastPacket )
+BYTEARRAY CGPSProtocol::SEND_GPSC_RECONNECT(unsigned char PID, uint32_t reconnectKey, uint32_t lastPacket)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 13, 0, PID};
-  AppendByteArray( packet, reconnectKey, false );
-  AppendByteArray( packet, lastPacket, false );
+  AppendByteArray(packet, reconnectKey, false);
+  AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSC_ACK( uint32_t lastPacket )
+BYTEARRAY CGPSProtocol::SEND_GPSC_ACK(uint32_t lastPacket)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_ACK, 8, 0};
-  AppendByteArray( packet, lastPacket, false );
+  AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSS_INIT( uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions )
+BYTEARRAY CGPSProtocol::SEND_GPSS_INIT(uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 14, 0};
-  AppendByteArray( packet, reconnectPort, false );
-  packet.push_back( PID );
-  AppendByteArray( packet, reconnectKey, false );
-  packet.push_back( numEmptyActions );
+  AppendByteArray(packet, reconnectPort, false);
+  packet.push_back(PID);
+  AppendByteArray(packet, reconnectKey, false);
+  packet.push_back(numEmptyActions);
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSS_RECONNECT( uint32_t lastPacket )
+BYTEARRAY CGPSProtocol::SEND_GPSS_RECONNECT(uint32_t lastPacket)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 8, 0};
-  AppendByteArray( packet, lastPacket, false );
+  AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSS_ACK( uint32_t lastPacket )
+BYTEARRAY CGPSProtocol::SEND_GPSS_ACK(uint32_t lastPacket)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_ACK, 8, 0};
-  AppendByteArray( packet, lastPacket, false );
+  AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSS_REJECT( uint32_t reason )
+BYTEARRAY CGPSProtocol::SEND_GPSS_REJECT(uint32_t reason)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_REJECT, 8, 0};
-  AppendByteArray( packet, reason, false );
+  AppendByteArray(packet, reason, false);
   return packet;
 }

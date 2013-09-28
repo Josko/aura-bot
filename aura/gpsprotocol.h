@@ -40,20 +40,20 @@ public:
     GPS_REJECT    = 4
   };
 
-  CGPSProtocol( );
-  ~CGPSProtocol( );
+  CGPSProtocol();
+  ~CGPSProtocol();
 
   // receive functions
 
   // send functions
 
-  BYTEARRAY SEND_GPSC_INIT( uint32_t version );
-  BYTEARRAY SEND_GPSC_RECONNECT( unsigned char PID, uint32_t reconnectKey, uint32_t lastPacket );
-  BYTEARRAY SEND_GPSC_ACK( uint32_t lastPacket );
-  BYTEARRAY SEND_GPSS_INIT( uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions );
-  BYTEARRAY SEND_GPSS_RECONNECT( uint32_t lastPacket );
-  BYTEARRAY SEND_GPSS_ACK( uint32_t lastPacket );
-  BYTEARRAY SEND_GPSS_REJECT( uint32_t reason );
+  BYTEARRAY SEND_GPSC_INIT(uint32_t version);
+  BYTEARRAY SEND_GPSC_RECONNECT(unsigned char PID, uint32_t reconnectKey, uint32_t lastPacket);
+  BYTEARRAY SEND_GPSC_ACK(uint32_t lastPacket);
+  BYTEARRAY SEND_GPSS_INIT(uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions);
+  BYTEARRAY SEND_GPSS_RECONNECT(uint32_t lastPacket);
+  BYTEARRAY SEND_GPSS_ACK(uint32_t lastPacket);
+  BYTEARRAY SEND_GPSS_REJECT(uint32_t reason);
 };
 
 #endif

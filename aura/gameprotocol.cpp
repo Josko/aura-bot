@@ -276,13 +276,12 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PING_FROM_HOST()
 
 BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN(unsigned char PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
 {
-  const unsigned char Zeros[] = {0, 0, 0, 0};
-
-  const BYTEARRAY SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
   BYTEARRAY packet;
 
   if (port.size() == 2 && externalIP.size() == 4)
   {
+    const unsigned char Zeros[] = {0, 0, 0, 0};
+    const BYTEARRAY SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
     packet.push_back(W3GS_HEADER_CONSTANT);   // W3GS header constant
     packet.push_back(W3GS_SLOTINFOJOIN);   // W3GS_SLOTINFOJOIN
     packet.push_back(0);   // packet length will be assigned later
@@ -313,13 +312,13 @@ BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN(uint32_t reason)
 
 BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(unsigned char PID, const string &name, BYTEARRAY externalIP, BYTEARRAY internalIP)
 {
-  const unsigned char PlayerJoinCounter[] = {2, 0, 0, 0};
-  const unsigned char Zeros[] = {0, 0, 0, 0};
-
   BYTEARRAY packet;
 
   if (!name.empty() && name.size() <= 15 && externalIP.size() == 4 && internalIP.size() == 4)
   {
+    const unsigned char PlayerJoinCounter[] = {2, 0, 0, 0};
+    const unsigned char Zeros[] = {0, 0, 0, 0};
+
     packet.push_back(W3GS_HEADER_CONSTANT);   // W3GS header constant
     packet.push_back(W3GS_PLAYERINFO);   // W3GS_PLAYERINFO
     packet.push_back(0);   // packet length will be assigned later
@@ -490,10 +489,10 @@ BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG(CGamePlayer *player)
 
 BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO(unsigned char war3Version, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
 {
-  const unsigned char Unknown2[] = { 1, 0, 0, 0 };
-
   if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4)
   {
+    const unsigned char Unknown2[] = { 1, 0, 0, 0 };
+
     // make the stat string
 
     BYTEARRAY StatString;

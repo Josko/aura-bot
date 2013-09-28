@@ -136,10 +136,10 @@ BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string &key, uint32_t clientTo
 {
   BYTEARRAY KeyInfo;
   CDKeyDecoder Decoder(key.c_str(), key.size());
-  
+
   if (Decoder.isKeyValid())
   {
-    const unsigned char Zeros[] = { 0, 0, 0, 0 };    
+    const unsigned char Zeros[] = { 0, 0, 0, 0 };
     AppendByteArray(KeyInfo, CreateByteArray((uint32_t) key.size(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));

@@ -23,7 +23,7 @@
 #include "bnetprotocol.h"
 
 CBNETProtocol::CBNETProtocol()
-  : m_ClientToken(BYTEARRAY{220, 1, 203, 7})
+  : m_ClientToken(BYTEARRAY {220, 1, 203, 7})
 {
 
 }
@@ -494,7 +494,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3(unsigned char state, const BYTEARR
   if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4 && mapSHA1.size() == 20 && StatString.size() < 128 && HostCounterString.size() == 8)
   {
     // make the rest of the packet
-    
+
     const unsigned char Unknown[] = { 255, 3, 0, 0 };
     const unsigned char CustomGame[] = { 0, 0, 0, 0 };
 
