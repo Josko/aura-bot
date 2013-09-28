@@ -188,26 +188,6 @@ BYTEARRAY CBNETProtocol::RECEIVE_SID_PING(const BYTEARRAY &data)
   return BYTEARRAY();
 }
 
-bool CBNETProtocol::RECEIVE_SID_LOGONRESPONSE(const BYTEARRAY &data)
-{
-  // DEBUG_Print( "RECEIVED SID_LOGONRESPONSE" );
-  // DEBUG_Print( data );
-
-  // 2 bytes					-> Header
-  // 2 bytes					-> Length
-  // 4 bytes					-> Status
-
-  if (ValidateLength(data) && data.size() >= 8)
-  {
-    const BYTEARRAY Status = BYTEARRAY(data.begin() + 4, data.begin() + 8);
-
-    if (ByteArrayToUInt32(Status, false) == 1)
-      return true;
-  }
-
-  return false;
-}
-
 bool CBNETProtocol::RECEIVE_SID_AUTH_INFO(const BYTEARRAY &data)
 {
   // DEBUG_Print( "RECEIVED SID_AUTH_INFO" );
