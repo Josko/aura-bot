@@ -1245,13 +1245,9 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
   const bool AnyAdminCheck = m_Aura->m_DB->AdminCheck(joinPlayer->GetName()) || m_Aura->m_DB->RootAdminCheck(joinPlayer->GetName());
   const bool Reserved = IsReserved(joinPlayer->GetName()) || AnyAdminCheck || IsOwner(joinPlayer->GetName());
 
-  // try to find a slot
-
-  unsigned char SID = 255;
-
   // try to find an empty slot
 
-  SID = GetEmptySlot(false);
+  unsigned char SID = GetEmptySlot(false);
 
   if (SID == 255 && Reserved)
   {
