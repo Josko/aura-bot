@@ -23,8 +23,9 @@
 #include "bnetprotocol.h"
 
 CBNETProtocol::CBNETProtocol()
+  : m_ClientToken(BYTEARRAY{220, 1, 203, 7})
 {
-  m_ClientToken = BYTEARRAY {220, 1, 203, 7};
+
 }
 
 CBNETProtocol::~CBNETProtocol()
