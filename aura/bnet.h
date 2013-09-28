@@ -84,6 +84,7 @@ private:
 public:
   CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID);
   ~CBNET();
+  CBNET(CBNET &) = delete;
 
   inline bool GetExiting() const                           { return m_Exiting; }
   inline string GetServer() const                          { return m_Server; }

@@ -41,6 +41,7 @@ private:
 public:
   CBNCSUtilInterface(const string &userName, const string &userPassword);
   ~CBNCSUtilInterface();
+  CBNCSUtilInterface(CBNCSUtilInterface &) = delete;
 
   inline BYTEARRAY GetEXEVersion() const               { return m_EXEVersion; }
   inline BYTEARRAY GetEXEVersionHash() const           { return m_EXEVersionHash; }

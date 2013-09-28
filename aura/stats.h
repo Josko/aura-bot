@@ -44,6 +44,7 @@ protected:
 public:
   CStats(CGame *nGame);
   ~CStats();
+  CStats(CStats &) = delete;
 
   bool ProcessAction(CIncomingAction *Action);
   void Save(CAura *CAura, CAuraDB *DB);

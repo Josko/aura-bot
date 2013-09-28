@@ -116,6 +116,7 @@ protected:
 public:
   CGame(CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer);
   ~CGame();
+  CGame(CGame &) = delete;
 
   inline CMap *GetMap() const                             { return m_Map; }
   inline CGameProtocol *GetProtocol() const               { return m_Protocol; }

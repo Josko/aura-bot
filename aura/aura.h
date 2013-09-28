@@ -86,6 +86,7 @@ public:
 
   CAura(CConfig *CFG);
   ~CAura();
+  CAura(CAura &) = delete;
 
   // processing functions
 

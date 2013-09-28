@@ -50,6 +50,7 @@ public:
 
   CIRC(CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger);
   ~CIRC();
+  CIRC(CIRC &) = delete;
 
   unsigned int SetFD(void *fd, void *send_fd, int *nfds);
   bool Update(void *fd, void *send_fd);

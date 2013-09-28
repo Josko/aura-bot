@@ -98,6 +98,7 @@ private:
 public:
   CSQLITE3(const string &filename);
   ~CSQLITE3();
+  CSQLITE3(CSQLITE3 &) = delete;
 
   inline bool GetReady() const                                   { return m_Ready; }
   inline string GetError() const                                 { return sqlite3_errmsg((sqlite3 *) m_DB); }
@@ -138,6 +139,7 @@ private:
 public:
   CAuraDB(CConfig *CFG);
   ~CAuraDB();
+  CAuraDB(CAuraDB &) = delete;
 
   inline bool HasError() const                 { return m_HasError; }
   inline string GetError() const               { return m_Error; }
