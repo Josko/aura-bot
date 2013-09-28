@@ -4,6 +4,31 @@ Aura
 Aura is a Warcraft III hosting-bot based on GHost++ by Varlock. It's a complete
 overhaul with speed and efficiency in mind and packed with fewer dependencies.
 
+Removed features from GHost++:
+* No MySQL
+* No autohost
+* No admin game
+* No language.cfg
+* No W3MMD
+* No replay saving
+
+Other changes:
+* Uses C++11
+* Has a Windows 64-bit build
+* Uses SQLite and a different database organization.
+* Tested on OS X
+* A lot of code removed, about 1 MB smaller binary on Linux
+* Updated SQLite library
+* Updated zlib
+* Connects to and can be controlled via IRC
+* Using aggressive optimizations
+* No warnings with gcc or clang, cppcheck clean
+* Up to 11 fakeplayers can be added.
+* Uses DotA stats automagically on maps with 'DotA' in the filename
+* Uses fewer boost libraries
+* Single-threaded execution
+* More commands added either ingame or bnet
+
 Multi-platform
 --------------
 
