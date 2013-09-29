@@ -360,7 +360,7 @@ bool CBNET::Update(void *fd, void *send_fd)
                 // try to figure out if the user might be using the wrong logon type since too many people are confused by this
 
                 string Server = m_Server;
-                transform(Server.begin(), Server.end(), Server.begin(), (int( *)(int))tolower);
+                transform(Server.begin(), Server.end(), Server.begin(), ::tolower);
 
                 if (m_PvPGN && (Server == "useast.battle.net" || Server == "uswest.battle.net" || Server == "asia.battle.net" || Server == "europe.battle.net"))
                   Print("[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section");
@@ -565,7 +565,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
       else
         Command = Message.substr(1);
 
-      transform(Command.begin(), Command.end(), Command.begin(), (int( *)(int))tolower);
+      transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
       if (IsAdmin(User) || IsRootAdmin(User))
       {
@@ -591,7 +591,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
             {
               // path MapPath(  );
               string Pattern = Payload;
-              transform(Pattern.begin(), Pattern.end(), Pattern.begin(), (int( *)(int))tolower);
+              transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
 
               if (!exists(m_Aura->m_MapPath))
               {
@@ -608,8 +608,8 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
                 {
                   string FileName = i->path().filename().string();
                   string Stem = i->path().stem().string();
-                  transform(FileName.begin(), FileName.end(), FileName.begin(), (int( *)(int))tolower);
-                  transform(Stem.begin(), Stem.end(), Stem.begin(), (int( *)(int))tolower);
+                  transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
+                  transform(Stem.begin(), Stem.end(), Stem.begin(), ::tolower);
 
                   if (!is_directory(i->status()) && FileName.find(Pattern) != string::npos)
                   {
@@ -716,7 +716,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
             {
               path MapCFGPath(m_Aura->m_MapCFGPath);
               string Pattern = Payload;
-              transform(Pattern.begin(), Pattern.end(), Pattern.begin(), (int( *)(int))tolower);
+              transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
 
               if (!exists(MapCFGPath))
               {
@@ -733,8 +733,8 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
                 {
                   string FileName = i->path().filename().string();
                   string Stem = i->path().stem().string();
-                  transform(FileName.begin(), FileName.end(), FileName.begin(), (int( *)(int))tolower);
-                  transform(Stem.begin(), Stem.end(), Stem.begin(), (int( *)(int))tolower);
+                  transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
+                  transform(Stem.begin(), Stem.end(), Stem.begin(), ::tolower);
 
                   if (!is_directory(i->status()) && i->path().extension() == ".cfg" && FileName.find(Pattern) != string::npos)
                   {
@@ -1139,7 +1139,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
           for (directory_iterator i(m_Aura->m_MapPath); i != EndIterator; ++i)
           {
             string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), (int( *)(int))tolower);
+            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
 
             if (FileName.find(".w3x") != string::npos || FileName.find(".w3m") != string::npos)
               ++Count;
@@ -1161,7 +1161,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
           for (directory_iterator i(m_Aura->m_MapCFGPath); i != EndIterator; ++i)
           {
             string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), (int( *)(int))tolower);
+            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
 
             if (FileName.find(".cfg") != string::npos)
               ++Count;
@@ -1176,7 +1176,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
 
         else if (Command == "deletecfg" && IsRootAdmin(User) && !Payload.empty())
         {
-          transform(Payload.begin(), Payload.end(), Payload.begin(), (int( *)(int))tolower);
+          transform(Payload.begin(), Payload.end(), Payload.begin(), ::tolower);
 
           if (Payload.find(".cfg") == string::npos)
             Payload.append(".cfg");
@@ -1186,7 +1186,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
           for (directory_iterator i(m_Aura->m_MapCFGPath); i != EndIterator; ++i)
           {
             string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), (int( *)(int))tolower);
+            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
 
             if (FileName == Payload)
             {
@@ -1209,7 +1209,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
 
         else if (Command == "deletemap" && IsRootAdmin(User) && !Payload.empty())
         {
-          transform(Payload.begin(), Payload.end(), Payload.begin(), (int( *)(int))tolower);
+          transform(Payload.begin(), Payload.end(), Payload.begin(), ::tolower);
 
           if (Payload.find(".w3x") == string::npos && Payload.find(".w3m") == string::npos)
             Payload.append(".w3x");
@@ -1219,7 +1219,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
           for (directory_iterator i(m_Aura->m_MapPath); i != EndIterator; ++i)
           {
             string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), (int( *)(int))tolower);
+            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
 
             if (FileName == Payload)
             {
@@ -1929,7 +1929,7 @@ void CBNET::UnqueueGameRefreshes()
 
 bool CBNET::IsAdmin(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
 
   if (m_Aura->m_DB->AdminCheck(m_Server, name))
     return true;
@@ -1939,7 +1939,7 @@ bool CBNET::IsAdmin(string name)
 
 bool CBNET::IsRootAdmin(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
 
   if (m_Aura->m_DB->RootAdminCheck(m_Server, name))
     return true;
@@ -1949,7 +1949,7 @@ bool CBNET::IsRootAdmin(string name)
 
 CDBBan *CBNET::IsBannedName(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
 
   if (CDBBan *Ban = m_Aura->m_DB->BanCheck(m_Server, name))
     return Ban;

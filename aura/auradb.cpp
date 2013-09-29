@@ -192,7 +192,7 @@ uint32_t CAuraDB::AdminCount(const string &server)
 bool CAuraDB::AdminCheck(const string &server, string user)
 {
   bool IsAdmin = false;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   if (!AdminCheckStmt)
     m_DB->Prepare("SELECT * FROM admins WHERE server=? AND name=?", (void **) &AdminCheckStmt);
@@ -222,7 +222,7 @@ bool CAuraDB::AdminCheck(const string &server, string user)
 bool CAuraDB::AdminCheck(string user)
 {
   bool IsAdmin = false;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   sqlite3_stmt *Statement;
   m_DB->Prepare("SELECT * FROM admins WHERE name=?", (void **) &Statement);
@@ -251,7 +251,7 @@ bool CAuraDB::AdminCheck(string user)
 bool CAuraDB::RootAdminCheck(const string &server, string user)
 {
   bool IsRoot = false;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   if (!RootAdminCheckStmt)
     m_DB->Prepare("SELECT * FROM rootadmins WHERE server=? AND name=?", (void **) &RootAdminCheckStmt);
@@ -281,7 +281,7 @@ bool CAuraDB::RootAdminCheck(const string &server, string user)
 bool CAuraDB::RootAdminCheck(string user)
 {
   bool IsRoot = false;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   sqlite3_stmt *Statement;
   m_DB->Prepare("SELECT * FROM rootadmins WHERE name=?", (void **) &Statement);
@@ -310,7 +310,7 @@ bool CAuraDB::RootAdminCheck(string user)
 bool CAuraDB::AdminAdd(const string &server, string user)
 {
   bool Success = false;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   sqlite3_stmt *Statement;
   m_DB->Prepare("INSERT INTO admins ( server, name ) VALUES ( ?, ? )", (void **) &Statement);
@@ -338,7 +338,7 @@ bool CAuraDB::AdminAdd(const string &server, string user)
 bool CAuraDB::RootAdminAdd(const string &server, string user)
 {
   bool Success = false;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   sqlite3_stmt *Statement;
   m_DB->Prepare("INSERT INTO rootadmins ( server, name ) VALUES ( ?, ? )", (void **) &Statement);
@@ -367,7 +367,7 @@ bool CAuraDB::AdminRemove(const string &server, string user)
 {
   bool Success = false;
   sqlite3_stmt *Statement;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
   m_DB->Prepare("DELETE FROM admins WHERE server=? AND name=?", (void **) &Statement);
 
   if (Statement)
@@ -418,7 +418,7 @@ uint32_t CAuraDB::BanCount(const string &server)
 CDBBan *CAuraDB::BanCheck(const string &server, string user)
 {
   CDBBan *Ban = nullptr;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
 
   if (!BanCheckStmt)
     m_DB->Prepare("SELECT name, date, admin, reason FROM bans WHERE server=? AND name=?", (void **) &BanCheckStmt);
@@ -459,7 +459,7 @@ bool CAuraDB::BanAdd(const string &server, string user, const string &admin, con
 {
   bool Success = false;
   sqlite3_stmt *Statement;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
   m_DB->Prepare("INSERT INTO bans ( server, name, date, admin, reason ) VALUES ( ?, ?, date('now'), ?, ? )", (void **) &Statement);
 
   if (Statement)
@@ -488,7 +488,7 @@ bool CAuraDB::BanRemove(const string &server, string user)
 {
   bool Success = false;
   sqlite3_stmt *Statement;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
   m_DB->Prepare("DELETE FROM bans WHERE server=? AND name=?", (void **) &Statement);
 
   if (Statement)
@@ -515,7 +515,7 @@ bool CAuraDB::BanRemove(string user)
 {
   bool Success = false;
   sqlite3_stmt *Statement;
-  transform(user.begin(), user.end(), user.begin(), (int( *)(int))tolower);
+  transform(user.begin(), user.end(), user.begin(), ::tolower);
   m_DB->Prepare("DELETE FROM bans WHERE name=?", (void **) &Statement);
 
   if (Statement)
@@ -540,7 +540,7 @@ bool CAuraDB::BanRemove(string user)
 void CAuraDB::GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration, uint64_t left)
 {
   sqlite3_stmt *Statement;
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
 
   // check if entry exists
 
@@ -620,7 +620,7 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck(string name)
 {
   sqlite3_stmt *Statement;
   CDBGamePlayerSummary *GamePlayerSummary = nullptr;
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
   m_DB->Prepare("SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void **) &Statement);
 
   if (Statement)
@@ -658,7 +658,7 @@ void CAuraDB::DotAPlayerAdd(string name, uint32_t winner, uint32_t kills, uint32
 {
   bool Success = false;
   sqlite3_stmt *Statement;
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
   m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
 
   int RC;
@@ -745,7 +745,7 @@ CDBDotAPlayerSummary *CAuraDB::DotAPlayerSummaryCheck(string name)
 {
   sqlite3_stmt *Statement;
   CDBDotAPlayerSummary *DotAPlayerSummary = nullptr;
-  transform(name.begin(), name.end(), name.begin(), (int( *)(int))tolower);
+  transform(name.begin(), name.end(), name.begin(), ::tolower);
   m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
 
   if (Statement)

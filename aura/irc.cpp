@@ -313,7 +313,7 @@ void CIRC::ExtractPackets()
       else
         Command = Message.substr(1);
 
-      transform(Command.begin(), Command.end(), Command.begin(), (int( *)(int))tolower);
+      transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
 
       //
       // !NICK
