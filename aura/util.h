@@ -388,20 +388,6 @@ inline void AssignLength(BYTEARRAY &content)
   content[3] = (unsigned char)(Size >> 8);
 }
 
-inline string MSToString(uint32_t ms)
-{
-  string MinString = ToString((ms / 1000) / 60);
-  string SecString = ToString((ms / 1000) % 60);
-
-  if (MinString.size() == 1)
-    MinString.insert(0, "0");
-
-  if (SecString.size() == 1)
-    SecString.insert(0, "0");
-
-  return MinString + "m" + SecString + "s";
-}
-
 inline bool FileExists(const string &file)
 {
   struct stat fileinfo;
