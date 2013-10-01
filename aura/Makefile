@@ -19,9 +19,8 @@ ifeq ($(SYSTEM),Darwin)
 	CC = clang
 	CXX = clang++
 	DFLAGS += -D__APPLE__
-	LFLAGS += -L/usr/local/lib/ -lboost_date_time-mt -lboost_system-mt -lboost_filesystem-mt
 else
-	LFLAGS += -lrt -lboost_date_time -lboost_system -lboost_filesystem
+	LFLAGS += -lrt
 endif
 
 ifeq ($(SYSTEM),FreeBSD)

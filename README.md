@@ -13,6 +13,7 @@ Removed features from GHost++:
 * No replay saving
 * No save/load games
 * No BNLS support
+* No boost required
 
 Other changes:
 * Uses C++11
@@ -36,50 +37,6 @@ Multi-platform
 --------------
 
 The bot runs on little-endian Linux (32-bit and 64-bit), Windows (32-bit and 64-bit) and OS X (64-bit Intel CPU) machines.
-
-Boost
------
-
-You will need the [Boost](http://www.boost.org/users/download/) libraries. Specifically
-boost date-time, system and filesystem.
-
-### Windows
-
-Windows users can build by:
-	
-	... cd to the boost directory
-	bootstrap
-
-Then, depending on platform, for Win32:
-
-	bjam date_time filesystem system link=static threading=multi variant=release address-model=32
-
-and for x64:
-
-	bjam date_time filesystem system link=static threading=multi variant=release address-model=64
-	
-Then move the library files from the bin.v2 folder to `~/aura-bot/boost/lib` or `~/aura-bot/boost/lib64`, depnding on
-the platform.
-
-### Linux
-
-Linux users can usually fetch them from the repository:
-
-* Arch Linux -- `pacman -S boost`
-* Debian/Ubuntu -- `apt-get install libboost-date-time-dev libboost-system-dev libboost-filesystem-dev`
-
-### OS X
-
-[Xcode](https://developer.apple.com/xcode/) is the basic dependency for building anything on OS X.
-Apple's development tool is a free download from the MacAppStore or downloadable in Apple's Developer Area (a free membership is sufficient). After you installed Xcode, go to its preferences and install the `Command Line Tools`.
-Without Xcode installed you cannot proceed any further and won't be able to build boost.
-
-The easiest way to go for boost is by using [Homebrew](http://brew.sh/).
-After a successful install open (or reopen) `Terminal.app` located in `/Applications/Utilities` and execute
-
-	brew install boost
-	
-Building boost may take some time.
 
 Building
 --------

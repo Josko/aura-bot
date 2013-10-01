@@ -31,10 +31,6 @@
 #include "game.h"
 #include "irc.h"
 
-#include <boost/filesystem.hpp>
-
-using namespace boost::filesystem;
-
 //
 // CBNET
 //
@@ -586,78 +582,45 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
           else
           {
-            string FoundMaps;
+            string Pattern = Payload;
+            transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
 
-            try
+            if (!FileExists(m_Aura->m_MapPath))
             {
-              // path MapPath(  );
-              string Pattern = Payload;
-              transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
+              Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
+              QueueChatCommand("Error listing maps - map path doesn't exist", User, Whisper, m_IRC);
+            }
+            else
+            {
+              const vector<string> Matches = FilesMatch(m_Aura->m_MapPath, Pattern);
 
-              if (!exists(m_Aura->m_MapPath))
+              if (Matches.empty())
+                QueueChatCommand("No maps found with that name", User, Whisper, m_IRC);
+              else if (Matches.size() == 1)
               {
-                Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
-                QueueChatCommand("Error listing maps - map path doesn't exist", User, Whisper, m_IRC);
+                const string File = Matches.at(0);
+                QueueChatCommand("Loading map file [" + File + "]", User, Whisper, m_IRC);
+
+                // hackhack: create a config file in memory with the required information to load the map
+
+                CConfig MapCFG;
+                MapCFG.Set("map_path", "Maps\\Download\\" + File);
+                MapCFG.Set("map_localpath", File);
+
+                if (File.find("DotA") != string::npos)
+                  MapCFG.Set("map_type", "dota");
+
+                m_Aura->m_Map->Load(&MapCFG, File);
               }
               else
               {
-                directory_iterator EndIterator;
-                path LastMatch;
-                uint32_t Matches = 0;
+                string FoundMaps;
 
-                for (directory_iterator i(m_Aura->m_MapPath); i != EndIterator; ++i)
-                {
-                  string FileName = i->path().filename().string();
-                  string Stem = i->path().stem().string();
-                  transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-                  transform(Stem.begin(), Stem.end(), Stem.begin(), ::tolower);
+                for (auto it = Matches.begin(); it != Matches.end(); ++it)
+                  FoundMaps += (*it) + ", ";
 
-                  if (!is_directory(i->status()) && FileName.find(Pattern) != string::npos)
-                  {
-                    LastMatch = i->path();
-                    ++Matches;
-
-                    if (FoundMaps.empty())
-                      FoundMaps = i->path().filename().string();
-                    else
-                      FoundMaps += ", " + i->path().filename().string();
-
-                    // if the pattern matches the filename exactly, with or without extension, stop any further matching
-
-                    if (FileName == Pattern || Stem == Pattern)
-                    {
-                      Matches = 1;
-                      break;
-                    }
-                  }
-                }
-
-                if (Matches == 0)
-                  QueueChatCommand("No maps found with that name", User, Whisper, m_IRC);
-                else if (Matches == 1)
-                {
-                  string File = LastMatch.filename().string();
-                  QueueChatCommand("Loading map file [" + File + "]", User, Whisper, m_IRC);
-
-                  // hackhack: create a config file in memory with the required information to load the map
-
-                  CConfig MapCFG;
-                  MapCFG.Set("map_path", "Maps\\Download\\" + File);
-                  MapCFG.Set("map_localpath", File);
-
-                  if (File.find("DotA") != string::npos)
-                    MapCFG.Set("map_type", "dota");
-
-                  m_Aura->m_Map->Load(&MapCFG, File);
-                }
-                else
-                  QueueChatCommand("Maps: " + FoundMaps, User, Whisper, m_IRC);
+                QueueChatCommand("Maps: " + FoundMaps.substr(0, FoundMaps.size() - 2), User, Whisper, m_IRC);
               }
-            }
-            catch (const exception &e)
-            {
-              Print("[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + e.what() + "]");
-              QueueChatCommand("Error listing maps - " + string(e.what()), User, Whisper, m_IRC);
             }
           }
         }
@@ -711,70 +674,37 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
           else
           {
-            string FoundMapConfigs;
+            string Pattern = Payload;
+            transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
 
-            try
+            if (!FileExists(m_Aura->m_MapCFGPath))
             {
-              path MapCFGPath(m_Aura->m_MapCFGPath);
-              string Pattern = Payload;
-              transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
+              Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
+              QueueChatCommand("Error listing map configs - map config path doesn't exist", User, Whisper, m_IRC);
+            }
+            else
+            {
+              const vector<string> Matches = FilesMatch(m_Aura->m_MapCFGPath, Pattern);
 
-              if (!exists(MapCFGPath))
+              if (Matches.empty())
+                QueueChatCommand("No map configs found with that name", User, Whisper, m_IRC);
+              else if (Matches.size() == 1)
               {
-                Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
-                QueueChatCommand("Error listing map configs - map config path doesn't exist", User, Whisper, m_IRC);
+                const string File = Matches.at(0);
+                QueueChatCommand("Loading config file [" + m_Aura->m_MapCFGPath + File + "]", User, Whisper, m_IRC);
+                CConfig MapCFG;
+                MapCFG.Read(File);
+                m_Aura->m_Map->Load(&MapCFG, m_Aura->m_MapCFGPath + File);
               }
               else
               {
-                directory_iterator EndIterator;
-                path LastMatch;
-                uint32_t Matches = 0;
+                string FoundMapConfigs;
 
-                for (directory_iterator i(MapCFGPath); i != EndIterator; ++i)
-                {
-                  string FileName = i->path().filename().string();
-                  string Stem = i->path().stem().string();
-                  transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-                  transform(Stem.begin(), Stem.end(), Stem.begin(), ::tolower);
+                for (auto it = Matches.begin(); it != Matches.end(); ++it)
+                  FoundMapConfigs += (*it) + ", ";
 
-                  if (!is_directory(i->status()) && i->path().extension() == ".cfg" && FileName.find(Pattern) != string::npos)
-                  {
-                    LastMatch = i->path();
-                    ++Matches;
-
-                    if (FoundMapConfigs.empty())
-                      FoundMapConfigs = i->path().filename().string();
-                    else
-                      FoundMapConfigs += ", " + i->path().filename().string();
-
-                    // if the pattern matches the filename exactly, with or without extension, stop any further matching
-
-                    if (FileName == Pattern || Stem == Pattern)
-                    {
-                      Matches = 1;
-                      break;
-                    }
-                  }
-                }
-
-                if (Matches == 0)
-                  QueueChatCommand("No map configs found with that name", User, Whisper, m_IRC);
-                else if (Matches == 1)
-                {
-                  string File = LastMatch.filename().string();
-                  QueueChatCommand("Loading config file [" + m_Aura->m_MapCFGPath + File + "]", User, Whisper, m_IRC);
-                  CConfig MapCFG;
-                  MapCFG.Read(LastMatch.string());
-                  m_Aura->m_Map->Load(&MapCFG, m_Aura->m_MapCFGPath + File);
-                }
-                else
-                  QueueChatCommand("Map configs: " + FoundMapConfigs, User, Whisper, m_IRC);
+                QueueChatCommand("Maps configs: " + FoundMapConfigs.substr(0, FoundMapConfigs.size() - 2), User, Whisper, m_IRC);
               }
-            }
-            catch (const exception &e)
-            {
-              Print("[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + e.what() + "]");
-              QueueChatCommand("Error listing map configs - " + string(e.what()), User, Whisper, m_IRC);
             }
           }
         }
@@ -1134,18 +1064,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if (Command == "countmaps" || Command == "countmap")
         {
-          directory_iterator EndIterator;
-          int Count = 0;
-
-          for (directory_iterator i(m_Aura->m_MapPath); i != EndIterator; ++i)
-          {
-            string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-
-            if (FileName.find(".w3x") != string::npos || FileName.find(".w3m") != string::npos)
-              ++Count;
-          }
-
+          const auto Count = FilesMatch(m_Aura->m_MapPath, ".").size();
           QueueChatCommand("There are currently [" + ToString(Count) + "] maps.", User, Whisper, m_IRC);
         }
 
@@ -1156,18 +1075,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if (Command == "countcfg" || Command == "countcfgs")
         {
-          directory_iterator EndIterator;
-          int Count = 0;
-
-          for (directory_iterator i(m_Aura->m_MapCFGPath); i != EndIterator; ++i)
-          {
-            string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-
-            if (FileName.find(".cfg") != string::npos)
-              ++Count;
-          }
-
+          const auto Count = FilesMatch(m_Aura->m_MapCFGPath, ".").size();
           QueueChatCommand("There are currently [" + ToString(Count) + "] cfgs.", User, Whisper, m_IRC);
         }
 
@@ -1177,31 +1085,13 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if (Command == "deletecfg" && IsRootAdmin(User) && !Payload.empty())
         {
-          transform(Payload.begin(), Payload.end(), Payload.begin(), ::tolower);
-
           if (Payload.find(".cfg") == string::npos)
             Payload.append(".cfg");
 
-          directory_iterator EndIterator;
-
-          for (directory_iterator i(m_Aura->m_MapCFGPath); i != EndIterator; ++i)
-          {
-            string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-
-            if (FileName == Payload)
-            {
-              try
-              {
-                remove(m_Aura->m_MapCFGPath + i->path().filename().string());
-                QueueChatCommand("Deleted [" + i->path().filename().string() + "]", User, Whisper, m_IRC);
-              }
-              catch (const exception &e)
-              {
-                // removal failed
-              }
-            }
-          }
+          if (!remove((m_Aura->m_MapCFGPath + Payload).c_str()))
+            QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
+          else
+            QueueChatCommand("Removal failed", User, Whisper, m_IRC);
         }
 
         //
@@ -1210,31 +1100,13 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if (Command == "deletemap" && IsRootAdmin(User) && !Payload.empty())
         {
-          transform(Payload.begin(), Payload.end(), Payload.begin(), ::tolower);
-
           if (Payload.find(".w3x") == string::npos && Payload.find(".w3m") == string::npos)
             Payload.append(".w3x");
 
-          directory_iterator EndIterator;
-
-          for (directory_iterator i(m_Aura->m_MapPath); i != EndIterator; ++i)
-          {
-            string FileName = i->path().filename().string();
-            transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-
-            if (FileName == Payload)
-            {
-              try
-              {
-                remove(m_Aura->m_MapPath + i->path().filename().string());
-                QueueChatCommand("Deleted [" + i->path().filename().string() + "]", User, Whisper, m_IRC);
-              }
-              catch (const exception &e)
-              {
-                // removal failed
-              }
-            }
-          }
+          if (!remove((m_Aura->m_MapPath + Payload).c_str()))
+            QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
+          else
+            QueueChatCommand("Removal failed", User, Whisper, m_IRC);
         }
 
         //

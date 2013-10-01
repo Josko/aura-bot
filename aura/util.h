@@ -24,6 +24,11 @@
 #include "aura.h"
 #include <sys/stat.h>
 
+#ifndef WIN32
+#include <dirent.h>
+#include <string.h>
+#endif
+
 #ifdef __APPLE__
 inline string ToString(size_t i)
 {
@@ -396,6 +401,35 @@ inline bool FileExists(const string &file)
     return true;
 
   return false;
+}
+
+inline vector<string> FilesMatch(const string &path, const string &pattern)
+{
+  vector<string> Files;
+
+#ifdef WIN32
+  // TODO implement for Windows
+#else
+  DIR *dir = opendir(path.c_str());
+
+  if (dir == nullptr)
+    return Files;
+
+  struct dirent *dp = NULL;
+
+  while ((dp = readdir(dir)) != NULL)
+  {
+    string Name = string(dp->d_name);
+    transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+
+    if (Name.find(pattern) != string::npos && Name != "." && Name != "..")
+      Files.push_back(string(dp->d_name));
+  }
+
+  closedir(dir);
+#endif
+
+  return Files;
 }
 
 inline string FileRead(const string &file, uint32_t start, uint32_t length)
