@@ -238,12 +238,12 @@ bool CGamePlayer::Update(void *fd)
 
   while (Bytes.size() >= 4)
   {
+    // bytes 2 and 3 contain the length of the packet
+
+    const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
+
     if (Bytes[0] == W3GS_HEADER_CONSTANT)
     {
-      // bytes 2 and 3 contain the length of the packet
-
-      const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
-
       ++m_TotalPacketsReceived;
 
       if (Bytes.size() >= Length)
@@ -349,8 +349,6 @@ bool CGamePlayer::Update(void *fd)
     }
     else if (Bytes[0] == GPS_HEADER_CONSTANT)
     {
-      const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
-
       if (Length >= 4)
       {
         if (Bytes.size() >= Length)
