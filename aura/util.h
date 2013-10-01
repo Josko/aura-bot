@@ -378,6 +378,16 @@ inline BYTEARRAY ExtractHexNumbers(string &s)
   return result;
 }
 
+inline void AssignLength(BYTEARRAY &content)
+{
+  // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
+
+  const uint16_t Size = (uint16_t) content.size();
+
+  content[2] = (unsigned char) Size;
+  content[3] = (unsigned char)(Size >> 8);
+}
+
 inline string MSToString(uint32_t ms)
 {
   string MinString = ToString((ms / 1000) / 60);

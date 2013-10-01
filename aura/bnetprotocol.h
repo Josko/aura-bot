@@ -162,7 +162,6 @@ public:
   // other functions
 
 private:
-  void AssignLength(BYTEARRAY &content);
   bool ValidateLength(const BYTEARRAY &content);
 };
 

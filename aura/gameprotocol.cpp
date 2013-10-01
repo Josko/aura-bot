@@ -621,16 +621,6 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncomingAction *> act
 // OTHER FUNCTIONS //
 /////////////////////
 
-void CGameProtocol::AssignLength(BYTEARRAY &content)
-{
-  // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
-
-  const uint16_t size = (uint16_t) content.size();
-
-  content[2] = (unsigned char) size;
-  content[3] = (unsigned char) size >> 8;
-}
-
 bool CGameProtocol::ValidateLength(const BYTEARRAY &content)
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
