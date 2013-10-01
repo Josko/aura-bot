@@ -582,7 +582,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
         if (Command == "map")
         {
           if (Payload.empty())
-            QueueChatCommand("The currently loaded map config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
+            QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
           else
           {
             string FoundMaps;
@@ -596,7 +596,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
               if (!exists(m_Aura->m_MapPath))
               {
                 Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
-                QueueChatCommand("Error listing maps", User, Whisper, m_IRC);
+                QueueChatCommand("Error listing maps - map path doesn't exist", User, Whisper, m_IRC);
               }
               else
               {
@@ -636,7 +636,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
                 else if (Matches == 1)
                 {
                   string File = LastMatch.filename().string();
-                  QueueChatCommand("Loading config file [" + File + "]", User, Whisper, m_IRC);
+                  QueueChatCommand("Loading map file [" + File + "]", User, Whisper, m_IRC);
 
                   // hackhack: create a config file in memory with the required information to load the map
 
@@ -656,7 +656,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
             catch (const exception &e)
             {
               Print("[BNET: " + m_ServerAlias + "] error listing maps - caught exception [" + e.what() + "]");
-              QueueChatCommand("Error listing maps", User, Whisper, m_IRC);
+              QueueChatCommand("Error listing maps - " + string(e.what()), User, Whisper, m_IRC);
             }
           }
         }
@@ -707,7 +707,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
         else if (Command == "load")
         {
           if (Payload.empty())
-            QueueChatCommand("The currently loaded map config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
+            QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
           else
           {
             string FoundMapConfigs;
@@ -721,7 +721,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
               if (!exists(MapCFGPath))
               {
                 Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
-                QueueChatCommand("Error listing map configs", User, Whisper, m_IRC);
+                QueueChatCommand("Error listing map configs - map config path doesn't exist", User, Whisper, m_IRC);
               }
               else
               {
@@ -773,7 +773,7 @@ void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
             catch (const exception &e)
             {
               Print("[BNET: " + m_ServerAlias + "] error listing map configs - caught exception [" + e.what() + "]");
-              QueueChatCommand("Error listing map configs", User, Whisper, m_IRC);
+              QueueChatCommand("Error listing map configs - " + string(e.what()), User, Whisper, m_IRC);
             }
           }
         }
