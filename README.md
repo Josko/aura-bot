@@ -5,13 +5,14 @@ Aura is a Warcraft III hosting-bot based on GHost++ by Varlock. It's a complete
 overhaul with speed and efficiency in mind and packed with fewer dependencies.
 
 Removed features from GHost++:
-* No MySQL
+* No MySQL support
 * No autohost
 * No admin game
 * No language.cfg
-* No W3MMD
+* No W3MMD support
 * No replay saving
-* No save games
+* No save/load games
+* No BNLS support
 
 Other changes:
 * Uses C++11
