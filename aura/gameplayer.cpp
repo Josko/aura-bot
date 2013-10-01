@@ -73,13 +73,14 @@ bool CPotentialPlayer::Update(void *fd)
       // bytes 2 and 3 contain the length of the packet
 
       const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
+      const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
 
       if (Bytes.size() >= Length)
       {
         if (Bytes[0] == W3GS_HEADER_CONSTANT && Bytes[1] == CGameProtocol::W3GS_REQJOIN)
         {
           delete m_IncomingJoinPlayer;
-          m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+          m_IncomingJoinPlayer = m_Protocol->RECEIVE_W3GS_REQJOIN(Data);
 
           if (m_IncomingJoinPlayer)
             m_Game->EventPlayerJoined(this, m_IncomingJoinPlayer);
@@ -241,6 +242,7 @@ bool CGamePlayer::Update(void *fd)
     // bytes 2 and 3 contain the length of the packet
 
     const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
+    const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
 
     if (Bytes[0] == W3GS_HEADER_CONSTANT)
     {
@@ -253,11 +255,11 @@ bool CGamePlayer::Update(void *fd)
         switch (Bytes[1])
         {
           case CGameProtocol::W3GS_LEAVEGAME:
-            m_Game->EventPlayerLeft(this, m_Protocol->RECEIVE_W3GS_LEAVEGAME(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)));
+            m_Game->EventPlayerLeft(this, m_Protocol->RECEIVE_W3GS_LEAVEGAME(Data));
             break;
 
           case CGameProtocol::W3GS_GAMELOADED_SELF:
-            if (m_Protocol->RECEIVE_W3GS_GAMELOADED_SELF(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+            if (m_Protocol->RECEIVE_W3GS_GAMELOADED_SELF(Data))
             {
               if (!m_FinishedLoading)
               {
@@ -270,7 +272,7 @@ bool CGamePlayer::Update(void *fd)
             break;
 
           case CGameProtocol::W3GS_OUTGOING_ACTION:
-            Action = m_Protocol->RECEIVE_W3GS_OUTGOING_ACTION(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length), m_PID);
+            Action = m_Protocol->RECEIVE_W3GS_OUTGOING_ACTION(Data, m_PID);
 
             if (Action)
               m_Game->EventPlayerAction(this, Action);
@@ -280,13 +282,13 @@ bool CGamePlayer::Update(void *fd)
             break;
 
           case CGameProtocol::W3GS_OUTGOING_KEEPALIVE:
-            m_CheckSums.push(m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)));
+            m_CheckSums.push(m_Protocol->RECEIVE_W3GS_OUTGOING_KEEPALIVE(Data));
             ++m_SyncCounter;
             m_Game->EventPlayerKeepAlive(this);
             break;
 
           case CGameProtocol::W3GS_CHAT_TO_HOST:
-            ChatPlayer = m_Protocol->RECEIVE_W3GS_CHAT_TO_HOST(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+            ChatPlayer = m_Protocol->RECEIVE_W3GS_CHAT_TO_HOST(Data);
 
             if (ChatPlayer)
               m_Game->EventPlayerChatToHost(this, ChatPlayer);
@@ -304,7 +306,7 @@ bool CGamePlayer::Update(void *fd)
             break;
 
           case CGameProtocol::W3GS_MAPSIZE:
-            MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+            MapSize = m_Protocol->RECEIVE_W3GS_MAPSIZE(Data);
 
             if (MapSize)
               m_Game->EventPlayerMapSize(this, MapSize);
@@ -313,7 +315,7 @@ bool CGamePlayer::Update(void *fd)
             break;
 
           case CGameProtocol::W3GS_PONG_TO_HOST:
-            Pong = m_Protocol->RECEIVE_W3GS_PONG_TO_HOST(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+            Pong = m_Protocol->RECEIVE_W3GS_PONG_TO_HOST(Data);
 
             // we discard pong values of 1
             // the client sends one of these when connecting plus we return 1 on error to kill two birds with one stone
@@ -353,7 +355,7 @@ bool CGamePlayer::Update(void *fd)
       {
         if (Bytes.size() >= Length)
         {
-          BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
+          const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
 
           if (Bytes[1] == CGPSProtocol::GPS_ACK && Data.size() == 8)
           {

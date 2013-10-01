@@ -173,6 +173,7 @@ bool CBNET::Update(void *fd, void *send_fd)
         // bytes 2 and 3 contain the length of the packet
 
         const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
 
         if (Bytes.size() >= Length)
         {
@@ -183,11 +184,11 @@ bool CBNET::Update(void *fd, void *send_fd)
               // this is because PVPGN servers are programmed to respond to NULL packets so it will create a vicious cycle of useless traffic
               // official battle.net servers do not respond to NULL packets
 
-              m_Protocol->RECEIVE_SID_NULL(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+              m_Protocol->RECEIVE_SID_NULL(Data);
               break;
 
             case CBNETProtocol::SID_GETADVLISTEX:
-              GameHost = m_Protocol->RECEIVE_SID_GETADVLISTEX(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+              GameHost = m_Protocol->RECEIVE_SID_GETADVLISTEX(Data);
 
               if (GameHost)
                 Print("[BNET: " + m_ServerAlias + "] joining game [" + GameHost->GetGameName() + "]");
@@ -196,7 +197,7 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_ENTERCHAT:
-              if (m_Protocol->RECEIVE_SID_ENTERCHAT(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+              if (m_Protocol->RECEIVE_SID_ENTERCHAT(Data))
               {
                 Print("[BNET: " + m_ServerAlias + "] joining channel [" + m_FirstChannel + "]");
                 m_InChat = true;
@@ -206,7 +207,7 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_CHATEVENT:
-              ChatEvent = m_Protocol->RECEIVE_SID_CHATEVENT(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+              ChatEvent = m_Protocol->RECEIVE_SID_CHATEVENT(Data);
 
               if (ChatEvent)
                 ProcessChatEvent(ChatEvent);
@@ -215,11 +216,11 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_CHECKAD:
-              m_Protocol->RECEIVE_SID_CHECKAD(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+              m_Protocol->RECEIVE_SID_CHECKAD(Data);
               break;
 
             case CBNETProtocol::SID_STARTADVEX3:
-              if (m_Protocol->RECEIVE_SID_STARTADVEX3(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+              if (m_Protocol->RECEIVE_SID_STARTADVEX3(Data))
               {
                 m_InChat = false;
               }
@@ -232,12 +233,12 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_PING:
-              m_Socket->PutBytes(m_Protocol->SEND_SID_PING(m_Protocol->RECEIVE_SID_PING(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length))));
+              m_Socket->PutBytes(m_Protocol->SEND_SID_PING(m_Protocol->RECEIVE_SID_PING(Data)));
               break;
 
             case CBNETProtocol::SID_AUTH_INFO:
 
-              if (m_Protocol->RECEIVE_SID_AUTH_INFO(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+              if (m_Protocol->RECEIVE_SID_AUTH_INFO(Data))
               {
                 if (m_BNCSUtil->HELP_SID_AUTH_CHECK(m_Aura->m_Warcraft3Path, m_CDKeyROC, m_CDKeyTFT, m_Protocol->GetValueStringFormulaString(), m_Protocol->GetIX86VerFileNameString(), m_Protocol->GetClientToken(), m_Protocol->GetServerToken()))
                 {
@@ -271,7 +272,7 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_AUTH_CHECK:
-              if (m_Protocol->RECEIVE_SID_AUTH_CHECK(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+              if (m_Protocol->RECEIVE_SID_AUTH_CHECK(Data))
               {
                 // cd keys accepted
 
@@ -312,7 +313,7 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_AUTH_ACCOUNTLOGON:
-              if (m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGON(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+              if (m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGON(Data))
               {
                 Print("[BNET: " + m_ServerAlias + "] username [" + m_UserName + "] accepted");
 
@@ -342,7 +343,7 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_AUTH_ACCOUNTLOGONPROOF:
-              if (m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length)))
+              if (m_Protocol->RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(Data))
               {
                 // logon successful
 
@@ -373,11 +374,11 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_FRIENDLIST:
-              m_Friends = m_Protocol->RECEIVE_SID_FRIENDLIST(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+              m_Friends = m_Protocol->RECEIVE_SID_FRIENDLIST(Data);
               break;
 
             case CBNETProtocol::SID_CLANMEMBERLIST:
-              m_Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST(BYTEARRAY(Bytes.begin(), Bytes.begin() + Length));
+              m_Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST(Data);
               break;
           }
 
