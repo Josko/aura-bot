@@ -537,7 +537,7 @@ inline BYTEARRAY EncodeStatString(BYTEARRAY &data)
   return Result;
 }
 
-inline BYTEARRAY DecodeStatString(BYTEARRAY &data)
+inline BYTEARRAY DecodeStatString(const BYTEARRAY &data)
 {
   unsigned char Mask = 1;
   BYTEARRAY Result;
@@ -574,7 +574,7 @@ inline void Replace(string &Text, const string &Key, const string &Value)
   }
 }
 
-inline vector<string> Tokenize(const string &s, char delim)
+inline vector<string> Tokenize(const string &s, const char delim)
 {
   vector<string> Tokens;
   string Token;
