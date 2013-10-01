@@ -109,7 +109,7 @@ public:
 
   unsigned int SetFD(void *fd, void *send_fd, int *nfds);
   bool Update(void *fd, void *send_fd);
-  void ProcessChatEvent(CIncomingChatEvent *chatEvent);
+  void ProcessChatEvent(const CIncomingChatEvent *chatEvent);
 
   // functions to send packets to battle.net
 

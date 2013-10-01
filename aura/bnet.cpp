@@ -509,7 +509,7 @@ bool CBNET::Update(void *fd, void *send_fd)
   return m_Exiting;
 }
 
-void CBNET::ProcessChatEvent(CIncomingChatEvent *chatEvent)
+void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 {
   CBNETProtocol::IncomingChatEvent Event = chatEvent->GetChatEvent();
   bool Whisper = (Event == CBNETProtocol::EID_WHISPER);
