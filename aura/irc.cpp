@@ -25,10 +25,6 @@
 #include "bnetprotocol.h"
 #include "bnet.h"
 
-#include <boost/tokenizer.hpp>
-
-typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-
 //////////////
 //// CIRC ////
 //////////////
@@ -197,12 +193,17 @@ void CIRC::ExtractPackets()
 
   // separate packets using the CRLF delimiter
 
-  boost::char_separator<char> Packet_separator("\n\r");
+  vector<string> Packets = Tokenize(*Recv, '\n');
 
-  tokenizer Packets(*Recv, Packet_separator);
-
-  for (tokenizer :: iterator pak_iter = Packets.begin(); pak_iter != Packets.end(); ++pak_iter)
+  for (auto pak_iter = Packets.begin(); pak_iter != Packets.end(); ++pak_iter)
   {
+    // delete the superflous '\r'
+    
+    const string::size_type pos = pak_iter->find('\r');
+    
+    if (pos != string::npos)
+      pak_iter->erase(pos, 1);
+      
     // track timeouts
 
     m_LastPacketTime = Time;
