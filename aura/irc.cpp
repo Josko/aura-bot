@@ -188,22 +188,22 @@ bool CIRC::Update(void *fd, void *send_fd)
 
 void CIRC::ExtractPackets()
 {
-  uint32_t Time = GetTime();
+  const uint32_t Time = GetTime();
   string *Recv = m_Socket->GetBytes();
 
   // separate packets using the CRLF delimiter
 
   vector<string> Packets = Tokenize(*Recv, '\n');
 
-  for (auto pak_iter = Packets.begin(); pak_iter != Packets.end(); ++pak_iter)
+  for (auto Packet = Packets.begin(); Packet != Packets.end(); ++Packet)
   {
     // delete the superflous '\r'
-    
-    const string::size_type pos = pak_iter->find('\r');
-    
+
+    const string::size_type pos = Packet->find('\r');
+
     if (pos != string::npos)
-      pak_iter->erase(pos, 1);
-      
+      Packet->erase(pos, 1);
+
     // track timeouts
 
     m_LastPacketTime = Time;
@@ -213,9 +213,9 @@ void CIRC::ExtractPackets()
     // out: PONG :2748459196
     // respond to the packet sent by the server
 
-    if (pak_iter->substr(0, 4) == "PING")
+    if (Packet->substr(0, 4) == "PING")
     {
-      SendIRC("PONG :" + pak_iter->substr(6));
+      SendIRC("PONG :" + Packet->substr(6));
       continue;
     }
 
@@ -223,9 +223,9 @@ void CIRC::ExtractPackets()
     // in: NOTICE AUTH :*** Checking Ident
     // print the message on console
 
-    if (pak_iter->substr(0, 6) == "NOTICE")
+    if (Packet->substr(0, 6) == "NOTICE")
     {
-      Print("[IRC: " + m_Server + "] " + *pak_iter);
+      Print("[IRC: " + m_Server + "] " + *Packet);
       continue;
     }
 
@@ -233,7 +233,7 @@ void CIRC::ExtractPackets()
     // the delimiter is space
     // we use a std::vector so we can check its number of tokens
 
-    vector<string> Tokens = Tokenize(*pak_iter, ' ');
+    const vector<string> Tokens = Tokenize(*Packet, ' ');
 
     // privmsg packet
     // in:  :nickname!~username@hostname PRIVMSG #channel :message
@@ -271,7 +271,7 @@ void CIRC::ExtractPackets()
 
       // get the message
 
-      string Message = pak_iter->substr(Tokens[0].size() + Tokens[1].size() + Tokens[2].size() + 4);
+      string Message = Packet->substr(Tokens[0].size() + Tokens[1].size() + Tokens[2].size() + 4);
 
       // relay messages to bnets
 
@@ -279,7 +279,7 @@ void CIRC::ExtractPackets()
       {
         if (Message[0] == (*i)->GetCommandTrigger())
         {
-          CIncomingChatEvent event = CIncomingChatEvent(CBNETProtocol::EID_IRC, Nickname, Channel + " " + Message);
+          const CIncomingChatEvent event = CIncomingChatEvent(CBNETProtocol::EID_IRC, Nickname, Channel + " " + Message);
           (*i)->ProcessChatEvent(&event);
           break;
         }
