@@ -53,7 +53,7 @@
     </ClCompile>
     <ClCompile Include="auradb.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>  
+    </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,7 +112,7 @@
     </ClInclude>
     <ClInclude Include="auradb.h">
       <Filter>Header Files</Filter>
-    </ClInclude> 
+    </ClInclude>
     <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>

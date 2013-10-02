@@ -19,7 +19,6 @@
  */
 
 #include "aura.h"
-#include "util.h"
 #include "crc32.h"
 #include "sha1.h"
 #include "csvparser.h"
@@ -52,6 +51,8 @@
 #ifdef __APPLE__
 #include <mach/mach_time.h>
 #endif
+
+#include "util.h"
 
 #define VERSION "1.20"
 

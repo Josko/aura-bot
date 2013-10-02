@@ -24,7 +24,10 @@
 #include "includes.h"
 #include <sys/stat.h>
 
-#ifndef WIN32
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #include <dirent.h>
 #include <string.h>
 #endif
@@ -393,41 +396,45 @@ inline void AssignLength(BYTEARRAY &content)
   content[3] = (unsigned char)(Size >> 8);
 }
 
+#ifdef WIN32
+inline bool FileExists(string file)
+{	
+  if (*(file.end() - 1) == '\\')
+	  file = file.substr(0, file.size() - 1);
+
+  struct stat fileinfo;
+  return (stat(file.c_str(), &fileinfo) == 0);
+}
+#else
 inline bool FileExists(const string &file)
 {
-  struct stat fileinfo;
-
-  if (stat(file.c_str(), &fileinfo) == 0)
-    return true;
-
-  return false;
+	struct stat fileinfo;
+	return (stat(file.c_str(), &fileinfo) == 0);
 }
+#endif
 
 inline vector<string> FilesMatch(const string &path, const string &pattern)
 {
   vector<string> Files;
 
 #ifdef WIN32
-  /*
   WIN32_FIND_DATAA data;
+  HANDLE handle = FindFirstFileA((path + "\\*").c_str(), &data);
   memset(&data, 0, sizeof(WIN32_FIND_DATAA));
 
-  HANDLE handle = FindFirstFileA(path.c_str(), &data);
-
-  while(handle != INVALID_HANDLE_VALUE)
+  while (handle != INVALID_HANDLE_VALUE)
   {
-	  string Name = string(data.cFileName);
-	  transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+	string Name = string(data.cFileName);
+	transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
 
-	  if (Name.find(pattern) != string::npos)
-		  Files.push_back(string(data.cFileName));
+	if (Name.find(pattern) != string::npos)
+		Files.push_back(string(data.cFileName));		  
 
-	  if(FindNextFileA(handle, &data) == FALSE)
-		  break;
+	if(FindNextFileA(handle, &data) == FALSE)
+		break;
   }
 
   FindClose(handle);
-  */
 #else
   DIR *dir = opendir(path.c_str());
 
