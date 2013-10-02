@@ -693,7 +693,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 const string File = Matches.at(0);
                 QueueChatCommand("Loading config file [" + m_Aura->m_MapCFGPath + File + "]", User, Whisper, m_IRC);
                 CConfig MapCFG;
-                MapCFG.Read(File);
+                MapCFG.Read(m_Aura->m_MapCFGPath + File);
                 m_Aura->m_Map->Load(&MapCFG, m_Aura->m_MapCFGPath + File);
               }
               else
