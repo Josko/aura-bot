@@ -415,9 +415,9 @@ inline vector<string> FilesMatch(const string &path, const string &pattern)
   if (dir == nullptr)
     return Files;
 
-  struct dirent *dp = NULL;
+  struct dirent *dp = nullptr;
 
-  while ((dp = readdir(dir)) != NULL)
+  while ((dp = readdir(dir)) != nullptr)
   {
     string Name = string(dp->d_name);
     transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
