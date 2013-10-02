@@ -450,22 +450,6 @@ inline BYTEARRAY DecodeStatString(const BYTEARRAY &data)
   return Result;
 }
 
-inline void Replace(string &Text, const string &Key, const string &Value)
-{
-  // don't allow any infinite loops
-
-  if (Value.find(Key) != string::npos)
-    return;
-
-  string::size_type KeyStart = Text.find(Key);
-
-  while (KeyStart != string::npos)
-  {
-    Text.replace(KeyStart, Key.size(), Value);
-    KeyStart = Text.find(Key);
-  }
-}
-
 inline vector<string> Tokenize(const string &s, const char delim)
 {
   vector<string> Tokens;
