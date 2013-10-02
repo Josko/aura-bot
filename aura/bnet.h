@@ -18,8 +18,8 @@
 
  */
 
-#ifndef BNET_H
-#define BNET_H
+#ifndef AURA_BNET_H_
+#define AURA_BNET_H_
 
 #include "includes.h"
 
@@ -137,4 +137,4 @@ public:
   void HoldClan(CGame *game);
 };
 
-#endif
+#endif  // AURA_BNET_H_

@@ -18,8 +18,8 @@
 
  */
 
-#ifndef BNCSUTIL_INTERFACE_H
-#define BNCSUTIL_INTERFACE_H
+#ifndef AURA_BNCSUTILINTERFACE_H_
+#define AURA_BNCSUTILINTERFACE_H_
 
 #include "includes.h"
 
@@ -68,4 +68,4 @@ private:
   BYTEARRAY CreateKeyInfo(const string &key, uint32_t clientToken, uint32_t serverToken);
 };
 
-#endif
+#endif  // AURA_BNCSUTILINTERFACE_H_

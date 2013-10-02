@@ -18,8 +18,8 @@
 
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef AURA_CONFIG_H_
+#define AURA_CONFIG_H_
 
 //
 // CConfig
@@ -41,4 +41,4 @@ public:
   void Set(const string &key, const string &x);
 };
 
-#endif
+#endif  // AURA_CONFIG_H_

@@ -18,8 +18,8 @@
 
  */
 
-#ifndef GAMESLOT_H
-#define GAMESLOT_H
+#ifndef AURA_GAMESLOT_H_
+#define AURA_GAMESLOT_H_
 
 #include "includes.h"
 
@@ -82,4 +82,4 @@ public:
   inline void SetHandicap( unsigned char nHandicap )             { m_Handicap = nHandicap; }
 };
 
-#endif
+#endif  // AURA_GAMESLOT_H_

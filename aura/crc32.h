@@ -1,5 +1,5 @@
-#ifndef CRC32_H
-#define CRC32_H
+#ifndef AURA_CRC32_H_
+#define AURA_CRC32_H_
 
 #define CRC32_POLYNOMIAL 0x04c11db7
 
@@ -17,4 +17,4 @@ private:
   uint32_t ulTable[256];
 };
 
-#endif
+#endif  // AURA_CRC32_H_

@@ -1,5 +1,5 @@
-#ifndef __CSVPARSE_H_2001_06_07__
-#define __CSVPARSE_H_2001_06_07__
+#ifndef AURA_CSVPARSER_H_
+#define AURA_CSVPARSER_H_
 
 /*
 Copyright (c) 2001, Mayukh Bose
@@ -53,4 +53,4 @@ public:
   CSVParser &operator >>(string &sOut);
 };
 
-#endif
+#endif  // AURA_CSVPARSER_H_

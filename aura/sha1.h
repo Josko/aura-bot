@@ -16,8 +16,8 @@
     34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
  */
 
-#ifndef ___SHA1_H___
-#define ___SHA1_H___
+#ifndef AURA_SHA1_H_
+#define AURA_SHA1_H_
 
 #include <stdio.h>  // Needed for file access
 #include <memory.h> // Needed for memset and memcpy
@@ -85,4 +85,4 @@ private:
   void Transform( uint32_t state[5], unsigned char buffer[64] );
 };
 
-#endif // ___SHA1_H___
+#endif  // AURA_SHA1_H_

@@ -18,8 +18,8 @@
 
  */
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef AURA_GAME_H_
+#define AURA_GAME_H_
 
 #include "gameslot.h"
 
@@ -242,4 +242,4 @@ public:
   void DeleteFakePlayers();
 };
 
-#endif
+#endif  // AURA_GAME_H_

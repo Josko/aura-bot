@@ -18,8 +18,8 @@
 
  */
 
-#ifndef INCLUDES_H
-#define INCLUDES_H
+#ifndef AURA_INCLUDES_H_
+#define AURA_INCLUDES_H_
 
 // STL
 
@@ -61,4 +61,4 @@ uint32_t GetTicks();  // milliseconds
 void Print(const string &message);    // outputs to console
 void Print2(const string &message);   // outputs to console and irc
 
-#endif
+#endif  // AURA_INCLUDES_H_

@@ -20,8 +20,8 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
 #include "includes.h"
 
-#ifndef FILEUTIL_H
-#define FILEUTIL_H
+#ifndef AURA_FILEUTIL_H_
+#define AURA_FILEUTIL_H_
 
 #ifdef WIN32
 bool FileExists(string file);
@@ -34,4 +34,4 @@ string FileRead(const string &file, uint32_t start, uint32_t length);
 string FileRead(const string &file);
 bool FileWrite(const string &file, unsigned char *data, uint32_t length);
 
-#endif
+#endif  // AURA_FILEUTIL_H_

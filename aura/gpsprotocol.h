@@ -16,8 +16,8 @@
 
  */
 
-#ifndef GPSPROTOCOL_H
-#define GPSPROTOCOL_H
+#ifndef AURA_GPSPROTOCOL_H_
+#define AURA_GPSPROTOCOL_H_
 
 //
 // CGameProtocol
@@ -56,4 +56,4 @@ public:
   BYTEARRAY SEND_GPSS_REJECT(uint32_t reason);
 };
 
-#endif
+#endif  // AURA_GPSPROTOCOL_H_

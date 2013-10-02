@@ -18,8 +18,8 @@
 
  */
 
-#ifndef STATS_H
-#define STATS_H
+#ifndef AURA_STATS_H_
+#define AURA_STATS_H_
 
 //
 // CStats
@@ -52,4 +52,4 @@ public:
   void Save(CAura *CAura, CAuraDB *DB);
 };
 
-#endif
+#endif  // AURA_STATS_H_

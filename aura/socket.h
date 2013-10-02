@@ -18,8 +18,8 @@
 
  */
 
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef AURA_SOCKET_H_
+#define AURA_SOCKET_H_
 
 #include "util.h"
 
@@ -253,4 +253,4 @@ public:
   void SetDontRoute(bool dontRoute);
 };
 
-#endif
+#endif  // AURA_SOCKET_H_

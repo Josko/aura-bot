@@ -18,8 +18,8 @@
 
  */
 
-#ifndef IRC_H
-#define IRC_H
+#ifndef AURA_IRC_H_
+#define AURA_IRC_H_
 
 #include "includes.h"
 
@@ -61,4 +61,4 @@ public:
   void SendMessageIRC(const string &message, const string &target);
 };
 
-#endif
+#endif  // AURA_IRC_H_

@@ -18,8 +18,8 @@
 
  */
 
-#ifndef BNETPROTOCOL_H
-#define BNETPROTOCOL_H
+#ifndef AURA_BNETPROTOCOL_H_
+#define AURA_BNETPROTOCOL_H_
 
 //
 // CBNETProtocol
@@ -210,4 +210,4 @@ public:
   inline string GetMessage() const                                { return m_Message; }
 };
 
-#endif
+#endif  // AURA_BNETPROTOCOL_H_

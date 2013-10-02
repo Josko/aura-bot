@@ -18,8 +18,8 @@
 
  */
 
-#ifndef AURADB_H
-#define AURADB_H
+#ifndef AURA_AURADB_H_
+#define AURA_AURADB_H_
 
 #include "sqlite3.h"
 
@@ -341,4 +341,4 @@ public:
   inline float GetAvgCourierKills() const         { return m_TotalGames > 0 ? (float) m_TotalCourierKills / m_TotalGames : 0.f; }
 };
 
-#endif
+#endif  // AURA_AURADB_H_

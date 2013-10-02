@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MAP_H
-#define MAP_H
+#ifndef AURA_MAP_H_
+#define AURA_MAP_H_
 
 #define MAPSPEED_SLOW                     1
 #define MAPSPEED_NORMAL                   2
@@ -159,4 +159,4 @@ public:
   uint32_t XORRotateLeft(unsigned char *data, uint32_t length);
 };
 
-#endif
+#endif  // AURA_MAP_H_

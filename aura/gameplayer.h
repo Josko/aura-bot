@@ -18,8 +18,8 @@
 
  */
 
-#ifndef GAMEPLAYER_H
-#define GAMEPLAYER_H
+#ifndef AURA_GAMEPLAYER_H_
+#define AURA_GAMEPLAYER_H_
 
 #include "socket.h"
 
@@ -204,4 +204,4 @@ public:
   void EventGProxyReconnect(CTCPSocket *NewSocket, uint32_t LastPacket);
 };
 
-#endif
+#endif  // AURA_GAMEPLAYER_H_

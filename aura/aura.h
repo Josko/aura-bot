@@ -18,8 +18,8 @@
 
  */
 
-#ifndef AURA_H_
-#define AURA_H_
+#ifndef AURA_AURA_H_
+#define AURA_AURA_H_
 
 #include "includes.h"
 
@@ -111,4 +111,4 @@ public:
   }
 };
 
-#endif
+#endif  // AURA_AURA_H_

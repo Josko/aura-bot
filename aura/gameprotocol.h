@@ -18,8 +18,8 @@
 
  */
 
-#ifndef GAMEPROTOCOL_H
-#define GAMEPROTOCOL_H
+#ifndef AURA_GAMEPROTOCOL_H_
+#define AURA_GAMEPROTOCOL_H_
 
 #include "includes.h"
 
@@ -247,4 +247,4 @@ public:
   inline uint32_t GetMapSize() const                         { return m_MapSize; }
 };
 
-#endif
+#endif  // AURA_GAMEPROTOCOL_H_

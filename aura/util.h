@@ -18,8 +18,8 @@
 
  */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef AURA_UTIL_H_
+#define AURA_UTIL_H_
 
 #include "includes.h"
 
@@ -475,4 +475,4 @@ inline vector<string> Tokenize(const string &s, const char delim)
   return Tokens;
 }
 
-#endif
+#endif  // AURA_UTIL_H_
