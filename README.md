@@ -43,9 +43,11 @@ Building
 
 ### Windows
 
-Windows users should use VS2010 as there are the necessary .sln and .vcxproj files. Before
-building, choose the Win32 or x64 platform. The binary shall be generated in the `..\aura-bot\aura\Release` folder.
-Run it from `aura-bot` folder.
+Windows users must use VS2013 or any other compiler that provides C++11 support
+(VS2012 has some C++11 support but it isn't enough). Necessary .sln and .vcxproj
+files are provided. Before building, choose the Win32 or x64 platform. The binary
+shall be generated in the `..\aura-bot\aura\Release` folder. Run it from `aura-bot`
+folder.
 
 ### Linux
 
