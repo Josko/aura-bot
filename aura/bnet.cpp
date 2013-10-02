@@ -1270,7 +1270,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             if (m_Aura->m_CurrentGame)
               m_Aura->m_CurrentGame->SendAllChat(Payload);
 
-            for (vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin(); i != m_Aura->m_Games.end(); ++i)
+            for (auto i = m_Aura->m_Games.begin(); i != m_Aura->m_Games.end(); ++i)
               (*i)->SendAllChat("ADMIN: " + Payload);
           }
           else
@@ -1278,7 +1278,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             if (m_Aura->m_CurrentGame)
               m_Aura->m_CurrentGame->SendAllChat(Payload);
 
-            for (vector<CGame *> ::const_iterator i = m_Aura->m_Games.begin(); i != m_Aura->m_Games.end(); ++i)
+            for (auto i = m_Aura->m_Games.begin(); i != m_Aura->m_Games.end(); ++i)
               (*i)->SendAllChat("ADMIN (" + User + "): " + Payload);
           }
         }
@@ -1390,7 +1390,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             Name = Payload.substr(0, MessageStart);
             Message = Payload.substr(MessageStart + 1);
 
-            for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+            for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
               (*i)->QueueChatCommand(Message, Name, true, string());
           }
         }
@@ -1593,7 +1593,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         {
           string message = "Status: ";
 
-          for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+          for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
             message += (*i)->GetServer() + ((*i)->GetLoggedIn() ? " [online], " : " [offline], ");
 
           message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
@@ -1832,12 +1832,12 @@ CDBBan *CBNET::IsBannedName(string name)
 
 void CBNET::HoldFriends(CGame *game)
 {
-  for (vector<string> ::const_iterator i = m_Friends.begin(); i != m_Friends.end(); ++i)
+  for (auto i = m_Friends.begin(); i != m_Friends.end(); ++i)
     game->AddToReserved(*i);
 }
 
 void CBNET::HoldClan(CGame *game)
 {
-  for (vector<string> ::const_iterator i = m_Clans.begin(); i != m_Clans.end(); ++i)
+  for (auto i = m_Clans.begin(); i != m_Clans.end(); ++i)
     game->AddToReserved(*i);
 }

@@ -450,15 +450,15 @@ CAura::~CAura()
   delete m_GPSProtocol;
   // delete m_Map;
 
-  for (vector<CTCPSocket *>::const_iterator i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end(); ++i)
+  for (auto i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end(); ++i)
     delete *i;
 
-  for (vector<CBNET *>::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     delete *i;
 
   delete m_CurrentGame;
 
-  for (vector<CGame *>::const_iterator i = m_Games.begin(); i != m_Games.end(); ++i)
+  for (auto i = m_Games.begin(); i != m_Games.end(); ++i)
     delete *i;
 
   delete m_DB;
@@ -485,12 +485,12 @@ bool CAura::Update()
 
   // 2. all running games' player sockets
 
-  for (vector<CGame *> ::const_iterator i = m_Games.begin(); i != m_Games.end(); ++i)
+  for (auto i = m_Games.begin(); i != m_Games.end(); ++i)
     NumFDs += (*i)->SetFD(&fd, &send_fd, &nfds);
 
   // 3. all battle.net sockets
 
-  for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     NumFDs += (*i)->SetFD(&fd, &send_fd, &nfds);
 
   // 4. irc socket
@@ -513,7 +513,7 @@ bool CAura::Update()
 
   // 6. reconnect sockets
 
-  for (vector<CTCPSocket *>::const_iterator i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end(); ++i)
+  for (auto i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end(); ++i)
   {
     (*i)->SetFD(&fd, &send_fd, &nfds);
     ++NumFDs;
@@ -524,7 +524,7 @@ bool CAura::Update()
 
   unsigned long usecBlock = 50000;
 
-  for (vector<CGame *>::const_iterator i = m_Games.begin(); i != m_Games.end(); ++i)
+  for (auto i = m_Games.begin(); i != m_Games.end(); ++i)
   {
     if ((*i)->GetNextTimedActionTicks() * 1000 < usecBlock)
       usecBlock = (*i)->GetNextTimedActionTicks() * 1000;
@@ -558,7 +558,7 @@ bool CAura::Update()
 
   // update running games
 
-  for (vector<CGame *>::iterator i = m_Games.begin(); i != m_Games.end();)
+  for (auto i = m_Games.begin(); i != m_Games.end();)
   {
     if ((*i)->Update(&fd, &send_fd))
     {
@@ -584,7 +584,7 @@ bool CAura::Update()
       delete m_CurrentGame;
       m_CurrentGame = nullptr;
 
-      for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+      for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
       {
         (*i)->QueueGameUncreate();
         (*i)->QueueEnterChat();
@@ -596,7 +596,7 @@ bool CAura::Update()
 
   // update battle.net connections
 
-  for (vector<CBNET *>::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
   {
     if ((*i)->Update(&fd, &send_fd))
       Exit = true;
@@ -614,7 +614,7 @@ bool CAura::Update()
   if (NewSocket)
     m_ReconnectSockets.push_back(NewSocket);
 
-  for (vector<CTCPSocket *>::iterator i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end();)
+  for (auto i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end();)
   {
     if ((*i)->HasError() || !(*i)->GetConnected() || GetTime() - (*i)->GetLastRecv() >= 10)
     {
@@ -648,7 +648,7 @@ bool CAura::Update()
 
             CGamePlayer *Match = nullptr;
 
-            for (vector<CGame *> ::const_iterator j = m_Games.begin(); j != m_Games.end(); ++j)
+            for (auto j = m_Games.begin(); j != m_Games.end(); ++j)
             {
               if ((*j)->GetGameLoaded())
               {
@@ -736,7 +736,7 @@ void CAura::EventBNETGameRefreshFailed(CBNET *bnet)
 
 void CAura::EventGameDeleted(CGame *game)
 {
-  for (vector<CBNET *>::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
   {
     (*i)->QueueChatCommand("Game [" + game->GetDescription() + "] is over");
 
@@ -932,7 +932,7 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 {
   if (!m_Enabled)
   {
-    for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     {
       if ((*i)->GetServer() == creatorServer)
         (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
@@ -943,7 +943,7 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (gameName.size() > 31)
   {
-    for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     {
       if ((*i)->GetServer() == creatorServer)
         (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
@@ -954,7 +954,7 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (!map->GetValid())
   {
-    for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     {
       if ((*i)->GetServer() == creatorServer)
         (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
@@ -965,7 +965,7 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (m_CurrentGame)
   {
-    for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     {
       if ((*i)->GetServer() == creatorServer)
         (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
@@ -976,7 +976,7 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (m_Games.size() >= m_MaxGames)
   {
-    for (vector<CBNET *> ::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
     {
       if ((*i)->GetServer() == creatorServer)
         (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + ToString(m_MaxGames) + ") has been reached", creatorName, whisper, string());
@@ -989,7 +989,7 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   m_CurrentGame = new CGame(this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer);
 
-  for (vector<CBNET *>::const_iterator i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
   {
     if (whisper && (*i)->GetServer() == creatorServer)
     {

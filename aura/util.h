@@ -226,7 +226,7 @@ inline string ByteArrayToDecString(const BYTEARRAY &b)
 
   string result = ToString(b[0]);
 
-  for (BYTEARRAY::const_iterator i = b.begin() + 1; i != b.end(); ++i)
+  for (auto i = b.begin() + 1; i != b.end(); ++i)
     result += " " + ToString(*i);
 
   return result;
@@ -239,7 +239,7 @@ inline string ByteArrayToHexString(const BYTEARRAY &b)
 
   string result = ToHexString(b[0]);
 
-  for (BYTEARRAY::const_iterator i = b.begin() + 1; i != b.end(); ++i)
+  for (auto i = b.begin() + 1; i != b.end(); ++i)
   {
     if (*i < 16)
       result += " 0" + ToHexString(*i);
@@ -599,7 +599,7 @@ inline vector<string> Tokenize(const string &s, const char delim)
   vector<string> Tokens;
   string Token;
 
-  for (string::const_iterator i = s.begin(); i != s.end(); ++i)
+  for (auto i = s.begin(); i != s.end(); ++i)
   {
     if (*i == delim)
     {

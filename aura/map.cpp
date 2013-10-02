@@ -355,7 +355,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
           FileList.push_back("war3map.w3q");
           bool FoundScript = false;
 
-          for (vector<string> ::const_iterator i = FileList.begin(); i != FileList.end(); ++i)
+          for (auto i = FileList.begin(); i != FileList.end(); ++i)
           {
             // don't use scripts\war3map.j if we've already used war3map.j (yes, some maps have both but only war3map.j is used)
 
@@ -576,7 +576,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
                 {
                   if (PlayerMask & 1)
                   {
-                    for (vector<CGameSlot> ::iterator k = Slots.begin(); k != Slots.end(); ++k)
+                    for (auto k = Slots.begin(); k != Slots.end(); ++k)
                     {
                       if ((*k).GetColour() == j)
                         (*k).SetTeam(i);
@@ -605,7 +605,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
               uint32_t SlotNum = 1;
 
-              for (vector<CGameSlot> ::const_iterator i = Slots.begin(); i != Slots.end(); ++i)
+              for (auto i = Slots.begin(); i != Slots.end(); ++i)
               {
                 Print("[MAP] calculated map_slot" + ToString(SlotNum) + " = " + ByteArrayToDecString((*i).GetByteArray()));
                 ++SlotNum;
@@ -619,7 +619,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
                 unsigned char Team = 0;
 
-                for (vector<CGameSlot> ::iterator i = Slots.begin(); i != Slots.end(); ++i)
+                for (auto i = Slots.begin(); i != Slots.end(); ++i)
                 {
                   (*i).SetTeam(Team++);
                   (*i).SetRace(SLOTRACE_RANDOM);
@@ -632,7 +632,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
               {
                 // make races selectable
 
-                for (vector<CGameSlot> ::iterator i = Slots.begin(); i != Slots.end(); ++i)
+                for (auto i = Slots.begin(); i != Slots.end(); ++i)
                   (*i).SetRace((*i).GetRace() | SLOTRACE_SELECTABLE);
               }
             }
@@ -809,7 +809,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
   {
     Print("[MAP] forcing races to random");
 
-    for (vector<CGameSlot> ::iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+    for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
       (*i).SetRace(SLOTRACE_RANDOM);
   }
 

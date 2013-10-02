@@ -126,16 +126,16 @@ CGame::~CGame()
   delete m_Protocol;
   delete m_Map;
 
-  for (vector<CPotentialPlayer *>::const_iterator i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
+  for (auto i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
     delete *i;
 
-  for (vector<CGamePlayer *>::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     delete *i;
 
   // store the CDBGamePlayers in the database
   // add non-dota stats
 
-  for (vector<CDBGamePlayer *>::const_iterator i = m_DBGamePlayers.begin(); i != m_DBGamePlayers.end(); ++i)
+  for (auto i = m_DBGamePlayers.begin(); i != m_DBGamePlayers.end(); ++i)
     m_Aura->m_DB->GamePlayerAdd((*i)->GetName(), (*i)->GetLoadingTime(), m_GameTicks / 1000, (*i)->GetLeft());
 
   // store the dota stats in the database
@@ -149,10 +149,10 @@ CGame::~CGame()
     m_Actions.pop();
   }
 
-  for (vector<CDBGamePlayer *>::const_iterator i = m_DBGamePlayers.begin(); i != m_DBGamePlayers.end(); ++i)
+  for (auto i = m_DBGamePlayers.begin(); i != m_DBGamePlayers.end(); ++i)
     delete *i;
 
-  for (vector<CDBBan *>::const_iterator i = m_DBBans.begin(); i != m_DBBans.end(); ++i)
+  for (auto i = m_DBBans.begin(); i != m_DBBans.end(); ++i)
     delete *i;
 
   delete m_Stats;
@@ -180,7 +180,7 @@ uint32_t CGame::GetSlotsOccupied() const
 {
   uint32_t NumSlotsOccupied = 0;
 
-  for (vector<CGameSlot> ::const_iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+  for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
   {
     if ((*i).GetSlotStatus() == SLOTSTATUS_OCCUPIED)
       ++NumSlotsOccupied;
@@ -193,7 +193,7 @@ uint32_t CGame::GetSlotsOpen() const
 {
   uint32_t NumSlotsOpen = 0;
 
-  for (vector<CGameSlot> ::const_iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+  for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
   {
     if ((*i).GetSlotStatus() == SLOTSTATUS_OPEN)
       ++NumSlotsOpen;
@@ -211,7 +211,7 @@ uint32_t CGame::GetNumHumanPlayers() const
 {
   uint32_t NumHumanPlayers = 0;
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent())
       ++NumHumanPlayers;
@@ -236,7 +236,7 @@ string CGame::GetPlayers() const
 {
   string Players;
 
-  for (vector<CGamePlayer *>::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if ((*i)->GetLeftMessageSent() == false)
       Players += (*i)->GetName() + ", ";
@@ -260,13 +260,13 @@ unsigned int CGame::SetFD(void *fd, void *send_fd, int *nfds)
     ++NumFDs;
   }
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     (*i)->GetSocket()->SetFD((fd_set *) fd, (fd_set *) send_fd, nfds);
     ++NumFDs;
   }
 
-  for (vector<CPotentialPlayer *> ::const_iterator i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
+  for (auto i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
   {
     if ((*i)->GetSocket())
     {
@@ -326,7 +326,7 @@ bool CGame::Update(void *fd, void *send_fd)
 
   // update players
 
-  for (vector<CGamePlayer *> ::iterator i = m_Players.begin(); i != m_Players.end();)
+  for (auto i = m_Players.begin(); i != m_Players.end();)
   {
     if ((*i)->Update(fd))
     {
@@ -338,7 +338,7 @@ bool CGame::Update(void *fd, void *send_fd)
       ++i;
   }
 
-  for (vector<CPotentialPlayer *> ::iterator i = m_Potentials.begin(); i != m_Potentials.end();)
+  for (auto i = m_Potentials.begin(); i != m_Potentials.end();)
   {
     if ((*i)->Update(fd))
     {
@@ -366,7 +366,7 @@ bool CGame::Update(void *fd, void *send_fd)
     {
       string LaggingString;
 
-      for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+      for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
       {
         if (m_SyncCounter - (*i)->GetSyncCounter() > m_SyncLimit)
         {
@@ -391,7 +391,7 @@ bool CGame::Update(void *fd, void *send_fd)
 
         // reset everyone's drop vote
 
-        for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+        for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
           (*i)->SetDropVote(false);
 
         m_LastLagScreenResetTime = Time;
@@ -402,7 +402,7 @@ bool CGame::Update(void *fd, void *send_fd)
     {
       bool UsingGProxy = false;
 
-      for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+      for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
       {
         if ((*i)->GetGProxy())
         {
@@ -425,11 +425,11 @@ bool CGame::Update(void *fd, void *send_fd)
 
       if (Time - m_LastLagScreenResetTime >= 60)
       {
-        for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+        for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
         {
           // stop the lag screen
 
-          for (vector<CGamePlayer *> ::const_iterator j = m_Players.begin(); j != m_Players.end(); ++j)
+          for (auto j = m_Players.begin(); j != m_Players.end(); ++j)
           {
             if ((*j)->GetLagging())
               Send(*i, m_Protocol->SEND_W3GS_STOP_LAG(*j));
@@ -463,7 +463,7 @@ bool CGame::Update(void *fd, void *send_fd)
       // check if anyone has stopped lagging normally
       // we consider a player to have stopped lagging if they're less than half m_SyncLimit keepalives behind
 
-      for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+      for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
       {
         if ((*i)->GetLagging() && m_SyncCounter - (*i)->GetSyncCounter() < m_SyncLimit / 2)
         {
@@ -480,7 +480,7 @@ bool CGame::Update(void *fd, void *send_fd)
 
       bool Lagging = false;
 
-      for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+      for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
       {
         if ((*i)->GetLagging())
         {
@@ -524,7 +524,7 @@ bool CGame::Update(void *fd, void *send_fd)
   {
     bool FinishedLoading = true;
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       FinishedLoading = (*i)->GetFinishedLoading();
 
@@ -553,7 +553,7 @@ bool CGame::Update(void *fd, void *send_fd)
 
   if (m_GameOverTime != 0 && Time - m_GameOverTime >= 60)
   {
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if (!(*i)->GetDeleteMe())
       {
@@ -583,7 +583,7 @@ bool CGame::Update(void *fd, void *send_fd)
   {
     // send a game refresh packet to each battle.net connection
 
-    for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+    for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
     {
       // don't queue a game refresh message if the queue contains more than 1 packet because they're very low priority
 
@@ -614,7 +614,7 @@ bool CGame::Update(void *fd, void *send_fd)
   {
     uint32_t Downloaders = 0;
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if ((*i)->GetDownloadStarted() && !(*i)->GetDownloadFinished())
       {
@@ -689,7 +689,7 @@ bool CGame::Update(void *fd, void *send_fd)
   {
     // check if there's a player with reserved status in the game
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if ((*i)->GetReserved())
       {
@@ -742,12 +742,12 @@ void CGame::UpdatePost(void *send_fd)
   // this is in case player 2 generates a packet for player 1 during the update but it doesn't get sent because player 1 already finished updating
   // in reality since we're queueing actions it might not make a big difference but oh well
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     (*i)->GetSocket()->DoSend((fd_set *) send_fd);
   }
 
-  for (vector<CPotentialPlayer *> ::const_iterator i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
+  for (auto i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
   {
     if ((*i)->GetSocket())
       (*i)->GetSocket()->DoSend((fd_set *) send_fd);
@@ -773,7 +773,7 @@ void CGame::Send(const BYTEARRAY &PIDs, const BYTEARRAY &data)
 
 void CGame::SendAll(const BYTEARRAY &data)
 {
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     (*i)->Send(data);
 }
 
@@ -888,7 +888,7 @@ void CGame::SendFakePlayerInfo(CGamePlayer *player)
   IP.push_back(0);
   IP.push_back(0);
 
-  for (vector<unsigned char> ::const_iterator i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
+  for (auto i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
     Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(*i, "Troll[" + ToString(*i) + "]", IP, IP));
 }
 
@@ -896,7 +896,7 @@ void CGame::SendAllActions()
 {
   bool UsingGProxy = false;
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if ((*i)->GetGProxy())
     {
@@ -913,7 +913,7 @@ void CGame::SendAllActions()
     // GProxy++ will insert these itself so we don't need to send them to GProxy++ players
     // empty actions are used to extend the time a player can use when reconnecting
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if (!(*i)->GetGProxy())
       {
@@ -1049,7 +1049,7 @@ void CGame::EventPlayerDeleted(CGamePlayer *player)
 
     // also keep track of the last player to leave for the !banlast command
 
-    for (vector<CDBBan *> ::const_iterator i = m_DBBans.begin(); i != m_DBBans.end(); ++i)
+    for (auto i = m_DBBans.begin(); i != m_DBBans.end(); ++i)
     {
       if ((*i)->GetName() == player->GetName())
         m_DBBanLast = *i;
@@ -1196,7 +1196,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
   }
   else
   {
-    for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+    for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
     {
       if ((*i)->GetHostCounterID() == HostCounterID)
       {
@@ -1209,7 +1209,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
   // check if the new player's name is banned
   // don't allow the player to spam the chat by attempting to join the game multiple times in a row
 
-  for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+  for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
   {
     if ((*i)->GetServer() == JoinedRealm)
     {
@@ -1378,7 +1378,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
   SendVirtualHostPlayerInfo(Player);
   SendFakePlayerInfo(Player);
 
-  for (vector<CGamePlayer *>::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent() && *i != Player)
     {
@@ -1403,7 +1403,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
 
   string Others;
 
-  for (vector<CGamePlayer *>::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (Player != *i && Player->GetExternalIPString() == (*i)->GetExternalIPString())
     {
@@ -1486,7 +1486,7 @@ void CGame::EventPlayerKeepAlive(CGamePlayer *player)
 
   const uint32_t FirstCheckSum = player->GetCheckSums()->front();
 
-  for (vector<CGamePlayer *>::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if ((*i)->GetCheckSums()->empty())
       return;
@@ -1501,7 +1501,7 @@ void CGame::EventPlayerKeepAlive(CGamePlayer *player)
     }
   }
 
-  for (vector<CGamePlayer *>::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     (*i)->GetCheckSums()->pop();
 }
 
@@ -1607,7 +1607,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
   bool AdminCheck = false, RootAdminCheck = false;
 
-  for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+  for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
   {
     if (((*i)->GetServer() == player->GetSpoofedRealm() || player->GetJoinedRealm().empty()) && (*i)->IsRootAdmin(User))
     {
@@ -1619,7 +1619,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
   if (!RootAdminCheck)
   {
-    for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+    for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
     {
       if (((*i)->GetServer() == player->GetSpoofedRealm() || player->GetJoinedRealm().empty()) && (*i)->IsAdmin(User))
       {
@@ -1662,7 +1662,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         });
         string Pings;
 
-        for (vector<CGamePlayer *> ::const_iterator i = SortedPlayers.begin(); i != SortedPlayers.end(); ++i)
+        for (auto i = SortedPlayers.begin(); i != SortedPlayers.end(); ++i)
         {
           Pings += (*i)->GetName();
           Pings += ": ";
@@ -1712,7 +1712,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       {
         string Froms;
 
-        for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+        for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
         {
           // we reverse the byte order on the IP because it's stored in network byte order
 
@@ -1927,7 +1927,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
             if (SID < m_Slots.size())
             {
-              for (vector<unsigned char> ::iterator i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
+              for (auto i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
               {
                 if (m_Slots[SID].GetPID() == (*i))
                 {
@@ -1967,7 +1967,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           m_HostCounter = m_Aura->m_HostCounter++;
           m_RefreshError = false;
 
-          for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+          for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
           {
             // unqueue any existing game refreshes because we're going to assume the next successful game refresh indicates that the rehost worked
             // this ignores the fact that it's possible a game refresh was just sent and no response has been received yet
@@ -2008,7 +2008,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           m_HostCounter = m_Aura->m_HostCounter++;
           m_RefreshError = false;
 
-          for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+          for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
           {
             // unqueue any existing game refreshes because we're going to assume the next successful game refresh indicates that the rehost worked
             // this ignores the fact that it's possible a game refresh was just sent and no response has been received yet
@@ -2298,7 +2298,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           // try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
           // we use the m_DBBans vector for this in case the player already left and thus isn't in the m_Players vector anymore
 
-          for (vector<CDBBan *> ::const_iterator i = m_DBBans.begin(); i != m_DBBans.end(); ++i)
+          for (auto i = m_DBBans.begin(); i != m_DBBans.end(); ++i)
           {
             string TestName = (*i)->GetName();
             transform(TestName.begin(), TestName.end(), TestName.begin(), ::tolower);
@@ -2363,7 +2363,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           {
             bool LastMatchAdminCheck = false;
 
-            for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+            for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
             {
               if (((*i)->GetServer() == LastMatch->GetSpoofedRealm() || LastMatch->GetJoinedRealm().empty()) && (*i)->IsAdmin(LastMatch->GetName()))
               {
@@ -2374,7 +2374,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
             bool LastMatchRootAdminCheck = false;
 
-            for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+            for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
             {
               if (((*i)->GetServer() == LastMatch->GetSpoofedRealm() || LastMatch->GetJoinedRealm().empty()) && (*i)->IsRootAdmin(LastMatch->GetName()))
               {
@@ -2398,7 +2398,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
       else if (Command == "checkban" && !Payload.empty() && !m_Aura->m_BNETs.empty())
       {
-        for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+        for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
         {
           CDBBan *Ban = m_Aura->m_DB->BanCheck((*i)->GetServer(), Payload);
 
@@ -2430,7 +2430,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       {
         string message = "Status: ";
 
-        for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+        for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
           message += (*i)->GetServer() + ((*i)->GetLoggedIn() ? " [online], " : " [offline], ");
 
         SendAllChat(message + m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]"));
@@ -2510,7 +2510,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
       else if (Command == "say" && !Payload.empty())
       {
-        for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+        for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
           (*i)->QueueChatCommand(Payload);
       }
 
@@ -2766,7 +2766,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           Name = Payload.substr(0, MessageStart);
           Message = Payload.substr(MessageStart + 1);
 
-          for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+          for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
             (*i)->QueueChatCommand(Message, Name, true, string());
         }
       }
@@ -2777,7 +2777,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
       else if (Command == "whois" && !Payload.empty())
       {
-        for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+        for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
           (*i)->QueueChatCommand("/whois " + Payload);
       }
 
@@ -3034,7 +3034,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           m_KickVotePlayer = LastMatch->GetName();
           m_StartedKickVoteTime = GetTime();
 
-          for (vector<CGamePlayer *> ::iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+          for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
             (*i)->SetKickVote(false);
 
           player->SetKickVote(true);
@@ -3057,7 +3057,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
     player->SetKickVote(true);
     uint32_t Votes = 0, VotesNeeded = (uint32_t) ceil((GetNumHumanPlayers() - 1) * (float) m_Aura->m_VoteKickPercentage / 100);
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if ((*i)->GetKickVote())
         ++Votes;
@@ -3236,7 +3236,7 @@ void CGame::EventPlayerDropRequest(CGamePlayer *player)
 
     int Votes = 0;
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if ((*i)->GetDropVote())
         ++Votes;
@@ -3392,7 +3392,7 @@ void CGame::EventGameStarted()
 
         unsigned char CurrentSlot = 0;
 
-        for (string::const_iterator si = m_HCLCommandString.begin(); si != m_HCLCommandString.end(); ++si)
+        for (auto si = m_HCLCommandString.begin(); si != m_HCLCommandString.end(); ++si)
         {
           while (m_Slots[CurrentSlot].GetSlotStatus() != SLOTSTATUS_OCCUPIED)
             ++CurrentSlot;
@@ -3440,7 +3440,7 @@ void CGame::EventGameStarted()
 
   // send a game loaded packet for the fake player (if present)
 
-  for (vector<unsigned char> ::const_iterator i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
+  for (auto i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
     SendAll(m_Protocol->SEND_W3GS_GAMELOADED_OTHERS(*i));
 
   // record the number of starting players
@@ -3464,7 +3464,7 @@ void CGame::EventGameStarted()
 
   // delete any potential players that are still hanging around
 
-  for (vector<CPotentialPlayer *> ::const_iterator i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
+  for (auto i = m_Potentials.begin(); i != m_Potentials.end(); ++i)
     delete *i;
 
   m_Potentials.clear();
@@ -3481,7 +3481,7 @@ void CGame::EventGameStarted()
 
   // and finally reenter battle.net chat
 
-  for (vector<CBNET *> ::const_iterator i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+  for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
   {
     (*i)->QueueGameUncreate();
     (*i)->QueueEnterChat();
@@ -3492,7 +3492,7 @@ void CGame::EventGameStarted()
   // but since the player has already left the game we don't have access to their information anymore
   // so we create a "potential ban" for each player and only store it in the database if requested to by an admin
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     m_DBBans.push_back(new CDBBan((*i)->GetJoinedRealm(), (*i)->GetName(), string(), string(), string()));
 }
 
@@ -3505,7 +3505,7 @@ void CGame::EventGameLoaded()
   CGamePlayer *Shortest = nullptr;
   CGamePlayer *Longest = nullptr;
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!Shortest || (*i)->GetFinishedLoadingTicks() < Shortest->GetFinishedLoadingTicks())
       Shortest = *i;
@@ -3520,7 +3520,7 @@ void CGame::EventGameLoaded()
     SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + ToString((float)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
   }
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     SendChat(*i, "Your load time was " + ToString((float)((*i)->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
 }
 
@@ -3540,7 +3540,7 @@ unsigned char CGame::GetSIDFromPID(unsigned char PID)
 
 CGamePlayer *CGame::GetPlayerFromPID(unsigned char PID)
 {
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent() && (*i)->GetPID() == PID)
       return *i;
@@ -3556,7 +3556,7 @@ CGamePlayer *CGame::GetPlayerFromSID(unsigned char SID)
 
   const unsigned char PID = m_Slots[SID].GetPID();
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent() && (*i)->GetPID() == PID)
       return *i;
@@ -3570,7 +3570,7 @@ CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive)
   if (!sensitive)
     transform(name.begin(), name.end(), name.begin(), ::tolower);
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent())
     {
@@ -3595,7 +3595,7 @@ uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player)
 
   // try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent())
     {
@@ -3623,7 +3623,7 @@ uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player)
 
 string CGame::GetDBPlayerNameFromColour(unsigned char colour) const
 {
-  for (vector<CDBGamePlayer *>::const_iterator i = m_DBGamePlayers.begin(); i != m_DBGamePlayers.end(); ++i)
+  for (auto i = m_DBGamePlayers.begin(); i != m_DBGamePlayers.end(); ++i)
   {
     if ((*i)->GetColour() == colour)
       return (*i)->GetName();
@@ -3654,7 +3654,7 @@ unsigned char CGame::GetNewPID()
 
     bool InUse = false;
 
-    for (vector<unsigned char> ::const_iterator i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
+    for (auto i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
     {
       if (*i == TestPID)
       {
@@ -3666,7 +3666,7 @@ unsigned char CGame::GetNewPID()
     if (InUse)
       continue;
 
-    for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+    for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
     {
       if (!(*i)->GetLeftMessageSent() && (*i)->GetPID() == TestPID)
       {
@@ -3714,7 +3714,7 @@ BYTEARRAY CGame::GetPIDs()
 {
   BYTEARRAY result;
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent())
       result.push_back((*i)->GetPID());
@@ -3727,7 +3727,7 @@ BYTEARRAY CGame::GetPIDs(unsigned char excludePID)
 {
   BYTEARRAY result;
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent() && (*i)->GetPID() != excludePID)
       result.push_back((*i)->GetPID());
@@ -3751,7 +3751,7 @@ unsigned char CGame::GetHostPID()
 
   // try to find the owner player next
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent() && IsOwner((*i)->GetName()))
       return (*i)->GetPID();
@@ -3759,7 +3759,7 @@ unsigned char CGame::GetHostPID()
 
   // okay then, just use the first available player
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if (!(*i)->GetLeftMessageSent())
       return (*i)->GetPID();
@@ -4007,7 +4007,7 @@ void CGame::OpenAllSlots()
 {
   bool Changed = false;
 
-  for (vector<CGameSlot> ::iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+  for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
   {
     if ((*i).GetSlotStatus() == SLOTSTATUS_CLOSED)
     {
@@ -4024,7 +4024,7 @@ void CGame::CloseAllSlots()
 {
   bool Changed = false;
 
-  for (vector<CGameSlot> ::iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+  for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
   {
     if ((*i).GetSlotStatus() == SLOTSTATUS_OPEN)
     {
@@ -4045,7 +4045,7 @@ void CGame::ShuffleSlots()
 
   vector<CGameSlot> PlayerSlots;
 
-  for (vector<CGameSlot> ::const_iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+  for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
   {
     if ((*i).GetSlotStatus() == SLOTSTATUS_OCCUPIED && (*i).GetComputer() == 0 && (*i).GetTeam() != 12)
       PlayerSlots.push_back(*i);
@@ -4088,10 +4088,10 @@ void CGame::ShuffleSlots()
 
   // now we put m_Slots back together again
 
-  vector<CGameSlot> ::const_iterator CurrentPlayer = PlayerSlots.begin();
+  auto CurrentPlayer = PlayerSlots.begin();
   vector<CGameSlot> Slots;
 
-  for (vector<CGameSlot> ::const_iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+  for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
   {
     if ((*i).GetSlotStatus() == SLOTSTATUS_OCCUPIED && (*i).GetComputer() == 0 && (*i).GetTeam() != 12)
     {
@@ -4129,7 +4129,7 @@ void CGame::AddToReserved(string name)
 
   // check that the user is not already reserved
 
-  for (vector<string> ::const_iterator i = m_Reserved.begin(); i != m_Reserved.end(); ++i)
+  for (auto i = m_Reserved.begin(); i != m_Reserved.end(); ++i)
   {
     if (*i == name)
       return;
@@ -4139,7 +4139,7 @@ void CGame::AddToReserved(string name)
 
   // upgrade the user if they're already in the game
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     string NameLower = (*i)->GetName();
     transform(NameLower.begin(), NameLower.end(), NameLower.begin(), ::tolower);
@@ -4162,7 +4162,7 @@ bool CGame::IsReserved(string name)
 {
   transform(name.begin(), name.end(), name.begin(), ::tolower);
 
-  for (vector<string> ::const_iterator i = m_Reserved.begin(); i != m_Reserved.end(); ++i)
+  for (auto i = m_Reserved.begin(); i != m_Reserved.end(); ++i)
   {
     if (*i == name)
       return true;
@@ -4175,7 +4175,7 @@ bool CGame::IsDownloading()
 {
   // returns true if at least one player is downloading the map
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if ((*i)->GetDownloadStarted() && !(*i)->GetDownloadFinished())
       return true;
@@ -4207,7 +4207,7 @@ void CGame::StartCountDown(bool force)
 
       string StillDownloading;
 
-      for (vector<CGameSlot> ::const_iterator i = m_Slots.begin(); i != m_Slots.end(); ++i)
+      for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
       {
         if ((*i).GetSlotStatus() == SLOTSTATUS_OCCUPIED && (*i).GetComputer() == 0 && (*i).GetDownloadStatus() != 100)
         {
@@ -4231,7 +4231,7 @@ void CGame::StartCountDown(bool force)
 
       string NotPinged;
 
-      for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+      for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
       {
         if (!(*i)->GetReserved() && (*i)->GetNumPings() < 3)
         {
@@ -4263,7 +4263,7 @@ void CGame::StopPlayers(const string &reason)
   // therefore calling this function when m_GameLoading || m_GameLoaded is roughly equivalent to setting m_Exiting = true
   // the only difference is whether the code in the Update function is executed or not
 
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     (*i)->SetDeleteMe(true);
     (*i)->SetLeftReason(reason);
@@ -4273,7 +4273,7 @@ void CGame::StopPlayers(const string &reason)
 
 void CGame::StopLaggers(const string &reason)
 {
-  for (vector<CGamePlayer *> ::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
+  for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
   {
     if ((*i)->GetLagging())
     {
@@ -4334,7 +4334,7 @@ void CGame::DeleteFakePlayers()
 
   for (unsigned char i = 0; i < m_Slots.size(); ++i)
   {
-    for (vector<unsigned char> ::const_iterator j = m_FakePlayers.begin(); j != m_FakePlayers.end(); ++j)
+    for (auto j = m_FakePlayers.begin(); j != m_FakePlayers.end(); ++j)
     {
       if (m_Slots[i].GetPID() == *j)
       {
