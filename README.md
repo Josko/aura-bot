@@ -19,7 +19,7 @@ Other changes:
 * Uses C++11
 * Has a Windows 64-bit build
 * Uses SQLite and a different database organization.
-* Tested on OS X
+* Tested on OS X (10.7 or later)
 * A lot of code removed, about 1 MB smaller binary on Linux
 * Updated SQLite library
 * Updated zlib
@@ -78,7 +78,15 @@ Now you can run Aura by executing `./aura++`.
 
 ### OS X
 
-Most likely you'll need a more recent version of libgmp. Using [Homebrew](http://brew.sh/):
+To build `aura` you need OSX 10.7 Lion or later and Xcode 4.6 or later.
+[Xcode](https://developer.apple.com/xcode/) is the basic dependency for building anything on OS X.
+Apple's development tool is a free download from the MacAppStore or downloadable in Apple's Developer Area (a free membership is sufficient). 
+After you installed Xcode, go to its preferences and install the `Command Line Tools`.
+
+Most likely you'll need a more recent version of libgmp.
+The easiest way to get one is by using [Homebrew](http://brew.sh/).
+After a successful install open (or reopen) `Terminal.app` located in `/Applications/Utilities` and execute 
+
 
 	brew install gmp
    
