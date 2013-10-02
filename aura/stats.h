@@ -31,9 +31,11 @@
 // and in the Save function you write the results to the database
 // e.g. for dota the number of kills/deaths/assists, etc...
 
+class CGame;
+class CDBDotAPlayer;
 class CIncomingAction;
+class CAura;
 class CAuraDB;
-
 class CStats
 {
 protected:

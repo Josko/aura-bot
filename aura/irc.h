@@ -21,6 +21,8 @@
 #ifndef IRC_H
 #define IRC_H
 
+#include "includes.h"
+
 #define LF ('\x0A')
 
 class CAura;

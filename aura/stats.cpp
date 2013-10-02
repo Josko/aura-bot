@@ -18,13 +18,13 @@
 
  */
 
+#include "stats.h"
 #include "aura.h"
-#include "util.h"
 #include "auradb.h"
+#include "game.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
-#include "game.h"
-#include "stats.h"
+#include "util.h"
 
 //
 // CStats

@@ -89,6 +89,11 @@ CREATE TEMPORARY TABLE rootadmins (
 // CSQLITE3 (wrapper class)
 //
 
+#include "includes.h"
+
+struct sqlite3;
+struct sqlite3_stmt;
+
 class CSQLITE3
 {
 private:
@@ -116,6 +121,7 @@ public:
 
 class CDBDotAPlayerSummary;
 class CDBGamePlayerSummary;
+class CConfig;
 class CDBBan;
 
 class CAuraDB

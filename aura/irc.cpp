@@ -18,8 +18,8 @@
 
  */
 
-#include "aura.h"
 #include "irc.h"
+#include "aura.h"
 #include "socket.h"
 #include "util.h"
 #include "bnetprotocol.h"

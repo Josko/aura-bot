@@ -22,14 +22,7 @@
 #include <stdio.h>  // Needed for file access
 #include <memory.h> // Needed for memset and memcpy
 #include <string.h> // Needed for strcat and strcpy
-
-// standard integer sizes for 64 bit compatibility
-
-#ifdef WIN32
-#include "ms_stdint.h"
-#else
-#include <stdint.h>
-#endif
+#include <cstdint>
 
 #define MAX_FILE_READ_BUFFER 8000
 

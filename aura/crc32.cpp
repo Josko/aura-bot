@@ -1,4 +1,3 @@
-#include "aura.h"
 #include "crc32.h"
 
 void CCRC32::Initialize( )

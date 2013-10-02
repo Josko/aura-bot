@@ -18,11 +18,12 @@
 
  */
 
+#include "gameprotocol.h"
 #include "aura.h"
 #include "util.h"
 #include "crc32.h"
 #include "gameplayer.h"
-#include "gameprotocol.h"
+#include "gameslot.h"
 #include "game.h"
 
 //

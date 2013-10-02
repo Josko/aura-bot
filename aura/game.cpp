@@ -18,6 +18,7 @@
 
  */
 
+#include "game.h"
 #include "aura.h"
 #include "util.h"
 #include "config.h"
@@ -27,7 +28,6 @@
 #include "map.h"
 #include "gameplayer.h"
 #include "gameprotocol.h"
-#include "game.h"
 #include "stats.h"
 #include "irc.h"
 

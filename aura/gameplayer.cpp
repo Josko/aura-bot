@@ -18,10 +18,10 @@
 
  */
 
+#include "gameplayer.h"
 #include "aura.h"
 #include "bnet.h"
 #include "map.h"
-#include "gameplayer.h"
 #include "gameprotocol.h"
 #include "gpsprotocol.h"
 #include "game.h"

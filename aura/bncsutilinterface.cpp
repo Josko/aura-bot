@@ -18,9 +18,11 @@
 
  */
 
+#include "bncsutilinterface.h"
+
 #include "aura.h"
 #include "util.h"
-#include "bncsutilinterface.h"
+
 
 #include <bncsutil/bncsutil.h>
 

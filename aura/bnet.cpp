@@ -18,6 +18,7 @@
 
  */
 
+#include "bnet.h"
 #include "aura.h"
 #include "util.h"
 #include "config.h"
@@ -25,7 +26,6 @@
 #include "auradb.h"
 #include "bncsutilinterface.h"
 #include "bnetprotocol.h"
-#include "bnet.h"
 #include "map.h"
 #include "gameprotocol.h"
 #include "game.h"

@@ -21,10 +21,13 @@
 #ifndef BNET_H
 #define BNET_H
 
+#include "includes.h"
+
 //
 // CBNET
 //
 
+class CAura;
 class CTCPClient;
 class CBNCSUtilInterface;
 class CBNETProtocol;
@@ -33,6 +36,7 @@ class CGame;
 class CIncomingChatEvent;
 class CDBBan;
 class CIRC;
+class CMap;
 
 class CBNET
 {

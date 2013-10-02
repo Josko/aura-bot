@@ -18,9 +18,8 @@
 
  */
 
-#include "aura.h"
-#include "util.h"
 #include "bnetprotocol.h"
+#include "util.h"
 
 CBNETProtocol::CBNETProtocol()
   : m_ClientToken(BYTEARRAY {220, 1, 203, 7})

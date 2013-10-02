@@ -27,6 +27,8 @@
 
 #define BNET_HEADER_CONSTANT 255
 
+#include "includes.h"
+
 class CIncomingGameHost;
 class CIncomingChatEvent;
 

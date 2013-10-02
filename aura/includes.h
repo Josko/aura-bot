@@ -21,14 +21,6 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-// standard integer sizes for 64 bit compatibility
-
-#ifdef WIN32
-#include "ms_stdint.h"
-#else
-#include <stdint.h>
-#endif
-
 // STL
 
 #include <fstream>
@@ -41,6 +33,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <cstdint>
 
 using namespace std;
 

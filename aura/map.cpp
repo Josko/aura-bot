@@ -18,12 +18,13 @@
 
  */
 
+#include "map.h"
 #include "aura.h"
 #include "util.h"
 #include "crc32.h"
 #include "sha1.h"
 #include "config.h"
-#include "map.h"
+#include "gameslot.h"
 
 #define __STORMLIB_SELF__
 #include <stormlib/StormLib.h>

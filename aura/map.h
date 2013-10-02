@@ -83,11 +83,15 @@
 #define MAPGAMETYPE_OBSONDEATH            1 << 21
 #define MAPGAMETYPE_OBSNONE               1 << 22
 
-#include "gameslot.h"
-
 //
 // CMap
 //
+
+#include "includes.h"
+
+class CAura;
+class CGameSlot;
+class CConfig;
 
 class CMap
 {

@@ -21,6 +21,8 @@
 #ifndef GAMESLOT_H
 #define GAMESLOT_H
 
+#include "includes.h"
+
 #define SLOTSTATUS_OPEN     0
 #define SLOTSTATUS_CLOSED   1
 #define SLOTSTATUS_OCCUPIED 2

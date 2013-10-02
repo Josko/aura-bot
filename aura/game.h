@@ -27,6 +27,7 @@
 // CGame
 //
 
+class CAura;
 class CTCPServer;
 class CGameProtocol;
 class CPotentialPlayer;

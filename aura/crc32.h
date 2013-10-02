@@ -3,6 +3,8 @@
 
 #define CRC32_POLYNOMIAL 0x04c11db7
 
+#include <cstdint>
+
 class CCRC32
 {
 public:

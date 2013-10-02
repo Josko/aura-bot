@@ -21,7 +21,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "aura.h"
+#include "includes.h"
 #include <sys/stat.h>
 
 #ifndef WIN32
@@ -408,7 +408,26 @@ inline vector<string> FilesMatch(const string &path, const string &pattern)
   vector<string> Files;
 
 #ifdef WIN32
-  // TODO implement for Windows
+  /*
+  WIN32_FIND_DATAA data;
+  memset(&data, 0, sizeof(WIN32_FIND_DATAA));
+
+  HANDLE handle = FindFirstFileA(path.c_str(), &data);
+
+  while(handle != INVALID_HANDLE_VALUE)
+  {
+	  string Name = string(data.cFileName);
+	  transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+
+	  if (Name.find(pattern) != string::npos)
+		  Files.push_back(string(data.cFileName));
+
+	  if(FindNextFileA(handle, &data) == FALSE)
+		  break;
+  }
+
+  FindClose(handle);
+  */
 #else
   DIR *dir = opendir(path.c_str());
 

@@ -21,6 +21,8 @@
 #ifndef GAMEPROTOCOL_H
 #define GAMEPROTOCOL_H
 
+#include "includes.h"
+
 //
 // CGameProtocol
 //
@@ -48,13 +50,13 @@
 #define REJECTJOIN_STARTED         10
 #define REJECTJOIN_WRONGPASSWORD   27
 
-#include "gameslot.h"
-
+class CAura;
 class CGamePlayer;
 class CIncomingJoinPlayer;
 class CIncomingAction;
 class CIncomingChatPlayer;
 class CIncomingMapSize;
+class CGameSlot;
 
 class CGameProtocol
 {

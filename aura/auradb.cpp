@@ -18,10 +18,11 @@
 
  */
 
+#include "auradb.h"
 #include "aura.h"
 #include "util.h"
 #include "config.h"
-#include "auradb.h"
+#include "sqlite3.h"
 
 //
 // CQSLITE3 (wrapper class)

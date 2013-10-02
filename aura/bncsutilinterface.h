@@ -21,6 +21,8 @@
 #ifndef BNCSUTIL_INTERFACE_H
 #define BNCSUTIL_INTERFACE_H
 
+#include "includes.h"
+
 //
 // CBNCSUtilInterface
 //
