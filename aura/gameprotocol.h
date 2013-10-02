@@ -103,7 +103,7 @@ public:
     W3GS_INCOMING_ACTION2   = 72  // 0x48 - received this packet when there are too many actions to fit in W3GS_INCOMING_ACTION
   };
 
-  CGameProtocol(CAura *nAura);
+  explicit CGameProtocol(CAura *nAura);
   ~CGameProtocol();
 
   // receive functions

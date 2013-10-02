@@ -101,7 +101,7 @@ private:
   bool m_Ready;
 
 public:
-  CSQLITE3(const string &filename);
+  explicit CSQLITE3(const string &filename);
   ~CSQLITE3();
   CSQLITE3(CSQLITE3 &) = delete;
 
@@ -143,7 +143,7 @@ private:
 
   bool m_HasError;
 public:
-  CAuraDB(CConfig *CFG);
+  explicit CAuraDB(CConfig *CFG);
   ~CAuraDB();
   CAuraDB(CAuraDB &) = delete;
 

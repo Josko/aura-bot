@@ -44,7 +44,7 @@ protected:
   unsigned char m_Winner;
 
 public:
-  CStats(CGame *nGame);
+  explicit CStats(CGame *nGame);
   ~CStats();
   CStats(CStats &) = delete;
 

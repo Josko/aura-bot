@@ -56,7 +56,7 @@ private:
   unsigned char m_Handicap;       // handicap
 
 public:
-  CGameSlot( BYTEARRAY &n );
+  explicit CGameSlot( BYTEARRAY &n );
   CGameSlot( unsigned char nPID, unsigned char nDownloadStatus, unsigned char nSlotStatus, unsigned char nComputer, unsigned char nTeam, unsigned char nColour, unsigned char nRace, unsigned char nComputerType = 1, unsigned char nHandicap = 100 );
   ~CGameSlot( );
 
