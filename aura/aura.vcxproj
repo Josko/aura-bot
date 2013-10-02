@@ -134,6 +134,7 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="crc32.cpp" />
     <ClCompile Include="csvparser.cpp" />
+    <ClCompile Include="fileutil.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="gameplayer.cpp" />
     <ClCompile Include="gameprotocol.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="crc32.h" />
     <ClInclude Include="csvparser.h" />
+    <ClInclude Include="fileutil.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="gameplayer.h" />
     <ClInclude Include="gameprotocol.h" />

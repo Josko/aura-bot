@@ -32,6 +32,8 @@
 #include "gpsprotocol.h"
 #include "game.h"
 #include "irc.h"
+#include "util.h"
+#include "fileutil.h"
 
 #include <csignal>
 #include <cstdlib>
@@ -51,8 +53,6 @@
 #ifdef __APPLE__
 #include <mach/mach_time.h>
 #endif
-
-#include "util.h"
 
 #define VERSION "1.20"
 

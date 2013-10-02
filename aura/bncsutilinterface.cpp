@@ -19,10 +19,9 @@
  */
 
 #include "bncsutilinterface.h"
-
 #include "aura.h"
 #include "util.h"
-
+#include "fileutil.h"
 
 #include <bncsutil/bncsutil.h>
 

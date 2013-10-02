@@ -72,6 +72,9 @@
     <ClCompile Include="irc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fileutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bncsutilinterface.h">
@@ -141,6 +144,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="irc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,6 +21,8 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "util.h"
+
 #ifdef WIN32
 #include <winsock2.h>
 #include <errno.h>
@@ -82,8 +84,6 @@ typedef int SOCKET;
 
 extern int GetLastError();
 #endif
-
-#include "util.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE -1

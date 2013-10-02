@@ -21,6 +21,7 @@
 #include "bnet.h"
 #include "aura.h"
 #include "util.h"
+#include "fileutil.h"
 #include "config.h"
 #include "socket.h"
 #include "auradb.h"
