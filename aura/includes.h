@@ -42,8 +42,8 @@ typedef pair<unsigned char, string> PIDPlayer;
 
 // time
 
-uint32_t GetTime( );  // seconds
-uint32_t GetTicks( ); // milliseconds
+uint32_t GetTime();   // seconds
+uint32_t GetTicks();  // milliseconds
 
 #ifdef WIN32
 #define MILLISLEEP( x ) Sleep( x )
@@ -58,7 +58,7 @@ uint32_t GetTicks( ); // milliseconds
 
 // output
 
-void Print( const string &message );  // outputs to console
-void Print2( const string &message ); // outputs to console and irc
+void Print(const string &message);    // outputs to console
+void Print2(const string &message);   // outputs to console and irc
 
 #endif
