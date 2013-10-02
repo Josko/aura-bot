@@ -18,6 +18,7 @@ ifeq ($(SYSTEM),Darwin)
 	CXXFLAGS += -stdlib=libc++
 	CC = clang
 	CXX = clang++
+	OFLAGS = -O4
 	DFLAGS += -D__APPLE__
 else
 	LFLAGS += -lrt
