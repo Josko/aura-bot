@@ -28,7 +28,6 @@ Other changes:
 * No warnings with gcc or clang, cppcheck clean
 * Up to 11 fakeplayers can be added.
 * Uses DotA stats automagically on maps with 'DotA' in the filename
-* Uses fewer boost libraries
 * Single-threaded execution
 * Auto spoofcheck in private games on PvPGNs
 * More commands added either ingame or bnet
