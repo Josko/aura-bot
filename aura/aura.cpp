@@ -54,7 +54,7 @@
 #include <mach/mach_time.h>
 #endif
 
-#define VERSION "1.20"
+#define VERSION "1.21"
 
 static CAura *gAura = nullptr;
 bool gRestart = false;
