@@ -66,7 +66,7 @@ BYTEARRAY CGPSProtocol::SEND_GPSC_ACK(uint32_t lastPacket)
 
 BYTEARRAY CGPSProtocol::SEND_GPSS_INIT(uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions)
 {
-  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 14, 0};
+  BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 12, 0};
   AppendByteArray(packet, reconnectPort, false);
   packet.push_back(PID);
   AppendByteArray(packet, reconnectKey, false);
