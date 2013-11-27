@@ -868,11 +868,7 @@ void CGame::SendVirtualHostPlayerInfo(CGamePlayer *player)
   if (m_VirtualHostPID == 255)
     return;
 
-  BYTEARRAY IP;
-  IP.push_back(0);
-  IP.push_back(0);
-  IP.push_back(0);
-  IP.push_back(0);
+  const BYTEARRAY IP = {0, 0, 0, 0};
 
   Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(m_VirtualHostPID, m_VirtualHostName, IP, IP));
 }
@@ -882,11 +878,7 @@ void CGame::SendFakePlayerInfo(CGamePlayer *player)
   if (m_FakePlayers.empty())
     return;
 
-  BYTEARRAY IP;
-  IP.push_back(0);
-  IP.push_back(0);
-  IP.push_back(0);
-  IP.push_back(0);
+  const BYTEARRAY IP = {0, 0, 0, 0};
 
   for (auto i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
     Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(*i, "Troll[" + ToString(*i) + "]", IP, IP));
@@ -4291,7 +4283,7 @@ void CGame::CreateVirtualHost()
 
   m_VirtualHostPID = GetNewPID();
 
-  const BYTEARRAY IP = { 0, 0, 0, 0 };
+  const BYTEARRAY IP = {0, 0, 0, 0};
 
   SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(m_VirtualHostPID, m_VirtualHostName, IP, IP));
 }
@@ -4318,7 +4310,7 @@ void CGame::CreateFakePlayer()
       DeleteVirtualHost();
 
     const unsigned char FakePlayerPID = GetNewPID();
-    const BYTEARRAY IP = { 0, 0, 0, 0 };
+    const BYTEARRAY IP = {0, 0, 0, 0};
 
     SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(FakePlayerPID, "Troll[" + ToString(FakePlayerPID) + "]", IP, IP));
     m_Slots[SID] = CGameSlot(FakePlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam(), m_Slots[SID].GetColour(), m_Slots[SID].GetRace());
