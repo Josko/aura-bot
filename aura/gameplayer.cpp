@@ -355,8 +355,6 @@ bool CGamePlayer::Update(void *fd)
       {
         if (Bytes.size() >= Length)
         {
-          const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
-
           if (Bytes[1] == CGPSProtocol::GPS_ACK && Data.size() == 8)
           {
             const uint32_t LastPacket = ByteArrayToUInt32(Data, false, 4);
