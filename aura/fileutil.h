@@ -18,10 +18,10 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 
 */
 
-#include "includes.h"
-
 #ifndef AURA_FILEUTIL_H_
 #define AURA_FILEUTIL_H_
+
+#include "includes.h"
 
 #ifdef WIN32
 bool FileExists(std::string file);
