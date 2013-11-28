@@ -135,6 +135,10 @@ public:
   CDBBan *IsBannedName(std::string name);
   void HoldFriends(CGame *game);
   void HoldClan(CGame *game);
+
+private:
+  std::vector<std::string> MapFilesMatch(std::string pattern);
+  std::vector<std::string> ConfigFilesMatch(std::string pattern);
 };
 
 #endif  // AURA_BNET_H_

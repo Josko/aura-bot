@@ -585,9 +585,6 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
           else
           {
-            string Pattern = Payload;
-            transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
-
             if (!FileExists(m_Aura->m_MapPath))
             {
               Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
@@ -595,7 +592,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             }
             else
             {
-              const vector<string> Matches = FilesMatch(m_Aura->m_MapPath, Pattern);
+              const vector<string> Matches = MapFilesMatch(Payload);
 
               if (Matches.empty())
                 QueueChatCommand("No maps found with that name", User, Whisper, m_IRC);
@@ -677,9 +674,6 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
           else
           {
-            string Pattern = Payload;
-            transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::tolower);
-
             if (!FileExists(m_Aura->m_MapCFGPath))
             {
               Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
@@ -687,7 +681,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             }
             else
             {
-              const vector<string> Matches = FilesMatch(m_Aura->m_MapCFGPath, Pattern);
+              const vector<string> Matches = ConfigFilesMatch(Payload);
 
               if (Matches.empty())
                 QueueChatCommand("No map configs found with that name", User, Whisper, m_IRC);
@@ -1843,4 +1837,43 @@ void CBNET::HoldClan(CGame *game)
 {
   for (auto & clanmate : m_Clan)
     game->AddToReserved(clanmate);
+}
+
+vector<string> CBNET::MapFilesMatch(string pattern)
+{
+  transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
+
+  auto ROCMaps = FilesMatch(m_Aura->m_MapCFGPath, ".w3m");
+  auto TFTMaps = FilesMatch(m_Aura->m_MapCFGPath, ".w3x");
+
+  vector<string> MapList;
+  MapList.insert(end(MapList), begin(ROCMaps), end(ROCMaps));
+  MapList.insert(end(MapList), begin(TFTMaps), end(TFTMaps));
+
+  vector<string> Matches;
+
+  for (auto & mapName : MapList)
+  {
+    if (mapName.find(pattern) != string::npos)
+      Matches.push_back(mapName);
+  }
+
+  return Matches;
+}
+
+vector<string> CBNET::ConfigFilesMatch(string pattern)
+{
+  transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
+
+  vector<string> ConfigList = FilesMatch(m_Aura->m_MapCFGPath, ".cfg");
+
+  vector<string> Matches;
+
+  for (auto & cfgName : ConfigList)
+  {
+    if (cfgName.find(pattern) != string::npos)
+      Matches.push_back(cfgName);
+  }
+
+  return Matches;
 }
