@@ -1088,7 +1088,7 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
   if (dontRoute)
     OptVal = 1;
 
-  // don't route packets; make them ignore routes set by routing table and send them to the int32_terface
+  // don't route packets; make them ignore routes set by routing table and send them to the interface
   // belonging to the target address directly
 
   setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *) &OptVal, sizeof(int32_t));
