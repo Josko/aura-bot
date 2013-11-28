@@ -95,8 +95,8 @@ CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC
   m_CDKeyTFT.erase(remove(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), '-'), m_CDKeyTFT.end());
   m_CDKeyROC.erase(remove(m_CDKeyROC.begin(), m_CDKeyROC.end(), ' '), m_CDKeyROC.end());
   m_CDKeyTFT.erase(remove(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), ' '), m_CDKeyTFT.end());
-  transform(m_CDKeyROC.begin(), m_CDKeyROC.end(), m_CDKeyROC.begin(), (int( *)(int))toupper);
-  transform(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), m_CDKeyTFT.begin(), (int( *)(int))toupper);
+  transform(m_CDKeyROC.begin(), m_CDKeyROC.end(), m_CDKeyROC.begin(), ::toupper);
+  transform(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), m_CDKeyTFT.begin(), ::toupper);
 
   if (m_CDKeyROC.size() != 26)
     Print("[BNET: " + m_ServerAlias + "] warning - your ROC CD key is not 26 characters long and is probably invalid");
