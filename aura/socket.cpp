@@ -68,7 +68,13 @@ CTCPSocket::CTCPSocket()
   setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const int8_t *) &OptVal, sizeof(int32_t));
 }
 
-CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN) : m_SIN(std::move(nSIN)), m_LastRecv(GetTime()), m_Socket(nSocket), m_Error(0), m_HasError(false), m_Connected(true)
+CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN)
+  : m_SIN(move(nSIN)),
+    m_LastRecv(GetTime()),
+    m_Socket(nSocket),
+    m_Error(0),
+    m_HasError(false),
+    m_Connected(true)
 {
   // make socket non blocking
 
