@@ -760,15 +760,15 @@ void CAura::SetConfigs(CConfig *CFG)
   // this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
   // it just set the easily reloadable values
 
-  m_Warcraft3Path = AddPathSeperator(CFG->GetString("bot_war3path", "C:\\Program Files\\Warcraft III\\"));
+  m_Warcraft3Path = AddPathSeparator(CFG->GetString("bot_war3path", "C:\\Program Files\\Warcraft III\\"));
   m_BindAddress = CFG->GetString("bot_bindaddress", string());
   m_ReconnectWaitTime = CFG->GetInt("bot_reconnectwaittime", 3);
   m_MaxGames = CFG->GetInt("bot_maxgames", 20);
   string BotCommandTrigger = CFG->GetString("bot_commandtrigger", "!");
   m_CommandTrigger = BotCommandTrigger[0];
 
-  m_MapCFGPath = AddPathSeperator(CFG->GetString("bot_mapcfgpath", string()));
-  m_MapPath = AddPathSeperator(CFG->GetString("bot_mappath", string()));
+  m_MapCFGPath = AddPathSeparator(CFG->GetString("bot_mapcfgpath", string()));
+  m_MapPath = AddPathSeparator(CFG->GetString("bot_mappath", string()));
   m_VirtualHostName = CFG->GetString("bot_virtualhostname", "|cFF4080C0Aura");
 
   if (m_VirtualHostName.size() > 15)

@@ -387,21 +387,21 @@ inline void AssignLength(BYTEARRAY &content)
   content[3] = (uint8_t)(Size >> 8);
 }
 
-inline std::string AddPathSeperator(const std::string &path)
+inline std::string AddPathSeparator(const std::string &path)
 {
   if (path.empty())
     return std::string();
 
 #ifdef WIN32
-  char Seperator = '\\';
+  const char Separator = '\\';
 #else
-  char Seperator = '/';
+  const char Separator = '/';
 #endif
 
-  if (*(path.end() - 1) == Seperator)
+  if (*(path.end() - 1) == Separator)
     return path;
   else
-    return path + std::string(1, Seperator);
+    return path + std::string(1, Separator);
 }
 
 inline BYTEARRAY EncodeStatString(BYTEARRAY &data)
