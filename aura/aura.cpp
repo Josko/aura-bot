@@ -281,6 +281,7 @@ CAura::CAura(CConfig *CFG)
     m_SHA(new CSHA1()),
     m_CurrentGame(nullptr),
     m_DB(new CAuraDB(CFG)),
+    m_Map(nullptr),
     m_Version(VERSION),
     m_HostCounter(1),
     m_Exiting(false),
@@ -451,7 +452,9 @@ CAura::~CAura()
   delete m_SHA;
   delete m_ReconnectSocket;
   delete m_GPSProtocol;
-  // delete m_Map;
+
+  if (m_Map)
+    delete m_Map;
 
   for (auto & socket : m_ReconnectSockets)
     delete socket;
