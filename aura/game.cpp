@@ -4320,14 +4320,15 @@ void CGame::DeleteFakePlayers()
   if (m_FakePlayers.empty())
     return;
 
-  for (auto & slot : m_Slots)
+  for (auto & fakeplayer : m_FakePlayers)
   {
-    for (auto & fakeplayer : m_FakePlayers)
+    for (auto & slot : m_Slots)
     {
-      if (slot.GetPID() == fakeplayer)
+      if (slot.GetPID == fakeplayer)
       {
         slot = CGameSlot(0, 255, SLOTSTATUS_OPEN, 0, slot.GetTeam(), slot.GetColour(), slot.GetRace());
         SendAll(m_Protocol->SEND_W3GS_PLAYERLEAVE_OTHERS(fakeplayer, PLAYERLEAVE_LOBBY));
+        break;
       }
     }
   }
