@@ -63,7 +63,7 @@ bool CPotentialPlayer::Update(void *fd)
   // extract as many packets as possible from the socket's receive buffer and process them
 
   string *RecvBuffer = m_Socket->GetBytes();
-  BYTEARRAY Bytes = CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
+  BYTEARRAY Bytes = CreateByteArray((uint8_t *) RecvBuffer->c_str(), RecvBuffer->size());
   uint32_t LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
@@ -87,7 +87,7 @@ bool CPotentialPlayer::Update(void *fd)
           if (m_IncomingJoinPlayer)
             m_Game->EventPlayerJoined(this, m_IncomingJoinPlayer);
 
-          // this is the packet which interests us for now, the remainder is left for CGamePlayer
+          // this is the packet which int32_terests us for now, the remainder is left for CGamePlayer
 
           LengthProcessed += Length;
           Bytes = BYTEARRAY(Bytes.begin() + Length, Bytes.end());
@@ -120,7 +120,7 @@ void CPotentialPlayer::Send(const BYTEARRAY &data) const
 // CGamePlayer
 //
 
-CGamePlayer::CGamePlayer(CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved)
+CGamePlayer::CGamePlayer(CPotentialPlayer *potential, uint8_t nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved)
   : m_Protocol(potential->m_Protocol),
     m_Game(potential->m_Game),
     m_Socket(potential->GetSocket()),
@@ -229,7 +229,7 @@ bool CGamePlayer::Update(void *fd)
   // extract as many packets as possible from the socket's receive buffer and process them
 
   string *RecvBuffer = m_Socket->GetBytes();
-  BYTEARRAY Bytes = CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
+  BYTEARRAY Bytes = CreateByteArray((uint8_t *) RecvBuffer->c_str(), RecvBuffer->size());
   uint32_t LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes

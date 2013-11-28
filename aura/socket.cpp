@@ -26,7 +26,7 @@
 using namespace std;
 
 #ifndef WIN32
-int GetLastError()
+int32_t GetLastError()
 {
   return errno;
 }
@@ -56,7 +56,7 @@ CTCPSocket::CTCPSocket()
   // make socket non blocking
 
 #ifdef WIN32
-  int iMode = 1;
+  int32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -64,8 +64,8 @@ CTCPSocket::CTCPSocket()
 
   // disable Nagle's algorithm
 
-  int OptVal = 1;
-  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof(int));
+  int32_t OptVal = 1;
+  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const int8_t *) &OptVal, sizeof(int32_t));
 }
 
 CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN) : m_SIN(std::move(nSIN)), m_LastRecv(GetTime()), m_Socket(nSocket), m_Error(0), m_HasError(false), m_Connected(true)
@@ -73,7 +73,7 @@ CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN) : m_SIN(std::mov
   // make socket non blocking
 
 #ifdef WIN32
-  int iMode = 1;
+  int32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -112,7 +112,7 @@ void CTCPSocket::Reset()
   // make socket non blocking
 
 #ifdef WIN32
-  int iMode = 1;
+  int32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -129,7 +129,7 @@ void CTCPSocket::DoRecv(fd_set *fd)
     // data is waiting, receive it
 
     char buffer[1024];
-    int c = recv(m_Socket, buffer, 1024, 0);
+    int32_t c = recv(m_Socket, buffer, 1024, 0);
 
     if (c > 0)
     {
@@ -166,7 +166,7 @@ void CTCPSocket::DoSend(fd_set *send_fd)
   {
     // socket is ready, send it
 
-    int s = send(m_Socket, m_SendBuffer.c_str(), (int) m_SendBuffer.size(), MSG_NOSIGNAL);
+    int32_t s = send(m_Socket, m_SendBuffer.c_str(), (int32_t) m_SendBuffer.size(), MSG_NOSIGNAL);
 
     if (s > 0)
     {
@@ -313,7 +313,7 @@ string CTCPSocket::GetErrorString() const
   return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
 }
 
-void CTCPSocket::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
+void CTCPSocket::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
 {
   if (m_Socket == INVALID_SOCKET)
     return;
@@ -352,7 +352,7 @@ CTCPClient::CTCPClient()
   // make socket non blocking
 
 #ifdef WIN32
-  int iMode = 1;
+  int32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -390,7 +390,7 @@ void CTCPClient::Reset()
   // make socket non blocking
 
 #ifdef WIN32
-  int iMode = 1;
+  int32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -517,7 +517,7 @@ void CTCPClient::DoRecv(fd_set *fd)
     // data is waiting, receive it
 
     char buffer[1024];
-    int c = recv(m_Socket, buffer, 1024, 0);
+    int32_t c = recv(m_Socket, buffer, 1024, 0);
 
     if (c > 0)
     {
@@ -553,7 +553,7 @@ void CTCPClient::DoSend(fd_set *send_fd)
   {
     // socket is ready, send it
 
-    int s = send(m_Socket, m_SendBuffer.c_str(), (int) m_SendBuffer.size(), MSG_NOSIGNAL);
+    int32_t s = send(m_Socket, m_SendBuffer.c_str(), (int32_t) m_SendBuffer.size(), MSG_NOSIGNAL);
 
     if (s > 0)
     {
@@ -692,7 +692,7 @@ string CTCPClient::GetErrorString() const
   return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
 }
 
-void CTCPClient::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
+void CTCPClient::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
 {
   if (m_Socket == INVALID_SOCKET)
     return;
@@ -730,7 +730,7 @@ CTCPServer::CTCPServer()
   // make socket non blocking
 
 #ifdef WIN32
-  int iMode = 1;
+  int32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -738,12 +738,12 @@ CTCPServer::CTCPServer()
 
   // set the socket to reuse the address in case it hasn't been released yet
 
-  int optval = 1;
+  int32_t optval = 1;
 
 #ifdef WIN32
-  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &optval, sizeof(int));
+  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const int8_t *) &optval, sizeof(int32_t));
 #else
-  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const void *) &optval, sizeof(int));
+  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const void *) &optval, sizeof(int32_t));
 #endif
 }
 
@@ -801,7 +801,7 @@ CTCPSocket *CTCPServer::Accept(fd_set *fd)
     // a connection is waiting, accept it
 
     struct sockaddr_in Addr;
-    int AddrLen = sizeof(Addr);
+    int32_t AddrLen = sizeof(Addr);
     SOCKET NewSocket;
 
 #ifdef WIN32
@@ -939,7 +939,7 @@ string CTCPServer::GetErrorString() const
   return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
 }
 
-void CTCPServer::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
+void CTCPServer::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
 {
   if (m_Socket == INVALID_SOCKET)
     return;
@@ -974,8 +974,8 @@ CUDPSocket::CUDPSocket()
 
   // enable broadcast support
 
-  int OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char *) &OptVal, sizeof(int));
+  int32_t OptVal = 1;
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const int8_t *) &OptVal, sizeof(int32_t));
 
   // set default broadcast target
 
@@ -1077,15 +1077,15 @@ void CUDPSocket::SetBroadcastTarget(const string &subnet)
 
 void CUDPSocket::SetDontRoute(bool dontRoute)
 {
-  int OptVal = 0;
+  int32_t OptVal = 0;
 
   if (dontRoute)
     OptVal = 1;
 
-  // don't route packets; make them ignore routes set by routing table and send them to the interface
+  // don't route packets; make them ignore routes set by routing table and send them to the int32_terface
   // belonging to the target address directly
 
-  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *) &OptVal, sizeof(int));
+  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const int8_t *) &OptVal, sizeof(int32_t));
 }
 
 string CUDPSocket::GetErrorString() const
@@ -1207,7 +1207,7 @@ string CUDPSocket::GetErrorString() const
   return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
 }
 
-void CUDPSocket::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
+void CUDPSocket::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
 {
   if (m_Socket == INVALID_SOCKET)
     return;
@@ -1240,8 +1240,8 @@ void CUDPSocket::Reset()
 
   // enable broadcast support
 
-  int OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char *) &OptVal, sizeof(int));
+  int32_t OptVal = 1;
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const int8_t *) &OptVal, sizeof(int32_t));
 
   // set default broadcast target
 

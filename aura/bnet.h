@@ -46,7 +46,7 @@ public:
 private:
   CTCPClient *m_Socket;                     // the connection to battle.net
   CBNETProtocol *m_Protocol;                // battle.net protocol
-  CBNCSUtilInterface *m_BNCSUtil;           // the interface to the bncsutil library (used for logging into battle.net)
+  CBNCSUtilInterface *m_BNCSUtil;           // the int32_terface to the bncsutil library (used for logging int32_to battle.net)
   std::queue<BYTEARRAY> m_OutPackets;            // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
   std::vector<std::string> m_Friends;                 // std::vector of friends
   std::vector<std::string> m_Clan;                    // std::vector of clan members
@@ -74,19 +74,19 @@ private:
   uint32_t m_LastOutPacketSize;             // byte size of the last packet we sent from the m_OutPackets queue
   uint32_t m_LastAdminRefreshTime;          // GetTime when the admin list was last refreshed from the database
   uint32_t m_LastBanRefreshTime;            // GetTime when the ban list was last refreshed from the database
-  uint32_t m_ReconnectDelay;                // interval between two consecutive connect attempts
-  unsigned char m_War3Version;              // custom warcraft 3 version for PvPGN users
+  uint32_t m_ReconnectDelay;                // int32_terval between two consecutive connect attempts
+  uint8_t m_War3Version;              // custom warcraft 3 version for PvPGN users
   char m_CommandTrigger;                    // the character prefix to identify commands
   bool m_Exiting;                           // set to true and this class will be deleted next update
   bool m_FirstConnect;                      // if we haven't tried to connect to battle.net yet
   bool m_WaitingToConnect;                  // if we're waiting to reconnect to battle.net after being disconnected
-  bool m_LoggedIn;                          // if we've logged into battle.net or not
+  bool m_LoggedIn;                          // if we've logged int32_to battle.net or not
   bool m_InChat;                            // if we've entered chat or not (but we're not necessarily in a chat channel yet
   bool m_PvPGN;                             // if this BNET connection is actually a PvPGN
 
 
 public:
-  CBNET(CAura *nAura, std::string nServer, std::string nServerAlias, std::string nCDKeyROC, std::string nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, std::string nUserName, std::string nUserPassword, std::string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
+  CBNET(CAura *nAura, std::string nServer, std::string nServerAlias, std::string nCDKeyROC, std::string nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, std::string nUserName, std::string nUserPassword, std::string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
   ~CBNET();
   CBNET(CBNET &) = delete;
 
@@ -111,7 +111,7 @@ public:
 
   // processing functions
 
-  unsigned int SetFD(void *fd, void *send_fd, int *nfds);
+  uint32_t SetFD(void *fd, void *send_fd, int32_t *nfds);
   bool Update(void *fd, void *send_fd);
   void ProcessChatEvent(const CIncomingChatEvent *chatEvent);
 
@@ -122,8 +122,8 @@ public:
   void QueueEnterChat();
   void QueueChatCommand(const std::string &chatCommand);
   void QueueChatCommand(const std::string &chatCommand, const std::string &user, bool whisper, const std::string &irc);
-  void QueueGameCreate(unsigned char state, const std::string &gameName, CMap *map, uint32_t hostCounter);
-  void QueueGameRefresh(unsigned char state, const std::string &gameName, CMap *map, uint32_t hostCounter);
+  void QueueGameCreate(uint8_t state, const std::string &gameName, CMap *map, uint32_t hostCounter);
+  void QueueGameRefresh(uint8_t state, const std::string &gameName, CMap *map, uint32_t hostCounter);
   void QueueGameUncreate();
 
   void UnqueueGameRefreshes();

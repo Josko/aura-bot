@@ -45,16 +45,16 @@ public:
   uint32_t m_LastPacketTime;
   uint32_t m_LastAntiIdleTime;
   uint16_t m_Port;
-  char m_CommandTrigger;
+  int8_t m_CommandTrigger;
   bool m_Exiting;
   bool m_WaitingToConnect;
   bool m_OriginalNick;
 
-  CIRC(CAura *nAura, const std::string &nServer, const std::string &nNickname, const std::string &nUsername, const std::string &nPassword, const std::vector<std::string> &nChannels, const std::vector<std::string> &nRootAdmins, uint16_t nPort, char nCommandTrigger);
+  CIRC(CAura *nAura, const std::string &nServer, const std::string &nNickname, const std::string &nUsername, const std::string &nPassword, const std::vector<std::string> &nChannels, const std::vector<std::string> &nRootAdmins, uint16_t nPort, int8_t nCommandTrigger);
   ~CIRC();
   CIRC(CIRC &) = delete;
 
-  unsigned int SetFD(void *fd, void *send_fd, int *nfds);
+  uint32_t SetFD(void *fd, void *send_fd, int32_t *nfds);
   bool Update(void *fd, void *send_fd);
   void ExtractPackets();
   void SendIRC(const std::string &message);

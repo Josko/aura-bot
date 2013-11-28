@@ -76,8 +76,8 @@ public:
   uint32_t m_VoteKickPercentage;                // config value: percentage of players required to vote yes for a votekick to pass
   uint16_t m_HostPort;                          // config value: the port to host games on
   uint16_t m_ReconnectPort;                     // config value: the port to listen for GProxy++ reliable reconnects on
-  unsigned char m_LANWar3Version;               // config value: LAN warcraft 3 version
-  char m_CommandTrigger;                        // config value: the command trigger inside games
+  uint8_t m_LANWar3Version;                     // config value: LAN warcraft 3 version
+  int32_t m_CommandTrigger;                      // config value: the command trigger inside games
   bool m_Exiting;                               // set to true to force aura to shutdown next update (used by SignalCatcher)
   bool m_Enabled;                               // set to false to prevent new games from being created
   bool m_AutoLock;                              // config value: auto lock games when the owner is present
@@ -103,7 +103,7 @@ public:
   void SetConfigs(CConfig *CFG);
   void ExtractScripts();
   void LoadIPToCountryData();
-  void CreateGame(CMap *map, unsigned char gameState, std::string gameName, std::string ownerName, std::string creatorName, std::string creatorServer, bool whisper);
+  void CreateGame(CMap *map, uint8_t gameState, std::string gameName, std::string ownerName, std::string creatorName, std::string creatorServer, bool whisper);
 
   inline bool GetReady() const
   {

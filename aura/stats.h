@@ -21,6 +21,8 @@
 #ifndef AURA_STATS_H_
 #define AURA_STATS_H_
 
+#include "includes.h"
+
 //
 // CStats
 //
@@ -41,7 +43,7 @@ class CStats
 protected:
   CGame *m_Game;
   CDBDotAPlayer *m_Players[12];
-  unsigned char m_Winner;
+  uint8_t m_Winner;
 
 public:
   explicit CStats(CGame *nGame);

@@ -88,7 +88,7 @@ inline std::string ToString(int16_t i)
   return result;
 }
 
-inline std::string ToString(float f, int digits)
+inline std::string ToString(float f, int32_t digits)
 {
   std::string result;
   std::stringstream SS;
@@ -97,7 +97,7 @@ inline std::string ToString(float f, int digits)
   return result;
 }
 
-inline std::string ToString(const double d, int digits)
+inline std::string ToString(const double d, int32_t digits)
 {
   std::string result;
   std::stringstream SS;
@@ -162,7 +162,7 @@ inline double ToDouble(const std::string &s)
   return result;
 }
 
-inline BYTEARRAY CreateByteArray(const unsigned char *a, int size)
+inline BYTEARRAY CreateByteArray(const uint8_t *a, int32_t size)
 {
   if (size < 1)
     return BYTEARRAY();
@@ -170,7 +170,7 @@ inline BYTEARRAY CreateByteArray(const unsigned char *a, int size)
   return BYTEARRAY { a, a + size };
 }
 
-inline BYTEARRAY CreateByteArray(unsigned char c)
+inline BYTEARRAY CreateByteArray(uint8_t c)
 {
   return BYTEARRAY { c };
 }
@@ -178,20 +178,20 @@ inline BYTEARRAY CreateByteArray(unsigned char c)
 inline BYTEARRAY CreateByteArray(uint16_t i, bool reverse)
 {
   if (!reverse)
-    return BYTEARRAY { (unsigned char) i, (unsigned char)(i >> 8) };
+    return BYTEARRAY { (uint8_t) i, (uint8_t)(i >> 8) };
   else
-    return BYTEARRAY { (unsigned char)(i >> 8), (unsigned char) i };
+    return BYTEARRAY { (uint8_t)(i >> 8), (uint8_t) i };
 }
 
 inline BYTEARRAY CreateByteArray(uint32_t i, bool reverse)
 {
   if (!reverse)
-    return BYTEARRAY { (unsigned char) i, (unsigned char)(i >> 8), (unsigned char)(i >> 16), (unsigned char)(i >> 24) };
+    return BYTEARRAY { (uint8_t) i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24) };
   else
-    return BYTEARRAY { (unsigned char)(i >> 24), (unsigned char)(i >> 16), (unsigned char)(i >> 8), (unsigned char) i };
+    return BYTEARRAY { (uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t) i };
 }
 
-inline uint16_t ByteArrayToUInt16(const BYTEARRAY &b, bool reverse, unsigned int start = 0)
+inline uint16_t ByteArrayToUInt16(const BYTEARRAY &b, bool reverse, uint32_t start = 0)
 {
   if (b.size() < start + 2)
     return 0;
@@ -202,7 +202,7 @@ inline uint16_t ByteArrayToUInt16(const BYTEARRAY &b, bool reverse, unsigned int
     return (uint16_t)(b[ start] << 8 | b[start + 1]);
 }
 
-inline uint32_t ByteArrayToUInt32(const BYTEARRAY &b, bool reverse, unsigned int start = 0)
+inline uint32_t ByteArrayToUInt32(const BYTEARRAY &b, bool reverse, uint32_t start = 0)
 {
   if (b.size() < start + 4)
     return 0;
@@ -254,7 +254,7 @@ inline void AppendByteArrayFast(BYTEARRAY &b, const BYTEARRAY &append)
   b.insert(b.end(), append.begin(), append.end());
 }
 
-inline void AppendByteArray(BYTEARRAY &b, const unsigned char *a, int size)
+inline void AppendByteArray(BYTEARRAY &b, const uint8_t *a, int32_t size)
 {
   AppendByteArray(b, CreateByteArray(a, size));
 }
@@ -289,14 +289,14 @@ inline void AppendByteArray(BYTEARRAY &b, uint32_t i, bool reverse)
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline BYTEARRAY ExtractCString(const BYTEARRAY &b, unsigned int start)
+inline BYTEARRAY ExtractCString(const BYTEARRAY &b, uint32_t start)
 {
   // start searching the byte array at position 'start' for the first null value
   // if found, return the subarray from 'start' to the null value but not including the null value
 
   if (start < b.size())
   {
-    for (unsigned int i = start; i < b.size(); ++i)
+    for (uint32_t i = start; i < b.size(); ++i)
     {
       if (b[i] == 0)
         return BYTEARRAY(b.begin() + start, b.begin() + i);
@@ -310,14 +310,14 @@ inline BYTEARRAY ExtractCString(const BYTEARRAY &b, unsigned int start)
   return BYTEARRAY();
 }
 
-inline unsigned char ExtractHex(const BYTEARRAY &b, unsigned int start, bool reverse)
+inline uint8_t ExtractHex(const BYTEARRAY &b, uint32_t start, bool reverse)
 {
   // consider the byte array to contain a 2 character ASCII encoded hex value at b[start] and b[start + 1] e.g. "FF"
   // extract it as a single decoded byte
 
   if (start + 1 < b.size())
   {
-    unsigned int c;
+    uint32_t c;
     std::string temp = std::string(b.begin() + start, b.begin() + start + 2);
 
     if (reverse)
@@ -332,16 +332,16 @@ inline unsigned char ExtractHex(const BYTEARRAY &b, unsigned int start, bool rev
   return 0;
 }
 
-inline BYTEARRAY ExtractNumbers(const std::string &s, unsigned int count)
+inline BYTEARRAY ExtractNumbers(const std::string &s, uint32_t count)
 {
   // consider the std::string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
   BYTEARRAY result;
-  unsigned int c;
+  uint32_t c;
   std::stringstream SS;
   SS << s;
 
-  for (unsigned int i = 0; i < count; ++i)
+  for (uint32_t i = 0; i < count; ++i)
   {
     if (SS.eof())
       break;
@@ -350,7 +350,7 @@ inline BYTEARRAY ExtractNumbers(const std::string &s, unsigned int count)
 
     // TODO: if c > 255 handle the error instead of truncating
 
-    result.push_back((unsigned char) c);
+    result.push_back((uint8_t) c);
   }
 
   return result;
@@ -361,7 +361,7 @@ inline BYTEARRAY ExtractHexNumbers(std::string &s)
   // consider the std::string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
   BYTEARRAY result;
-  unsigned int c;
+  uint32_t c;
   std::stringstream SS;
   SS << s;
 
@@ -371,7 +371,7 @@ inline BYTEARRAY ExtractHexNumbers(std::string &s)
 
     // TODO: if c > 255 handle the error instead of truncating
 
-    result.push_back((unsigned char) c);
+    result.push_back((uint8_t) c);
   }
 
   return result;
@@ -379,12 +379,12 @@ inline BYTEARRAY ExtractHexNumbers(std::string &s)
 
 inline void AssignLength(BYTEARRAY &content)
 {
-  // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
+  // insert the actual length of the content array int32_to bytes 3 and 4 (indices 2 and 3)
 
   const uint16_t Size = (uint16_t) content.size();
 
-  content[2] = (unsigned char) Size;
-  content[3] = (unsigned char)(Size >> 8);
+  content[2] = (uint8_t) Size;
+  content[3] = (uint8_t)(Size >> 8);
 }
 
 inline std::string AddPathSeperator(const std::string &path)
@@ -407,9 +407,9 @@ inline std::string AddPathSeperator(const std::string &path)
 inline BYTEARRAY EncodeStatString(BYTEARRAY &data)
 {
   BYTEARRAY Result;
-  unsigned char Mask = 1;
+  uint8_t Mask = 1;
 
-  for (unsigned int i = 0; i < data.size(); ++i)
+  for (uint32_t i = 0; i < data.size(); ++i)
   {
     if ((data[i] % 2) == 0)
       Result.push_back(data[i] + 1);
@@ -431,10 +431,10 @@ inline BYTEARRAY EncodeStatString(BYTEARRAY &data)
 
 inline BYTEARRAY DecodeStatString(const BYTEARRAY &data)
 {
-  unsigned char Mask = 1;
+  uint8_t Mask = 1;
   BYTEARRAY Result;
 
-  for (unsigned int i = 0; i < data.size(); ++i)
+  for (uint32_t i = 0; i < data.size(); ++i)
   {
     if ((i % 8) == 0)
       Mask = data[i];

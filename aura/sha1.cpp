@@ -42,12 +42,12 @@ void CSHA1::Reset( )
   m_count[1] = 0;
 }
 
-void CSHA1::Transform( uint32_t state[5], unsigned char buffer[64] )
+void CSHA1::Transform( uint32_t state[5], uint8_t buffer[64] )
 {
   uint32_t a = 0, b = 0, c = 0, d = 0, e = 0;
 
   SHA1_WORKSPACE_BLOCK* block;
-  static unsigned char workspace[64];
+  static uint8_t workspace[64];
   block = (SHA1_WORKSPACE_BLOCK *) workspace;
   memcpy( block, buffer, 64 );
 
@@ -140,7 +140,7 @@ void CSHA1::Transform( uint32_t state[5], unsigned char buffer[64] )
   R4( c, d, e, a, b, 78 );
   R4( b, c, d, e, a, 79 );
 
-  // Add the working vars back into state[]
+  // Add the working vars back int32_to state[]
   state[0] += a;
   state[1] += b;
   state[2] += c;
@@ -157,7 +157,7 @@ void CSHA1::Transform( uint32_t state[5], unsigned char buffer[64] )
 
 // Use this function to hash in binary data and strings
 
-void CSHA1::Update( unsigned char* data, unsigned int len )
+void CSHA1::Update( uint8_t* data, uint32_t len )
 {
   uint32_t i = 0, j = 0;
 
@@ -187,22 +187,22 @@ void CSHA1::Update( unsigned char* data, unsigned int len )
 void CSHA1::Final( )
 {
   uint32_t i = 0;
-  unsigned char finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  uint8_t finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
   for ( i = 0; i < 8; ++i )
-    finalcount[i] = (unsigned char) ( ( m_count[( i >= 4 ? 0 : 1 )]
+    finalcount[i] = (uint8_t) ( ( m_count[( i >= 4 ? 0 : 1 )]
           >> ( ( 3 - ( i & 3 ) ) * 8 ) ) & 255 ); // Endian independent
 
-  Update( (unsigned char *) "\200", 1 );
+  Update( (uint8_t *) "\200", 1 );
 
   while ( ( m_count[0] & 504 ) != 448 )
-    Update( (unsigned char *) "\0", 1 );
+    Update( (uint8_t *) "\0", 1 );
 
   Update( finalcount, 8 ); // Cause a SHA1Transform()
 
   for ( i = 0; i < 20; ++i )
   {
-    m_digest[i] = (unsigned char) ( ( m_state[i >> 2] >> ( ( 3 - ( i & 3 ) ) * 8 ) ) & 255 );
+    m_digest[i] = (uint8_t) ( ( m_state[i >> 2] >> ( ( 3 - ( i & 3 ) ) * 8 ) ) & 255 );
   }
 
   // Wipe variables for security reasons
@@ -217,7 +217,7 @@ void CSHA1::Final( )
 
 // Get the raw message digest
 
-void CSHA1::GetHash( unsigned char *uDest )
+void CSHA1::GetHash( uint8_t *uDest )
 {
   memcpy( uDest, m_digest, 20 );
 }

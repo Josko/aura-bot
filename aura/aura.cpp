@@ -119,7 +119,7 @@ uint32_t GetTicks()
 #endif
 }
 
-static void SignalCatcher(int)
+static void SignalCatcher(int32_t)
 {
   Print("[!!!] caught signal SIGINT, exiting NOW");
 
@@ -153,7 +153,7 @@ void Print2(const string &message)
 
 int main(int, char *argv[])
 {
-  srand((unsigned int) time(nullptr));
+  srand((uint32_t) time(nullptr));
 
   // read config file
 
@@ -174,9 +174,9 @@ int main(int, char *argv[])
   // initialize timer resolution
   // attempt to set the resolution as low as possible from 1ms to 5ms
 
-  unsigned int TimerResolution = 0;
+  uint32_t TimerResolution = 0;
 
-  for (unsigned int i = 1; i <= 5; ++i)
+  for (uint32_t i = 1; i <= 5; ++i)
   {
     if (timeBeginPeriod(i) == TIMERR_NOERROR)
     {
@@ -327,7 +327,7 @@ CAura::CAura(CConfig *CFG)
 
   vector<string> IRC_Channels, IRC_RootAdmins;
 
-  for (unsigned int i = 1; i <= 10; ++i)
+  for (uint32_t i = 1; i <= 10; ++i)
   {
     string Channel, RootAdmin;
 
@@ -357,7 +357,7 @@ CAura::CAura(CConfig *CFG)
   // load the battle.net connections
   // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
 
-  for (unsigned int i = 1; i < 10; ++i)
+  for (uint32_t i = 1; i < 10; ++i)
   {
     string Prefix;
 
@@ -398,7 +398,7 @@ CAura::CAura(CConfig *CFG)
     }
 
     string BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
-    unsigned char War3Version = CFG->GetInt(Prefix + "custom_war3version", 26);
+    uint8_t War3Version = CFG->GetInt(Prefix + "custom_war3version", 26);
     BYTEARRAY EXEVersion = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
     BYTEARRAY EXEVersionHash = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
     string PasswordHashType = CFG->GetString(Prefix + "custom_passwordhashtype", string());
@@ -472,11 +472,11 @@ CAura::~CAura()
 
 bool CAura::Update()
 {
-  unsigned int NumFDs = 0;
+  uint32_t NumFDs = 0;
 
   // take every socket we own and throw it in one giant select statement so we can block on all sockets
 
-  int nfds = 0;
+  int32_t nfds = 0;
   fd_set fd, send_fd;
   FD_ZERO(&fd);
   FD_ZERO(&send_fd);
@@ -628,7 +628,7 @@ bool CAura::Update()
 
     (*i)->DoRecv(&fd);
     string *RecvBuffer = (*i)->GetBytes();
-    const BYTEARRAY Bytes = CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
+    const BYTEARRAY Bytes = CreateByteArray((uint8_t *) RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes
 
@@ -810,13 +810,13 @@ void CAura::ExtractScripts()
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
-        auto  SubFileData = new char[FileLength];
+        auto  SubFileData = new int8_t[FileLength];
         DWORD BytesRead = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
         {
           Print("[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]");
-          FileWrite(m_MapCFGPath + "common.j", (unsigned char *) SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "common.j", (uint8_t *) SubFileData, BytesRead);
         }
         else
           Print("[AURA] warning - unable to extract Scripts\\common.j from MPQ file");
@@ -837,13 +837,13 @@ void CAura::ExtractScripts()
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
-        auto  SubFileData = new char[FileLength];
+        auto  SubFileData = new int8_t[FileLength];
         DWORD BytesRead = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
         {
           Print("[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]");
-          FileWrite(m_MapCFGPath + "blizzard.j", (unsigned char *) SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t *) SubFileData, BytesRead);
         }
         else
           Print("[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file");
@@ -880,13 +880,13 @@ void CAura::LoadIPToCountryData()
     Print("[AURA] started loading [ip-to-country.csv]");
 
     // the begin and commit statements are optimizations
-    // we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
+    // we're about to insert ~4 MB of data int32_to the database so if we allow the database to treat each insert as a transaction it will take a LONG time
 
     if (!m_DB->Begin())
       Print("[AURA] warning - failed to begin database transaction, iptocountry data not loaded");
     else
     {
-      unsigned char Percent = 0;
+      uint8_t Percent = 0;
       string Line, IP1, IP2, Country;
       CSVParser parser;
 
@@ -912,7 +912,7 @@ void CAura::LoadIPToCountryData()
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
 
-        unsigned char NewPercent = (unsigned char)((float) in.tellg() / FileLength * 100);
+        uint8_t NewPercent = (uint8_t)((float) in.tellg() / FileLength * 100);
 
         if (NewPercent != Percent && NewPercent % 10 == 0)
         {
@@ -931,7 +931,7 @@ void CAura::LoadIPToCountryData()
   }
 }
 
-void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
+void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
 {
   if (!m_Enabled)
   {

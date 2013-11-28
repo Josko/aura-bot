@@ -35,8 +35,8 @@
 #include <string>
 #include <cstdint>
 
-typedef std::vector<unsigned char> BYTEARRAY;
-typedef std::pair<unsigned char, std::string> PIDPlayer;
+typedef std::vector<uint8_t> BYTEARRAY;
+typedef std::pair<uint8_t, std::string> PIDPlayer;
 
 // time
 

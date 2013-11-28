@@ -105,14 +105,14 @@ public:
   ~CSQLITE3();
   CSQLITE3(CSQLITE3 &) = delete;
 
-  inline bool GetReady() const                                   { return m_Ready; }
+  inline bool GetReady() const                                        { return m_Ready; }
   inline std::string GetError() const                                 { return sqlite3_errmsg((sqlite3 *) m_DB); }
 
-  inline int Step(void *Statement)                              { return sqlite3_step((sqlite3_stmt *) Statement); }
-  inline int Prepare(const std::string &query, void **Statement)     { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, nullptr); }
-  inline int Finalize(void *Statement)                          { return sqlite3_finalize((sqlite3_stmt *) Statement); }
-  inline int Reset(void *Statement)                             { return sqlite3_reset((sqlite3_stmt *) Statement); }
-  inline int Exec(const std::string &query)                          { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), nullptr, nullptr, nullptr); }
+  inline int32_t Step(void *Statement)                                { return sqlite3_step((sqlite3_stmt *) Statement); }
+  inline int32_t Prepare(const std::string &query, void **Statement)  { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, nullptr); }
+  inline int32_t Finalize(void *Statement)                            { return sqlite3_finalize((sqlite3_stmt *) Statement); }
+  inline int32_t Reset(void *Statement)                               { return sqlite3_reset((sqlite3_stmt *) Statement); }
+  inline int32_t Exec(const std::string &query)                       { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), nullptr, nullptr, nullptr); }
 };
 
 //
@@ -148,7 +148,7 @@ public:
   CAuraDB(CAuraDB &) = delete;
 
   inline bool HasError() const                 { return m_HasError; }
-  inline std::string GetError() const               { return m_Error; }
+  inline std::string GetError() const          { return m_Error; }
 
   inline bool Begin() const                    { return m_DB->Exec("BEGIN TRANSACTION") == SQLITE_OK; }
   inline bool Commit() const                   { return m_DB->Exec("COMMIT TRANSACTION") == SQLITE_OK; }
@@ -214,13 +214,13 @@ public:
   CDBGamePlayer(const std::string &name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
   ~CDBGamePlayer();
 
-  inline std::string GetName() const                           { return m_Name; }
-  inline uint64_t GetLoadingTime() const                  { return m_LoadingTime; }
-  inline uint64_t GetLeft() const                         { return m_Left; }
-  inline uint32_t GetColour() const                       { return m_Colour; }
+  inline std::string GetName() const                    { return m_Name; }
+  inline uint64_t GetLoadingTime() const                { return m_LoadingTime; }
+  inline uint64_t GetLeft() const                       { return m_Left; }
+  inline uint32_t GetColour() const                     { return m_Colour; }
 
-  inline void SetLoadingTime(uint64_t nLoadingTime)      { m_LoadingTime = nLoadingTime; }
-  inline void SetLeft(uint64_t nLeft)                    { m_Left = nLeft; }
+  inline void SetLoadingTime(uint64_t nLoadingTime)     { m_LoadingTime = nLoadingTime; }
+  inline void SetLeft(uint64_t nLeft)                   { m_Left = nLeft; }
 };
 
 //
@@ -267,17 +267,17 @@ public:
   CDBDotAPlayer(uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nNeutralKills, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills);
   ~CDBDotAPlayer();
 
-  inline uint32_t GetColour() const                   { return m_Colour; }
-  inline uint32_t GetNewColour() const                { return m_NewColour; }
-  inline uint32_t GetKills() const                    { return m_Kills; }
-  inline uint32_t GetDeaths() const                   { return m_Deaths; }
-  inline uint32_t GetCreepKills() const               { return m_CreepKills; }
-  inline uint32_t GetCreepDenies() const              { return m_CreepDenies; }
-  inline uint32_t GetAssists() const                  { return m_Assists; }
-  inline uint32_t GetNeutralKills() const             { return m_NeutralKills; }
-  inline uint32_t GetTowerKills() const               { return m_TowerKills; }
-  inline uint32_t GetRaxKills() const                 { return m_RaxKills; }
-  inline uint32_t GetCourierKills() const             { return m_CourierKills; }
+  inline uint32_t GetColour() const                     { return m_Colour; }
+  inline uint32_t GetNewColour() const                  { return m_NewColour; }
+  inline uint32_t GetKills() const                      { return m_Kills; }
+  inline uint32_t GetDeaths() const                     { return m_Deaths; }
+  inline uint32_t GetCreepKills() const                 { return m_CreepKills; }
+  inline uint32_t GetCreepDenies() const                { return m_CreepDenies; }
+  inline uint32_t GetAssists() const                    { return m_Assists; }
+  inline uint32_t GetNeutralKills() const               { return m_NeutralKills; }
+  inline uint32_t GetTowerKills() const                 { return m_TowerKills; }
+  inline uint32_t GetRaxKills() const                   { return m_RaxKills; }
+  inline uint32_t GetCourierKills() const               { return m_CourierKills; }
 
 
   inline void IncKills()                                { ++m_Kills; }
@@ -287,11 +287,11 @@ public:
   inline void IncRaxKills()                             { ++m_RaxKills; }
   inline void IncCourierKills()                         { ++m_CourierKills; }
 
-  inline void SetColour(uint32_t nColour)              { m_Colour = nColour; }
-  inline void SetNewColour(uint32_t nNewColour)        { m_NewColour = nNewColour; }
-  inline void SetCreepKills(uint32_t nCreepKills)      { m_CreepKills = nCreepKills; }
-  inline void SetCreepDenies(uint32_t nCreepDenies)    { m_CreepDenies = nCreepDenies; }
-  inline void SetNeutralKills(uint32_t nNeutralKills)  { m_NeutralKills = nNeutralKills; }
+  inline void SetColour(uint32_t nColour)               { m_Colour = nColour; }
+  inline void SetNewColour(uint32_t nNewColour)         { m_NewColour = nNewColour; }
+  inline void SetCreepKills(uint32_t nCreepKills)       { m_CreepKills = nCreepKills; }
+  inline void SetCreepDenies(uint32_t nCreepDenies)     { m_CreepDenies = nCreepDenies; }
+  inline void SetNeutralKills(uint32_t nNeutralKills)   { m_NeutralKills = nNeutralKills; }
 };
 
 //

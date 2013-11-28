@@ -40,7 +40,7 @@ using namespace std;
 // CGame
 //
 
-CGame::CGame(CAura *nAura, CMap *nMap, uint16_t nHostPort, unsigned char nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer)
+CGame::CGame(CAura *nAura, CMap *nMap, uint16_t nHostPort, uint8_t nGameState, string &nGameName, string &nOwnerName, string &nCreatorName, string &nCreatorServer)
   : m_Aura(nAura),
     m_Socket(new CTCPServer()),
     m_DBBanLast(nullptr),
@@ -164,8 +164,8 @@ uint32_t CGame::GetNextTimedActionTicks() const
 {
   // return the number of ticks (ms) until the next "timed action", which for our purposes is the next game update
   // the main Aura++ loop will make sure the next loop update happens at or before this value
-  // note: there's no reason this function couldn't take into account the game's other timers too but they're far less critical
-  // warning: this function must take into account when actions are not being sent (e.g. during loading or lagging)
+  // note: there's no reason this function couldn't take int32_to account the game's other timers too but they're far less critical
+  // warning: this function must take int32_to account when actions are not being sent (e.g. during loading or lagging)
 
   if (!m_GameLoaded || m_Lagging)
     return 50;
@@ -252,9 +252,9 @@ string CGame::GetPlayers() const
   return Players;
 }
 
-unsigned int CGame::SetFD(void *fd, void *send_fd, int *nfds)
+uint32_t CGame::SetFD(void *fd, void *send_fd, int32_t *nfds)
 {
-  unsigned int NumFDs = 0;
+  uint32_t NumFDs = 0;
 
   if (m_Socket)
   {
@@ -446,7 +446,7 @@ bool CGame::Update(void *fd, void *send_fd)
             // GProxy++ will insert these itself so we don't need to send them to GProxy++ players
             // empty actions are used to extend the time a player can use when reconnecting
 
-            for (unsigned char j = 0; j < m_GProxyEmptyActions; ++j)
+            for (uint8_t j = 0; j < m_GProxyEmptyActions; ++j)
               Send(_i, m_Protocol->SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *>(), 0));
           }
 
@@ -626,7 +626,7 @@ bool CGame::Update(void *fd, void *send_fd)
         // send up to 100 pieces of the map at once so that the download goes faster
         // if we wait for each MAPPART packet to be acknowledged by the client it'll take a long time to download
         // this is because we would have to wait the round trip time (the ping time) between sending every 1442 bytes of map data
-        // doing it this way allows us to send at least 140 KB in each round trip interval which is much more reasonable
+        // doing it this way allows us to send at least 140 KB in each round trip int32_terval which is much more reasonable
         // the theoretical throughput is [140 KB * 1000 / ping] in KB/sec so someone with 100 ping (round trip ping, not LC ping) could download at 1400 KB/sec
         // note: this creates a queue of map data which clogs up the connection when the client is on a slower connection (e.g. dialup)
         // in this case any changes to the lobby are delayed by the amount of time it takes to send the queued data (i.e. 140 KB, which could be 30 seconds or more)
@@ -673,7 +673,7 @@ bool CGame::Update(void *fd, void *send_fd)
     {
       // we use a countdown counter rather than a "finish countdown time" here because it might alternately round up or down the count
       // this sometimes resulted in a countdown of e.g. "6 5 3 2 1" during my testing which looks pretty dumb
-      // doing it this way ensures it's always "5 4 3 2 1" but each interval might not be *exactly* the same length
+      // doing it this way ensures it's always "5 4 3 2 1" but each int32_terval might not be *exactly* the same length
 
       SendAllChat(ToString(m_CountDownCounter--) + ". . .");
     }
@@ -758,7 +758,7 @@ void CGame::Send(CGamePlayer *player, const BYTEARRAY &data)
     player->Send(data);
 }
 
-void CGame::Send(unsigned char PID, const BYTEARRAY &data)
+void CGame::Send(uint8_t PID, const BYTEARRAY &data)
 {
   Send(GetPlayerFromPID(PID), data);
 }
@@ -775,7 +775,7 @@ void CGame::SendAll(const BYTEARRAY &data)
     player->Send(data);
 }
 
-void CGame::SendChat(unsigned char fromPID, CGamePlayer *player, const string &message)
+void CGame::SendChat(uint8_t fromPID, CGamePlayer *player, const string &message)
 {
   // send a private message to one player - it'll be marked [Private] in Warcraft 3
 
@@ -790,11 +790,11 @@ void CGame::SendChat(unsigned char fromPID, CGamePlayer *player, const string &m
     }
     else
     {
-      unsigned char ExtraFlags[] = { 3, 0, 0, 0 };
+      uint8_t ExtraFlags[] = { 3, 0, 0, 0 };
 
       // based on my limited testing it seems that the extra flags' first byte contains 3 plus the recipient's colour to denote a private message
 
-      unsigned char SID = GetSIDFromPID(player->GetPID());
+      uint8_t SID = GetSIDFromPID(player->GetPID());
 
       if (SID < m_Slots.size())
         ExtraFlags[0] = 3 + m_Slots[SID].GetColour();
@@ -807,7 +807,7 @@ void CGame::SendChat(unsigned char fromPID, CGamePlayer *player, const string &m
   }
 }
 
-void CGame::SendChat(unsigned char fromPID, unsigned char toPID, const string &message)
+void CGame::SendChat(uint8_t fromPID, uint8_t toPID, const string &message)
 {
   SendChat(fromPID, GetPlayerFromPID(toPID), message);
 }
@@ -817,12 +817,12 @@ void CGame::SendChat(CGamePlayer *player, const string &message)
   SendChat(GetHostPID(), player, message);
 }
 
-void CGame::SendChat(unsigned char toPID, const string &message)
+void CGame::SendChat(uint8_t toPID, const string &message)
 {
   SendChat(GetHostPID(), toPID, message);
 }
 
-void CGame::SendAllChat(unsigned char fromPID, const string &message)
+void CGame::SendAllChat(uint8_t fromPID, const string &message)
 {
   // send a public message to all players - it'll be marked [All] in Warcraft 3
 
@@ -907,7 +907,7 @@ void CGame::SendAllActions()
     {
       if (!player->GetGProxy())
       {
-        for (unsigned char j = 0; j < m_GProxyEmptyActions; ++j)
+        for (uint8_t j = 0; j < m_GProxyEmptyActions; ++j)
           Send(player, m_Protocol->SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *>(), 0));
       }
     }
@@ -1027,13 +1027,13 @@ void CGame::EventPlayerDeleted(CGamePlayer *player)
   // record everything we need to know about the player for storing in the database later
   // since we haven't stored the game yet (it's not over yet!) we can't link the gameplayer to the game
   // see the destructor for where these CDBGamePlayers are stored in the database
-  // we could have inserted an incomplete record on creation and updated it later but this makes for a cleaner interface
+  // we could have inserted an incomplete record on creation and updated it later but this makes for a cleaner int32_terface
 
   if (m_GameLoading || m_GameLoaded)
   {
     // TODO: since we store players that crash during loading it's possible that the stats classes could have no information on them
 
-    unsigned char SID = GetSIDFromPID(player->GetPID());
+    uint8_t SID = GetSIDFromPID(player->GetPID());
 
     m_DBGamePlayers.push_back(new CDBGamePlayer(player->GetName(), player->GetFinishedLoading() ? player->GetFinishedLoadingTicks() - m_StartedLoadingTicks : 0, m_GameTicks / 1000, m_Slots[SID].GetColour()));
 
@@ -1237,7 +1237,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
 
   // try to find an empty slot
 
-  unsigned char SID = GetEmptySlot(false);
+  uint8_t SID = GetEmptySlot(false);
 
   if (SID == 255 && Reserved)
   {
@@ -1271,7 +1271,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
 
     SID = 0;
 
-    for (unsigned char i = 0; i < m_Slots.size(); ++i)
+    for (uint8_t i = 0; i < m_Slots.size(); ++i)
     {
       if (m_Slots[i].GetSlotStatus() == SLOTSTATUS_OCCUPIED && m_Slots[i].GetComputer() == 0)
       {
@@ -1309,7 +1309,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
   if (GetNumPlayers() >= 11)
     DeleteVirtualHost();
 
-  // turning the CPotentialPlayer into a CGamePlayer is a bit of a pain because we have to be careful not to close the socket
+  // turning the CPotentialPlayer int32_to a CGamePlayer is a bit of a pain because we have to be careful not to close the socket
   // this problem is solved by setting the socket to nullptr before deletion and handling the nullptr case in the destructor
   // we also have to be careful to not modify the m_Potentials vector since we're currently looping through it
 
@@ -1339,7 +1339,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
     // try to pick a team and colour
     // make sure there aren't too many other players already
 
-    unsigned char NumOtherPlayers = 0;
+    uint8_t NumOtherPlayers = 0;
 
     for (auto & slot : m_Slots)
     {
@@ -1680,7 +1680,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
           if ((m_GameLoading || m_GameLoaded) && Pings.size() > 100)
           {
-            // cut the text into multiple lines ingame
+            // cut the text int32_to multiple lines ingame
 
             SendAllChat(Pings);
             Pings.clear();
@@ -1716,7 +1716,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
           if ((m_GameLoading || m_GameLoaded) && Froms.size() > 100)
           {
-            // cut the text into multiple lines ingame
+            // cut the text int32_to multiple lines ingame
 
             SendAllChat(Froms);
             Froms.clear();
@@ -1759,7 +1759,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             break;
           }
           else
-            CloseSlot((unsigned char)(SID - 1), true);
+            CloseSlot((uint8_t)(SID - 1), true);
         }
       }
 
@@ -1934,7 +1934,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             // not a fake player
 
             if (!Fake)
-              OpenSlot((unsigned char) SID, true);
+              OpenSlot((uint8_t) SID, true);
           }
         }
       }
@@ -2061,7 +2061,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             if (SS.fail())
               Print("[GAME: " + m_GameName + "] bad input #2 to swap command");
             else
-              SwapSlots((unsigned char)(SID1 - 1), (unsigned char)(SID2 - 1));
+              SwapSlots((uint8_t)(SID1 - 1), (uint8_t)(SID2 - 1));
           }
         }
       }
@@ -2130,13 +2130,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
               Print("[GAME: " + m_GameName + "] bad input #2 to handicap command");
             else
             {
-              unsigned char SID = (unsigned char)(Slot - 1);
+              uint8_t SID = (uint8_t)(Slot - 1);
 
               if (SID < m_Slots.size())
               {
                 if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED)
                 {
-                  m_Slots[SID].SetHandicap((unsigned char) Handicap);
+                  m_Slots[SID].SetHandicap((uint8_t) Handicap);
                   SendAllSlotInfo();
                 }
               }
@@ -2161,7 +2161,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         {
           if (!LastMatch->GetDownloadStarted() && !LastMatch->GetDownloadFinished())
           {
-            const unsigned char SID = GetSIDFromPID(LastMatch->GetPID());
+            const uint8_t SID = GetSIDFromPID(LastMatch->GetPID());
 
             if (SID < m_Slots.size() && m_Slots[SID].GetDownloadStatus() != 100)
             {
@@ -2537,7 +2537,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           if (SS.fail())
             Print("[GAME: " + m_GameName + "] bad input #2 to comp command");
           else
-            ComputerSlot((unsigned char)(Slot - 1), (unsigned char) Skill, true);
+            ComputerSlot((uint8_t)(Slot - 1), (uint8_t) Skill, true);
         }
       }
 
@@ -2569,7 +2569,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
               Print("[GAME: " + m_GameName + "] bad input #2 to compcolour command");
             else
             {
-              unsigned char SID = (unsigned char)(Slot - 1);
+              uint8_t SID = (uint8_t)(Slot - 1);
 
               if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && Colour < 12 && SID < m_Slots.size())
               {
@@ -2609,13 +2609,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
               Print("[GAME: " + m_GameName + "] bad input #2 to comphandicap command");
             else
             {
-              unsigned char SID = (unsigned char)(Slot - 1);
+              uint8_t SID = (uint8_t)(Slot - 1);
 
               if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && (Handicap == 50 || Handicap == 60 || Handicap == 70 || Handicap == 80 || Handicap == 90 || Handicap == 100) && SID < m_Slots.size())
               {
                 if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer() == 1)
                 {
-                  m_Slots[SID].SetHandicap((unsigned char) Handicap);
+                  m_Slots[SID].SetHandicap((uint8_t) Handicap);
                   SendAllSlotInfo();
                 }
               }
@@ -2801,7 +2801,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
               Race = Race.substr(Start);
 
             transform(Race.begin(), Race.end(), Race.begin(), ::tolower);
-            unsigned char SID = (unsigned char)(Slot - 1);
+            uint8_t SID = (uint8_t)(Slot - 1);
 
             if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && !(m_Map->GetMapFlags() & MAPFLAG_RANDOMRACES) && SID < m_Slots.size())
             {
@@ -2868,13 +2868,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
               Print("[GAME: " + m_GameName + "] bad input #2 to compteam command");
             else
             {
-              unsigned char SID = (unsigned char)(Slot - 1);
+              uint8_t SID = (uint8_t)(Slot - 1);
 
               if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && Team < 12 && SID < m_Slots.size())
               {
                 if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer() == 1)
                 {
-                  m_Slots[SID].SetTeam((unsigned char)(Team - 1));
+                  m_Slots[SID].SetTeam((uint8_t)(Team - 1));
                   SendAllSlotInfo();
                 }
               }
@@ -3086,14 +3086,14 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
   return true;
 }
 
-void CGame::EventPlayerChangeTeam(CGamePlayer *player, unsigned char team)
+void CGame::EventPlayerChangeTeam(CGamePlayer *player, uint8_t team)
 {
   // player is requesting a team change
 
   if (m_Map->GetMapOptions() & MAPOPT_CUSTOMFORCES)
   {
-    unsigned char oldSID = GetSIDFromPID(player->GetPID());
-    unsigned char newSID = GetEmptySlot(team, player->GetPID());
+    uint8_t oldSID = GetSIDFromPID(player->GetPID());
+    uint8_t newSID = GetEmptySlot(team, player->GetPID());
     SwapSlots(oldSID, newSID);
   }
   else
@@ -3113,7 +3113,7 @@ void CGame::EventPlayerChangeTeam(CGamePlayer *player, unsigned char team)
 
       // make sure there aren't too many other players already
 
-      unsigned char NumOtherPlayers = 0;
+      uint8_t NumOtherPlayers = 0;
 
       for (auto & slot : m_Slots)
       {
@@ -3125,7 +3125,7 @@ void CGame::EventPlayerChangeTeam(CGamePlayer *player, unsigned char team)
         return;
     }
 
-    unsigned char SID = GetSIDFromPID(player->GetPID());
+    uint8_t SID = GetSIDFromPID(player->GetPID());
 
     if (SID < m_Slots.size())
     {
@@ -3149,7 +3149,7 @@ void CGame::EventPlayerChangeTeam(CGamePlayer *player, unsigned char team)
   }
 }
 
-void CGame::EventPlayerChangeColour(CGamePlayer *player, unsigned char colour)
+void CGame::EventPlayerChangeColour(CGamePlayer *player, uint8_t colour)
 {
   // player is requesting a colour change
 
@@ -3159,7 +3159,7 @@ void CGame::EventPlayerChangeColour(CGamePlayer *player, unsigned char colour)
   if (colour > 11)
     return;
 
-  unsigned char SID = GetSIDFromPID(player->GetPID());
+  uint8_t SID = GetSIDFromPID(player->GetPID());
 
   if (SID < m_Slots.size())
   {
@@ -3172,7 +3172,7 @@ void CGame::EventPlayerChangeColour(CGamePlayer *player, unsigned char colour)
   }
 }
 
-void CGame::EventPlayerChangeRace(CGamePlayer *player, unsigned char race)
+void CGame::EventPlayerChangeRace(CGamePlayer *player, uint8_t race)
 {
   // player is requesting a race change
 
@@ -3185,7 +3185,7 @@ void CGame::EventPlayerChangeRace(CGamePlayer *player, unsigned char race)
   if (race != SLOTRACE_HUMAN && race != SLOTRACE_ORC && race != SLOTRACE_NIGHTELF && race != SLOTRACE_UNDEAD && race != SLOTRACE_RANDOM)
     return;
 
-  unsigned char SID = GetSIDFromPID(player->GetPID());
+  uint8_t SID = GetSIDFromPID(player->GetPID());
 
   if (SID < m_Slots.size())
   {
@@ -3194,7 +3194,7 @@ void CGame::EventPlayerChangeRace(CGamePlayer *player, unsigned char race)
   }
 }
 
-void CGame::EventPlayerChangeHandicap(CGamePlayer *player, unsigned char handicap)
+void CGame::EventPlayerChangeHandicap(CGamePlayer *player, uint8_t handicap)
 {
   // player is requesting a handicap change
 
@@ -3204,7 +3204,7 @@ void CGame::EventPlayerChangeHandicap(CGamePlayer *player, unsigned char handica
   if (handicap != 50 && handicap != 60 && handicap != 70 && handicap != 80 && handicap != 90 && handicap != 100)
     return;
 
-  unsigned char SID = GetSIDFromPID(player->GetPID());
+  uint8_t SID = GetSIDFromPID(player->GetPID());
 
   if (SID < m_Slots.size())
   {
@@ -3224,7 +3224,7 @@ void CGame::EventPlayerDropRequest(CGamePlayer *player)
 
     // check if at least half the players voted to drop
 
-    int Votes = 0;
+    int32_t Votes = 0;
 
     for (auto & player : m_Players)
     {
@@ -3299,8 +3299,8 @@ void CGame::EventPlayerMapSize(CGamePlayer *player, CIncomingMapSize *mapSize)
     player->SetFinishedDownloadingTime(GetTime());
   }
 
-  unsigned char NewDownloadStatus = (unsigned char)((float) mapSize->GetMapSize() / MapSize * 100.f);
-  const unsigned char SID = GetSIDFromPID(player->GetPID());
+  uint8_t NewDownloadStatus = (uint8_t)((float) mapSize->GetMapSize() / MapSize * 100.f);
+  const uint8_t SID = GetSIDFromPID(player->GetPID());
 
   if (NewDownloadStatus > 100)
     NewDownloadStatus = 100;
@@ -3367,8 +3367,8 @@ void CGame::EventGameStarted()
 
       if (m_HCLCommandString.find_first_not_of(HCLChars) == string::npos)
       {
-        unsigned char EncodingMap[256];
-        unsigned char j = 0;
+        uint8_t EncodingMap[256];
+        uint8_t j = 0;
 
         for (auto & encode : EncodingMap)
         {
@@ -3380,15 +3380,15 @@ void CGame::EventGameStarted()
           encode = j++;
         }
 
-        unsigned char CurrentSlot = 0;
+        uint8_t CurrentSlot = 0;
 
         for (auto & character : m_HCLCommandString)
         {
           while (m_Slots[CurrentSlot].GetSlotStatus() != SLOTSTATUS_OCCUPIED)
             ++CurrentSlot;
 
-          unsigned char HandicapIndex = (m_Slots[CurrentSlot].GetHandicap() - 50) / 10;
-          unsigned char CharIndex = HCLChars.find(character);
+          uint8_t HandicapIndex = (m_Slots[CurrentSlot].GetHandicap() - 50) / 10;
+          uint8_t CharIndex = HCLChars.find(character);
           m_Slots[CurrentSlot++].SetHandicap(EncodingMap[HandicapIndex + CharIndex * 6]);
         }
 
@@ -3514,12 +3514,12 @@ void CGame::EventGameLoaded()
     SendChat(player, "Your load time was " + ToString((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
 }
 
-unsigned char CGame::GetSIDFromPID(unsigned char PID)
+uint8_t CGame::GetSIDFromPID(uint8_t PID)
 {
   if (m_Slots.size() > 255)
     return 255;
 
-  for (unsigned char i = 0; i < m_Slots.size(); ++i)
+  for (uint8_t i = 0; i < m_Slots.size(); ++i)
   {
     if (m_Slots[i].GetPID() == PID)
       return i;
@@ -3528,7 +3528,7 @@ unsigned char CGame::GetSIDFromPID(unsigned char PID)
   return 255;
 }
 
-CGamePlayer *CGame::GetPlayerFromPID(unsigned char PID)
+CGamePlayer *CGame::GetPlayerFromPID(uint8_t PID)
 {
   for (auto & player : m_Players)
   {
@@ -3539,12 +3539,12 @@ CGamePlayer *CGame::GetPlayerFromPID(unsigned char PID)
   return nullptr;
 }
 
-CGamePlayer *CGame::GetPlayerFromSID(unsigned char SID)
+CGamePlayer *CGame::GetPlayerFromSID(uint8_t SID)
 {
   if (SID >= m_Slots.size())
     return nullptr;
 
-  const unsigned char PID = m_Slots[SID].GetPID();
+  const uint8_t PID = m_Slots[SID].GetPID();
 
   for (auto & player : m_Players)
   {
@@ -3611,7 +3611,7 @@ uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player)
   return Matches;
 }
 
-string CGame::GetDBPlayerNameFromColour(unsigned char colour) const
+string CGame::GetDBPlayerNameFromColour(uint8_t colour) const
 {
   for (const auto & player : m_DBGamePlayers)
   {
@@ -3622,9 +3622,9 @@ string CGame::GetDBPlayerNameFromColour(unsigned char colour) const
   return string();
 }
 
-CGamePlayer *CGame::GetPlayerFromColour(unsigned char colour)
+CGamePlayer *CGame::GetPlayerFromColour(uint8_t colour)
 {
-  for (unsigned char i = 0; i < m_Slots.size(); ++i)
+  for (uint8_t i = 0; i < m_Slots.size(); ++i)
   {
     if (m_Slots[i].GetColour() == colour)
       return GetPlayerFromSID(i);
@@ -3633,11 +3633,11 @@ CGamePlayer *CGame::GetPlayerFromColour(unsigned char colour)
   return nullptr;
 }
 
-unsigned char CGame::GetNewPID()
+uint8_t CGame::GetNewPID()
 {
   // find an unused PID for a new player to use
 
-  for (unsigned char TestPID = 1; TestPID < 255; ++TestPID)
+  for (uint8_t TestPID = 1; TestPID < 255; ++TestPID)
   {
     if (TestPID == m_VirtualHostPID)
       continue;
@@ -3674,11 +3674,11 @@ unsigned char CGame::GetNewPID()
   return 255;
 }
 
-unsigned char CGame::GetNewColour()
+uint8_t CGame::GetNewColour()
 {
   // find an unused colour for a player to use
 
-  for (unsigned char TestColour = 0; TestColour < 12; ++TestColour)
+  for (uint8_t TestColour = 0; TestColour < 12; ++TestColour)
   {
     bool InUse = false;
 
@@ -3713,7 +3713,7 @@ BYTEARRAY CGame::GetPIDs()
   return result;
 }
 
-BYTEARRAY CGame::GetPIDs(unsigned char excludePID)
+BYTEARRAY CGame::GetPIDs(uint8_t excludePID)
 {
   BYTEARRAY result;
 
@@ -3726,7 +3726,7 @@ BYTEARRAY CGame::GetPIDs(unsigned char excludePID)
   return result;
 }
 
-unsigned char CGame::GetHostPID()
+uint8_t CGame::GetHostPID()
 {
   // return the player to be considered the host (it can be any player) - mainly used for sending text messages from the bot
   // try to find the virtual host player first
@@ -3758,7 +3758,7 @@ unsigned char CGame::GetHostPID()
   return 255;
 }
 
-unsigned char CGame::GetEmptySlot(bool reserved)
+uint8_t CGame::GetEmptySlot(bool reserved)
 {
   if (m_Slots.size() > 255)
     return 255;
@@ -3766,7 +3766,7 @@ unsigned char CGame::GetEmptySlot(bool reserved)
   // look for an empty slot for a new player to occupy
   // if reserved is true then we're willing to use closed or occupied slots as long as it wouldn't displace a player with a reserved slot
 
-  for (unsigned char i = 0; i < m_Slots.size(); ++i)
+  for (uint8_t i = 0; i < m_Slots.size(); ++i)
   {
     if (m_Slots[i].GetSlotStatus() == SLOTSTATUS_OPEN)
       return i;
@@ -3776,7 +3776,7 @@ unsigned char CGame::GetEmptySlot(bool reserved)
   {
     // no empty slots, but since player is reserved give them a closed slot
 
-    for (unsigned char i = 0; i < m_Slots.size(); ++i)
+    for (uint8_t i = 0; i < m_Slots.size(); ++i)
     {
       if (m_Slots[i].GetSlotStatus() == SLOTSTATUS_CLOSED)
         return i;
@@ -3785,10 +3785,10 @@ unsigned char CGame::GetEmptySlot(bool reserved)
     // no closed slots either, give them an occupied slot but not one occupied by another reserved player
     // first look for a player who is downloading the map and has the least amount downloaded so far
 
-    unsigned char LeastDownloaded = 100;
-    unsigned char LeastSID = 255;
+    uint8_t LeastDownloaded = 100;
+    uint8_t LeastSID = 255;
 
-    for (unsigned char i = 0; i < m_Slots.size(); ++i)
+    for (uint8_t i = 0; i < m_Slots.size(); ++i)
     {
       CGamePlayer *Player = GetPlayerFromSID(i);
 
@@ -3804,7 +3804,7 @@ unsigned char CGame::GetEmptySlot(bool reserved)
 
     // nobody who isn't reserved is downloading the map, just choose the first player who isn't reserved
 
-    for (unsigned char i = 0; i < m_Slots.size(); ++i)
+    for (uint8_t i = 0; i < m_Slots.size(); ++i)
     {
       CGamePlayer *Player = GetPlayerFromSID(i);
 
@@ -3816,14 +3816,14 @@ unsigned char CGame::GetEmptySlot(bool reserved)
   return 255;
 }
 
-unsigned char CGame::GetEmptySlot(unsigned char team, unsigned char PID)
+uint8_t CGame::GetEmptySlot(uint8_t team, uint8_t PID)
 {
   if (m_Slots.size() > 255)
     return 255;
 
   // find an empty slot based on player's current slot
 
-  unsigned char StartSlot = GetSIDFromPID(PID);
+  uint8_t StartSlot = GetSIDFromPID(PID);
 
   if (StartSlot < m_Slots.size())
   {
@@ -3837,7 +3837,7 @@ unsigned char CGame::GetEmptySlot(unsigned char team, unsigned char PID)
 
     // find an empty slot on the correct team starting from StartSlot
 
-    for (unsigned char i = StartSlot; i < m_Slots.size(); ++i)
+    for (uint8_t i = StartSlot; i < m_Slots.size(); ++i)
     {
       if (m_Slots[i].GetSlotStatus() == SLOTSTATUS_OPEN && m_Slots[i].GetTeam() == team)
         return i;
@@ -3846,7 +3846,7 @@ unsigned char CGame::GetEmptySlot(unsigned char team, unsigned char PID)
     // didn't find an empty slot, but we could have missed one with SID < StartSlot
     // e.g. in the DotA case where I am in slot 4 (yellow), slot 5 (orange) is occupied, and slot 1 (blue) is open and I am trying to move to another slot
 
-    for (unsigned char i = 0; i < StartSlot; ++i)
+    for (uint8_t i = 0; i < StartSlot; ++i)
     {
       if (m_Slots[i].GetSlotStatus() == SLOTSTATUS_OPEN && m_Slots[i].GetTeam() == team)
         return i;
@@ -3856,7 +3856,7 @@ unsigned char CGame::GetEmptySlot(unsigned char team, unsigned char PID)
   return 255;
 }
 
-void CGame::SwapSlots(unsigned char SID1, unsigned char SID2)
+void CGame::SwapSlots(uint8_t SID1, uint8_t SID2)
 {
   if (SID1 < m_Slots.size() && SID2 < m_Slots.size() && SID1 != SID2)
   {
@@ -3888,7 +3888,7 @@ void CGame::SwapSlots(unsigned char SID1, unsigned char SID2)
   }
 }
 
-void CGame::OpenSlot(unsigned char SID, bool kick)
+void CGame::OpenSlot(uint8_t SID, bool kick)
 {
   if (SID < m_Slots.size())
   {
@@ -3910,7 +3910,7 @@ void CGame::OpenSlot(unsigned char SID, bool kick)
   }
 }
 
-void CGame::CloseSlot(unsigned char SID, bool kick)
+void CGame::CloseSlot(uint8_t SID, bool kick)
 {
   if (SID < m_Slots.size())
   {
@@ -3932,7 +3932,7 @@ void CGame::CloseSlot(unsigned char SID, bool kick)
   }
 }
 
-void CGame::ComputerSlot(unsigned char SID, unsigned char skill, bool kick)
+void CGame::ComputerSlot(uint8_t SID, uint8_t skill, bool kick)
 {
   if (SID < m_Slots.size() && skill < 3)
   {
@@ -3954,16 +3954,16 @@ void CGame::ComputerSlot(unsigned char SID, unsigned char skill, bool kick)
   }
 }
 
-void CGame::ColourSlot(unsigned char SID, unsigned char colour)
+void CGame::ColourSlot(uint8_t SID, uint8_t colour)
 {
   if (SID < m_Slots.size() && colour < 12)
   {
     // make sure the requested colour isn't already taken
 
     bool Taken = false;
-    unsigned char TakenSID = 0;
+    uint8_t TakenSID = 0;
 
-    for (unsigned char i = 0; i < m_Slots.size(); ++i)
+    for (uint8_t i = 0; i < m_Slots.size(); ++i)
     {
       if (m_Slots[i].GetColour() == colour)
       {
@@ -3977,7 +3977,7 @@ void CGame::ColourSlot(unsigned char SID, unsigned char colour)
       // the requested colour is currently "taken" by an unused (open or closed) slot
       // but we allow the colour to persist within a slot so if we only update the existing player's colour the unused slot will have the same colour
       // this isn't really a problem except that if someone then joins the game they'll receive the unused slot's colour resulting in a duplicate
-      // one way to solve this (which we do here) is to swap the player's current colour into the unused slot
+      // one way to solve this (which we do here) is to swap the player's current colour int32_to the unused slot
 
       m_Slots[TakenSID].SetColour(m_Slots[SID].GetColour());
       m_Slots[SID].SetColour(colour);
@@ -4050,9 +4050,9 @@ void CGame::ShuffleSlots()
     // unfortunately we can't just use PlayerSlots because the team/colour/race shouldn't be modified
     // so make a vector we can use
 
-    vector<unsigned char> SIDs;
+    vector<uint8_t> SIDs;
 
-    for (unsigned char i = 0; i < PlayerSlots.size(); ++i)
+    for (uint8_t i = 0; i < PlayerSlots.size(); ++i)
       SIDs.push_back(i);
 
     random_shuffle(SIDs.begin(), SIDs.end());
@@ -4063,7 +4063,7 @@ void CGame::ShuffleSlots()
 
     // as usual don't modify the team/colour/race
 
-    for (unsigned char i = 0; i < SIDs.size(); ++i)
+    for (uint8_t i = 0; i < SIDs.size(); ++i)
       Slots.push_back(CGameSlot(PlayerSlots[SIDs[i]].GetPID(), PlayerSlots[SIDs[i]].GetDownloadStatus(), PlayerSlots[SIDs[i]].GetSlotStatus(), PlayerSlots[SIDs[i]].GetComputer(), PlayerSlots[i].GetTeam(), PlayerSlots[i].GetColour(), PlayerSlots[i].GetRace()));
 
     PlayerSlots = Slots;
@@ -4300,14 +4300,14 @@ void CGame::CreateFakePlayer()
   if (m_FakePlayers.size() > 10)
     return;
 
-  unsigned char SID = GetEmptySlot(false);
+  uint8_t SID = GetEmptySlot(false);
 
   if (SID < m_Slots.size())
   {
     if (GetNumPlayers() >= 11)
       DeleteVirtualHost();
 
-    const unsigned char FakePlayerPID = GetNewPID();
+    const uint8_t FakePlayerPID = GetNewPID();
     const BYTEARRAY IP = {0, 0, 0, 0};
 
     SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(FakePlayerPID, "Troll[" + ToString(FakePlayerPID) + "]", IP, IP));

@@ -304,8 +304,8 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDLIST(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 5)
   {
-    unsigned int i = 5;
-    unsigned char Total = data[4];
+    uint32_t i = 5;
+    uint8_t Total = data[4];
 
     while (Total > 0)
     {
@@ -349,8 +349,8 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 9)
   {
-    unsigned int i = 9;
-    unsigned char Total = data[8];
+    uint32_t i = 9;
+    uint8_t Total = data[8];
 
     while (Total > 0)
     {
@@ -417,12 +417,12 @@ BYTEARRAY CBNETProtocol::SEND_SID_JOINCHANNEL(const string &channel)
 
   if (channel.size() > 0)
   {
-    const unsigned char NoCreateJoin[] = { 2, 0, 0, 0 };
+    const uint8_t NoCreateJoin[] = { 2, 0, 0, 0 };
     AppendByteArray(packet, NoCreateJoin, 4);   // flags for no create join
   }
   else
   {
-    const unsigned char FirstJoin[] = { 1, 0, 0, 0 };
+    const uint8_t FirstJoin[] = { 1, 0, 0, 0 };
     AppendByteArray(packet, FirstJoin, 4);   // flags for first join
   }
 
@@ -445,7 +445,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_CHECKAD()
   return BYTEARRAY {BNET_HEADER_CONSTANT, SID_CHECKAD, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3(unsigned char state, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1, uint32_t hostCounter)
+BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3(uint8_t state, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1, uint32_t hostCounter)
 {
   // TODO: sort out how GameType works, the documentation is horrendous
 
@@ -476,8 +476,8 @@ BYTEARRAY CBNETProtocol::SEND_SID_STARTADVEX3(unsigned char state, const BYTEARR
   {
     // make the rest of the packet
 
-    const unsigned char Unknown[] = { 255, 3, 0, 0 };
-    const unsigned char CustomGame[] = { 0, 0, 0, 0 };
+    const uint8_t Unknown[] = { 255, 3, 0, 0 };
+    const uint8_t CustomGame[] = { 0, 0, 0, 0 };
 
     packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
     packet.push_back(SID_STARTADVEX3);   // SID_STARTADVEX3
@@ -560,15 +560,15 @@ BYTEARRAY CBNETProtocol::SEND_SID_NETGAMEPORT(uint16_t serverPort)
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO(unsigned char ver, uint32_t localeID, string countryAbbrev, string country)
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, string countryAbbrev, string country)
 {
-  const unsigned char ProtocolID[] = { 0, 0, 0, 0 };
-  const unsigned char PlatformID[] = { 54, 56, 88, 73 }; // "IX86"
-  const unsigned char ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
-  const unsigned char Version[] = { ver, 0, 0, 0 };
-  const unsigned char Language[] = { 83, 85, 110, 101 }; // "enUS"
-  const unsigned char LocalIP[] = { 127, 0, 0, 1 };
-  const unsigned char TimeZoneBias[] = { 60, 0, 0, 0 }; // 60 minutes (GMT +0100) but this is probably -0100
+  const uint8_t ProtocolID[] = { 0, 0, 0, 0 };
+  const uint8_t PlatformID[] = { 54, 56, 88, 73 }; // "IX86"
+  const uint8_t ProductID_TFT[] = { 80, 88, 51, 87 }; // "W3XP"
+  const uint8_t Version[] = { ver, 0, 0, 0 };
+  const uint8_t Language[] = { 83, 85, 110, 101 }; // "enUS"
+  const uint8_t LocalIP[] = { 127, 0, 0, 1 };
+  const uint8_t TimeZoneBias[] = { 60, 0, 0, 0 }; // 60 minutes (GMT +0100) but this is probably -0100
 
   BYTEARRAY packet;
   packet.push_back(BNET_HEADER_CONSTANT);   // BNET header constant
@@ -704,9 +704,9 @@ string CIncomingGameHost::GetIPString() const
 
   if (m_IP.size() >= 4)
   {
-    for (unsigned int i = 0; i < 4; ++i)
+    for (uint32_t i = 0; i < 4; ++i)
     {
-      Result += ToString((unsigned int) m_IP[i]);
+      Result += ToString((uint32_t) m_IP[i]);
 
       if (i < 3)
         Result += ".";

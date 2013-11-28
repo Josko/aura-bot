@@ -111,7 +111,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON()
 
   char buf[32];
   ((NLS *) m_NLS)->getPublicKey(buf);
-  m_ClientKey = CreateByteArray((unsigned char *) buf, 32);
+  m_ClientKey = CreateByteArray((uint8_t *) buf, 32);
   return true;
 }
 
@@ -121,7 +121,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &salt, 
 
   char buf[20];
   ((NLS *) m_NLS)->getClientSessionKey(buf, string(salt.begin(), salt.end()).c_str(), string(serverKey.begin(), serverKey.end()).c_str());
-  m_M1 = CreateByteArray((unsigned char *) buf, 20);
+  m_M1 = CreateByteArray((uint8_t *) buf, 20);
   return true;
 }
 
@@ -131,7 +131,7 @@ bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string &userPassword)
 
   char buf[20];
   hashPassword(userPassword.c_str(), buf);
-  m_PvPGNPasswordHash = CreateByteArray((unsigned char *) buf, 20);
+  m_PvPGNPasswordHash = CreateByteArray((uint8_t *) buf, 20);
   return true;
 }
 
@@ -142,7 +142,7 @@ BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string &key, uint32_t clientTo
 
   if (Decoder.isKeyValid())
   {
-    const unsigned char Zeros[] = { 0, 0, 0, 0 };
+    const uint8_t Zeros[] = { 0, 0, 0, 0 };
     AppendByteArray(KeyInfo, CreateByteArray((uint32_t) key.size(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
@@ -150,7 +150,7 @@ BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string &key, uint32_t clientTo
     size_t Length = Decoder.calculateHash(clientToken, serverToken);
     auto buf = new char[Length];
     Length = Decoder.getHash(buf);
-    AppendByteArray(KeyInfo, CreateByteArray((unsigned char *) buf, Length));
+    AppendByteArray(KeyInfo, CreateByteArray((uint8_t *) buf, Length));
     delete [] buf;
   }
 

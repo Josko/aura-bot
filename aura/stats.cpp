@@ -53,7 +53,7 @@ CStats::~CStats()
 
 bool CStats::ProcessAction(CIncomingAction *Action)
 {
-  unsigned int i = 0;
+  uint32_t i = 0;
   const BYTEARRAY *ActionData = Action->GetAction();
   BYTEARRAY Data, Key, Value;
 
@@ -68,7 +68,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
     if ((*ActionData)[i] == 0x6b && (*ActionData)[i + 1] == 0x64 && (*ActionData)[i + 2] == 0x72 && (*ActionData)[i + 3] == 0x2e && (*ActionData)[i + 4] == 0x78 && (*ActionData)[i + 5] == 0x00)
     {
       // we think we've found an action with real time replay data (but we can't be 100% sure)
-      // next we parse out two nullptr terminated strings and a 4 byte integer
+      // next we parse out two nullptr terminated strings and a 4 byte int32_teger
 
       if (ActionData->size() >= i + 7)
       {
@@ -84,7 +84,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
 
           if (ActionData->size() >= i + 12 + Data.size() + Key.size())
           {
-            // the 4 byte integer should be the value
+            // the 4 byte int32_teger should be the value
 
             Value = BYTEARRAY(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
             const string DataString = string(Data.begin(), Data.end());
@@ -289,12 +289,12 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
     // the dotagame stats are always saved (with winner = 0 if the game didn't properly finish)
     // the dotaplayer stats are only saved if the game is properly finished
 
-    unsigned int Players = 0;
+    uint32_t Players = 0;
 
     // check for invalid colours and duplicates
     // this can only happen if DotA sends us garbage in the "id" value but we should check anyway
 
-    for (unsigned int i = 0; i < 12; ++i)
+    for (uint32_t i = 0; i < 12; ++i)
     {
       if (m_Players[i])
       {
@@ -308,7 +308,7 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
           continue;
         }
 
-        for (unsigned int j = i + 1; j < 12; ++j)
+        for (uint32_t j = i + 1; j < 12; ++j)
         {
           if (m_Players[j] && Colour == m_Players[j]->GetNewColour())
           {
@@ -330,7 +330,7 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
         if (Name.empty())
           continue;
 
-        unsigned char Win = 0;
+        uint8_t Win = 0;
 
         if ((m_Winner == 1 && Colour >= 1 && Colour <= 5) || (m_Winner == 2 && Colour >= 7 && Colour <= 11))
           Win = 1;

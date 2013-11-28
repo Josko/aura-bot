@@ -29,7 +29,7 @@
 
 #define W3GS_HEADER_CONSTANT      247
 
-#define GAME_NONE                   0   // this case isn't part of the protocol, it's for internal use only
+#define GAME_NONE                   0   // this case isn't part of the protocol, it's for int32_ternal use only
 #define GAME_FULL                   2
 #define GAME_PUBLIC                16
 #define GAME_PRIVATE               17
@@ -111,7 +111,7 @@ public:
   CIncomingJoinPlayer *RECEIVE_W3GS_REQJOIN(const BYTEARRAY &data);
   uint32_t RECEIVE_W3GS_LEAVEGAME(const BYTEARRAY &data);
   bool RECEIVE_W3GS_GAMELOADED_SELF(const BYTEARRAY &data);
-  CIncomingAction *RECEIVE_W3GS_OUTGOING_ACTION(const BYTEARRAY &data, unsigned char PID);
+  CIncomingAction *RECEIVE_W3GS_OUTGOING_ACTION(const BYTEARRAY &data, uint8_t PID);
   uint32_t RECEIVE_W3GS_OUTGOING_KEEPALIVE(const BYTEARRAY &data);
   CIncomingChatPlayer *RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &data);
   CIncomingMapSize *RECEIVE_W3GS_MAPSIZE(const BYTEARRAY &data);
@@ -120,32 +120,32 @@ public:
   // send functions
 
   BYTEARRAY SEND_W3GS_PING_FROM_HOST();
-  BYTEARRAY SEND_W3GS_SLOTINFOJOIN(unsigned char PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const std::vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
+  BYTEARRAY SEND_W3GS_SLOTINFOJOIN(uint8_t PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const std::vector<CGameSlot> &slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots);
   BYTEARRAY SEND_W3GS_REJECTJOIN(uint32_t reason);
-  BYTEARRAY SEND_W3GS_PLAYERINFO(unsigned char PID, const std::string &name, BYTEARRAY externalIP, BYTEARRAY internalIP);
-  BYTEARRAY SEND_W3GS_PLAYERLEAVE_OTHERS(unsigned char PID, uint32_t leftCode);
-  BYTEARRAY SEND_W3GS_GAMELOADED_OTHERS(unsigned char PID);
-  BYTEARRAY SEND_W3GS_SLOTINFO(std::vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
+  BYTEARRAY SEND_W3GS_PLAYERINFO(uint8_t PID, const std::string &name, BYTEARRAY externalIP, BYTEARRAY int32_ternalIP);
+  BYTEARRAY SEND_W3GS_PLAYERLEAVE_OTHERS(uint8_t PID, uint32_t leftCode);
+  BYTEARRAY SEND_W3GS_GAMELOADED_OTHERS(uint8_t PID);
+  BYTEARRAY SEND_W3GS_SLOTINFO(std::vector<CGameSlot> &slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots);
   BYTEARRAY SEND_W3GS_COUNTDOWN_START();
   BYTEARRAY SEND_W3GS_COUNTDOWN_END();
   BYTEARRAY SEND_W3GS_INCOMING_ACTION(std::queue<CIncomingAction *> actions, uint16_t sendInterval);
   BYTEARRAY SEND_W3GS_INCOMING_ACTION2(std::queue<CIncomingAction *> actions);
-  BYTEARRAY SEND_W3GS_CHAT_FROM_HOST(unsigned char fromPID, const BYTEARRAY &toPIDs, unsigned char flag, const BYTEARRAY &flagExtra, const std::string &message);
+  BYTEARRAY SEND_W3GS_CHAT_FROM_HOST(uint8_t fromPID, const BYTEARRAY &toPIDs, uint8_t flag, const BYTEARRAY &flagExtra, const std::string &message);
   BYTEARRAY SEND_W3GS_START_LAG(std::vector<CGamePlayer *> players);
   BYTEARRAY SEND_W3GS_STOP_LAG(CGamePlayer *player);
-  BYTEARRAY SEND_W3GS_GAMEINFO(unsigned char war3Version, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const std::string &gameName, const std::string &hostName, uint32_t upTime, const std::string &mapPath, const BYTEARRAY &mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey);
-  BYTEARRAY SEND_W3GS_CREATEGAME(unsigned char war3Version);
+  BYTEARRAY SEND_W3GS_GAMEINFO(uint8_t war3Version, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const std::string &gameName, const std::string &hostName, uint32_t upTime, const std::string &mapPath, const BYTEARRAY &mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey);
+  BYTEARRAY SEND_W3GS_CREATEGAME(uint8_t war3Version);
   BYTEARRAY SEND_W3GS_REFRESHGAME(uint32_t players, uint32_t playerSlots);
   BYTEARRAY SEND_W3GS_DECREATEGAME();
   BYTEARRAY SEND_W3GS_MAPCHECK(const std::string &mapPath, const BYTEARRAY &mapSize, const BYTEARRAY &mapInfo, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1);
-  BYTEARRAY SEND_W3GS_STARTDOWNLOAD(unsigned char fromPID);
-  BYTEARRAY SEND_W3GS_MAPPART(unsigned char fromPID, unsigned char toPID, uint32_t start, const std::string *mapData);
+  BYTEARRAY SEND_W3GS_STARTDOWNLOAD(uint8_t fromPID);
+  BYTEARRAY SEND_W3GS_MAPPART(uint8_t fromPID, uint8_t toPID, uint32_t start, const std::string *mapData);
 
   // other functions
 
 private:
   bool ValidateLength(const BYTEARRAY &content);
-  BYTEARRAY EncodeSlotInfo(const std::vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots);
+  BYTEARRAY EncodeSlotInfo(const std::vector<CGameSlot> &slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots);
 };
 
 //
@@ -166,7 +166,7 @@ public:
 
   inline uint32_t GetHostCounter() const                     { return m_HostCounter; }
   inline uint32_t GetEntryKey() const                        { return m_EntryKey; }
-  inline std::string GetName() const                              { return m_Name; }
+  inline std::string GetName() const                         { return m_Name; }
   inline BYTEARRAY GetInternalIP() const                     { return m_InternalIP; }
 };
 
@@ -179,13 +179,13 @@ class CIncomingAction
 private:
   BYTEARRAY m_CRC;
   BYTEARRAY m_Action;
-  unsigned char m_PID;
+  uint8_t m_PID;
 
 public:
-  CIncomingAction(unsigned char nPID, const BYTEARRAY &nCRC, const BYTEARRAY &nAction);
+  CIncomingAction(uint8_t nPID, const BYTEARRAY &nCRC, const BYTEARRAY &nAction);
   ~CIncomingAction();
 
-  inline unsigned char GetPID() const                        { return m_PID; }
+  inline uint8_t GetPID() const                              { return m_PID; }
   inline BYTEARRAY GetCRC() const                            { return m_CRC; }
   inline BYTEARRAY *GetAction()                              { return &m_Action; }
   inline uint32_t GetLength() const                          { return m_Action.size() + 3; }
@@ -214,22 +214,22 @@ private:
   BYTEARRAY m_ToPIDs;
   BYTEARRAY m_ExtraFlags;
   ChatToHostType m_Type;
-  unsigned char m_FromPID;
-  unsigned char m_Flag;
-  unsigned char m_Byte;
+  uint8_t m_FromPID;
+  uint8_t m_Flag;
+  uint8_t m_Byte;
 
 public:
-  CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, const std::string &nMessage);
-  CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, const std::string &nMessage, const BYTEARRAY &nExtraFlags);
-  CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, unsigned char nByte);
+  CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY &nToPIDs, uint8_t nFlag, const std::string &nMessage);
+  CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY &nToPIDs, uint8_t nFlag, const std::string &nMessage, const BYTEARRAY &nExtraFlags);
+  CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY &nToPIDs, uint8_t nFlag, uint8_t nByte);
   ~CIncomingChatPlayer();
 
   inline ChatToHostType GetType() const                      { return m_Type; }
-  inline unsigned char GetFromPID() const                    { return m_FromPID; }
+  inline uint8_t GetFromPID() const                          { return m_FromPID; }
   inline BYTEARRAY GetToPIDs() const                         { return m_ToPIDs; }
-  inline unsigned char GetFlag() const                       { return m_Flag; }
-  inline std::string GetMessage() const                           { return m_Message; }
-  inline unsigned char GetByte() const                       { return m_Byte; }
+  inline uint8_t GetFlag() const                             { return m_Flag; }
+  inline std::string GetMessage() const                      { return m_Message; }
+  inline uint8_t GetByte() const                             { return m_Byte; }
   inline BYTEARRAY GetExtraFlags() const                     { return m_ExtraFlags; }
 };
 
@@ -237,13 +237,13 @@ class CIncomingMapSize
 {
 private:
   uint32_t m_MapSize;
-  unsigned char m_SizeFlag;
+  uint8_t m_SizeFlag;
 
 public:
-  CIncomingMapSize(unsigned char nSizeFlag, uint32_t nMapSize);
+  CIncomingMapSize(uint8_t nSizeFlag, uint32_t nMapSize);
   ~CIncomingMapSize();
 
-  inline unsigned char GetSizeFlag() const                   { return m_SizeFlag; }
+  inline uint8_t GetSizeFlag() const                         { return m_SizeFlag; }
   inline uint32_t GetMapSize() const                         { return m_MapSize; }
 };
 

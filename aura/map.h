@@ -115,14 +115,14 @@ private:
   uint32_t m_MapOptions;
   uint32_t m_MapNumPlayers;       // config value: max std::map number of players
   uint32_t m_MapNumTeams;         // config value: max std::map number of teams
-  unsigned char m_MapSpeed;
-  unsigned char m_MapVisibility;
-  unsigned char m_MapObservers;
-  unsigned char m_MapFlags;
-  unsigned char m_MapFilterMaker;
-  unsigned char m_MapFilterType;
-  unsigned char m_MapFilterSize;
-  unsigned char m_MapFilterObs;
+  uint8_t m_MapSpeed;
+  uint8_t m_MapVisibility;
+  uint8_t m_MapObservers;
+  uint8_t m_MapFlags;
+  uint8_t m_MapFilterMaker;
+  uint8_t m_MapFilterType;
+  uint8_t m_MapFilterSize;
+  uint8_t m_MapFilterObs;
   bool m_Valid;
 
 public:
@@ -136,14 +136,14 @@ public:
   inline BYTEARRAY GetMapInfo() const                        { return m_MapInfo; }
   inline BYTEARRAY GetMapCRC() const                         { return m_MapCRC; }
   inline BYTEARRAY GetMapSHA1() const                        { return m_MapSHA1; }
-  inline unsigned char GetMapSpeed() const                   { return m_MapSpeed; }
-  inline unsigned char GetMapVisibility() const              { return m_MapVisibility; }
-  inline unsigned char GetMapObservers() const               { return m_MapObservers; }
-  inline unsigned char GetMapFlags() const                   { return m_MapFlags; }
+  inline uint8_t GetMapSpeed() const                   { return m_MapSpeed; }
+  inline uint8_t GetMapVisibility() const              { return m_MapVisibility; }
+  inline uint8_t GetMapObservers() const               { return m_MapObservers; }
+  inline uint8_t GetMapFlags() const                   { return m_MapFlags; }
   BYTEARRAY GetMapGameFlags() const;
   uint32_t GetMapGameType() const;
   inline uint32_t GetMapOptions() const                      { return m_MapOptions; }
-  unsigned char GetMapLayoutStyle() const;
+  uint8_t GetMapLayoutStyle() const;
   inline BYTEARRAY GetMapWidth() const                       { return m_MapWidth; }
   inline BYTEARRAY GetMapHeight() const                      { return m_MapHeight; }
   inline std::string GetMapType() const                           { return m_MapType; }
@@ -156,7 +156,7 @@ public:
 
   void Load(CConfig *CFG, const std::string &nCFGFile);
   void CheckValid();
-  uint32_t XORRotateLeft(unsigned char *data, uint32_t length);
+  uint32_t XORRotateLeft(uint8_t *data, uint32_t length);
 };
 
 #endif  // AURA_MAP_H_

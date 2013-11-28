@@ -109,7 +109,7 @@ bool CGameProtocol::RECEIVE_W3GS_GAMELOADED_SELF(const BYTEARRAY &data)
   return false;
 }
 
-CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION(const BYTEARRAY &data, unsigned char PID)
+CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION(const BYTEARRAY &data, uint8_t PID)
 {
   // DEBUG_Print( "RECEIVED W3GS_OUTGOING_ACTION" );
   // DEBUG_Print( data );
@@ -173,15 +173,15 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &d
 
   if (ValidateLength(data))
   {
-    unsigned int i = 5;
-    const unsigned char Total = data[4];
+    uint32_t i = 5;
+    const uint8_t Total = data[4];
 
     if (Total > 0 && data.size() >= i + Total)
     {
       const BYTEARRAY ToPIDs = BYTEARRAY(data.begin() + i, data.begin() + i + Total);
       i += Total;
-      const unsigned char FromPID = data[i];
-      const unsigned char Flag = data[i + 1];
+      const uint8_t FromPID = data[i];
+      const uint8_t Flag = data[i + 1];
       i += 2;
 
       if (Flag == 16 && data.size() >= i + 1)
@@ -195,7 +195,7 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &d
       {
         // team/colour/race/handicap change request
 
-        const unsigned char Byte = data[i];
+        const uint8_t Byte = data[i];
         return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, Byte);
       }
       else if (Flag == 32 && data.size() >= i + 5)
@@ -259,13 +259,13 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PING_FROM_HOST()
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN(unsigned char PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
+BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint8_t PID, const BYTEARRAY &port, const BYTEARRAY &externalIP, const vector<CGameSlot> &slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots)
 {
   BYTEARRAY packet;
 
   if (port.size() == 2 && externalIP.size() == 4)
   {
-    const unsigned char Zeros[] = {0, 0, 0, 0};
+    const uint8_t Zeros[] = {0, 0, 0, 0};
     const BYTEARRAY SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
     packet.push_back(W3GS_HEADER_CONSTANT);   // W3GS header constant
     packet.push_back(W3GS_SLOTINFOJOIN);   // W3GS_SLOTINFOJOIN
@@ -295,14 +295,14 @@ BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN(uint32_t reason)
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(unsigned char PID, const string &name, BYTEARRAY externalIP, BYTEARRAY internalIP)
+BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(uint8_t PID, const string &name, BYTEARRAY externalIP, BYTEARRAY int32_ternalIP)
 {
   BYTEARRAY packet;
 
-  if (!name.empty() && name.size() <= 15 && externalIP.size() == 4 && internalIP.size() == 4)
+  if (!name.empty() && name.size() <= 15 && externalIP.size() == 4 && int32_ternalIP.size() == 4)
   {
-    const unsigned char PlayerJoinCounter[] = {2, 0, 0, 0};
-    const unsigned char Zeros[] = {0, 0, 0, 0};
+    const uint8_t PlayerJoinCounter[] = {2, 0, 0, 0};
+    const uint8_t Zeros[] = {0, 0, 0, 0};
 
     packet.push_back(W3GS_HEADER_CONSTANT);   // W3GS header constant
     packet.push_back(W3GS_PLAYERINFO);   // W3GS_PLAYERINFO
@@ -324,7 +324,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(unsigned char PID, const string &n
     packet.push_back(0);   // AF_INET continued...
     packet.push_back(0);   // port
     packet.push_back(0);   // port continued...
-    AppendByteArrayFast(packet, internalIP);   // internal IP
+    AppendByteArrayFast(packet, int32_ternalIP);   // int32_ternal IP
     AppendByteArray(packet, Zeros, 4);   // ???
     AppendByteArray(packet, Zeros, 4);   // ???
     AssignLength(packet);
@@ -335,7 +335,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(unsigned char PID, const string &n
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS(unsigned char PID, uint32_t leftCode)
+BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS(uint8_t PID, uint32_t leftCode)
 {
   if (PID != 255)
   {
@@ -348,7 +348,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS(unsigned char PID, uint32_
   return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(unsigned char PID)
+BYTEARRAY CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(uint8_t PID)
 {
   if (PID != 255)
     return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_GAMELOADED_OTHERS, 5, 0, PID};
@@ -358,7 +358,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(unsigned char PID)
   return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
+BYTEARRAY CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot> &slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots)
 {
   const BYTEARRAY SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
   const uint16_t SlotInfoSize = (uint16_t) SlotInfo.size();
@@ -383,7 +383,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_COUNTDOWN_END()
 BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *> actions, uint16_t sendInterval)
 {
   BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_INCOMING_ACTION, 0, 0};
-  AppendByteArray(packet, sendInterval, false);   // send interval
+  AppendByteArray(packet, sendInterval, false);   // send int32_terval
 
   // create subpacket
 
@@ -403,7 +403,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *> acti
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((unsigned char *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
     crc32.resize(2);
 
     // finish subpacket
@@ -416,11 +416,11 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *> acti
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_CHAT_FROM_HOST(unsigned char fromPID, const BYTEARRAY &toPIDs, unsigned char flag, const BYTEARRAY &flagExtra, const string &message)
+BYTEARRAY CGameProtocol::SEND_W3GS_CHAT_FROM_HOST(uint8_t fromPID, const BYTEARRAY &toPIDs, uint8_t flag, const BYTEARRAY &flagExtra, const string &message)
 {
   if (!toPIDs.empty() && !message.empty() && message.size() < 255)
   {
-    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_CHAT_FROM_HOST, 0, 0, (unsigned char) toPIDs.size()};
+    BYTEARRAY packet = {W3GS_HEADER_CONSTANT, W3GS_CHAT_FROM_HOST, 0, 0, (uint8_t) toPIDs.size()};
     AppendByteArrayFast(packet, toPIDs);      // receivers
     packet.push_back(fromPID);                // sender
     packet.push_back(flag);                   // flag
@@ -436,7 +436,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_CHAT_FROM_HOST(unsigned char fromPID, const B
 
 BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG(vector<CGamePlayer *> players)
 {
-  unsigned char NumLaggers = 0;
+  uint8_t NumLaggers = 0;
 
   for (auto & player : players)
   {
@@ -472,11 +472,11 @@ BYTEARRAY CGameProtocol::SEND_W3GS_STOP_LAG(CGamePlayer *player)
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO(unsigned char war3Version, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
+BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO(uint8_t war3Version, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
 {
   if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4)
   {
-    const unsigned char Unknown2[] = { 1, 0, 0, 0 };
+    const uint8_t Unknown2[] = { 1, 0, 0, 0 };
 
     // make the stat string
 
@@ -514,7 +514,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_GAMEINFO(unsigned char war3Version, const BYT
   return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_CREATEGAME(unsigned char war3Version)
+BYTEARRAY CGameProtocol::SEND_W3GS_CREATEGAME(uint8_t war3Version)
 {
   return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_CREATEGAME, 16, 0, 80, 88, 51, 87, war3Version, 0, 0, 0, 1, 0, 0, 0};
 }
@@ -550,12 +550,12 @@ BYTEARRAY CGameProtocol::SEND_W3GS_MAPCHECK(const string &mapPath, const BYTEARR
   return BYTEARRAY();
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_STARTDOWNLOAD(unsigned char fromPID)
+BYTEARRAY CGameProtocol::SEND_W3GS_STARTDOWNLOAD(uint8_t fromPID)
 {
   return BYTEARRAY {W3GS_HEADER_CONSTANT, W3GS_STARTDOWNLOAD, 9, 0, 1, 0, 0, 0, fromPID};
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_MAPPART(unsigned char fromPID, unsigned char toPID, uint32_t start, const string *mapData)
+BYTEARRAY CGameProtocol::SEND_W3GS_MAPPART(uint8_t fromPID, uint8_t toPID, uint32_t start, const string *mapData)
 {
   if (start < mapData->size())
   {
@@ -571,12 +571,12 @@ BYTEARRAY CGameProtocol::SEND_W3GS_MAPPART(unsigned char fromPID, unsigned char 
 
     // calculate crc
 
-    const BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((unsigned char *) mapData->c_str() + start, End - start), false);
+    const BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) mapData->c_str() + start, End - start), false);
     AppendByteArrayFast(packet, crc32);
 
     // map data
 
-    const BYTEARRAY data = CreateByteArray((unsigned char *) mapData->c_str() + start, End - start);
+    const BYTEARRAY data = CreateByteArray((uint8_t *) mapData->c_str() + start, End - start);
     AppendByteArrayFast(packet, data);
     AssignLength(packet);
     return packet;
@@ -607,7 +607,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncomingAction *> act
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((unsigned char *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
     crc32.resize(2);
 
     // finish subpacket
@@ -631,10 +631,10 @@ bool CGameProtocol::ValidateLength(const BYTEARRAY &content)
   return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
 }
 
-BYTEARRAY CGameProtocol::EncodeSlotInfo(const vector<CGameSlot> &slots, uint32_t randomSeed, unsigned char layoutStyle, unsigned char playerSlots)
+BYTEARRAY CGameProtocol::EncodeSlotInfo(const vector<CGameSlot> &slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots)
 {
   BYTEARRAY SlotInfo;
-  SlotInfo.push_back((unsigned char) slots.size()); // number of slots
+  SlotInfo.push_back((uint8_t) slots.size()); // number of slots
 
   for (auto & slot : slots)
     AppendByteArray(SlotInfo, slot.GetByteArray());
@@ -667,7 +667,7 @@ CIncomingJoinPlayer::~CIncomingJoinPlayer()
 // CIncomingAction
 //
 
-CIncomingAction::CIncomingAction(unsigned char nPID, const BYTEARRAY &nCRC, const BYTEARRAY &nAction)
+CIncomingAction::CIncomingAction(uint8_t nPID, const BYTEARRAY &nCRC, const BYTEARRAY &nAction)
   : m_CRC(nCRC),
     m_Action(nAction),
     m_PID(nPID)
@@ -684,7 +684,7 @@ CIncomingAction::~CIncomingAction()
 // CIncomingChatPlayer
 //
 
-CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage)
+CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY &nToPIDs, uint8_t nFlag, const string &nMessage)
   : m_Message(nMessage),
     m_ToPIDs(nToPIDs),
     m_Type(CTH_MESSAGE),
@@ -695,7 +695,7 @@ CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY
 
 }
 
-CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, const string &nMessage, const BYTEARRAY &nExtraFlags)
+CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY &nToPIDs, uint8_t nFlag, const string &nMessage, const BYTEARRAY &nExtraFlags)
   : m_Message(nMessage),
     m_ToPIDs(nToPIDs),
     m_ExtraFlags(nExtraFlags),
@@ -707,7 +707,7 @@ CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY
 
 }
 
-CIncomingChatPlayer::CIncomingChatPlayer(unsigned char nFromPID, const BYTEARRAY &nToPIDs, unsigned char nFlag, unsigned char nByte)
+CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY &nToPIDs, uint8_t nFlag, uint8_t nByte)
   : m_ToPIDs(nToPIDs),
     m_FromPID(nFromPID),
     m_Flag(nFlag),
@@ -732,7 +732,7 @@ CIncomingChatPlayer::~CIncomingChatPlayer()
 // CIncomingMapSize
 //
 
-CIncomingMapSize::CIncomingMapSize(unsigned char nSizeFlag, uint32_t nMapSize)
+CIncomingMapSize::CIncomingMapSize(uint8_t nSizeFlag, uint32_t nMapSize)
   : m_MapSize(nMapSize),
     m_SizeFlag(nSizeFlag)
 {

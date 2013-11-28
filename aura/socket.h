@@ -75,14 +75,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-typedef int SOCKET;
+typedef int32_t SOCKET;
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 
 #define closesocket close
 
-extern int GetLastError();
+extern int32_t GetLastError();
 #endif
 
 #ifndef INADDR_NONE
@@ -113,7 +113,7 @@ private:
 
 protected:
   SOCKET m_Socket;
-  int m_Error;
+  int32_t m_Error;
   bool m_HasError;
   bool m_Connected;
 
@@ -127,18 +127,18 @@ public:
   inline BYTEARRAY GetIP() const                          { return CreateByteArray((uint32_t) m_SIN.sin_addr.s_addr, false); }
   inline std::string GetIPString() const                       { return inet_ntoa(m_SIN.sin_addr); }
   inline std::string *GetBytes()                               { return &m_RecvBuffer; }
-  inline int GetError() const                             { return m_Error; }
+  inline int32_t GetError() const                             { return m_Error; }
   inline uint32_t GetLastRecv() const                     { return m_LastRecv; }
   inline bool HasError() const                            { return m_HasError; }
   inline bool GetConnected() const                        { return m_Connected; }
 
-  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  void SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds);
   void Reset();
   inline void PutBytes(const std::string &bytes)              { m_SendBuffer += bytes; }
   inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += std::string(bytes.begin(), bytes.end()); }
 
   inline void ClearRecvBuffer()                           { m_RecvBuffer.clear(); }
-  inline void SubstrRecvBuffer(unsigned int i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
+  inline void SubstrRecvBuffer(uint32_t i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
   inline void ClearSendBuffer()                           { m_SendBuffer.clear(); }
 
   void DoRecv(fd_set *fd);
@@ -161,7 +161,7 @@ private:
 
 protected:
   SOCKET m_Socket;
-  int m_Error;
+  int32_t m_Error;
   bool m_HasError;
   bool m_Connected;
   bool m_Connecting;
@@ -174,19 +174,19 @@ public:
   inline BYTEARRAY GetPort() const                        { return CreateByteArray(m_SIN.sin_port, false); }
   inline std::string GetIPString() const                       { return inet_ntoa(m_SIN.sin_addr); }
   inline std::string *GetBytes()                               { return &m_RecvBuffer; }
-  inline int GetError() const                             { return m_Error; }
+  inline int32_t GetError() const                             { return m_Error; }
   inline bool HasError() const                            { return m_HasError; }
   inline bool GetConnected() const                        { return m_Connected; }
   inline bool GetConnecting() const                       { return m_Connecting; }
 
-  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  void SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds);
   void Reset();
   inline void PutBytes(const std::string &bytes)              { m_SendBuffer += bytes; }
   inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += std::string(bytes.begin(), bytes.end()); }
 
   bool CheckConnect();
   inline void ClearRecvBuffer()                           { m_RecvBuffer.clear(); }
-  inline void SubstrRecvBuffer(unsigned int i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
+  inline void SubstrRecvBuffer(uint32_t i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
   inline void ClearSendBuffer()                           { m_SendBuffer.clear(); }
   void DoRecv(fd_set *fd);
   void DoSend(fd_set *send_fd);
@@ -203,7 +203,7 @@ class CTCPServer
 protected:
   struct sockaddr_in m_SIN;
   SOCKET m_Socket;
-  int m_Error;
+  int32_t m_Error;
   bool m_HasError;
 
 public:
@@ -212,10 +212,10 @@ public:
 
   std::string GetErrorString() const;
   inline bool HasError() const                            { return m_HasError; }
-  inline int GetError() const                             { return m_Error; }
+  inline int32_t GetError() const                             { return m_Error; }
 
   bool Listen(const std::string &address, uint16_t port);
-  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
+  void SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds);
   CTCPSocket *Accept(fd_set *fd);
 };
 
@@ -229,7 +229,7 @@ protected:
   struct sockaddr_in m_SIN;
   struct in_addr m_BroadcastTarget;
   SOCKET m_Socket;
-  int m_Error;
+  int32_t m_Error;
   bool m_HasError;
 
 public:
@@ -240,14 +240,14 @@ public:
   inline BYTEARRAY GetPort() const                        { return CreateByteArray(m_SIN.sin_port, false); }
   inline std::string GetIPString() const                       { return inet_ntoa(m_SIN.sin_addr); }
   inline bool HasError() const                            { return m_HasError; }
-  inline int GetError() const                             { return m_Error; }
+  inline int32_t GetError() const                             { return m_Error; }
 
   bool SendTo(struct sockaddr_in sin, const BYTEARRAY &message);
   bool SendTo(const std::string &address, uint16_t port, const BYTEARRAY &message);
   bool Broadcast(uint16_t port, const BYTEARRAY &message);
 
-  void SetFD(fd_set *fd, fd_set *send_fd, int *nfds);
-  void Allocate(int type);
+  void SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds);
+  void Allocate(int32_t type);
   void Reset();
   void SetBroadcastTarget(const std::string &subnet);
   void SetDontRoute(bool dontRoute);

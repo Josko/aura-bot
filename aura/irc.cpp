@@ -31,7 +31,7 @@ using namespace std;
 //// CIRC ////
 //////////////
 
-CIRC::CIRC(CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger)
+CIRC::CIRC(CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, int8_t nCommandTrigger)
   : m_Aura(nAura),
     m_Socket(new CTCPClient),
     m_Channels(nChannels),
@@ -62,7 +62,7 @@ CIRC::~CIRC()
   delete m_Socket;
 }
 
-unsigned int CIRC::SetFD(void *fd, void *send_fd, int *nfds)
+uint32_t CIRC::SetFD(void *fd, void *send_fd, int32_t *nfds)
 {
   // irc socket
 
@@ -253,7 +253,7 @@ void CIRC::ExtractPackets()
 
       // get the nickname
 
-      unsigned int i = 1;
+      uint32_t i = 1;
 
       for (; Tokens[0][i] != '!'; ++i)
         Nickname += Tokens[0][i];

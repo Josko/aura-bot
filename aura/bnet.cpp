@@ -38,7 +38,7 @@ using namespace std;
 // CBNET
 //
 
-CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
+CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
   : m_Aura(nAura),
     m_Socket(new CTCPClient()),
     m_Protocol(new CBNETProtocol()),
@@ -112,7 +112,7 @@ CBNET::~CBNET()
   delete m_BNCSUtil;
 }
 
-unsigned int CBNET::SetFD(void *fd, void *send_fd, int *nfds)
+uint32_t CBNET::SetFD(void *fd, void *send_fd, int32_t *nfds)
 {
   if (!m_Socket->HasError() && m_Socket->GetConnected())
   {
@@ -155,8 +155,8 @@ bool CBNET::Update(void *fd, void *send_fd)
     // extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
 
     string *RecvBuffer = m_Socket->GetBytes();
-    BYTEARRAY Bytes = CreateByteArray((unsigned char *) RecvBuffer->c_str(), RecvBuffer->size());
-    unsigned int LengthProcessed = 0;
+    BYTEARRAY Bytes = CreateByteArray((uint8_t *) RecvBuffer->c_str(), RecvBuffer->size());
+    uint32_t LengthProcessed = 0;
 
     CIncomingGameHost *GameHost;
     CIncomingChatEvent *ChatEvent;
@@ -833,7 +833,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 break;
               }
               else
-                m_Aura->m_CurrentGame->CloseSlot((unsigned char)(SID - 1), true);
+                m_Aura->m_CurrentGame->CloseSlot((uint8_t)(SID - 1), true);
             }
           }
           else
@@ -1136,7 +1136,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 break;
               }
               else
-                m_Aura->m_CurrentGame->OpenSlot((unsigned char)(SID - 1), true);
+                m_Aura->m_CurrentGame->OpenSlot((uint8_t)(SID - 1), true);
             }
           }
           else
@@ -1348,7 +1348,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 if (SS.fail())
                   Print("[BNET: " + m_ServerAlias + "] bad input #2 to swap command");
                 else
-                  m_Aura->m_CurrentGame->SwapSlots((unsigned char)(SID1 - 1), (unsigned char)(SID2 - 1));
+                  m_Aura->m_CurrentGame->SwapSlots((uint8_t)(SID1 - 1), (uint8_t)(SID2 - 1));
               }
             }
           }
@@ -1435,7 +1435,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         else if (Command == "getclan")
         {
           SendGetClanList();
-          QueueChatCommand("Updating the bot's internal clan list from battle.net..", User, Whisper, m_IRC);
+          QueueChatCommand("Updating the bot's int32_ternal clan list from battle.net..", User, Whisper, m_IRC);
         }
 
         //
@@ -1445,7 +1445,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         else if (Command == "getfriends")
         {
           SendGetFriendsList();
-          QueueChatCommand("Updating the bot's internal friends list from battle.net..", User, Whisper, m_IRC);
+          QueueChatCommand("Updating the bot's int32_ternal friends list from battle.net..", User, Whisper, m_IRC);
         }
 
         //
@@ -1548,7 +1548,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         {
           const int32_t GameNumber = ToInt32(Payload) - 1;
 
-          if (-1 < GameNumber && GameNumber < (signed) m_Aura->m_Games.size())
+          if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
             QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
           else if (GameNumber == -1 && m_Aura->m_CurrentGame)
             QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
@@ -1733,7 +1733,7 @@ void CBNET::QueueChatCommand(const string &chatCommand, const string &user, bool
     QueueChatCommand(chatCommand);
 }
 
-void CBNET::QueueGameCreate(unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter)
+void CBNET::QueueGameCreate(uint8_t state, const string &gameName, CMap *map, uint32_t hostCounter)
 {
   if (m_LoggedIn && map)
   {
@@ -1748,7 +1748,7 @@ void CBNET::QueueGameCreate(unsigned char state, const string &gameName, CMap *m
   }
 }
 
-void CBNET::QueueGameRefresh(unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter)
+void CBNET::QueueGameRefresh(uint8_t state, const string &gameName, CMap *map, uint32_t hostCounter)
 {
   if (m_LoggedIn && map)
   {

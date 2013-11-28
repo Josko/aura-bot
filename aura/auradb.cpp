@@ -79,7 +79,7 @@ CAuraDB::CAuraDB(CConfig *CFG)
 
   if (Statement)
   {
-    int RC = m_DB->Step(Statement);
+    int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_ROW)
     {
@@ -125,7 +125,7 @@ CAuraDB::CAuraDB(CConfig *CFG)
     {
       sqlite3_bind_text(Statement, 1, "1", -1, SQLITE_TRANSIENT);
 
-      const int RC = m_DB->Step(Statement);
+      const int32_t RC = m_DB->Step(Statement);
 
       if (RC == SQLITE_ERROR)
         Print("[SQLITE3] error inserting schema number [1] - " + m_DB->GetError());
@@ -177,7 +177,7 @@ uint32_t CAuraDB::AdminCount(const string &server)
   {
     sqlite3_bind_text(Statement, 1, server.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_ROW)
       Count = sqlite3_column_int(Statement, 0);
@@ -205,7 +205,7 @@ bool CAuraDB::AdminCheck(const string &server, string user)
     sqlite3_bind_text((sqlite3_stmt *) AdminCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text((sqlite3_stmt *) AdminCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(AdminCheckStmt);
+    const int32_t RC = m_DB->Step(AdminCheckStmt);
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -234,7 +234,7 @@ bool CAuraDB::AdminCheck(string user)
   {
     sqlite3_bind_text(Statement, 1, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -264,7 +264,7 @@ bool CAuraDB::RootAdminCheck(const string &server, string user)
     sqlite3_bind_text((sqlite3_stmt *) RootAdminCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text((sqlite3_stmt *) RootAdminCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step((sqlite3_stmt *) RootAdminCheckStmt);
+    const int32_t RC = m_DB->Step((sqlite3_stmt *) RootAdminCheckStmt);
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -293,7 +293,7 @@ bool CAuraDB::RootAdminCheck(string user)
   {
     sqlite3_bind_text(Statement, 1, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -323,7 +323,7 @@ bool CAuraDB::AdminAdd(const string &server, string user)
     sqlite3_bind_text(Statement, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(Statement, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_DONE)
       Success = true;
@@ -351,7 +351,7 @@ bool CAuraDB::RootAdminAdd(const string &server, string user)
     sqlite3_bind_text(Statement, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(Statement, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_DONE)
       Success = true;
@@ -378,7 +378,7 @@ bool CAuraDB::AdminRemove(const string &server, string user)
     sqlite3_bind_text(Statement, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(Statement, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_DONE)
       Success = true;
@@ -403,7 +403,7 @@ uint32_t CAuraDB::BanCount(const string &server)
   {
     sqlite3_bind_text(Statement, 1, server.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_ROW)
       Count = sqlite3_column_int(Statement, 0);
@@ -431,7 +431,7 @@ CDBBan *CAuraDB::BanCheck(const string &server, string user)
     sqlite3_bind_text((sqlite3_stmt *) BanCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text((sqlite3_stmt *) BanCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(BanCheckStmt);
+    const int32_t RC = m_DB->Step(BanCheckStmt);
 
     if (RC == SQLITE_ROW)
     {
@@ -472,7 +472,7 @@ bool CAuraDB::BanAdd(const string &server, string user, const string &admin, con
     sqlite3_bind_text(Statement, 3, admin.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(Statement, 4, reason.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_DONE)
       Success = true;
@@ -499,7 +499,7 @@ bool CAuraDB::BanRemove(const string &server, string user)
     sqlite3_bind_text(Statement, 1, server.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(Statement, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_DONE)
       Success = true;
@@ -525,7 +525,7 @@ bool CAuraDB::BanRemove(string user)
   {
     sqlite3_bind_text(Statement, 1, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_DONE)
       Success = true;
@@ -547,7 +547,7 @@ void CAuraDB::GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration
 
   // check if entry exists
 
-  int RC;
+  int32_t RC;
   uint32_t Games = 0;
 
   m_DB->Prepare("SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void **) &Statement);
@@ -630,7 +630,7 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck(string name)
   {
     sqlite3_bind_text(Statement, 1, name.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_ROW)
     {
@@ -664,7 +664,7 @@ void CAuraDB::DotAPlayerAdd(string name, uint32_t winner, uint32_t kills, uint32
   transform(name.begin(), name.end(), name.begin(), ::tolower);
   m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
 
-  int RC;
+  int32_t RC;
   uint32_t Dotas = 1;
   uint32_t Wins = 0;
   uint32_t Losses = 0;
@@ -755,7 +755,7 @@ CDBDotAPlayerSummary *CAuraDB::DotAPlayerSummaryCheck(string name)
   {
     sqlite3_bind_text(Statement, 1, name.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int RC = m_DB->Step(Statement);
+    const int32_t RC = m_DB->Step(Statement);
 
     if (RC == SQLITE_ROW)
     {
@@ -803,12 +803,12 @@ string CAuraDB::FromCheck(uint32_t ip)
 
   if (FromCheckStmt)
   {
-    // we bind the ip as an int64 because SQLite treats it as signed
+    // we bind the ip as an int32_t64 because SQLite treats it as signed
 
     sqlite3_bind_int64((sqlite3_stmt *) FromCheckStmt, 1, ip);
     sqlite3_bind_int64((sqlite3_stmt *) FromCheckStmt, 2, ip);
 
-    const int RC = m_DB->Step(FromCheckStmt);
+    const int32_t RC = m_DB->Step(FromCheckStmt);
 
     if (RC == SQLITE_ROW)
     {
@@ -839,13 +839,13 @@ bool CAuraDB::FromAdd(uint32_t ip1, uint32_t ip2, const string &country)
 
   if (FromAddStmt)
   {
-    // we bind the ip as an int64 because SQLite treats it as signed
+    // we bind the ip as an int32_t64 because SQLite treats it as signed
 
     sqlite3_bind_int64((sqlite3_stmt *) FromAddStmt, 1, ip1);
     sqlite3_bind_int64((sqlite3_stmt *) FromAddStmt, 2, ip2);
     sqlite3_bind_text((sqlite3_stmt *) FromAddStmt, 3, country.c_str(), -1, SQLITE_TRANSIENT);
 
-    int RC = m_DB->Step(FromAddStmt);
+    int32_t RC = m_DB->Step(FromAddStmt);
 
     if (RC == SQLITE_DONE)
       Success = true;

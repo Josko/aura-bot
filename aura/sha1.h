@@ -51,7 +51,7 @@ public:
 
   typedef union
   {
-    unsigned char c[64];
+    uint8_t c[64];
     uint32_t l[16];
   } SHA1_WORKSPACE_BLOCK;
 
@@ -68,21 +68,21 @@ public:
 
   uint32_t m_state[5];
   uint32_t m_count[2];
-  unsigned char m_buffer[64];
-  unsigned char m_digest[20];
+  uint8_t m_buffer[64];
+  uint8_t m_digest[20];
 
   void Reset( );
 
   // Update the hash value
-  void Update( unsigned char* data, unsigned int len );
+  void Update( uint8_t* data, uint32_t len );
 
   // Finalize hash and report
   void Final( );
-  void GetHash( unsigned char *uDest );
+  void GetHash( uint8_t *uDest );
 
 private:
   // Private SHA-1 transformation
-  void Transform( uint32_t state[5], unsigned char buffer[64] );
+  void Transform( uint32_t state[5], uint8_t buffer[64] );
 };
 
 #endif  // AURA_SHA1_H_

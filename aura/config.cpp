@@ -88,7 +88,7 @@ bool CConfig::Exists(const string &key)
   return m_CFG.find(key) != m_CFG.end();
 }
 
-int CConfig::GetInt(const string &key, int x)
+int32_t CConfig::GetInt(const string &key, int32_t x)
 {
   if (m_CFG.find(key) == m_CFG.end())
     return x;

@@ -36,7 +36,7 @@ public:
 
   void Read(const std::string &file);
   bool Exists(const std::string &key);
-  int GetInt(const std::string &key, int x);
+  int32_t GetInt(const std::string &key, int32_t x);
   std::string GetString(const std::string &key, const std::string &x);
   void Set(const std::string &key, const std::string &x);
 };

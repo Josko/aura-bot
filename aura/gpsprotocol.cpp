@@ -49,7 +49,7 @@ BYTEARRAY CGPSProtocol::SEND_GPSC_INIT(uint32_t version)
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSC_RECONNECT(unsigned char PID, uint32_t reconnectKey, uint32_t lastPacket)
+BYTEARRAY CGPSProtocol::SEND_GPSC_RECONNECT(uint8_t PID, uint32_t reconnectKey, uint32_t lastPacket)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 13, 0, PID};
   AppendByteArray(packet, reconnectKey, false);
@@ -64,7 +64,7 @@ BYTEARRAY CGPSProtocol::SEND_GPSC_ACK(uint32_t lastPacket)
   return packet;
 }
 
-BYTEARRAY CGPSProtocol::SEND_GPSS_INIT(uint16_t reconnectPort, unsigned char PID, uint32_t reconnectKey, unsigned char numEmptyActions)
+BYTEARRAY CGPSProtocol::SEND_GPSS_INIT(uint16_t reconnectPort, uint8_t PID, uint32_t reconnectKey, uint8_t numEmptyActions)
 {
   BYTEARRAY packet = {GPS_HEADER_CONSTANT, GPS_INIT, 12, 0};
   AppendByteArray(packet, reconnectPort, false);

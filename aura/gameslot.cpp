@@ -60,7 +60,7 @@ CGameSlot::CGameSlot( BYTEARRAY &n )
   }
 }
 
-CGameSlot::CGameSlot( unsigned char nPID, unsigned char nDownloadStatus, unsigned char nSlotStatus, unsigned char nComputer, unsigned char nTeam, unsigned char nColour, unsigned char nRace, unsigned char nComputerType, unsigned char nHandicap )
+CGameSlot::CGameSlot( uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType, uint8_t nHandicap )
   : m_PID( nPID ),
     m_DownloadStatus( nDownloadStatus ),
     m_SlotStatus( nSlotStatus ),
