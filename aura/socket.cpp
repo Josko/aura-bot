@@ -65,7 +65,7 @@ CTCPSocket::CTCPSocket()
   // disable Nagle's algorithm
 
   int32_t OptVal = 1;
-  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const int8_t *) &OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof(int32_t));
 }
 
 CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN)
@@ -747,7 +747,7 @@ CTCPServer::CTCPServer()
   int32_t optval = 1;
 
 #ifdef WIN32
-  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const int8_t *) &optval, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &optval, sizeof(int32_t));
 #else
   setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const void *) &optval, sizeof(int32_t));
 #endif
@@ -981,7 +981,7 @@ CUDPSocket::CUDPSocket()
   // enable broadcast support
 
   int32_t OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const int8_t *) &OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char *) &OptVal, sizeof(int32_t));
 
   // set default broadcast target
 
@@ -1091,7 +1091,7 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
   // don't route packets; make them ignore routes set by routing table and send them to the int32_terface
   // belonging to the target address directly
 
-  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const int8_t *) &OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *) &OptVal, sizeof(int32_t));
 }
 
 string CUDPSocket::GetErrorString() const
@@ -1247,7 +1247,7 @@ void CUDPSocket::Reset()
   // enable broadcast support
 
   int32_t OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const int8_t *) &OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char *) &OptVal, sizeof(int32_t));
 
   // set default broadcast target
 
