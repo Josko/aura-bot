@@ -1843,8 +1843,8 @@ vector<string> CBNET::MapFilesMatch(string pattern)
 {
   transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
 
-  auto ROCMaps = FilesMatch(m_Aura->m_MapCFGPath, ".w3m");
-  auto TFTMaps = FilesMatch(m_Aura->m_MapCFGPath, ".w3x");
+  auto ROCMaps = FilesMatch(m_Aura->m_MapPath, ".w3m");
+  auto TFTMaps = FilesMatch(m_Aura->m_MapPath, ".w3x");
 
   vector<string> MapList;
   MapList.insert(end(MapList), begin(ROCMaps), end(ROCMaps));
