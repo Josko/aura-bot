@@ -47,24 +47,24 @@ private:
   CTCPClient *m_Socket;                     // the connection to battle.net
   CBNETProtocol *m_Protocol;                // battle.net protocol
   CBNCSUtilInterface *m_BNCSUtil;           // the interface to the bncsutil library (used for logging into battle.net)
-  queue<BYTEARRAY> m_OutPackets;            // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
-  vector<string> m_Friends;                 // vector of friends
-  vector<string> m_Clan;                    // vector of clan members
+  std::queue<BYTEARRAY> m_OutPackets;            // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
+  std::vector<std::string> m_Friends;                 // std::vector of friends
+  std::vector<std::string> m_Clan;                    // std::vector of clan members
   BYTEARRAY m_EXEVersion;                   // custom exe version for PvPGN users
   BYTEARRAY m_EXEVersionHash;               // custom exe version hash for PvPGN users
-  string m_Server;                          // battle.net server to connect to
-  string m_ServerIP;                        // battle.net server to connect to (the IP address so we don't have to resolve it every time we connect)
-  string m_ServerAlias;                     // battle.net server alias (short name, e.g. "USEast")
-  string m_CDKeyROC;                        // ROC CD key
-  string m_CDKeyTFT;                        // TFT CD key
-  string m_CountryAbbrev;                   // country abbreviation
-  string m_Country;                         // country
-  string m_UserName;                        // battle.net username
-  string m_UserPassword;                    // battle.net password
-  string m_FirstChannel;                    // the first chat channel to join upon entering chat (note: store the last channel when entering a game)
-  string m_CurrentChannel;                  // the current chat channel
-  string m_IRC;                             // IRC channel we're sending the message to
-  string m_PasswordHashType;                // password hash type for PvPGN users
+  std::string m_Server;                          // battle.net server to connect to
+  std::string m_ServerIP;                        // battle.net server to connect to (the IP address so we don't have to resolve it every time we connect)
+  std::string m_ServerAlias;                     // battle.net server alias (short name, e.g. "USEast")
+  std::string m_CDKeyROC;                        // ROC CD key
+  std::string m_CDKeyTFT;                        // TFT CD key
+  std::string m_CountryAbbrev;                   // country abbreviation
+  std::string m_Country;                         // country
+  std::string m_UserName;                        // battle.net username
+  std::string m_UserPassword;                    // battle.net password
+  std::string m_FirstChannel;                    // the first chat channel to join upon entering chat (note: store the last channel when entering a game)
+  std::string m_CurrentChannel;                  // the current chat channel
+  std::string m_IRC;                             // IRC channel we're sending the message to
+  std::string m_PasswordHashType;                // password hash type for PvPGN users
   uint32_t m_LocaleID;                      // see: http://msdn.microsoft.com/en-us/library/0h88fahh%28VS.85%29.aspx
   uint32_t m_HostCounterID;                 // the host counter ID to identify players from this realm
   uint32_t m_LastDisconnectedTime;          // GetTime when we were last disconnected from battle.net
@@ -86,23 +86,23 @@ private:
 
 
 public:
-  CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID);
+  CBNET(CAura *nAura, std::string nServer, std::string nServerAlias, std::string nCDKeyROC, std::string nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, std::string nUserName, std::string nUserPassword, std::string nFirstChannel, char nCommandTrigger, unsigned char nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
   ~CBNET();
   CBNET(CBNET &) = delete;
 
   inline bool GetExiting() const                           { return m_Exiting; }
-  inline string GetServer() const                          { return m_Server; }
-  inline string GetServerAlias() const                     { return m_ServerAlias; }
-  inline string GetCDKeyROC() const                        { return m_CDKeyROC; }
-  inline string GetCDKeyTFT() const                        { return m_CDKeyTFT; }
-  inline string GetUserName() const                        { return m_UserName; }
-  inline string GetUserPassword() const                    { return m_UserPassword; }
-  inline string GetFirstChannel() const                    { return m_FirstChannel; }
-  inline string GetCurrentChannel() const                  { return m_CurrentChannel; }
+  inline std::string GetServer() const                          { return m_Server; }
+  inline std::string GetServerAlias() const                     { return m_ServerAlias; }
+  inline std::string GetCDKeyROC() const                        { return m_CDKeyROC; }
+  inline std::string GetCDKeyTFT() const                        { return m_CDKeyTFT; }
+  inline std::string GetUserName() const                        { return m_UserName; }
+  inline std::string GetUserPassword() const                    { return m_UserPassword; }
+  inline std::string GetFirstChannel() const                    { return m_FirstChannel; }
+  inline std::string GetCurrentChannel() const                  { return m_CurrentChannel; }
   inline char GetCommandTrigger() const                    { return m_CommandTrigger; }
   inline BYTEARRAY GetEXEVersion() const                   { return m_EXEVersion; }
   inline BYTEARRAY GetEXEVersionHash() const               { return m_EXEVersionHash; }
-  inline string GetPasswordHashType() const                { return m_PasswordHashType; }
+  inline std::string GetPasswordHashType() const                { return m_PasswordHashType; }
   inline uint32_t GetHostCounterID() const                 { return m_HostCounterID; }
   inline bool GetLoggedIn() const                          { return m_LoggedIn; }
   inline bool GetInChat() const                            { return m_InChat; }
@@ -120,19 +120,19 @@ public:
   void SendGetFriendsList();
   void SendGetClanList();
   void QueueEnterChat();
-  void QueueChatCommand(const string &chatCommand);
-  void QueueChatCommand(const string &chatCommand, const string &user, bool whisper, const string &irc);
-  void QueueGameCreate(unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter);
-  void QueueGameRefresh(unsigned char state, const string &gameName, CMap *map, uint32_t hostCounter);
+  void QueueChatCommand(const std::string &chatCommand);
+  void QueueChatCommand(const std::string &chatCommand, const std::string &user, bool whisper, const std::string &irc);
+  void QueueGameCreate(unsigned char state, const std::string &gameName, CMap *map, uint32_t hostCounter);
+  void QueueGameRefresh(unsigned char state, const std::string &gameName, CMap *map, uint32_t hostCounter);
   void QueueGameUncreate();
 
   void UnqueueGameRefreshes();
 
   // other functions
 
-  bool IsAdmin(string name);
-  bool IsRootAdmin(string name);
-  CDBBan *IsBannedName(string name);
+  bool IsAdmin(std::string name);
+  bool IsRootAdmin(std::string name);
+  CDBBan *IsBannedName(std::string name);
   void HoldFriends(CGame *game);
   void HoldClan(CGame *game);
 };

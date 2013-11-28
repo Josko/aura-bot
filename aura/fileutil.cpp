@@ -29,6 +29,8 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 #include <string.h>
 #endif
 
+using namespace std;
+
 #ifdef WIN32
 bool FileExists(string file)
 {

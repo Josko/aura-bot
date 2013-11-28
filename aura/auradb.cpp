@@ -24,6 +24,8 @@
 #include "config.h"
 #include "sqlite3.h"
 
+using namespace std;
+
 //
 // CQSLITE3 (wrapper class)
 //

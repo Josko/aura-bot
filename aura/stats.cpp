@@ -26,6 +26,8 @@
 #include "gameprotocol.h"
 #include "util.h"
 
+using namespace std;
+
 //
 // CStats
 //

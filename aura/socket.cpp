@@ -23,6 +23,8 @@
 
 #include <string.h>
 
+using namespace std;
+
 #ifndef WIN32
 int GetLastError()
 {

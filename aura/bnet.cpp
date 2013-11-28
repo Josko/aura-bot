@@ -32,6 +32,8 @@
 #include "game.h"
 #include "irc.h"
 
+using namespace std;
+
 //
 // CBNET
 //

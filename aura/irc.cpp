@@ -25,6 +25,8 @@
 #include "bnetprotocol.h"
 #include "bnet.h"
 
+using namespace std;
+
 //////////////
 //// CIRC ////
 //////////////

@@ -26,6 +26,8 @@
 #include "gameslot.h"
 #include "game.h"
 
+using namespace std;
+
 //
 // CGameProtocol
 //

@@ -21,6 +21,8 @@
 #include "bnetprotocol.h"
 #include "util.h"
 
+using namespace std;
+
 CBNETProtocol::CBNETProtocol()
   : m_ClientToken(BYTEARRAY {220, 1, 203, 7})
 {

@@ -26,6 +26,8 @@
 #include "gpsprotocol.h"
 #include "game.h"
 
+using namespace std;
+
 //
 // CPotentialPlayer
 //

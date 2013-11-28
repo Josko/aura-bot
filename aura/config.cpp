@@ -23,6 +23,8 @@
 
 #include <cstdlib>
 
+using namespace std;
+
 //
 // CConfig
 //

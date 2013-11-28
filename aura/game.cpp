@@ -34,6 +34,8 @@
 #include <ctime>
 #include <cmath>
 
+using namespace std;
+
 //
 // CGame
 //

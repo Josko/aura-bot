@@ -56,6 +56,8 @@
 
 #define VERSION "1.21"
 
+using namespace std;
+
 static CAura *gAura = nullptr;
 bool gRestart = false;
 

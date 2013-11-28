@@ -99,22 +99,22 @@ public:
   CAura *m_Aura;
 
 private:
-  BYTEARRAY m_MapSHA1;            // config value: map sha1 (20 bytes)
-  BYTEARRAY m_MapSize;            // config value: map size (4 bytes)
-  BYTEARRAY m_MapInfo;            // config value: map info (4 bytes) -> this is the real CRC
-  BYTEARRAY m_MapCRC;             // config value: map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
-  BYTEARRAY m_MapWidth;           // config value: map width (2 bytes)
-  BYTEARRAY m_MapHeight;          // config value: map height (2 bytes)
-  vector<CGameSlot> m_Slots;
-  string m_CFGFile;
-  string m_MapPath;               // config value: map path
-  string m_MapType;               // config value: map type (for stats class)
-  string m_MapDefaultHCL;         // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
-  string m_MapLocalPath;          // config value: map local path
-  string m_MapData;               // the map data itself, for sending the map to players
+  BYTEARRAY m_MapSHA1;            // config value: std::map sha1 (20 bytes)
+  BYTEARRAY m_MapSize;            // config value: std::map size (4 bytes)
+  BYTEARRAY m_MapInfo;            // config value: std::map info (4 bytes) -> this is the real CRC
+  BYTEARRAY m_MapCRC;             // config value: std::map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
+  BYTEARRAY m_MapWidth;           // config value: std::map width (2 bytes)
+  BYTEARRAY m_MapHeight;          // config value: std::map height (2 bytes)
+  std::vector<CGameSlot> m_Slots;
+  std::string m_CFGFile;
+  std::string m_MapPath;               // config value: std::map path
+  std::string m_MapType;               // config value: std::map type (for stats class)
+  std::string m_MapDefaultHCL;         // config value: std::map default HCL to use (this should really be specified elsewhere and not part of the std::map config)
+  std::string m_MapLocalPath;          // config value: std::map local path
+  std::string m_MapData;               // the std::map data itself, for sending the std::map to players
   uint32_t m_MapOptions;
-  uint32_t m_MapNumPlayers;       // config value: max map number of players
-  uint32_t m_MapNumTeams;         // config value: max map number of teams
+  uint32_t m_MapNumPlayers;       // config value: max std::map number of players
+  uint32_t m_MapNumTeams;         // config value: max std::map number of teams
   unsigned char m_MapSpeed;
   unsigned char m_MapVisibility;
   unsigned char m_MapObservers;
@@ -126,12 +126,12 @@ private:
   bool m_Valid;
 
 public:
-  CMap(CAura *nAura, CConfig *CFG, const string &nCFGFile);
+  CMap(CAura *nAura, CConfig *CFG, const std::string &nCFGFile);
   ~CMap();
 
   inline bool GetValid() const                               { return m_Valid; }
-  inline string GetCFGFile() const                           { return m_CFGFile; }
-  inline string GetMapPath() const                           { return m_MapPath; }
+  inline std::string GetCFGFile() const                           { return m_CFGFile; }
+  inline std::string GetMapPath() const                           { return m_MapPath; }
   inline BYTEARRAY GetMapSize() const                        { return m_MapSize; }
   inline BYTEARRAY GetMapInfo() const                        { return m_MapInfo; }
   inline BYTEARRAY GetMapCRC() const                         { return m_MapCRC; }
@@ -146,15 +146,15 @@ public:
   unsigned char GetMapLayoutStyle() const;
   inline BYTEARRAY GetMapWidth() const                       { return m_MapWidth; }
   inline BYTEARRAY GetMapHeight() const                      { return m_MapHeight; }
-  inline string GetMapType() const                           { return m_MapType; }
-  inline string GetMapDefaultHCL() const                     { return m_MapDefaultHCL; }
-  inline string GetMapLocalPath() const                      { return m_MapLocalPath; }
-  inline string *GetMapData()                                { return &m_MapData; }
+  inline std::string GetMapType() const                           { return m_MapType; }
+  inline std::string GetMapDefaultHCL() const                     { return m_MapDefaultHCL; }
+  inline std::string GetMapLocalPath() const                      { return m_MapLocalPath; }
+  inline std::string *GetMapData()                                { return &m_MapData; }
   inline uint32_t GetMapNumPlayers() const                   { return m_MapNumPlayers; }
   inline uint32_t GetMapNumTeams() const                     { return m_MapNumTeams; }
-  inline vector<CGameSlot> GetSlots() const                  { return m_Slots; }
+  inline std::vector<CGameSlot> GetSlots() const                  { return m_Slots; }
 
-  void Load(CConfig *CFG, const string &nCFGFile);
+  void Load(CConfig *CFG, const std::string &nCFGFile);
   void CheckValid();
   uint32_t XORRotateLeft(unsigned char *data, uint32_t length);
 };

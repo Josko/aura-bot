@@ -24,14 +24,14 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 #define AURA_FILEUTIL_H_
 
 #ifdef WIN32
-bool FileExists(string file);
+bool FileExists(std::string file);
 #else
-bool FileExists(const string &file);
+bool FileExists(const std::string &file);
 #endif
 
-vector<string> FilesMatch(const string &path, const string &pattern);
-string FileRead(const string &file, uint32_t start, uint32_t length);
-string FileRead(const string &file);
-bool FileWrite(const string &file, unsigned char *data, uint32_t length);
+std::vector<std::string> FilesMatch(const std::string &path, const std::string &pattern);
+std::string FileRead(const std::string &file, uint32_t start, uint32_t length);
+std::string FileRead(const std::string &file);
+bool FileWrite(const std::string &file, unsigned char *data, uint32_t length);
 
 #endif  // AURA_FILEUTIL_H_

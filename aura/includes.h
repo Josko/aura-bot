@@ -35,10 +35,8 @@
 #include <string>
 #include <cstdint>
 
-using namespace std;
-
-typedef vector<unsigned char> BYTEARRAY;
-typedef pair<unsigned char, string> PIDPlayer;
+typedef std::vector<unsigned char> BYTEARRAY;
+typedef std::pair<unsigned char, std::string> PIDPlayer;
 
 // time
 
@@ -58,7 +56,7 @@ uint32_t GetTicks();  // milliseconds
 
 // output
 
-void Print(const string &message);    // outputs to console
-void Print2(const string &message);   // outputs to console and irc
+void Print(const std::string &message);    // outputs to console
+void Print2(const std::string &message);   // outputs to console and irc
 
 #endif  // AURA_INCLUDES_H_

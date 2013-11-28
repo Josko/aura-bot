@@ -28,17 +28,17 @@
 class CConfig
 {
 private:
-  map<string, string> m_CFG;
+  std::map<std::string, std::string> m_CFG;
 
 public:
   CConfig();
   ~CConfig();
 
-  void Read(const string &file);
-  bool Exists(const string &key);
-  int GetInt(const string &key, int x);
-  string GetString(const string &key, const string &x);
-  void Set(const string &key, const string &x);
+  void Read(const std::string &file);
+  bool Exists(const std::string &key);
+  int GetInt(const std::string &key, int x);
+  std::string GetString(const std::string &key, const std::string &x);
+  void Set(const std::string &key, const std::string &x);
 };
 
 #endif  // AURA_CONFIG_H_

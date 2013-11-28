@@ -33,14 +33,14 @@ class CIRC
 public:
   CAura *m_Aura;
   CTCPClient *m_Socket;
-  vector<string> m_Channels;
-  vector<string> m_RootAdmins;
-  string m_Server;
-  string m_ServerIP;
-  string m_Nickname;
-  string m_NicknameCpy;
-  string m_Username;
-  string m_Password;
+  std::vector<std::string> m_Channels;
+  std::vector<std::string> m_RootAdmins;
+  std::string m_Server;
+  std::string m_ServerIP;
+  std::string m_Nickname;
+  std::string m_NicknameCpy;
+  std::string m_Username;
+  std::string m_Password;
   uint32_t m_LastConnectionAttemptTime;
   uint32_t m_LastPacketTime;
   uint32_t m_LastAntiIdleTime;
@@ -50,15 +50,15 @@ public:
   bool m_WaitingToConnect;
   bool m_OriginalNick;
 
-  CIRC(CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, char nCommandTrigger);
+  CIRC(CAura *nAura, const std::string &nServer, const std::string &nNickname, const std::string &nUsername, const std::string &nPassword, const std::vector<std::string> &nChannels, const std::vector<std::string> &nRootAdmins, uint16_t nPort, char nCommandTrigger);
   ~CIRC();
   CIRC(CIRC &) = delete;
 
   unsigned int SetFD(void *fd, void *send_fd, int *nfds);
   bool Update(void *fd, void *send_fd);
   void ExtractPackets();
-  void SendIRC(const string &message);
-  void SendMessageIRC(const string &message, const string &target);
+  void SendIRC(const std::string &message);
+  void SendMessageIRC(const std::string &message, const std::string &target);
 };
 
 #endif  // AURA_IRC_H_

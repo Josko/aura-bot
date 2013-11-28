@@ -24,92 +24,92 @@
 #include "includes.h"
 
 #ifdef __APPLE__
-inline string ToString(size_t i)
+inline std::string ToString(size_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 #endif
 
-inline string ToString(uint64_t i)
+inline std::string ToString(uint64_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 
-inline string ToString(uint32_t i)
+inline std::string ToString(uint32_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 
-inline string ToString(uint16_t i)
+inline std::string ToString(uint16_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 
-inline string ToString(int64_t i)
+inline std::string ToString(int64_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 
-inline string ToString(int32_t i)
+inline std::string ToString(int32_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 
-inline string ToString(int16_t i)
+inline std::string ToString(int16_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << i;
   SS >> result;
   return result;
 }
 
-inline string ToString(float f, int digits)
+inline std::string ToString(float f, int digits)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << std::fixed << std::setprecision(digits) << f;
   SS >> result;
   return result;
 }
 
-inline string ToString(const double d, int digits)
+inline std::string ToString(const double d, int digits)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << std::fixed << std::setprecision(digits) << d;
   SS >> result;
   return result;
 }
 
-inline string ToHexString(uint32_t i)
+inline std::string ToHexString(uint32_t i)
 {
-  string result;
-  stringstream SS;
+  std::string result;
+  std::stringstream SS;
   SS << std::hex << i;
   SS >> result;
   return result;
@@ -117,46 +117,46 @@ inline string ToHexString(uint32_t i)
 
 // TODO: these ToXXX functions don't fail gracefully, they just return garbage (in the uint case usually just -1 casted to an unsigned type it looks like)
 
-inline uint16_t ToUInt16(const string &s)
+inline uint16_t ToUInt16(const std::string &s)
 {
   uint16_t result;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
   SS >> result;
   return result;
 }
 
-inline uint32_t ToUInt32(const string &s)
+inline uint32_t ToUInt32(const std::string &s)
 {
   uint32_t result;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
   SS >> result;
   return result;
 }
 
-inline int16_t ToInt16(const string &s)
+inline int16_t ToInt16(const std::string &s)
 {
   int16_t result;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
   SS >> result;
   return result;
 }
 
-inline int32_t ToInt32(const string &s)
+inline int32_t ToInt32(const std::string &s)
 {
   int32_t result;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
   SS >> result;
   return result;
 }
 
-inline double ToDouble(const string &s)
+inline double ToDouble(const std::string &s)
 {
   double result;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
   SS >> result;
   return result;
@@ -213,12 +213,12 @@ inline uint32_t ByteArrayToUInt32(const BYTEARRAY &b, bool reverse, unsigned int
     return (uint32_t)(b[start] << 24 | b[start + 1] << 16 | b[start + 2] << 8 | b[start + 3]);
 }
 
-inline string ByteArrayToDecString(const BYTEARRAY &b)
+inline std::string ByteArrayToDecString(const BYTEARRAY &b)
 {
   if (b.empty())
-    return string();
+    return std::string();
 
-  string result = ToString(b[0]);
+  std::string result = ToString(b[0]);
 
   for (auto i = b.begin() + 1; i != b.end(); ++i)
     result += " " + ToString(*i);
@@ -226,12 +226,12 @@ inline string ByteArrayToDecString(const BYTEARRAY &b)
   return result;
 }
 
-inline string ByteArrayToHexString(const BYTEARRAY &b)
+inline std::string ByteArrayToHexString(const BYTEARRAY &b)
 {
   if (b.empty())
-    return string();
+    return std::string();
 
-  string result = ToHexString(b[0]);
+  std::string result = ToHexString(b[0]);
 
   for (auto i = b.begin() + 1; i != b.end(); ++i)
   {
@@ -259,9 +259,9 @@ inline void AppendByteArray(BYTEARRAY &b, const unsigned char *a, int size)
   AppendByteArray(b, CreateByteArray(a, size));
 }
 
-inline void AppendByteArray(BYTEARRAY &b, const string &append, bool terminator = true)
+inline void AppendByteArray(BYTEARRAY &b, const std::string &append, bool terminator = true)
 {
-  // append the string plus a null terminator
+  // append the std::string plus a null terminator
 
   b.insert(b.end(), append.begin(), append.end());
 
@@ -269,9 +269,9 @@ inline void AppendByteArray(BYTEARRAY &b, const string &append, bool terminator 
     b.push_back(0);
 }
 
-inline void AppendByteArrayFast(BYTEARRAY &b, const string &append, bool terminator = true)
+inline void AppendByteArrayFast(BYTEARRAY &b, const std::string &append, bool terminator = true)
 {
-  // append the string plus a null terminator
+  // append the std::string plus a null terminator
 
   b.insert(b.end(), append.begin(), append.end());
 
@@ -318,27 +318,27 @@ inline unsigned char ExtractHex(const BYTEARRAY &b, unsigned int start, bool rev
   if (start + 1 < b.size())
   {
     unsigned int c;
-    string temp = string(b.begin() + start, b.begin() + start + 2);
+    std::string temp = std::string(b.begin() + start, b.begin() + start + 2);
 
     if (reverse)
-      temp = string(temp.rend(), temp.rbegin());
+      temp = std::string(temp.rend(), temp.rbegin());
 
-    stringstream SS;
+    std::stringstream SS;
     SS << temp;
-    SS >> hex >> c;
+    SS >> std::hex >> c;
     return c;
   }
 
   return 0;
 }
 
-inline BYTEARRAY ExtractNumbers(const string &s, unsigned int count)
+inline BYTEARRAY ExtractNumbers(const std::string &s, unsigned int count)
 {
-  // consider the string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
+  // consider the std::string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
   BYTEARRAY result;
   unsigned int c;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
 
   for (unsigned int i = 0; i < count; ++i)
@@ -356,18 +356,18 @@ inline BYTEARRAY ExtractNumbers(const string &s, unsigned int count)
   return result;
 }
 
-inline BYTEARRAY ExtractHexNumbers(string &s)
+inline BYTEARRAY ExtractHexNumbers(std::string &s)
 {
-  // consider the string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
+  // consider the std::string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
   BYTEARRAY result;
   unsigned int c;
-  stringstream SS;
+  std::stringstream SS;
   SS << s;
 
   while (!SS.eof())
   {
-    SS >> hex >> c;
+    SS >> std::hex >> c;
 
     // TODO: if c > 255 handle the error instead of truncating
 
@@ -387,10 +387,10 @@ inline void AssignLength(BYTEARRAY &content)
   content[3] = (unsigned char)(Size >> 8);
 }
 
-inline string AddPathSeperator(const string &path)
+inline std::string AddPathSeperator(const std::string &path)
 {
   if (path.empty())
-    return string();
+    return std::string();
 
 #ifdef WIN32
   char Seperator = '\\';
@@ -401,7 +401,7 @@ inline string AddPathSeperator(const string &path)
   if (*(path.end() - 1) == Seperator)
     return path;
   else
-    return path + string(1, Seperator);
+    return path + std::string(1, Seperator);
 }
 
 inline BYTEARRAY EncodeStatString(BYTEARRAY &data)
@@ -450,10 +450,10 @@ inline BYTEARRAY DecodeStatString(const BYTEARRAY &data)
   return Result;
 }
 
-inline vector<string> Tokenize(const string &s, const char delim)
+inline std::vector<std::string> Tokenize(const std::string &s, const char delim)
 {
-  vector<string> Tokens;
-  string Token;
+  std::vector<std::string> Tokens;
+  std::string Token;
 
   for (auto i = s.begin(); i != s.end(); ++i)
   {

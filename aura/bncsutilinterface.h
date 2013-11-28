@@ -38,16 +38,16 @@ private:
   BYTEARRAY m_ClientKey;          // set in HELP_SID_AUTH_ACCOUNTLOGON
   BYTEARRAY m_M1;                 // set in HELP_SID_AUTH_ACCOUNTLOGONPROOF
   BYTEARRAY m_PvPGNPasswordHash;  // set in HELP_PvPGNPasswordHash
-  string m_EXEInfo;               // set in HELP_SID_AUTH_CHECK
+  std::string m_EXEInfo;               // set in HELP_SID_AUTH_CHECK
 
 public:
-  CBNCSUtilInterface(const string &userName, const string &userPassword);
+  CBNCSUtilInterface(const std::string &userName, const std::string &userPassword);
   ~CBNCSUtilInterface();
   CBNCSUtilInterface(CBNCSUtilInterface &) = delete;
 
   inline BYTEARRAY GetEXEVersion() const               { return m_EXEVersion; }
   inline BYTEARRAY GetEXEVersionHash() const           { return m_EXEVersionHash; }
-  inline string GetEXEInfo() const                     { return m_EXEInfo; }
+  inline std::string GetEXEInfo() const                     { return m_EXEInfo; }
   inline BYTEARRAY GetKeyInfoROC() const               { return m_KeyInfoROC; }
   inline BYTEARRAY GetKeyInfoTFT() const               { return m_KeyInfoTFT; }
   inline BYTEARRAY GetClientKey() const                { return m_ClientKey; }
@@ -57,15 +57,15 @@ public:
   inline void SetEXEVersion(const BYTEARRAY &nEXEVersion)         { m_EXEVersion = nEXEVersion; }
   inline void SetEXEVersionHash(const BYTEARRAY &nEXEVersionHash) { m_EXEVersionHash = nEXEVersionHash; }
 
-  void Reset(const string &userName, const string &userPassword);
+  void Reset(const std::string &userName, const std::string &userPassword);
 
-  bool HELP_SID_AUTH_CHECK(const string &war3Path, const string &keyROC, const string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken);
+  bool HELP_SID_AUTH_CHECK(const std::string &war3Path, const std::string &keyROC, const std::string &keyTFT, const std::string &valueStringFormula, const std::string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken);
   bool HELP_SID_AUTH_ACCOUNTLOGON();
   bool HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &salt, const BYTEARRAY &serverKey);
-  bool HELP_PvPGNPasswordHash(const string &userPassword);
+  bool HELP_PvPGNPasswordHash(const std::string &userPassword);
 
 private:
-  BYTEARRAY CreateKeyInfo(const string &key, uint32_t clientToken, uint32_t serverToken);
+  BYTEARRAY CreateKeyInfo(const std::string &key, uint32_t clientToken, uint32_t serverToken);
 };
 
 #endif  // AURA_BNCSUTILINTERFACE_H_

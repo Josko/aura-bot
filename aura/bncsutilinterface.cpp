@@ -25,6 +25,8 @@
 
 #include <bncsutil/bncsutil.h>
 
+using namespace std;
+
 //
 // CBNCSUtilInterface
 //

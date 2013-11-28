@@ -101,18 +101,18 @@ private:
   bool m_Ready;
 
 public:
-  explicit CSQLITE3(const string &filename);
+  explicit CSQLITE3(const std::string &filename);
   ~CSQLITE3();
   CSQLITE3(CSQLITE3 &) = delete;
 
   inline bool GetReady() const                                   { return m_Ready; }
-  inline string GetError() const                                 { return sqlite3_errmsg((sqlite3 *) m_DB); }
+  inline std::string GetError() const                                 { return sqlite3_errmsg((sqlite3 *) m_DB); }
 
   inline int Step(void *Statement)                              { return sqlite3_step((sqlite3_stmt *) Statement); }
-  inline int Prepare(const string &query, void **Statement)     { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, nullptr); }
+  inline int Prepare(const std::string &query, void **Statement)     { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, nullptr); }
   inline int Finalize(void *Statement)                          { return sqlite3_finalize((sqlite3_stmt *) Statement); }
   inline int Reset(void *Statement)                             { return sqlite3_reset((sqlite3_stmt *) Statement); }
-  inline int Exec(const string &query)                          { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), nullptr, nullptr, nullptr); }
+  inline int Exec(const std::string &query)                          { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), nullptr, nullptr, nullptr); }
 };
 
 //
@@ -128,8 +128,8 @@ class CAuraDB
 {
 private:
   CSQLITE3 *m_DB;
-  string m_File;
-  string m_Error;
+  std::string m_File;
+  std::string m_Error;
 
   // we keep some prepared statements in memory rather than recreating them each function call
   // this is an optimization because preparing statements takes time
@@ -148,30 +148,30 @@ public:
   CAuraDB(CAuraDB &) = delete;
 
   inline bool HasError() const                 { return m_HasError; }
-  inline string GetError() const               { return m_Error; }
+  inline std::string GetError() const               { return m_Error; }
 
   inline bool Begin() const                    { return m_DB->Exec("BEGIN TRANSACTION") == SQLITE_OK; }
   inline bool Commit() const                   { return m_DB->Exec("COMMIT TRANSACTION") == SQLITE_OK; }
 
-  string FromCheck(uint32_t ip);
-  bool FromAdd(uint32_t ip1, uint32_t ip2, const string &country);
-  uint32_t AdminCount(const string &server);
-  bool AdminCheck(const string &server, string user);
-  bool AdminCheck(string user);
-  bool RootAdminCheck(const string &server, string user);
-  bool RootAdminCheck(string user);
-  bool AdminAdd(const string &server, string user);
-  bool RootAdminAdd(const string &server, string user);
-  bool AdminRemove(const string &server, string user);
-  uint32_t BanCount(const string &server);
-  CDBBan *BanCheck(const string &server, string user);
-  bool BanAdd(const string &server, string user, const string &admin, const string &reason);
-  bool BanRemove(const string &server, string user);
-  bool BanRemove(string user);
-  void GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration, uint64_t left);
-  CDBGamePlayerSummary *GamePlayerSummaryCheck(string name);
-  void DotAPlayerAdd(string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills);
-  CDBDotAPlayerSummary *DotAPlayerSummaryCheck(string name);
+  std::string FromCheck(uint32_t ip);
+  bool FromAdd(uint32_t ip1, uint32_t ip2, const std::string &country);
+  uint32_t AdminCount(const std::string &server);
+  bool AdminCheck(const std::string &server, std::string user);
+  bool AdminCheck(std::string user);
+  bool RootAdminCheck(const std::string &server, std::string user);
+  bool RootAdminCheck(std::string user);
+  bool AdminAdd(const std::string &server, std::string user);
+  bool RootAdminAdd(const std::string &server, std::string user);
+  bool AdminRemove(const std::string &server, std::string user);
+  uint32_t BanCount(const std::string &server);
+  CDBBan *BanCheck(const std::string &server, std::string user);
+  bool BanAdd(const std::string &server, std::string user, const std::string &admin, const std::string &reason);
+  bool BanRemove(const std::string &server, std::string user);
+  bool BanRemove(std::string user);
+  void GamePlayerAdd(std::string name, uint64_t loadingtime, uint64_t duration, uint64_t left);
+  CDBGamePlayerSummary *GamePlayerSummaryCheck(std::string name);
+  void DotAPlayerAdd(std::string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills);
+  CDBDotAPlayerSummary *DotAPlayerSummaryCheck(std::string name);
 };
 
 //
@@ -181,21 +181,21 @@ public:
 class CDBBan
 {
 private:
-  string m_Server;
-  string m_Name;
-  string m_Date;
-  string m_Admin;
-  string m_Reason;
+  std::string m_Server;
+  std::string m_Name;
+  std::string m_Date;
+  std::string m_Admin;
+  std::string m_Reason;
 
 public:
-  CDBBan(const string &nServer, const string &nName, const string &nDate, const string &nAdmin, const string &nReason);
+  CDBBan(const std::string &nServer, const std::string &nName, const std::string &nDate, const std::string &nAdmin, const std::string &nReason);
   ~CDBBan();
 
-  inline string GetServer() const                 { return m_Server; }
-  inline string GetName() const                   { return m_Name; }
-  inline string GetDate() const                   { return m_Date; }
-  inline string GetAdmin() const                  { return m_Admin; }
-  inline string GetReason() const                 { return m_Reason; }
+  inline std::string GetServer() const                 { return m_Server; }
+  inline std::string GetName() const                   { return m_Name; }
+  inline std::string GetDate() const                   { return m_Date; }
+  inline std::string GetAdmin() const                  { return m_Admin; }
+  inline std::string GetReason() const                 { return m_Reason; }
 };
 
 //
@@ -205,16 +205,16 @@ public:
 class CDBGamePlayer
 {
 private:
-  string m_Name;
+  std::string m_Name;
   uint64_t m_LoadingTime;
   uint64_t m_Left;
   uint32_t m_Colour;
 
 public:
-  CDBGamePlayer(const string &name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
+  CDBGamePlayer(const std::string &name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
   ~CDBGamePlayer();
 
-  inline string GetName() const                           { return m_Name; }
+  inline std::string GetName() const                           { return m_Name; }
   inline uint64_t GetLoadingTime() const                  { return m_LoadingTime; }
   inline uint64_t GetLeft() const                         { return m_Left; }
   inline uint32_t GetColour() const                       { return m_Colour; }
@@ -231,7 +231,7 @@ class CDBGamePlayerSummary
 {
 private:
   uint32_t m_TotalGames;            // total number of games played
-  float m_AvgLoadingTime;           // average loading time in milliseconds (this could be skewed because different maps have different load times)
+  float m_AvgLoadingTime;           // average loading time in milliseconds (this could be skewed because different std::maps have different load times)
   uint32_t m_AvgLeftPercent;        // average time at which the player left the game expressed as a percentage of the game duration (0-100)
 
 public:

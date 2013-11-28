@@ -52,7 +52,7 @@ public:
 
   inline CTCPSocket *GetSocket() const                         { return m_Socket; }
   inline BYTEARRAY GetExternalIP() const                       { return m_Socket->GetIP(); }
-  inline string GetExternalIPString() const                    { return m_Socket->GetIPString(); }
+  inline std::string GetExternalIPString() const                    { return m_Socket->GetIPString(); }
   inline bool GetDeleteMe() const                              { return m_DeleteMe; }
   inline CIncomingJoinPlayer *GetJoinPlayer() const            { return m_IncomingJoinPlayer; }
 
@@ -83,22 +83,22 @@ protected:
 
 private:
   BYTEARRAY m_InternalIP;                   // the player's internal IP address as reported by the player when connecting
-  vector<uint32_t> m_Pings;                 // store the last few (10) pings received so we can take an average
-  queue<uint32_t> m_CheckSums;              // the last few checksums the player has sent (for detecting desyncs)
-  queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++
-  string m_LeftReason;                      // the reason the player left the game
-  string m_SpoofedRealm;                    // the realm the player last spoof checked on
-  string m_JoinedRealm;                     // the realm the player joined on (probable, can be spoofed)
-  string m_Name;                            // the player's name
+  std::vector<uint32_t> m_Pings;                 // store the last few (10) pings received so we can take an average
+  std::queue<uint32_t> m_CheckSums;              // the last few checksums the player has sent (for detecting desyncs)
+  std::queue<BYTEARRAY> m_GProxyBuffer;          // buffer with data used with GProxy++
+  std::string m_LeftReason;                      // the reason the player left the game
+  std::string m_SpoofedRealm;                    // the realm the player last spoof checked on
+  std::string m_JoinedRealm;                     // the realm the player joined on (probable, can be spoofed)
+  std::string m_Name;                            // the player's name
   uint32_t m_TotalPacketsSent;              // the total number of packets sent to the player
   uint32_t m_TotalPacketsReceived;          // the total number of packets received from the player
   uint32_t m_LeftCode;                      // the code to be sent in W3GS_PLAYERLEAVE_OTHERS for why this player left the game
   uint32_t m_SyncCounter;                   // the number of keepalive packets received from this player
   uint32_t m_JoinTime;                      // GetTime when the player joined the game (used to delay sending the /whois a few seconds to allow for some lag)
-  uint32_t m_LastMapPartSent;               // the last mappart sent to the player (for sending more than one part at a time)
-  uint32_t m_LastMapPartAcked;              // the last mappart acknowledged by the player
-  uint32_t m_StartedDownloadingTicks;       // GetTicks when the player started downloading the map
-  uint32_t m_FinishedDownloadingTime;       // GetTime when the player finished downloading the map
+  uint32_t m_LastMapPartSent;               // the last std::mappart sent to the player (for sending more than one part at a time)
+  uint32_t m_LastMapPartAcked;              // the last std::mappart acknowledged by the player
+  uint32_t m_StartedDownloadingTicks;       // GetTicks when the player started downloading the std::map
+  uint32_t m_FinishedDownloadingTime;       // GetTime when the player finished downloading the std::map
   uint32_t m_FinishedLoadingTicks;          // GetTicks when the player finished loading the game
   uint32_t m_StartedLaggingTicks;           // GetTicks when the player started laggin
   uint32_t m_LastGProxyWaitNoticeSentTime;  // GetTime when the last disconnection notice has been sent when using GProxy++
@@ -109,9 +109,9 @@ private:
   bool m_Reserved;                          // if the player is reserved (VIP) or not
   bool m_WhoisShouldBeSent;                 // if a battle.net /whois should be sent for this player or not
   bool m_WhoisSent;                         // if we've sent a battle.net /whois for this player yet (for spoof checking)
-  bool m_DownloadAllowed;                   // if we're allowed to download the map or not (used with permission based map downloads)
-  bool m_DownloadStarted;                   // if we've started downloading the map or not
-  bool m_DownloadFinished;                  // if we've finished downloading the map or not
+  bool m_DownloadAllowed;                   // if we're allowed to download the std::map or not (used with permission based std::map downloads)
+  bool m_DownloadStarted;                   // if we've started downloading the std::map or not
+  bool m_DownloadFinished;                  // if we've finished downloading the std::map or not
   bool m_FinishedLoading;                   // if the player has finished loading or not
   bool m_Lagging;                           // if the player is lagging or not (on the lag screen)
   bool m_DropVote;                          // if the player voted to drop the laggers or not (on the lag screen)
@@ -125,23 +125,23 @@ protected:
   bool m_DeleteMe;
 
 public:
-  CGamePlayer(CPotentialPlayer *potential, unsigned char nPID, const string &nJoinedRealm, const string &nName, const BYTEARRAY &nInternalIP, bool nReserved);
+  CGamePlayer(CPotentialPlayer *potential, unsigned char nPID, const std::string &nJoinedRealm, const std::string &nName, const BYTEARRAY &nInternalIP, bool nReserved);
   ~CGamePlayer();
 
   uint32_t GetPing(bool LCPing) const;
   inline CTCPSocket *GetSocket() const                                { return m_Socket; }
   inline BYTEARRAY GetExternalIP() const                              { return m_Socket->GetIP(); }
-  inline string GetExternalIPString() const                           { return m_Socket->GetIPString(); }
+  inline std::string GetExternalIPString() const                           { return m_Socket->GetIPString(); }
   inline bool GetDeleteMe() const                                     { return m_DeleteMe; }
   inline unsigned char GetPID() const                                 { return m_PID; }
-  inline string GetName() const                                       { return m_Name; }
+  inline std::string GetName() const                                       { return m_Name; }
   inline BYTEARRAY GetInternalIP() const                              { return m_InternalIP; }
   inline unsigned int GetNumPings() const                             { return m_Pings.size(); }
   inline unsigned int GetNumCheckSums() const                         { return m_CheckSums.size(); }
-  inline queue<uint32_t> *GetCheckSums()                              { return &m_CheckSums; }
-  inline string GetLeftReason() const                                 { return m_LeftReason; }
-  inline string GetSpoofedRealm() const                               { return m_SpoofedRealm; }
-  inline string GetJoinedRealm() const                                { return m_JoinedRealm; }
+  inline std::queue<uint32_t> *GetCheckSums()                              { return &m_CheckSums; }
+  inline std::string GetLeftReason() const                                 { return m_LeftReason; }
+  inline std::string GetSpoofedRealm() const                               { return m_SpoofedRealm; }
+  inline std::string GetJoinedRealm() const                                { return m_JoinedRealm; }
   inline uint32_t GetLeftCode() const                                 { return m_LeftCode; }
   inline uint32_t GetSyncCounter() const                              { return m_SyncCounter; }
   inline uint32_t GetJoinTime() const                                 { return m_JoinTime; }
@@ -171,8 +171,8 @@ public:
 
   inline void SetSocket(CTCPSocket *nSocket)                                           { m_Socket = nSocket; }
   inline void SetDeleteMe(bool nDeleteMe)                                              { m_DeleteMe = nDeleteMe; }
-  inline void SetLeftReason(const string &nLeftReason)                                 { m_LeftReason = nLeftReason; }
-  inline void SetSpoofedRealm(const string &nSpoofedRealm)                             { m_SpoofedRealm = nSpoofedRealm; }
+  inline void SetLeftReason(const std::string &nLeftReason)                                 { m_LeftReason = nLeftReason; }
+  inline void SetSpoofedRealm(const std::string &nSpoofedRealm)                             { m_SpoofedRealm = nSpoofedRealm; }
   inline void SetLeftCode(uint32_t nLeftCode)                                          { m_LeftCode = nLeftCode; }
   inline void SetSyncCounter(uint32_t nSyncCounter)                                    { m_SyncCounter = nSyncCounter; }
   inline void SetLastMapPartSent(uint32_t nLastMapPartSent)                            { m_LastMapPartSent = nLastMapPartSent; }

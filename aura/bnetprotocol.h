@@ -114,11 +114,11 @@ public:
   inline BYTEARRAY GetServerToken() const             { return m_ServerToken; }
   inline BYTEARRAY GetMPQFileTime() const             { return m_MPQFileTime; }
   inline BYTEARRAY GetIX86VerFileName() const         { return m_IX86VerFileName; }
-  inline string GetIX86VerFileNameString() const      { return string(m_IX86VerFileName.begin(), m_IX86VerFileName.end()); }
+  inline std::string GetIX86VerFileNameString() const      { return std::string(m_IX86VerFileName.begin(), m_IX86VerFileName.end()); }
   inline BYTEARRAY GetValueStringFormula() const      { return m_ValueStringFormula; }
-  inline string GetValueStringFormulaString() const   { return string(m_ValueStringFormula.begin(), m_ValueStringFormula.end()); }
+  inline std::string GetValueStringFormulaString() const   { return std::string(m_ValueStringFormula.begin(), m_ValueStringFormula.end()); }
   inline BYTEARRAY GetKeyState() const                { return m_KeyState; }
-  inline string GetKeyStateDescription() const        { return string(m_KeyStateDescription.begin(), m_KeyStateDescription.end()); }
+  inline std::string GetKeyStateDescription() const        { return std::string(m_KeyStateDescription.begin(), m_KeyStateDescription.end()); }
   inline BYTEARRAY GetSalt() const                    { return m_Salt; }
   inline BYTEARRAY GetServerPublicKey() const         { return m_ServerPublicKey; }
   inline BYTEARRAY GetUniqueName() const              { return m_UniqueName; }
@@ -136,27 +136,27 @@ public:
   bool RECEIVE_SID_AUTH_CHECK(const BYTEARRAY &data);
   bool RECEIVE_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY &data);
   bool RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &data);
-  vector<string> RECEIVE_SID_FRIENDLIST(const BYTEARRAY &data);
-  vector<string> RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY &data);
+  std::vector<std::string> RECEIVE_SID_FRIENDLIST(const BYTEARRAY &data);
+  std::vector<std::string> RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY &data);
 
   // send functions
 
   BYTEARRAY SEND_PROTOCOL_INITIALIZE_SELECTOR();
   BYTEARRAY SEND_SID_NULL();
   BYTEARRAY SEND_SID_STOPADV();
-  BYTEARRAY SEND_SID_GETADVLISTEX(const string &gameName);
+  BYTEARRAY SEND_SID_GETADVLISTEX(const std::string &gameName);
   BYTEARRAY SEND_SID_ENTERCHAT();
-  BYTEARRAY SEND_SID_JOINCHANNEL(const string &channel);
-  BYTEARRAY SEND_SID_CHATCOMMAND(const string &command);
+  BYTEARRAY SEND_SID_JOINCHANNEL(const std::string &channel);
+  BYTEARRAY SEND_SID_CHATCOMMAND(const std::string &command);
   BYTEARRAY SEND_SID_CHECKAD();
-  BYTEARRAY SEND_SID_STARTADVEX3(unsigned char state, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const string &gameName, const string &hostName, uint32_t upTime, const string &mapPath, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1, uint32_t hostCounter);
-  BYTEARRAY SEND_SID_NOTIFYJOIN(const string &gameName);
+  BYTEARRAY SEND_SID_STARTADVEX3(unsigned char state, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const std::string &gameName, const std::string &hostName, uint32_t upTime, const std::string &mapPath, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1, uint32_t hostCounter);
+  BYTEARRAY SEND_SID_NOTIFYJOIN(const std::string &gameName);
   BYTEARRAY SEND_SID_PING(const BYTEARRAY &pingValue);
-  BYTEARRAY SEND_SID_LOGONRESPONSE(BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, string accountName);
+  BYTEARRAY SEND_SID_LOGONRESPONSE(BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, std::string accountName);
   BYTEARRAY SEND_SID_NETGAMEPORT(uint16_t serverPort);
-  BYTEARRAY SEND_SID_AUTH_INFO(unsigned char ver, uint32_t localeID, string countryAbbrev, string country);
-  BYTEARRAY SEND_SID_AUTH_CHECK(BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, string exeInfo, string keyOwnerName);
-  BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGON(BYTEARRAY clientPublicKey, string accountName);
+  BYTEARRAY SEND_SID_AUTH_INFO(unsigned char ver, uint32_t localeID, std::string countryAbbrev, std::string country);
+  BYTEARRAY SEND_SID_AUTH_CHECK(BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, std::string exeInfo, std::string keyOwnerName);
+  BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGON(BYTEARRAY clientPublicKey, std::string accountName);
   BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGONPROOF(BYTEARRAY clientPasswordProof);
   BYTEARRAY SEND_SID_FRIENDLIST();
   BYTEARRAY SEND_SID_CLANMEMBERLIST();
@@ -174,19 +174,19 @@ private:
 class CIncomingGameHost
 {
 private:
-  string m_GameName;
+  std::string m_GameName;
   BYTEARRAY m_IP;
   BYTEARRAY m_HostCounter;
   uint16_t m_Port;
 
 public:
-  CIncomingGameHost(const BYTEARRAY &nIP, uint16_t nPort, const string &nGameName, const BYTEARRAY &nHostCounter);
+  CIncomingGameHost(const BYTEARRAY &nIP, uint16_t nPort, const std::string &nGameName, const BYTEARRAY &nHostCounter);
   ~CIncomingGameHost();
 
-  string GetIPString() const;
+  std::string GetIPString() const;
   inline BYTEARRAY GetIP() const          { return m_IP; }
   inline uint16_t GetPort() const         { return m_Port; }
-  inline string GetGameName() const       { return m_GameName; }
+  inline std::string GetGameName() const       { return m_GameName; }
   inline BYTEARRAY GetHostCounter() const { return m_HostCounter; }
 };
 
@@ -197,17 +197,17 @@ public:
 class CIncomingChatEvent
 {
 private:
-  string m_User;
-  string m_Message;
+  std::string m_User;
+  std::string m_Message;
   CBNETProtocol::IncomingChatEvent m_ChatEvent;
 
 public:
-  CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const string &nUser, const string &nMessage);
+  CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const std::string &nUser, const std::string &nMessage);
   ~CIncomingChatEvent();
 
   inline CBNETProtocol::IncomingChatEvent GetChatEvent() const    { return m_ChatEvent; }
-  inline string GetUser() const                                   { return m_User; }
-  inline string GetMessage() const                                { return m_Message; }
+  inline std::string GetUser() const                                   { return m_User; }
+  inline std::string GetMessage() const                                { return m_Message; }
 };
 
 #endif  // AURA_BNETPROTOCOL_H_
