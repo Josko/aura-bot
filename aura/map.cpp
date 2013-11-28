@@ -278,7 +278,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
             if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
-              char *SubFileData = new char[FileLength];
+              auto SubFileData = new char[FileLength];
               DWORD BytesRead = 0;
 
               if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
@@ -314,7 +314,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
             if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
-              char *SubFileData = new char[FileLength];
+              auto SubFileData = new char[FileLength];
               DWORD BytesRead = 0;
 
               if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
@@ -357,32 +357,31 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
           FileList.push_back("war3map.w3q");
           bool FoundScript = false;
 
-          for (auto i = FileList.begin(); i != FileList.end(); ++i)
+          for (auto & fileName : FileList)
           {
             // don't use scripts\war3map.j if we've already used war3map.j (yes, some maps have both but only war3map.j is used)
 
-            if (FoundScript && *i == "scripts\\war3map.j")
+            if (FoundScript && fileName == "scripts\\war3map.j")
               continue;
 
             HANDLE SubFile;
 
-            if (SFileOpenFileEx(MapMPQ, (*i).c_str(), 0, &SubFile))
+            if (SFileOpenFileEx(MapMPQ, fileName.c_str(), 0, &SubFile))
             {
               uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
               if (FileLength > 0 && FileLength != 0xFFFFFFFF)
               {
-                char *SubFileData = new char[FileLength];
+                auto SubFileData = new char[FileLength];
                 DWORD BytesRead = 0;
 
                 if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
                 {
-                  if (*i == "war3map.j" || *i == "scripts\\war3map.j")
+                  if (fileName == "war3map.j" || fileName == "scripts\\war3map.j")
                     FoundScript = true;
 
                   Val = ROTL(Val ^ XORRotateLeft((unsigned char *) SubFileData, BytesRead), 3);
                   m_Aura->m_SHA->Update((unsigned char *) SubFileData, BytesRead);
-                  // DEBUG_Print( "*** found: " + *i );
                 }
 
                 delete [] SubFileData;
@@ -435,7 +434,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
         if (FileLength > 0 && FileLength != 0xFFFFFFFF)
         {
-          char *SubFileData = new char[FileLength];
+          auto SubFileData = new char[FileLength];
           DWORD BytesRead = 0;
 
           if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
@@ -578,10 +577,10 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
                 {
                   if (PlayerMask & 1)
                   {
-                    for (auto k = Slots.begin(); k != Slots.end(); ++k)
+                    for (auto & Slot : Slots)
                     {
-                      if ((*k).GetColour() == j)
-                        (*k).SetTeam(i);
+                      if ((Slot).GetColour() == j)
+                        (Slot).SetTeam(i);
                     }
                   }
 
@@ -607,9 +606,9 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
               uint32_t SlotNum = 1;
 
-              for (auto i = Slots.begin(); i != Slots.end(); ++i)
+              for (auto & Slot : Slots)
               {
-                Print("[MAP] calculated map_slot" + ToString(SlotNum) + " = " + ByteArrayToDecString((*i).GetByteArray()));
+                Print("[MAP] calculated map_slot" + ToString(SlotNum) + " = " + ByteArrayToDecString((Slot).GetByteArray()));
                 ++SlotNum;
               }
 
@@ -621,10 +620,10 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
                 unsigned char Team = 0;
 
-                for (auto i = Slots.begin(); i != Slots.end(); ++i)
+                for (auto & Slot : Slots)
                 {
-                  (*i).SetTeam(Team++);
-                  (*i).SetRace(SLOTRACE_RANDOM);
+                  (Slot).SetTeam(Team++);
+                  (Slot).SetRace(SLOTRACE_RANDOM);
                 }
 
                 MapFilterType = MAPFILTER_TYPE_MELEE;
@@ -634,8 +633,8 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
               {
                 // make races selectable
 
-                for (auto i = Slots.begin(); i != Slots.end(); ++i)
-                  (*i).SetRace((*i).GetRace() | SLOTRACE_SELECTABLE);
+                for (auto & Slot : Slots)
+                  (Slot).SetRace((Slot).GetRace() | SLOTRACE_SELECTABLE);
               }
             }
           }
@@ -811,8 +810,8 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
   {
     Print("[MAP] forcing races to random");
 
-    for (auto i = m_Slots.begin(); i != m_Slots.end(); ++i)
-      (*i).SetRace(SLOTRACE_RANDOM);
+    for (auto & slot : m_Slots)
+      slot.SetRace(SLOTRACE_RANDOM);
   }
 
   // add observer slots

@@ -36,16 +36,16 @@ CStats::CStats(CGame *nGame)
 {
   Print("[STATS] using dota stats");
 
-  for (unsigned int i = 0; i < 12; ++i)
-    m_Players[i] = nullptr;
+  for (auto & player : m_Players)
+    player = nullptr;
 }
 
 CStats::~CStats()
 {
-  for (unsigned int i = 0; i < 12; ++i)
+  for (auto & player : m_Players)
   {
-    if (m_Players[i])
-      delete m_Players[i];
+    if (player)
+      delete player;
   }
 }
 
@@ -318,11 +318,11 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
       }
     }
 
-    for (unsigned int i = 0; i < 12; ++i)
+    for (auto & player : m_Players)
     {
-      if (m_Players[i])
+      if (player)
       {
-        const uint32_t Colour = m_Players[i]->GetNewColour();
+        const uint32_t Colour = player->GetNewColour();
         const string Name = m_Game->GetDBPlayerNameFromColour(Colour);
 
         if (Name.empty())
@@ -335,7 +335,7 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
         else if ((m_Winner == 2 && Colour >= 1 && Colour <= 5) || (m_Winner == 1 && Colour >= 7 && Colour <= 11))
           Win = 2;
 
-        Aura->m_DB->DotAPlayerAdd(m_Game->GetDBPlayerNameFromColour(Colour), Win, m_Players[i]->GetKills(), m_Players[i]->GetDeaths(), m_Players[i]->GetCreepKills(), m_Players[i]->GetCreepDenies(), m_Players[i]->GetAssists(), m_Players[i]->GetNeutralKills(), m_Players[i]->GetTowerKills(), m_Players[i]->GetRaxKills(), m_Players[i]->GetCourierKills());
+        Aura->m_DB->DotAPlayerAdd(m_Game->GetDBPlayerNameFromColour(Colour), Win, player->GetKills(), player->GetDeaths(), player->GetCreepKills(), player->GetCreepDenies(), player->GetAssists(), player->GetNeutralKills(), player->GetTowerKills(), player->GetRaxKills(), player->GetCourierKills());
         ++Players;
       }
     }

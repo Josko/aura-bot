@@ -34,7 +34,12 @@ int GetLastError()
 // CTCPSocket
 //
 
-CTCPSocket::CTCPSocket() : m_LastRecv(GetTime()), m_Socket(socket(AF_INET, SOCK_STREAM, 0)), m_Error(0), m_HasError(false), m_Connected(false)
+CTCPSocket::CTCPSocket()
+  : m_LastRecv(GetTime()),
+    m_Socket(socket(AF_INET, SOCK_STREAM, 0)),
+    m_Error(0),
+    m_HasError(false),
+    m_Connected(false)
 {
   memset(&m_SIN, 0, sizeof(m_SIN));
 
@@ -61,7 +66,7 @@ CTCPSocket::CTCPSocket() : m_LastRecv(GetTime()), m_Socket(socket(AF_INET, SOCK_
   setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *) &OptVal, sizeof(int));
 }
 
-CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN) : m_SIN(nSIN), m_LastRecv(GetTime()), m_Socket(nSocket), m_Error(0), m_HasError(false), m_Connected(true)
+CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN) : m_SIN(std::move(nSIN)), m_LastRecv(GetTime()), m_Socket(nSocket), m_Error(0), m_HasError(false), m_Connected(true)
 {
   // make socket non blocking
 
@@ -326,7 +331,11 @@ void CTCPSocket::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
 // CTCPClient
 //
 
-CTCPClient::CTCPClient() : m_Socket(socket(AF_INET, SOCK_STREAM, 0)), m_Error(0), m_HasError(false), m_Connected(false), m_Connecting(false)
+CTCPClient::CTCPClient()
+  : m_Socket(socket(AF_INET, SOCK_STREAM, 0)),
+    m_Error(0), m_HasError(false),
+    m_Connected(false),
+    m_Connecting(false)
 {
   memset(&m_SIN, 0, sizeof(m_SIN));
 
@@ -701,7 +710,10 @@ void CTCPClient::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
 // CTCPServer
 //
 
-CTCPServer::CTCPServer() : m_Socket(socket(AF_INET, SOCK_STREAM, 0)), m_Error(0), m_HasError(false)
+CTCPServer::CTCPServer()
+  : m_Socket(socket(AF_INET, SOCK_STREAM, 0)),
+    m_Error(0),
+    m_HasError(false)
 {
   memset(&m_SIN, 0, sizeof(m_SIN));
 
@@ -945,7 +957,10 @@ void CTCPServer::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
 // CUDPSocket
 //
 
-CUDPSocket::CUDPSocket() : m_Socket(socket(AF_INET, SOCK_DGRAM, 0)), m_Error(0), m_HasError(false)
+CUDPSocket::CUDPSocket()
+  : m_Socket(socket(AF_INET, SOCK_DGRAM, 0)),
+    m_Error(0),
+    m_HasError(false)
 {
   if (m_Socket == INVALID_SOCKET)
   {

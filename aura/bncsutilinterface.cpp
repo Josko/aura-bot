@@ -146,7 +146,7 @@ BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string &key, uint32_t clientTo
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Zeros, 4));
     size_t Length = Decoder.calculateHash(clientToken, serverToken);
-    char *buf = new char[Length];
+    auto buf = new char[Length];
     Length = Decoder.getHash(buf);
     AppendByteArray(KeyInfo, CreateByteArray((unsigned char *) buf, Length));
     delete [] buf;

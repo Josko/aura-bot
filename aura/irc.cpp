@@ -195,14 +195,14 @@ void CIRC::ExtractPackets()
 
   vector<string> Packets = Tokenize(*Recv, '\n');
 
-  for (auto Packet = Packets.begin(); Packet != Packets.end(); ++Packet)
+  for (auto & Packets_Packet : Packets)
   {
     // delete the superflous '\r'
 
-    const string::size_type pos = Packet->find('\r');
+    const string::size_type pos = Packets_Packet.find('\r');
 
     if (pos != string::npos)
-      Packet->erase(pos, 1);
+      Packets_Packet.erase(pos, 1);
 
     // track timeouts
 
@@ -213,9 +213,9 @@ void CIRC::ExtractPackets()
     // out: PONG :2748459196
     // respond to the packet sent by the server
 
-    if (Packet->substr(0, 4) == "PING")
+    if (Packets_Packet.substr(0, 4) == "PING")
     {
-      SendIRC("PONG :" + Packet->substr(6));
+      SendIRC("PONG :" + Packets_Packet.substr(6));
       continue;
     }
 
@@ -223,9 +223,9 @@ void CIRC::ExtractPackets()
     // in: NOTICE AUTH :*** Checking Ident
     // print the message on console
 
-    if (Packet->substr(0, 6) == "NOTICE")
+    if (Packets_Packet.substr(0, 6) == "NOTICE")
     {
-      Print("[IRC: " + m_Server + "] " + *Packet);
+      Print("[IRC: " + m_Server + "] " + Packets_Packet);
       continue;
     }
 
@@ -233,7 +233,7 @@ void CIRC::ExtractPackets()
     // the delimiter is space
     // we use a std::vector so we can check its number of tokens
 
-    const vector<string> Tokens = Tokenize(*Packet, ' ');
+    const vector<string> Tokens = Tokenize(Packets_Packet, ' ');
 
     // privmsg packet
     // in:  :nickname!~username@hostname PRIVMSG #channel :message
@@ -271,16 +271,16 @@ void CIRC::ExtractPackets()
 
       // get the message
 
-      string Message = Packet->substr(Tokens[0].size() + Tokens[1].size() + Tokens[2].size() + 4);
+      string Message = Packets_Packet.substr(Tokens[0].size() + Tokens[1].size() + Tokens[2].size() + 4);
 
       // relay messages to bnets
 
-      for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
+      for (auto & bnet : m_Aura->m_BNETs)
       {
-        if (Message[0] == (*i)->GetCommandTrigger())
+        if (Message[0] == bnet->GetCommandTrigger())
         {
           const CIncomingChatEvent event = CIncomingChatEvent(CBNETProtocol::EID_IRC, Nickname, Channel + " " + Message);
-          (*i)->ProcessChatEvent(&event);
+          bnet->ProcessChatEvent(&event);
           break;
         }
       }
@@ -362,8 +362,8 @@ void CIRC::ExtractPackets()
 
       // join channels
 
-      for (auto j = m_Channels.begin(); j != m_Channels.end(); ++j)
-        SendIRC("JOIN " + (*j));
+      for (auto & channel : m_Channels)
+        SendIRC("JOIN " + channel);
 
       continue;
     }
@@ -405,8 +405,8 @@ void CIRC::SendMessageIRC(const string &message, const string &target)
   if (m_Socket->GetConnected())
   {
     if (target.empty())
-      for (auto i = m_Channels.begin(); i != m_Channels.end(); ++i)
-        m_Socket->PutBytes("PRIVMSG " + (*i) + " :" + (message.size() > 450 ? message.substr(0, 450) : message) + LF);
+      for (auto & channel : m_Channels)
+        m_Socket->PutBytes("PRIVMSG " + channel + " :" + (message.size() > 450 ? message.substr(0, 450) : message) + LF);
     else
       m_Socket->PutBytes("PRIVMSG " + target + " :" + (message.size() > 450 ? message.substr(0, 450) : message) + LF);
   }

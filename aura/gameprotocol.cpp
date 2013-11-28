@@ -436,9 +436,9 @@ BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG(vector<CGamePlayer *> players)
 {
   unsigned char NumLaggers = 0;
 
-  for (auto i = players.begin(); i != players.end(); ++i)
+  for (auto & player : players)
   {
-    if ((*i)->GetLagging())
+    if ((player)->GetLagging())
       ++NumLaggers;
   }
 
@@ -446,12 +446,12 @@ BYTEARRAY CGameProtocol::SEND_W3GS_START_LAG(vector<CGamePlayer *> players)
   {
     BYTEARRAY packet = { W3GS_HEADER_CONSTANT, W3GS_START_LAG, 0, 0, NumLaggers };
 
-    for (auto i = players.begin(); i != players.end(); ++i)
+    for (auto & player : players)
     {
-      if ((*i)->GetLagging())
+      if ((player)->GetLagging())
       {
-        packet.push_back((*i)->GetPID());
-        AppendByteArray(packet, GetTicks() - (*i)->GetStartedLaggingTicks(), false);
+        packet.push_back((player)->GetPID());
+        AppendByteArray(packet, GetTicks() - (player)->GetStartedLaggingTicks(), false);
       }
     }
 
@@ -634,8 +634,8 @@ BYTEARRAY CGameProtocol::EncodeSlotInfo(const vector<CGameSlot> &slots, uint32_t
   BYTEARRAY SlotInfo;
   SlotInfo.push_back((unsigned char) slots.size()); // number of slots
 
-  for (unsigned int i = 0; i < slots.size(); ++i)
-    AppendByteArray(SlotInfo, slots[i].GetByteArray());
+  for (auto & slot : slots)
+    AppendByteArray(SlotInfo, slot.GetByteArray());
 
   AppendByteArray(SlotInfo, randomSeed, false);     // random seed
   SlotInfo.push_back(layoutStyle);                  // LayoutStyle (0 = melee, 1 = custom forces, 3 = custom forces + fixed player settings)

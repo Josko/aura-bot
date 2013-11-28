@@ -123,7 +123,7 @@ string FileRead(const string &file, uint32_t start, uint32_t length)
 
   // read data
 
-  char *Buffer = new char[length];
+  auto Buffer = new char[length];
   IS.read(Buffer, length);
   string BufferString = string(Buffer, IS.gcount());
   IS.close();
@@ -150,7 +150,7 @@ string FileRead(const string &file)
 
   // read data
 
-  char *Buffer = new char[FileLength];
+  auto Buffer = new char[FileLength];
   IS.read(Buffer, FileLength);
   string BufferString = string(Buffer, IS.gcount());
   IS.close();

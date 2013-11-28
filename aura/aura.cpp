@@ -451,16 +451,16 @@ CAura::~CAura()
   delete m_GPSProtocol;
   // delete m_Map;
 
-  for (auto i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end(); ++i)
-    delete *i;
+  for (auto & socket : m_ReconnectSockets)
+    delete socket;
 
-  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
-    delete *i;
+  for (auto & bnet : m_BNETs)
+    delete bnet;
 
   delete m_CurrentGame;
 
-  for (auto i = m_Games.begin(); i != m_Games.end(); ++i)
-    delete *i;
+  for (auto & game : m_Games)
+    delete game;
 
   delete m_DB;
 
@@ -486,13 +486,13 @@ bool CAura::Update()
 
   // 2. all running games' player sockets
 
-  for (auto i = m_Games.begin(); i != m_Games.end(); ++i)
-    NumFDs += (*i)->SetFD(&fd, &send_fd, &nfds);
+  for (auto & game : m_Games)
+    NumFDs += game->SetFD(&fd, &send_fd, &nfds);
 
   // 3. all battle.net sockets
 
-  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
-    NumFDs += (*i)->SetFD(&fd, &send_fd, &nfds);
+  for (auto & bnet : m_BNETs)
+    NumFDs += bnet->SetFD(&fd, &send_fd, &nfds);
 
   // 4. irc socket
 
@@ -514,9 +514,9 @@ bool CAura::Update()
 
   // 6. reconnect sockets
 
-  for (auto i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end(); ++i)
+  for (auto & socket : m_ReconnectSockets)
   {
-    (*i)->SetFD(&fd, &send_fd, &nfds);
+    socket->SetFD(&fd, &send_fd, &nfds);
     ++NumFDs;
   }
 
@@ -525,10 +525,10 @@ bool CAura::Update()
 
   unsigned long usecBlock = 50000;
 
-  for (auto i = m_Games.begin(); i != m_Games.end(); ++i)
+  for (auto & game : m_Games)
   {
-    if ((*i)->GetNextTimedActionTicks() * 1000 < usecBlock)
-      usecBlock = (*i)->GetNextTimedActionTicks() * 1000;
+    if (game->GetNextTimedActionTicks() * 1000 < usecBlock)
+      usecBlock = game->GetNextTimedActionTicks() * 1000;
   }
 
   static struct timeval tv;
@@ -585,10 +585,10 @@ bool CAura::Update()
       delete m_CurrentGame;
       m_CurrentGame = nullptr;
 
-      for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+      for (auto & bnet : m_BNETs)
       {
-        (*i)->QueueGameUncreate();
-        (*i)->QueueEnterChat();
+        bnet->QueueGameUncreate();
+        bnet->QueueEnterChat();
       }
     }
     else if (m_CurrentGame)
@@ -597,9 +597,9 @@ bool CAura::Update()
 
   // update battle.net connections
 
-  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto & bnet : m_BNETs)
   {
-    if ((*i)->Update(&fd, &send_fd))
+    if (bnet->Update(&fd, &send_fd))
       Exit = true;
   }
 
@@ -649,11 +649,11 @@ bool CAura::Update()
 
             CGamePlayer *Match = nullptr;
 
-            for (auto j = m_Games.begin(); j != m_Games.end(); ++j)
+            for (auto & game : m_Games)
             {
-              if ((*j)->GetGameLoaded())
+              if (game->GetGameLoaded())
               {
-                CGamePlayer *Player = (*j)->GetPlayerFromPID(Bytes[4]);
+                CGamePlayer *Player = game->GetPlayerFromPID(Bytes[4]);
 
                 if (Player && Player->GetGProxy() && Player->GetGProxyReconnectKey() == ReconnectKey)
                 {
@@ -737,12 +737,12 @@ void CAura::EventBNETGameRefreshFailed(CBNET *bnet)
 
 void CAura::EventGameDeleted(CGame *game)
 {
-  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto & bnet : m_BNETs)
   {
-    (*i)->QueueChatCommand("Game [" + game->GetDescription() + "] is over");
+    bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over");
 
-    if ((*i)->GetServer() == game->GetCreatorServer())
-      (*i)->QueueChatCommand("Game [" + game->GetDescription() + "] is over", game->GetCreatorName(), true, string());
+    if (bnet->GetServer() == game->GetCreatorServer())
+      bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over", game->GetCreatorName(), true, string());
   }
 }
 
@@ -808,7 +808,7 @@ void CAura::ExtractScripts()
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
-        char *SubFileData = new char[FileLength];
+        auto  SubFileData = new char[FileLength];
         DWORD BytesRead = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
@@ -835,7 +835,7 @@ void CAura::ExtractScripts()
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
-        char *SubFileData = new char[FileLength];
+        auto  SubFileData = new char[FileLength];
         DWORD BytesRead = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
@@ -933,10 +933,10 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 {
   if (!m_Enabled)
   {
-    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto & bnet : m_BNETs)
     {
-      if ((*i)->GetServer() == creatorServer)
-        (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
+      if (bnet->GetServer() == creatorServer)
+        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
     }
 
     return;
@@ -944,10 +944,10 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (gameName.size() > 31)
   {
-    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto & bnet : m_BNETs)
     {
-      if ((*i)->GetServer() == creatorServer)
-        (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
+      if (bnet->GetServer() == creatorServer)
+        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
     }
 
     return;
@@ -955,10 +955,10 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (!map->GetValid())
   {
-    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto & bnet : m_BNETs)
     {
-      if ((*i)->GetServer() == creatorServer)
-        (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
+      if (bnet->GetServer() == creatorServer)
+        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
     }
 
     return;
@@ -966,10 +966,10 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (m_CurrentGame)
   {
-    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto & bnet : m_BNETs)
     {
-      if ((*i)->GetServer() == creatorServer)
-        (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
+      if (bnet->GetServer() == creatorServer)
+        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
     }
 
     return;
@@ -977,10 +977,10 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   if (m_Games.size() >= m_MaxGames)
   {
-    for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+    for (auto & bnet : m_BNETs)
     {
-      if ((*i)->GetServer() == creatorServer)
-        (*i)->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + ToString(m_MaxGames) + ") has been reached", creatorName, whisper, string());
+      if (bnet->GetServer() == creatorServer)
+        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + ToString(m_MaxGames) + ") has been reached", creatorName, whisper, string());
     }
 
     return;
@@ -990,40 +990,40 @@ void CAura::CreateGame(CMap *map, unsigned char gameState, string gameName, stri
 
   m_CurrentGame = new CGame(this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer);
 
-  for (auto i = m_BNETs.begin(); i != m_BNETs.end(); ++i)
+  for (auto & bnet : m_BNETs)
   {
-    if (whisper && (*i)->GetServer() == creatorServer)
+    if (whisper && bnet->GetServer() == creatorServer)
     {
       // note that we send this whisper only on the creator server
 
       if (gameState == GAME_PRIVATE)
-        (*i)->QueueChatCommand("Creating private game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string());
+        bnet->QueueChatCommand("Creating private game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string());
       else
-        (*i)->QueueChatCommand("Creating public game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string());
+        bnet->QueueChatCommand("Creating public game [" + gameName + "] started by [" + ownerName + "]", creatorName, whisper, string());
     }
     else
     {
       // note that we send this chat message on all other bnet servers
 
       if (gameState == GAME_PRIVATE)
-        (*i)->QueueChatCommand("Creating private game [" + gameName + "] started by [" + ownerName + "]");
+        bnet->QueueChatCommand("Creating private game [" + gameName + "] started by [" + ownerName + "]");
       else
-        (*i)->QueueChatCommand("Creating public game [" + gameName + "] started by [" + ownerName + "]");
+        bnet->QueueChatCommand("Creating public game [" + gameName + "] started by [" + ownerName + "]");
     }
 
-    (*i)->QueueGameCreate(gameState, gameName, map, m_CurrentGame->GetHostCounter());
+    bnet->QueueGameCreate(gameState, gameName, map, m_CurrentGame->GetHostCounter());
 
     // hold friends and/or clan members
 
-    (*i)->HoldFriends(m_CurrentGame);
-    (*i)->HoldClan(m_CurrentGame);
+    bnet->HoldFriends(m_CurrentGame);
+    bnet->HoldClan(m_CurrentGame);
 
 
     // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
     // unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game
     // so don't rejoin the chat if we're using PVPGN
 
-    if (!(*i)->GetPvPGN())
-      (*i)->QueueEnterChat();
+    if (!bnet->GetPvPGN())
+      bnet->QueueEnterChat();
   }
 }

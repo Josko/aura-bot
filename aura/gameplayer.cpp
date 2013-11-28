@@ -172,8 +172,8 @@ uint32_t CGamePlayer::GetPing(bool LCPing) const
 
   uint32_t AvgPing = 0;
 
-  for (auto i = m_Pings.begin(); i != m_Pings.end(); ++i)
-    AvgPing += (*i);
+  for (const auto & ping : m_Pings)
+    AvgPing += ping;
 
   AvgPing /= m_Pings.size();
 
@@ -192,14 +192,14 @@ bool CGamePlayer::Update(void *fd)
 
   if (m_WhoisShouldBeSent && !m_Spoofed && !m_WhoisSent && !m_JoinedRealm.empty() && Time - m_JoinTime >= 4)
   {
-    for (auto i = m_Game->m_Aura->m_BNETs.begin(); i != m_Game->m_Aura->m_BNETs.end(); ++i)
+    for (auto & bnet : m_Game->m_Aura->m_BNETs)
     {
-      if ((*i)->GetServer() == m_JoinedRealm)
+      if (bnet->GetServer() == m_JoinedRealm)
       {
-        if (m_Game->GetGameState() == GAME_PUBLIC || (*i)->GetPvPGN())
-          (*i)->QueueChatCommand("/whois " + m_Name);
+        if (m_Game->GetGameState() == GAME_PUBLIC || bnet->GetPvPGN())
+          bnet->QueueChatCommand("/whois " + m_Name);
         else if (m_Game->GetGameState() == GAME_PRIVATE)
-          (*i)->QueueChatCommand("Spoof check by replying to this message with \"sc\" [ /r sc ]", m_Name, true, string());
+          bnet->QueueChatCommand("Spoof check by replying to this message with \"sc\" [ /r sc ]", m_Name, true, string());
       }
     }
 

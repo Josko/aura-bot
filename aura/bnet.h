@@ -49,7 +49,7 @@ private:
   CBNCSUtilInterface *m_BNCSUtil;           // the interface to the bncsutil library (used for logging into battle.net)
   queue<BYTEARRAY> m_OutPackets;            // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
   vector<string> m_Friends;                 // vector of friends
-  vector<string> m_Clans;                   // vector of clan members
+  vector<string> m_Clan;                    // vector of clan members
   BYTEARRAY m_EXEVersion;                   // custom exe version for PvPGN users
   BYTEARRAY m_EXEVersionHash;               // custom exe version hash for PvPGN users
   string m_Server;                          // battle.net server to connect to

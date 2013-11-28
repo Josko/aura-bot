@@ -41,17 +41,17 @@ CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC
     m_Socket(new CTCPClient()),
     m_Protocol(new CBNETProtocol()),
     m_BNCSUtil(new CBNCSUtilInterface(nUserName, nUserPassword)),
-    m_EXEVersion(nEXEVersion),
-    m_EXEVersionHash(nEXEVersionHash),
-    m_Server(nServer),
+    m_EXEVersion(move(nEXEVersion)),
+    m_EXEVersionHash(move(nEXEVersionHash)),
+    m_Server(move(nServer)),
     m_CDKeyROC(nCDKeyROC),
     m_CDKeyTFT(nCDKeyTFT),
-    m_CountryAbbrev(nCountryAbbrev),
-    m_Country(nCountry),
+    m_CountryAbbrev(move(nCountryAbbrev)),
+    m_Country(move(nCountry)),
     m_UserName(nUserName),
     m_UserPassword(nUserPassword),
-    m_FirstChannel(nFirstChannel),
-    m_PasswordHashType(nPasswordHashType),
+    m_FirstChannel(move(nFirstChannel)),
+    m_PasswordHashType(move(nPasswordHashType)),
     m_LocaleID(nLocaleID), m_HostCounterID(nHostCounterID),
     m_LastDisconnectedTime(0),
     m_LastConnectionAttemptTime(0),
@@ -375,7 +375,7 @@ bool CBNET::Update(void *fd, void *send_fd)
               break;
 
             case CBNETProtocol::SID_CLANMEMBERLIST:
-              m_Clans = m_Protocol->RECEIVE_SID_CLANMEMBERLIST(Data);
+              m_Clan = m_Protocol->RECEIVE_SID_CLANMEMBERLIST(Data);
               break;
           }
 
@@ -617,8 +617,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
               {
                 string FoundMaps;
 
-                for (auto it = Matches.begin(); it != Matches.end(); ++it)
-                  FoundMaps += (*it) + ", ";
+                for (const auto & match : Matches)
+                  FoundMaps += match + ", ";
 
                 QueueChatCommand("Maps: " + FoundMaps.substr(0, FoundMaps.size() - 2), User, Whisper, m_IRC);
               }
@@ -701,8 +701,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
               {
                 string FoundMapConfigs;
 
-                for (auto it = Matches.begin(); it != Matches.end(); ++it)
-                  FoundMapConfigs += (*it) + ", ";
+                for (const auto & match : Matches)
+                  FoundMapConfigs += match + ", ";
 
                 QueueChatCommand("Maps configs: " + FoundMapConfigs.substr(0, FoundMapConfigs.size() - 2), User, Whisper, m_IRC);
               }
@@ -1271,16 +1271,16 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             if (m_Aura->m_CurrentGame)
               m_Aura->m_CurrentGame->SendAllChat(Payload);
 
-            for (auto i = m_Aura->m_Games.begin(); i != m_Aura->m_Games.end(); ++i)
-              (*i)->SendAllChat("ADMIN: " + Payload);
+            for (auto & game : m_Aura->m_Games)
+              game->SendAllChat("ADMIN: " + Payload);
           }
           else
           {
             if (m_Aura->m_CurrentGame)
               m_Aura->m_CurrentGame->SendAllChat(Payload);
 
-            for (auto i = m_Aura->m_Games.begin(); i != m_Aura->m_Games.end(); ++i)
-              (*i)->SendAllChat("ADMIN (" + User + "): " + Payload);
+            for (auto & game : m_Aura->m_Games)
+              game->SendAllChat("ADMIN (" + User + "): " + Payload);
           }
         }
 
@@ -1391,8 +1391,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             Name = Payload.substr(0, MessageStart);
             Message = Payload.substr(MessageStart + 1);
 
-            for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
-              (*i)->QueueChatCommand(Message, Name, true, string());
+            for (auto & bnet : m_Aura->m_BNETs)
+              bnet->QueueChatCommand(Message, Name, true, string());
           }
         }
 
@@ -1594,8 +1594,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         {
           string message = "Status: ";
 
-          for (auto i = m_Aura->m_BNETs.begin(); i != m_Aura->m_BNETs.end(); ++i)
-            message += (*i)->GetServer() + ((*i)->GetLoggedIn() ? " [online], " : " [offline], ");
+          for (auto & bnet : m_Aura->m_BNETs)
+            message += bnet->GetServer() + (bnet->GetLoggedIn() ? " [online], " : " [offline], ");
 
           message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
 
@@ -1833,12 +1833,12 @@ CDBBan *CBNET::IsBannedName(string name)
 
 void CBNET::HoldFriends(CGame *game)
 {
-  for (auto i = m_Friends.begin(); i != m_Friends.end(); ++i)
-    game->AddToReserved(*i);
+  for (auto & friend_ : m_Friends)
+    game->AddToReserved(friend_);
 }
 
 void CBNET::HoldClan(CGame *game)
 {
-  for (auto i = m_Clans.begin(); i != m_Clans.end(); ++i)
-    game->AddToReserved(*i);
+  for (auto & clanmate : m_Clan)
+    game->AddToReserved(clanmate);
 }
