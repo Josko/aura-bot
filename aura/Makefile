@@ -7,7 +7,7 @@ CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
 OFLAGS = -O3
-LFLAGS = -L. -L/usr/local/lib/ -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -ldl -lz
+LFLAGS = -L. -L/usr/local/lib/ -L../StormLib/stormlib/ -L../bncsutil/src/bncsutil/ -lStorm -lbncsutil -lgmp -ldl -lz
 
 ifeq ($(ARCH),x86_64)
 	CCFLAGS += -m64
