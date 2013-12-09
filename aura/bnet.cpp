@@ -1874,7 +1874,10 @@ vector<string> CBNET::ConfigFilesMatch(string pattern)
 
   for (auto & cfgName : ConfigList)
   {
-    if (cfgName.find(pattern) != string::npos)
+    string lowerCfgName(cfgName);
+    transform(lowerCfgName.begin(), lowerCfgName.end(), lowerCfgName.begin(), ::tolower);
+
+    if (lowerCfgName.find(pattern) != string::npos)
       Matches.push_back(cfgName);
   }
 
