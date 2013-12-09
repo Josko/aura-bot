@@ -328,7 +328,7 @@ bool CGame::Update(void *fd, void *send_fd)
 
   // update players
 
-  for (auto i = m_Players.begin(); i != m_Players.end();)
+  for (auto i = begin(m_Players); i != end(m_Players);)
   {
     if ((*i)->Update(fd))
     {
@@ -340,7 +340,7 @@ bool CGame::Update(void *fd, void *send_fd)
       ++i;
   }
 
-  for (auto i = m_Potentials.begin(); i != m_Potentials.end();)
+  for (auto i = begin(m_Potentials); i != end(m_Potentials);)
   {
     if ((*i)->Update(fd))
     {
@@ -1209,7 +1209,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
       {
         Print("[GAME: " + m_GameName + "] player [" + joinPlayer->GetName() + "|" + potential->GetExternalIPString() + "] is banned");
 
-        if (m_IgnoredNames.find(joinPlayer->GetName()) == m_IgnoredNames.end())
+        if (m_IgnoredNames.find(joinPlayer->GetName()) == end(m_IgnoredNames))
         {
           SendAllChat(joinPlayer->GetName() + " is trying to join the game but is banned");
           SendAllChat("User [" + Ban->GetName() + "] was banned on server [" + Ban->GetServer() + "] on " + Ban->GetDate() + " by [" + Ban->GetAdmin() + "] because [" + Ban->GetReason() + "]");
@@ -1562,7 +1562,7 @@ void CGame::EventPlayerChatToHost(CGamePlayer *player, CIncomingChatPlayer *chat
         else
           Command = Message.substr(1);
 
-        transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
+        transform(begin(Command), end(Command), begin(Command), ::tolower);
 
         // don't allow EventPlayerBotCommand to veto a previous instruction to set Relay to false
         // so if Relay is already false (e.g. because the player is muted) then it cannot be forced back to true here
@@ -1646,13 +1646,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         // copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
 
         vector<CGamePlayer *> SortedPlayers = m_Players;
-        sort(SortedPlayers.begin(), SortedPlayers.end(), [](const CGamePlayer * a, const CGamePlayer * b)
+        sort(begin(SortedPlayers), end(SortedPlayers), [](const CGamePlayer * a, const CGamePlayer * b)
         {
           return a->GetPing(false) < b->GetPing(false);
         });
         string Pings;
 
-        for (auto i = SortedPlayers.begin(); i != SortedPlayers.end(); ++i)
+        for (auto i = begin(SortedPlayers); i != end(SortedPlayers); ++i)
         {
           Pings += (*i)->GetName();
           Pings += ": ";
@@ -1675,7 +1675,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           else
             Pings += "N/A";
 
-          if (i != SortedPlayers.end() - 1)
+          if (i != end(SortedPlayers) - 1)
             Pings += ", ";
 
           if ((m_GameLoading || m_GameLoaded) && Pings.size() > 100)
@@ -1702,7 +1702,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       {
         string Froms;
 
-        for (auto i = m_Players.begin(); i != m_Players.end(); ++i)
+        for (auto i = begin(m_Players); i != end(m_Players); ++i)
         {
           // we reverse the byte order on the IP because it's stored in network byte order
 
@@ -1711,7 +1711,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           Froms += m_Aura->m_DB->FromCheck(ByteArrayToUInt32((*i)->GetExternalIP(), true));
           Froms += ")";
 
-          if (i != m_Players.end() - 1)
+          if (i != end(m_Players) - 1)
             Froms += ", ";
 
           if ((m_GameLoading || m_GameLoaded) && Froms.size() > 100)
@@ -1917,7 +1917,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
             if (SID < m_Slots.size())
             {
-              for (auto i = m_FakePlayers.begin(); i != m_FakePlayers.end(); ++i)
+              for (auto i = begin(m_FakePlayers); i != end(m_FakePlayers); ++i)
               {
                 if (m_Slots[SID].GetPID() == (*i))
                 {
@@ -2281,7 +2281,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         if (m_GameLoaded)
         {
           string VictimLower = Victim;
-          transform(VictimLower.begin(), VictimLower.end(), VictimLower.begin(), ::tolower);
+          transform(begin(VictimLower), end(VictimLower), begin(VictimLower), ::tolower);
           uint32_t Matches = 0;
           CDBBan *LastMatch = nullptr;
 
@@ -2291,7 +2291,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           for (auto & ban : m_DBBans)
           {
             string TestName = ban->GetName();
-            transform(TestName.begin(), TestName.end(), TestName.begin(), ::tolower);
+            transform(begin(TestName), end(TestName), begin(TestName), ::tolower);
 
             if (TestName.find(VictimLower) != string::npos)
             {
@@ -2800,7 +2800,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             if (Start != string::npos)
               Race = Race.substr(Start);
 
-            transform(Race.begin(), Race.end(), Race.begin(), ::tolower);
+            transform(begin(Race), end(Race), begin(Race), ::tolower);
             uint8_t SID = (uint8_t)(Slot - 1);
 
             if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && !(m_Map->GetMapFlags() & MAPFLAG_RANDOMRACES) && SID < m_Slots.size())
@@ -3558,7 +3558,7 @@ CGamePlayer *CGame::GetPlayerFromSID(uint8_t SID)
 CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive)
 {
   if (!sensitive)
-    transform(name.begin(), name.end(), name.begin(), ::tolower);
+    transform(begin(name), end(name), begin(name), ::tolower);
 
   for (auto & player : m_Players)
   {
@@ -3567,7 +3567,7 @@ CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive)
       string TestName = player->GetName();
 
       if (!sensitive)
-        transform(TestName.begin(), TestName.end(), TestName.begin(), ::tolower);
+        transform(begin(TestName), end(TestName), begin(TestName), ::tolower);
 
       if (TestName == name)
         return player;
@@ -3579,7 +3579,7 @@ CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive)
 
 uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player)
 {
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
   uint32_t Matches = 0;
   *player = nullptr;
 
@@ -3590,7 +3590,7 @@ uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player)
     if (!realplayer->GetLeftMessageSent())
     {
       string TestName = realplayer->GetName();
-      transform(TestName.begin(), TestName.end(), TestName.begin(), ::tolower);
+      transform(begin(TestName), end(TestName), begin(TestName), ::tolower);
 
       if (TestName.find(name) != string::npos)
       {
@@ -4055,7 +4055,7 @@ void CGame::ShuffleSlots()
     for (uint8_t i = 0; i < PlayerSlots.size(); ++i)
       SIDs.push_back(i);
 
-    random_shuffle(SIDs.begin(), SIDs.end());
+    random_shuffle(begin(SIDs), end(SIDs));
 
     // now put the PlayerSlots vector in the same order as the SIDs vector
 
@@ -4073,12 +4073,12 @@ void CGame::ShuffleSlots()
     // regular game
     // it's easy when we're allowed to swap the team/colour/race!
 
-    random_shuffle(PlayerSlots.begin(), PlayerSlots.end());
+    random_shuffle(begin(PlayerSlots), end(PlayerSlots));
   }
 
   // now we put m_Slots back together again
 
-  auto CurrentPlayer = PlayerSlots.begin();
+  auto CurrentPlayer = begin(PlayerSlots);
   vector<CGameSlot> Slots;
 
   for (auto & slot : m_Slots)
@@ -4115,7 +4115,7 @@ void CGame::AddToSpoofed(const string &server, const string &name, bool sendMess
 
 void CGame::AddToReserved(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
 
   // check that the user is not already reserved
 
@@ -4132,7 +4132,7 @@ void CGame::AddToReserved(string name)
   for (auto & player : m_Players)
   {
     string NameLower = player->GetName();
-    transform(NameLower.begin(), NameLower.end(), NameLower.begin(), ::tolower);
+    transform(begin(NameLower), end(NameLower), begin(NameLower), ::tolower);
 
     if (NameLower == name)
       player->SetReserved(true);
@@ -4142,15 +4142,15 @@ void CGame::AddToReserved(string name)
 bool CGame::IsOwner(string name)
 {
   string OwnerLower = m_OwnerName;
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
-  transform(OwnerLower.begin(), OwnerLower.end(), OwnerLower.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
+  transform(begin(OwnerLower), end(OwnerLower), begin(OwnerLower), ::tolower);
 
   return name == OwnerLower;
 }
 
 bool CGame::IsReserved(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
 
   for (auto & player : m_Reserved)
   {

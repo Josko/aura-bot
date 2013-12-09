@@ -999,7 +999,7 @@ bool CUDPSocket::SendTo(struct sockaddr_in sin, const BYTEARRAY &message)
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;
 
-  string MessageString = string(message.begin(), message.end());
+  string MessageString = string(begin(message), end(message));
 
   if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, (struct sockaddr *) &sin, sizeof(sin)) == -1)
     return false;
@@ -1045,7 +1045,7 @@ bool CUDPSocket::Broadcast(uint16_t port, const BYTEARRAY &message)
   sin.sin_addr.s_addr = m_BroadcastTarget.s_addr;
   sin.sin_port = htons(port);
 
-  string MessageString = string(message.begin(), message.end());
+  string MessageString = string(begin(message), end(message));
 
   if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, (struct sockaddr *) &sin, sizeof(sin)) == -1)
   {

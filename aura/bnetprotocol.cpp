@@ -67,12 +67,12 @@ CIncomingGameHost *CBNETProtocol::RECEIVE_SID_GETADVLISTEX(const BYTEARRAY &data
 
   if (ValidateLength(data) && data.size() >= 8)
   {
-    const BYTEARRAY GamesFound = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    const BYTEARRAY GamesFound = BYTEARRAY(begin(data) + 4, begin(data) + 8);
 
     if (ByteArrayToUInt32(GamesFound, false) > 0 && data.size() >= 25)
     {
-      const BYTEARRAY Port = BYTEARRAY(data.begin() + 18, data.begin() + 20);
-      const BYTEARRAY IP = BYTEARRAY(data.begin() + 20, data.begin() + 24);
+      const BYTEARRAY Port = BYTEARRAY(begin(data) + 18, begin(data) + 20);
+      const BYTEARRAY IP = BYTEARRAY(begin(data) + 20, begin(data) + 24);
       const BYTEARRAY GameName = ExtractCString(data, 24);
 
       if (data.size() >= GameName.size() + 35)
@@ -87,7 +87,7 @@ CIncomingGameHost *CBNETProtocol::RECEIVE_SID_GETADVLISTEX(const BYTEARRAY &data
 
         return new CIncomingGameHost(IP,
                                      ByteArrayToUInt16(Port, false),
-                                     string(GameName.begin(), GameName.end()),
+                                     string(begin(GameName), end(GameName)),
                                      HostCounter);
       }
     }
@@ -130,14 +130,14 @@ CIncomingChatEvent *CBNETProtocol::RECEIVE_SID_CHATEVENT(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 29)
   {
-    const BYTEARRAY EventID = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    const BYTEARRAY EventID = BYTEARRAY(begin(data) + 4, begin(data) + 8);
     // BYTEARRAY Ping = BYTEARRAY( data.begin( ) + 12, data.begin( ) + 16 );
     const BYTEARRAY User = ExtractCString(data, 28);
     const BYTEARRAY Message = ExtractCString(data, User.size() + 29);
 
     return new CIncomingChatEvent((CBNETProtocol::IncomingChatEvent)ByteArrayToUInt32(EventID, false),
-                                  string(User.begin(), User.end()),
-                                  string(Message.begin(), Message.end()));
+                                  string(begin(User), end(User)),
+                                  string(begin(Message), end(Message)));
   }
 
   return nullptr;
@@ -165,7 +165,7 @@ bool CBNETProtocol::RECEIVE_SID_STARTADVEX3(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 8)
   {
-    const BYTEARRAY Status = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    const BYTEARRAY Status = BYTEARRAY(begin(data) + 4, begin(data) + 8);
 
     if (ByteArrayToUInt32(Status, false) == 0)
       return true;
@@ -184,7 +184,7 @@ BYTEARRAY CBNETProtocol::RECEIVE_SID_PING(const BYTEARRAY &data)
   // 4 bytes					-> Ping
 
   if (ValidateLength(data) && data.size() >= 8)
-    return BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    return BYTEARRAY(begin(data) + 4, begin(data) + 8);
 
   return BYTEARRAY();
 }
@@ -205,9 +205,9 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_INFO(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 25)
   {
-    m_LogonType = BYTEARRAY(data.begin() + 4, data.begin() + 8);
-    m_ServerToken = BYTEARRAY(data.begin() + 8, data.begin() + 12);
-    m_MPQFileTime = BYTEARRAY(data.begin() + 16, data.begin() + 24);
+    m_LogonType = BYTEARRAY(begin(data) + 4, begin(data) + 8);
+    m_ServerToken = BYTEARRAY(begin(data) + 8, begin(data) + 12);
+    m_MPQFileTime = BYTEARRAY(begin(data) + 16, begin(data) + 24);
     m_IX86VerFileName = ExtractCString(data, 24);
     m_ValueStringFormula = ExtractCString(data, m_IX86VerFileName.size() + 25);
     return true;
@@ -228,7 +228,7 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_CHECK(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 9)
   {
-    m_KeyState = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    m_KeyState = BYTEARRAY(begin(data) + 4, begin(data) + 8);
     m_KeyStateDescription = ExtractCString(data, 8);
 
     if (ByteArrayToUInt32(m_KeyState, false) == KR_GOOD)
@@ -252,12 +252,12 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 8)
   {
-    const BYTEARRAY status = BYTEARRAY(data.begin() + 4, data.begin() + 8);
+    const BYTEARRAY status = BYTEARRAY(begin(data) + 4, begin(data) + 8);
 
     if (ByteArrayToUInt32(status, false) == 0 && data.size() >= 72)
     {
-      m_Salt = BYTEARRAY(data.begin() + 8, data.begin() + 40);
-      m_ServerPublicKey = BYTEARRAY(data.begin() + 40, data.begin() + 72);
+      m_Salt = BYTEARRAY(begin(data) + 8, begin(data) + 40);
+      m_ServerPublicKey = BYTEARRAY(begin(data) + 40, begin(data) + 72);
       return true;
     }
   }
@@ -276,7 +276,7 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &data)
 
   if (ValidateLength(data) && data.size() >= 8)
   {
-    uint32_t Status = ByteArrayToUInt32(BYTEARRAY(data.begin() + 4, data.begin() + 8), false);
+    uint32_t Status = ByteArrayToUInt32(BYTEARRAY(begin(data) + 4, begin(data) + 8), false);
 
     if (Status == 0 || Status == 0xE)
       return true;
@@ -323,7 +323,7 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDLIST(const BYTEARRAY &data)
       i += 6;
       i += ExtractCString(data, i).size() + 1;
 
-      Friends.push_back(string(Account.begin(), Account.end()));
+      Friends.push_back(string(begin(Account), end(Account)));
     }
   }
 
@@ -370,7 +370,7 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY &data)
       // in the original VB source the location string is read but discarded, so that's what I do here
 
       i += ExtractCString(data, i).size() + 1;
-      ClanList.push_back(string(Name.begin(), Name.end()));
+      ClanList.push_back(string(begin(Name), end(Name)));
     }
   }
 

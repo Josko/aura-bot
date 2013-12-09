@@ -91,12 +91,12 @@ CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC
 
   // remove dashes and spaces from CD keys and convert to uppercase
 
-  m_CDKeyROC.erase(remove(m_CDKeyROC.begin(), m_CDKeyROC.end(), '-'), m_CDKeyROC.end());
-  m_CDKeyTFT.erase(remove(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), '-'), m_CDKeyTFT.end());
-  m_CDKeyROC.erase(remove(m_CDKeyROC.begin(), m_CDKeyROC.end(), ' '), m_CDKeyROC.end());
-  m_CDKeyTFT.erase(remove(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), ' '), m_CDKeyTFT.end());
-  transform(m_CDKeyROC.begin(), m_CDKeyROC.end(), m_CDKeyROC.begin(), ::toupper);
-  transform(m_CDKeyTFT.begin(), m_CDKeyTFT.end(), m_CDKeyTFT.begin(), ::toupper);
+  m_CDKeyROC.erase(remove(begin(m_CDKeyROC), end(m_CDKeyROC), '-'), end(m_CDKeyROC));
+  m_CDKeyTFT.erase(remove(begin(m_CDKeyTFT), end(m_CDKeyTFT), '-'), end(m_CDKeyTFT));
+  m_CDKeyROC.erase(remove(begin(m_CDKeyROC), end(m_CDKeyROC), ' '), end(m_CDKeyROC));
+  m_CDKeyTFT.erase(remove(begin(m_CDKeyTFT), end(m_CDKeyTFT), ' '), end(m_CDKeyTFT));
+  transform(begin(m_CDKeyROC), end(m_CDKeyROC), begin(m_CDKeyROC), ::toupper);
+  transform(begin(m_CDKeyTFT), end(m_CDKeyTFT), begin(m_CDKeyTFT), ::toupper);
 
   if (m_CDKeyROC.size() != 26)
     Print("[BNET: " + m_ServerAlias + "] warning - your ROC CD key is not 26 characters long and is probably invalid");
@@ -172,7 +172,7 @@ bool CBNET::Update(void *fd, void *send_fd)
         // bytes 2 and 3 contain the length of the packet
 
         const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
-        const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
+        const BYTEARRAY Data = BYTEARRAY(begin(Bytes), begin(Bytes) + Length);
 
         if (Bytes.size() >= Length)
         {
@@ -360,7 +360,7 @@ bool CBNET::Update(void *fd, void *send_fd)
                 // try to figure out if the user might be using the wrong logon type since too many people are confused by this
 
                 string Server = m_Server;
-                transform(Server.begin(), Server.end(), Server.begin(), ::tolower);
+                transform(begin(Server), end(Server), begin(Server), ::tolower);
 
                 if (m_PvPGN && (Server == "useast.battle.net" || Server == "uswest.battle.net" || Server == "asia.battle.net" || Server == "europe.battle.net"))
                   Print("[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section");
@@ -382,7 +382,7 @@ bool CBNET::Update(void *fd, void *send_fd)
           }
 
           LengthProcessed += Length;
-          Bytes = BYTEARRAY(Bytes.begin() + Length, Bytes.end());
+          Bytes = BYTEARRAY(begin(Bytes) + Length, end(Bytes));
         }
         else
           break;
@@ -565,7 +565,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
       else
         Command = Message.substr(1);
 
-      transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
+      transform(begin(Command), end(Command), begin(Command), ::tolower);
 
       if (IsAdmin(User) || IsRootAdmin(User))
       {
@@ -1799,7 +1799,7 @@ void CBNET::UnqueueGameRefreshes()
 
 bool CBNET::IsAdmin(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
 
   if (m_Aura->m_DB->AdminCheck(m_Server, name))
     return true;
@@ -1809,7 +1809,7 @@ bool CBNET::IsAdmin(string name)
 
 bool CBNET::IsRootAdmin(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
 
   if (m_Aura->m_DB->RootAdminCheck(m_Server, name))
     return true;
@@ -1819,7 +1819,7 @@ bool CBNET::IsRootAdmin(string name)
 
 CDBBan *CBNET::IsBannedName(string name)
 {
-  transform(name.begin(), name.end(), name.begin(), ::tolower);
+  transform(begin(name), end(name), begin(name), ::tolower);
 
   if (CDBBan *Ban = m_Aura->m_DB->BanCheck(m_Server, name))
     return Ban;
@@ -1841,7 +1841,7 @@ void CBNET::HoldClan(CGame *game)
 
 vector<string> CBNET::MapFilesMatch(string pattern)
 {
-  transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
+  transform(begin(pattern), end(pattern), begin(pattern), ::tolower);
 
   auto ROCMaps = FilesMatch(m_Aura->m_MapPath, ".w3m");
   auto TFTMaps = FilesMatch(m_Aura->m_MapPath, ".w3x");
@@ -1855,7 +1855,7 @@ vector<string> CBNET::MapFilesMatch(string pattern)
   for (auto & mapName : MapList)
   {
     string lowerMapName(mapName);
-    transform(lowerMapName.begin(), lowerMapName.end(), lowerMapName.begin(), ::tolower);
+    transform(begin(lowerMapName), end(lowerMapName), begin(lowerMapName), ::tolower);
 
     if (lowerMapName.find(pattern) != string::npos)
       Matches.push_back(mapName);
@@ -1866,7 +1866,7 @@ vector<string> CBNET::MapFilesMatch(string pattern)
 
 vector<string> CBNET::ConfigFilesMatch(string pattern)
 {
-  transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
+  transform(begin(pattern), end(pattern), begin(pattern), ::tolower);
 
   vector<string> ConfigList = FilesMatch(m_Aura->m_MapCFGPath, ".cfg");
 
@@ -1875,7 +1875,7 @@ vector<string> CBNET::ConfigFilesMatch(string pattern)
   for (auto & cfgName : ConfigList)
   {
     string lowerCfgName(cfgName);
-    transform(lowerCfgName.begin(), lowerCfgName.end(), lowerCfgName.begin(), ::tolower);
+    transform(begin(lowerCfgName), end(lowerCfgName), begin(lowerCfgName), ::tolower);
 
     if (lowerCfgName.find(pattern) != string::npos)
       Matches.push_back(cfgName);

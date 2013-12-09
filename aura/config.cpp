@@ -62,8 +62,8 @@ void CConfig::Read(const string &file)
 
       // remove newlines and partial newlines to help fix issues with Windows formatted config files on Linux systems
 
-      Line.erase(remove(Line.begin(), Line.end(), '\r'), Line.end());
-      Line.erase(remove(Line.begin(), Line.end(), '\n'), Line.end());
+      Line.erase(remove(begin(Line), end(Line), '\r'), end(Line));
+      Line.erase(remove(begin(Line), end(Line), '\n'), end(Line));
 
       string::size_type Split = Line.find("=");
 
@@ -85,12 +85,12 @@ void CConfig::Read(const string &file)
 
 bool CConfig::Exists(const string &key)
 {
-  return m_CFG.find(key) != m_CFG.end();
+  return m_CFG.find(key) != end(m_CFG);
 }
 
 int32_t CConfig::GetInt(const string &key, int32_t x)
 {
-  if (m_CFG.find(key) == m_CFG.end())
+  if (m_CFG.find(key) == end(m_CFG))
     return x;
   else
     return atoi(m_CFG[key].c_str());
@@ -98,7 +98,7 @@ int32_t CConfig::GetInt(const string &key, int32_t x)
 
 string CConfig::GetString(const string &key, const string &x)
 {
-  if (m_CFG.find(key) == m_CFG.end())
+  if (m_CFG.find(key) == end(m_CFG))
     return x;
   else
     return m_CFG[key];

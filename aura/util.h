@@ -220,7 +220,7 @@ inline std::string ByteArrayToDecString(const BYTEARRAY &b)
 
   std::string result = ToString(b[0]);
 
-  for (auto i = b.begin() + 1; i != b.end(); ++i)
+  for (auto i = begin(b) + 1; i != end(b); ++i)
     result += " " + ToString(*i);
 
   return result;
@@ -233,7 +233,7 @@ inline std::string ByteArrayToHexString(const BYTEARRAY &b)
 
   std::string result = ToHexString(b[0]);
 
-  for (auto i = b.begin() + 1; i != b.end(); ++i)
+  for (auto i = begin(b) + 1; i != end(b); ++i)
   {
     if (*i < 16)
       result += " 0" + ToHexString(*i);
@@ -246,12 +246,12 @@ inline std::string ByteArrayToHexString(const BYTEARRAY &b)
 
 inline void AppendByteArray(BYTEARRAY &b, const BYTEARRAY &append)
 {
-  b.insert(b.end(), append.begin(), append.end());
+  b.insert(end(b), begin(append), end(append));
 }
 
 inline void AppendByteArrayFast(BYTEARRAY &b, const BYTEARRAY &append)
 {
-  b.insert(b.end(), append.begin(), append.end());
+  b.insert(end(b), begin(append), end(append));
 }
 
 inline void AppendByteArray(BYTEARRAY &b, const uint8_t *a, int32_t size)
@@ -263,7 +263,7 @@ inline void AppendByteArray(BYTEARRAY &b, const std::string &append, bool termin
 {
   // append the std::string plus a null terminator
 
-  b.insert(b.end(), append.begin(), append.end());
+  b.insert(end(b), begin(append), end(append));
 
   if (terminator)
     b.push_back(0);
@@ -273,7 +273,7 @@ inline void AppendByteArrayFast(BYTEARRAY &b, const std::string &append, bool te
 {
   // append the std::string plus a null terminator
 
-  b.insert(b.end(), append.begin(), append.end());
+  b.insert(end(b), begin(append), end(append));
 
   if (terminator)
     b.push_back(0);
@@ -299,12 +299,12 @@ inline BYTEARRAY ExtractCString(const BYTEARRAY &b, uint32_t start)
     for (uint32_t i = start; i < b.size(); ++i)
     {
       if (b[i] == 0)
-        return BYTEARRAY(b.begin() + start, b.begin() + i);
+        return BYTEARRAY(begin(b) + start, begin(b) + i);
     }
 
     // no null value found, return the rest of the byte array
 
-    return BYTEARRAY(b.begin() + start, b.end());
+    return BYTEARRAY(begin(b) + start, end(b));
   }
 
   return BYTEARRAY();
@@ -318,7 +318,7 @@ inline uint8_t ExtractHex(const BYTEARRAY &b, uint32_t start, bool reverse)
   if (start + 1 < b.size())
   {
     uint32_t c;
-    std::string temp = std::string(b.begin() + start, b.begin() + start + 2);
+    std::string temp = std::string(begin(b) + start, begin(b) + start + 2);
 
     if (reverse)
       temp = std::string(temp.rend(), temp.rbegin());
@@ -398,7 +398,7 @@ inline std::string AddPathSeparator(const std::string &path)
   const char Separator = '/';
 #endif
 
-  if (*(path.end() - 1) == Separator)
+  if (*(end(path) - 1) == Separator)
     return path;
   else
     return path + std::string(1, Separator);
@@ -421,7 +421,7 @@ inline BYTEARRAY EncodeStatString(BYTEARRAY &data)
 
     if (i % 7 == 6 || i == data.size() - 1)
     {
-      Result.insert(Result.end() - 1 - (i % 7), Mask);
+      Result.insert(end(Result) - 1 - (i % 7), Mask);
       Mask = 1;
     }
   }
@@ -455,7 +455,7 @@ inline std::vector<std::string> Tokenize(const std::string &s, const char delim)
   std::vector<std::string> Tokens;
   std::string Token;
 
-  for (auto i = s.begin(); i != s.end(); ++i)
+  for (auto i = begin(s); i != end(s); ++i)
   {
     if (*i == delim)
     {

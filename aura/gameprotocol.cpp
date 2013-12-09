@@ -72,8 +72,8 @@ CIncomingJoinPlayer *CGameProtocol::RECEIVE_W3GS_REQJOIN(const BYTEARRAY &data)
 
     if (!Name.empty() && data.size() >= Name.size() + 30)
     {
-      const BYTEARRAY InternalIP = BYTEARRAY(data.begin() + Name.size() + 26, data.begin() + Name.size() + 30);
-      return new CIncomingJoinPlayer(HostCounter, EntryKey, string(Name.begin(), Name.end()), InternalIP);
+      const BYTEARRAY InternalIP = BYTEARRAY(begin(data) + Name.size() + 26, begin(data) + Name.size() + 30);
+      return new CIncomingJoinPlayer(HostCounter, EntryKey, string(begin(Name), end(Name)), InternalIP);
     }
   }
 
@@ -121,8 +121,8 @@ CIncomingAction *CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION(const BYTEARRAY &da
 
   if (PID != 255 && ValidateLength(data) && data.size() >= 8)
   {
-    const BYTEARRAY CRC = BYTEARRAY(data.begin() + 4, data.begin() + 8);
-    const BYTEARRAY Action = BYTEARRAY(data.begin() + 8, data.end());
+    const BYTEARRAY CRC = BYTEARRAY(begin(data) + 4, begin(data) + 8);
+    const BYTEARRAY Action = BYTEARRAY(begin(data) + 8, end(data));
     return new CIncomingAction(PID, CRC, Action);
   }
 
@@ -178,7 +178,7 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &d
 
     if (Total > 0 && data.size() >= i + Total)
     {
-      const BYTEARRAY ToPIDs = BYTEARRAY(data.begin() + i, data.begin() + i + Total);
+      const BYTEARRAY ToPIDs = BYTEARRAY(begin(data) + i, begin(data) + i + Total);
       i += Total;
       const uint8_t FromPID = data[i];
       const uint8_t Flag = data[i + 1];
@@ -189,7 +189,7 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &d
         // chat message
 
         const BYTEARRAY Message = ExtractCString(data, i);
-        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, string(Message.begin(), Message.end()));
+        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, string(begin(Message), end(Message)));
       }
       else if ((Flag >= 17 && Flag <= 20) && data.size() >= i + 1)
       {
@@ -202,9 +202,9 @@ CIncomingChatPlayer *CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const BYTEARRAY &d
       {
         // chat message with extra flags
 
-        const BYTEARRAY ExtraFlags = BYTEARRAY(data.begin() + i, data.begin() + i + 4);
+        const BYTEARRAY ExtraFlags = BYTEARRAY(begin(data) + i, begin(data) + i + 4);
         const BYTEARRAY Message = ExtractCString(data, i + 4);
-        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, string(Message.begin(), Message.end()), ExtraFlags);
+        return new CIncomingChatPlayer(FromPID, ToPIDs, Flag, string(begin(Message), end(Message)), ExtraFlags);
       }
     }
   }
@@ -403,7 +403,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *> acti
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(begin(subpacket), end(subpacket)).c_str(), subpacket.size()), false);
     crc32.resize(2);
 
     // finish subpacket
@@ -607,7 +607,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncomingAction *> act
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(subpacket.begin(), subpacket.end()).c_str(), subpacket.size()), false);
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(begin(subpacket), end(subpacket)).c_str(), subpacket.size()), false);
     crc32.resize(2);
 
     // finish subpacket

@@ -135,7 +135,7 @@ public:
   void SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds);
   void Reset();
   inline void PutBytes(const std::string &bytes)              { m_SendBuffer += bytes; }
-  inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += std::string(bytes.begin(), bytes.end()); }
+  inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
 
   inline void ClearRecvBuffer()                           { m_RecvBuffer.clear(); }
   inline void SubstrRecvBuffer(uint32_t i)           { m_RecvBuffer = m_RecvBuffer.substr(i); }
@@ -182,7 +182,7 @@ public:
   void SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds);
   void Reset();
   inline void PutBytes(const std::string &bytes)              { m_SendBuffer += bytes; }
-  inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += std::string(bytes.begin(), bytes.end()); }
+  inline void PutBytes(const BYTEARRAY &bytes)           { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
 
   bool CheckConnect();
   inline void ClearRecvBuffer()                           { m_RecvBuffer.clear(); }

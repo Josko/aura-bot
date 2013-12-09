@@ -87,8 +87,8 @@ bool CStats::ProcessAction(CIncomingAction *Action)
             // the 4 byte int32_teger should be the value
 
             Value = BYTEARRAY(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
-            const string DataString = string(Data.begin(), Data.end());
-            const string KeyString = string(Key.begin(), Key.end());
+            const string DataString = string(begin(Data), end(Data));
+            const string KeyString = string(begin(Key), end(Key));
             const uint32_t ValueInt = ByteArrayToUInt32(Value, false);
 
             //Print( "[STATS] " + DataString + ", " + KeyString + ", " + ToString( ValueInt ) );

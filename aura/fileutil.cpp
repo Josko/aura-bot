@@ -34,7 +34,7 @@ using namespace std;
 #ifdef WIN32
 bool FileExists(string file)
 {
-  if (*(file.end() - 1) == '\\')
+  if (*(end(file) - 1) == '\\')
     file = file.substr(0, file.size() - 1);
 
   struct stat fileinfo;
@@ -60,7 +60,7 @@ vector<string> FilesMatch(const string &path, const string &pattern)
   while (handle != INVALID_HANDLE_VALUE)
   {
     string Name = string(data.cFileName);
-    transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+    transform(begin(Name), end(Name), begin(Name), ::tolower);
 
     if (Name == pattern)
       return vector<string> {Name};
@@ -84,7 +84,7 @@ vector<string> FilesMatch(const string &path, const string &pattern)
   while ((dp = readdir(dir)) != nullptr)
   {
     string Name = string(dp->d_name);
-    transform(Name.begin(), Name.end(), Name.begin(), ::tolower);
+    transform(begin(Name), end(Name), begin(Name), ::tolower);
 
     if (Name == pattern)
       return vector<string> {Name};

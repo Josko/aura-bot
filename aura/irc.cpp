@@ -49,7 +49,7 @@ CIRC::CIRC(CAura *nAura, const string &nServer, const string &nNickname, const s
     m_WaitingToConnect(true),
     m_OriginalNick(true)
 {
-  sort(m_RootAdmins.begin(), m_RootAdmins.end());
+  sort(begin(m_RootAdmins), end(m_RootAdmins));
 
   if (!nUsername.empty())
     m_Username = nUsername;
@@ -299,7 +299,7 @@ void CIRC::ExtractPackets()
 
       bool Root = false;
 
-      for (auto i = m_RootAdmins.begin(); i != m_RootAdmins.end() && *i <= Hostname; ++i)
+      for (auto i = begin(m_RootAdmins); i != end(m_RootAdmins) && *i <= Hostname; ++i)
       {
         if (*i == Hostname)
         {
@@ -316,7 +316,7 @@ void CIRC::ExtractPackets()
       else
         Command = Message.substr(1);
 
-      transform(Command.begin(), Command.end(), Command.begin(), ::tolower);
+      transform(begin(Command), end(Command), begin(Command), ::tolower);
 
       //
       // !NICK

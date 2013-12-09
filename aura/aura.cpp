@@ -564,7 +564,7 @@ bool CAura::Update()
 
   // update running games
 
-  for (auto i = m_Games.begin(); i != m_Games.end();)
+  for (auto i = begin(m_Games); i != end(m_Games);)
   {
     if ((*i)->Update(&fd, &send_fd))
     {
@@ -620,7 +620,7 @@ bool CAura::Update()
   if (NewSocket)
     m_ReconnectSockets.push_back(NewSocket);
 
-  for (auto i = m_ReconnectSockets.begin(); i != m_ReconnectSockets.end();)
+  for (auto i = begin(m_ReconnectSockets); i != end(m_ReconnectSockets);)
   {
     if ((*i)->HasError() || !(*i)->GetConnected() || GetTime() - (*i)->GetLastRecv() >= 10)
     {

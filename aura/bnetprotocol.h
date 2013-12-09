@@ -114,11 +114,11 @@ public:
   inline BYTEARRAY GetServerToken() const             { return m_ServerToken; }
   inline BYTEARRAY GetMPQFileTime() const             { return m_MPQFileTime; }
   inline BYTEARRAY GetIX86VerFileName() const         { return m_IX86VerFileName; }
-  inline std::string GetIX86VerFileNameString() const      { return std::string(m_IX86VerFileName.begin(), m_IX86VerFileName.end()); }
+  inline std::string GetIX86VerFileNameString() const      { return std::string(begin(m_IX86VerFileName), end(m_IX86VerFileName)); }
   inline BYTEARRAY GetValueStringFormula() const      { return m_ValueStringFormula; }
-  inline std::string GetValueStringFormulaString() const   { return std::string(m_ValueStringFormula.begin(), m_ValueStringFormula.end()); }
+  inline std::string GetValueStringFormulaString() const   { return std::string(begin(m_ValueStringFormula), end(m_ValueStringFormula)); }
   inline BYTEARRAY GetKeyState() const                { return m_KeyState; }
-  inline std::string GetKeyStateDescription() const        { return std::string(m_KeyStateDescription.begin(), m_KeyStateDescription.end()); }
+  inline std::string GetKeyStateDescription() const        { return std::string(begin(m_KeyStateDescription), end(m_KeyStateDescription)); }
   inline BYTEARRAY GetSalt() const                    { return m_Salt; }
   inline BYTEARRAY GetServerPublicKey() const         { return m_ServerPublicKey; }
   inline BYTEARRAY GetUniqueName() const              { return m_UniqueName; }

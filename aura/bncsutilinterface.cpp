@@ -120,7 +120,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &salt, 
   // set m_M1
 
   char buf[20];
-  ((NLS *) m_NLS)->getClientSessionKey(buf, string(salt.begin(), salt.end()).c_str(), string(serverKey.begin(), serverKey.end()).c_str());
+  ((NLS *) m_NLS)->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
   m_M1 = CreateByteArray((uint8_t *) buf, 20);
   return true;
 }

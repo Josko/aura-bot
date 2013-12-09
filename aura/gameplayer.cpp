@@ -75,7 +75,7 @@ bool CPotentialPlayer::Update(void *fd)
       // bytes 2 and 3 contain the length of the packet
 
       const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
-      const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
+      const BYTEARRAY Data = BYTEARRAY(begin(Bytes), begin(Bytes) + Length);
 
       if (Bytes.size() >= Length)
       {
@@ -90,12 +90,12 @@ bool CPotentialPlayer::Update(void *fd)
           // this is the packet which int32_terests us for now, the remainder is left for CGamePlayer
 
           LengthProcessed += Length;
-          Bytes = BYTEARRAY(Bytes.begin() + Length, Bytes.end());
+          Bytes = BYTEARRAY(begin(Bytes) + Length, end(Bytes));
           break;
         }
 
         LengthProcessed += Length;
-        Bytes = BYTEARRAY(Bytes.begin() + Length, Bytes.end());
+        Bytes = BYTEARRAY(begin(Bytes) + Length, end(Bytes));
       }
       else
         break;
@@ -244,7 +244,7 @@ bool CGamePlayer::Update(void *fd)
     // bytes 2 and 3 contain the length of the packet
 
     const uint16_t Length = ByteArrayToUInt16(Bytes, false, 2);
-    const BYTEARRAY Data = BYTEARRAY(Bytes.begin(), Bytes.begin() + Length);
+    const BYTEARRAY Data = BYTEARRAY(begin(Bytes), begin(Bytes) + Length);
 
     if (Bytes[0] == W3GS_HEADER_CONSTANT)
     {
@@ -336,7 +336,7 @@ bool CGamePlayer::Update(void *fd)
                   m_Pings.push_back(GetTicks() - Pong);
 
                   if (m_Pings.size() > 10)
-                    m_Pings.erase(m_Pings.begin());
+                    m_Pings.erase(begin(m_Pings));
                 }
               }
             }
@@ -346,7 +346,7 @@ bool CGamePlayer::Update(void *fd)
         }
 
         LengthProcessed += Length;
-        Bytes = BYTEARRAY(Bytes.begin() + Length, Bytes.end());
+        Bytes = BYTEARRAY(begin(Bytes) + Length, end(Bytes));
       }
       else
         break;
@@ -385,7 +385,7 @@ bool CGamePlayer::Update(void *fd)
         }
 
         LengthProcessed += Length;
-        Bytes = BYTEARRAY(Bytes.begin() + Length, Bytes.end());
+        Bytes = BYTEARRAY(begin(Bytes) + Length, end(Bytes));
       }
       else
         break;
