@@ -56,30 +56,30 @@ private:
   uint8_t m_Handicap;       // handicap
 
 public:
-  explicit CGameSlot( BYTEARRAY &n );
-  CGameSlot( uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType = 1, uint8_t nHandicap = 100 );
-  ~CGameSlot( );
+  explicit CGameSlot(BYTEARRAY &n);
+  CGameSlot(uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType = 1, uint8_t nHandicap = 100);
+  ~CGameSlot();
 
-  inline uint8_t GetPID( ) const                           { return m_PID; }
-  inline uint8_t GetDownloadStatus( ) const                { return m_DownloadStatus; }
-  inline uint8_t GetSlotStatus( ) const                    { return m_SlotStatus; }
-  inline uint8_t GetComputer( ) const                      { return m_Computer; }
-  inline uint8_t GetTeam( ) const                          { return m_Team; }
-  inline uint8_t GetColour( ) const                        { return m_Colour; }
-  inline uint8_t GetRace( ) const                          { return m_Race; }
-  inline uint8_t GetComputerType( ) const                  { return m_ComputerType; }
-  inline uint8_t GetHandicap( ) const                      { return m_Handicap; }
-  BYTEARRAY GetByteArray( ) const;
-  
-  inline void SetPID( uint8_t nPID )                       { m_PID = nPID; }
-  inline void SetDownloadStatus( uint8_t nDownloadStatus ) { m_DownloadStatus = nDownloadStatus; }
-  inline void SetSlotStatus( uint8_t nSlotStatus )         { m_SlotStatus = nSlotStatus; }
-  inline void SetComputer( uint8_t nComputer )             { m_Computer = nComputer; }
-  inline void SetTeam( uint8_t nTeam )                     { m_Team = nTeam; }
-  inline void SetColour( uint8_t nColour )                 { m_Colour = nColour; }
-  inline void SetRace( uint8_t nRace )                     { m_Race = nRace; }
-  inline void SetComputerType( uint8_t nComputerType )     { m_ComputerType = nComputerType; }
-  inline void SetHandicap( uint8_t nHandicap )             { m_Handicap = nHandicap; }
+  inline uint8_t GetPID() const                           { return m_PID; }
+  inline uint8_t GetDownloadStatus() const                { return m_DownloadStatus; }
+  inline uint8_t GetSlotStatus() const                    { return m_SlotStatus; }
+  inline uint8_t GetComputer() const                      { return m_Computer; }
+  inline uint8_t GetTeam() const                          { return m_Team; }
+  inline uint8_t GetColour() const                        { return m_Colour; }
+  inline uint8_t GetRace() const                          { return m_Race; }
+  inline uint8_t GetComputerType() const                  { return m_ComputerType; }
+  inline uint8_t GetHandicap() const                      { return m_Handicap; }
+  BYTEARRAY GetByteArray() const;
+
+  inline void SetPID(uint8_t nPID)                       { m_PID = nPID; }
+  inline void SetDownloadStatus(uint8_t nDownloadStatus) { m_DownloadStatus = nDownloadStatus; }
+  inline void SetSlotStatus(uint8_t nSlotStatus)         { m_SlotStatus = nSlotStatus; }
+  inline void SetComputer(uint8_t nComputer)             { m_Computer = nComputer; }
+  inline void SetTeam(uint8_t nTeam)                     { m_Team = nTeam; }
+  inline void SetColour(uint8_t nColour)                 { m_Colour = nColour; }
+  inline void SetRace(uint8_t nRace)                     { m_Race = nRace; }
+  inline void SetComputerType(uint8_t nComputerType)     { m_ComputerType = nComputerType; }
+  inline void SetHandicap(uint8_t nHandicap)             { m_Handicap = nHandicap; }
 };
 
 #endif  // AURA_GAMESLOT_H_

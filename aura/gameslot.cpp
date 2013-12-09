@@ -27,20 +27,20 @@ using namespace std;
 // CGameSlot
 //
 
-CGameSlot::CGameSlot( BYTEARRAY &n )
-  : m_PID( 0 ),
-    m_DownloadStatus( 255 ),
-    m_SlotStatus( SLOTSTATUS_OPEN ),
-    m_Computer( 0 ),
-    m_Team( 0 ),
-    m_Colour( 1 ),
-    m_Race( SLOTRACE_RANDOM ),
-    m_ComputerType( SLOTCOMP_NORMAL ),
-    m_Handicap( 100 )
+CGameSlot::CGameSlot(BYTEARRAY &n)
+  : m_PID(0),
+    m_DownloadStatus(255),
+    m_SlotStatus(SLOTSTATUS_OPEN),
+    m_Computer(0),
+    m_Team(0),
+    m_Colour(1),
+    m_Race(SLOTRACE_RANDOM),
+    m_ComputerType(SLOTCOMP_NORMAL),
+    m_Handicap(100)
 {
   const size_t size = n.size();
-  
-  if ( size >= 7 )
+
+  if (size >= 7)
   {
     m_PID = n[0];
     m_DownloadStatus = n[1];
@@ -50,36 +50,36 @@ CGameSlot::CGameSlot( BYTEARRAY &n )
     m_Colour = n[5];
     m_Race = n[6];
 
-    if ( size >= 8 )
+    if (size >= 8)
     {
       m_ComputerType = n[7];
-      
-      if ( size >= 9 )
-      m_Handicap = n[8];      
-    }   
+
+      if (size >= 9)
+        m_Handicap = n[8];
+    }
   }
 }
 
-CGameSlot::CGameSlot( uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType, uint8_t nHandicap )
-  : m_PID( nPID ),
-    m_DownloadStatus( nDownloadStatus ),
-    m_SlotStatus( nSlotStatus ),
-    m_Computer( nComputer ),
-    m_Team( nTeam ),
-    m_Colour( nColour ),
-    m_Race( nRace ),
-    m_ComputerType( nComputerType ),
-    m_Handicap( nHandicap )
+CGameSlot::CGameSlot(uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType, uint8_t nHandicap)
+  : m_PID(nPID),
+    m_DownloadStatus(nDownloadStatus),
+    m_SlotStatus(nSlotStatus),
+    m_Computer(nComputer),
+    m_Team(nTeam),
+    m_Colour(nColour),
+    m_Race(nRace),
+    m_ComputerType(nComputerType),
+    m_Handicap(nHandicap)
 {
 
 }
 
-CGameSlot::~CGameSlot( )
+CGameSlot::~CGameSlot()
 {
 
 }
 
-BYTEARRAY CGameSlot::GetByteArray( ) const
+BYTEARRAY CGameSlot::GetByteArray() const
 {
-  return BYTEARRAY{m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap};
+  return BYTEARRAY {m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap};
 }
