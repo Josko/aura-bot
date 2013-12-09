@@ -1854,7 +1854,10 @@ vector<string> CBNET::MapFilesMatch(string pattern)
 
   for (auto & mapName : MapList)
   {
-    if (mapName.find(pattern) != string::npos)
+    string lowerMapName(mapName);
+    transform(lowerMapName.begin(), lowerMapName.end(), lowerMapName.begin(), ::tolower);
+
+    if (lowerMapName.find(pattern) != string::npos)
       Matches.push_back(mapName);
   }
 
