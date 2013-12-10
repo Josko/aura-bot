@@ -27,42 +27,78 @@
 #include <winsock2.h>
 #include <errno.h>
 
-#define EADDRINUSE WSAEADDRINUSE
-#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
-#define EAFNOSUPPORT WSAEAFNOSUPPORT
-#define EALREADY WSAEALREADY
-#define ECONNABORTED WSAECONNABORTED
-#define ECONNREFUSED WSAECONNREFUSED
-#define ECONNRESET WSAECONNRESET
-#define EDESTADDRREQ WSAEDESTADDRREQ
-#define EDQUOT WSAEDQUOT
-#define EHOSTDOWN WSAEHOSTDOWN
-#define EHOSTUNREACH WSAEHOSTUNREACH
-#define EINPROGRESS WSAEINPROGRESS
-#define EISCONN WSAEISCONN
-#define ELOOP WSAELOOP
-#define EMSGSIZE WSAEMSGSIZE
-// #define ENAMETOOLONG WSAENAMETOOLONG
-#define ENETDOWN WSAENETDOWN
-#define ENETRESET WSAENETRESET
-#define ENETUNREACH WSAENETUNREACH
-#define ENOBUFS WSAENOBUFS
-#define ENOPROTOOPT WSAENOPROTOOPT
-#define ENOTCONN WSAENOTCONN
-// #define ENOTEMPTY WSAENOTEMPTY
-#define ENOTSOCK WSAENOTSOCK
-#define EOPNOTSUPP WSAEOPNOTSUPP
-#define EPFNOSUPPORT WSAEPFNOSUPPORT
-#define EPROTONOSUPPORT WSAEPROTONOSUPPORT
-#define EPROTOTYPE WSAEPROTOTYPE
-#define EREMOTE WSAEREMOTE
-#define ESHUTDOWN WSAESHUTDOWN
-#define ESOCKTNOSUPPORT WSAESOCKTNOSUPPORT
-#define ESTALE WSAESTALE
-#define ETIMEDOUT WSAETIMEDOUT
-#define ETOOMANYREFS WSAETOOMANYREFS
-#define EUSERS WSAEUSERS
-#define EWOULDBLOCK WSAEWOULDBLOCK
+#undef  EBADF            /* override definition in errno.h */
+#define EBADF            WSAEBADF
+#undef  EINTR            /* override definition in errno.h */
+#define EINTR            WSAEINTR
+#undef  EINVAL           /* override definition in errno.h */
+#define EINVAL           WSAEINVAL
+#undef  EWOULDBLOCK      /* override definition in errno.h */
+#define EWOULDBLOCK      WSAEWOULDBLOCK
+#undef  EINPROGRESS      /* override definition in errno.h */
+#define EINPROGRESS      WSAEINPROGRESS
+#undef  EALREADY         /* override definition in errno.h */
+#define EALREADY         WSAEALREADY
+#undef  ENOTSOCK         /* override definition in errno.h */
+#define ENOTSOCK         WSAENOTSOCK
+#undef  EDESTADDRREQ     /* override definition in errno.h */
+#define EDESTADDRREQ     WSAEDESTADDRREQ
+#undef  EMSGSIZE         /* override definition in errno.h */
+#define EMSGSIZE         WSAEMSGSIZE
+#undef  EPROTOTYPE       /* override definition in errno.h */
+#define EPROTOTYPE       WSAEPROTOTYPE
+#undef  ENOPROTOOPT      /* override definition in errno.h */
+#define ENOPROTOOPT      WSAENOPROTOOPT
+#undef  EPROTONOSUPPORT  /* override definition in errno.h */
+#define EPROTONOSUPPORT  WSAEPROTONOSUPPORT
+#define ESOCKTNOSUPPORT  WSAESOCKTNOSUPPORT
+#undef  EOPNOTSUPP       /* override definition in errno.h */
+#define EOPNOTSUPP       WSAEOPNOTSUPP
+#define EPFNOSUPPORT     WSAEPFNOSUPPORT
+#undef  EAFNOSUPPORT     /* override definition in errno.h */
+#define EAFNOSUPPORT     WSAEAFNOSUPPORT
+#undef  EADDRINUSE       /* override definition in errno.h */
+#define EADDRINUSE       WSAEADDRINUSE
+#undef  EADDRNOTAVAIL    /* override definition in errno.h */
+#define EADDRNOTAVAIL    WSAEADDRNOTAVAIL
+#undef  ENETDOWN         /* override definition in errno.h */
+#define ENETDOWN         WSAENETDOWN
+#undef  ENETUNREACH      /* override definition in errno.h */
+#define ENETUNREACH      WSAENETUNREACH
+#undef  ENETRESET        /* override definition in errno.h */
+#define ENETRESET        WSAENETRESET
+#undef  ECONNABORTED     /* override definition in errno.h */
+#define ECONNABORTED     WSAECONNABORTED
+#undef  ECONNRESET       /* override definition in errno.h */
+#define ECONNRESET       WSAECONNRESET
+#undef  ENOBUFS          /* override definition in errno.h */
+#define ENOBUFS          WSAENOBUFS
+#undef  EISCONN          /* override definition in errno.h */
+#define EISCONN          WSAEISCONN
+#undef  ENOTCONN         /* override definition in errno.h */
+#define ENOTCONN         WSAENOTCONN
+#define ESHUTDOWN        WSAESHUTDOWN
+#define ETOOMANYREFS     WSAETOOMANYREFS
+#undef  ETIMEDOUT        /* override definition in errno.h */
+#define ETIMEDOUT        WSAETIMEDOUT
+#undef  ECONNREFUSED     /* override definition in errno.h */
+#define ECONNREFUSED     WSAECONNREFUSED
+#undef  ELOOP            /* override definition in errno.h */
+#define ELOOP            WSAELOOP
+#ifndef ENAMETOOLONG     /* possible previous definition in errno.h */
+#define ENAMETOOLONG     WSAENAMETOOLONG
+#endif
+#define EHOSTDOWN        WSAEHOSTDOWN
+#undef  EHOSTUNREACH     /* override definition in errno.h */
+#define EHOSTUNREACH     WSAEHOSTUNREACH
+#ifndef ENOTEMPTY        /* possible previous definition in errno.h */
+#define ENOTEMPTY        WSAENOTEMPTY
+#endif
+#define EPROCLIM         WSAEPROCLIM
+#define EUSERS           WSAEUSERS
+#define EDQUOT           WSAEDQUOT
+#define ESTALE           WSAESTALE
+#define EREMOTE          WSAEREMOTE
 #else
 #include <arpa/inet.h>
 #include <errno.h>
