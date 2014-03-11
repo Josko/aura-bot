@@ -40,7 +40,7 @@
 #include <ctime>
 
 #define __STORMLIB_SELF__
-#include <src/StormLib.h>
+#include <StormLib.h>
 
 #ifdef WIN32
 #include <ws2tcpip.h>

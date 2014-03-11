@@ -28,7 +28,7 @@
 #include "gameslot.h"
 
 #define __STORMLIB_SELF__
-#include <src/StormLib.h>
+#include <StormLib.h>
 
 #define ROTL(x,n) ((x)<<(n))|((x)>>(32-(n)))	// this won't work with signed types
 #define ROTR(x,n) ((x)>>(n))|((x)<<(32-(n)))	// this won't work with signed types
