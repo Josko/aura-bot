@@ -118,7 +118,7 @@ typedef int32_t SOCKET;
 
 #define closesocket close
 
-extern int32_t GetLastError();
+//extern int32_t GetLastError();
 #endif
 
 #ifndef INADDR_NONE

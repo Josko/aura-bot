@@ -28,7 +28,7 @@
 #include "gameslot.h"
 
 #define __STORMLIB_SELF__
-#include <stormlib/StormLib.h>
+#include <src/StormLib.h>
 
 #define ROTL(x,n) ((x)<<(n))|((x)>>(32-(n)))	// this won't work with signed types
 #define ROTR(x,n) ((x)>>(n))|((x)<<(32-(n)))	// this won't work with signed types
@@ -283,7 +283,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
               auto SubFileData = new char[FileLength];
               DWORD BytesRead = 0;
 
-              if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
+              if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
               {
                 Print("[MAP] overriding default common.j with map copy while calculating map_crc/sha1");
                 OverrodeCommonJ = true;
@@ -319,7 +319,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
               auto SubFileData = new char[FileLength];
               DWORD BytesRead = 0;
 
-              if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
+              if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
               {
                 Print("[MAP] overriding default blizzard.j with map copy while calculating map_crc/sha1");
                 OverrodeBlizzardJ = true;
@@ -377,7 +377,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
                 auto SubFileData = new char[FileLength];
                 DWORD BytesRead = 0;
 
-                if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
+                if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
                 {
                   if (fileName == "war3map.j" || fileName == "scripts\\war3map.j")
                     FoundScript = true;
@@ -439,7 +439,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
           auto SubFileData = new char[FileLength];
           DWORD BytesRead = 0;
 
-          if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
+          if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
           {
             istringstream ISS(string(SubFileData, BytesRead));
 

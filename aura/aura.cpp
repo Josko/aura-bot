@@ -40,7 +40,7 @@
 #include <ctime>
 
 #define __STORMLIB_SELF__
-#include <stormlib/StormLib.h>
+#include <src/StormLib.h>
 
 #ifdef WIN32
 #include <ws2tcpip.h>
@@ -816,7 +816,7 @@ void CAura::ExtractScripts()
         auto  SubFileData = new int8_t[FileLength];
         DWORD BytesRead = 0;
 
-        if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
+        if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print("[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]");
           FileWrite(m_MapCFGPath + "common.j", (uint8_t *) SubFileData, BytesRead);
@@ -843,7 +843,7 @@ void CAura::ExtractScripts()
         auto  SubFileData = new int8_t[FileLength];
         DWORD BytesRead = 0;
 
-        if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead))
+        if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print("[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]");
           FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t *) SubFileData, BytesRead);
