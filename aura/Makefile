@@ -7,7 +7,7 @@ CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
 OFLAGS = -O3
-LFLAGS = -L. -L/usr/local/lib/ -L../bncsutil/src/bncsutil/ -lstorm -lbncsutil -lgmp -ldl
+LFLAGS = -L. -L/usr/local/lib/ -L../bncsutil/src/bncsutil/ -lstorm -lbncsutil -ldl
 
 ifeq ($(ARCH),x86_64)
 	CCFLAGS += -m64

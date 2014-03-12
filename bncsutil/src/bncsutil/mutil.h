@@ -146,7 +146,9 @@
 #  define MUTIL_LIB_BUILD
 #endif
 
+
 #ifdef MOS_WINDOWS
+/*
 #  ifdef MUTIL_LIB_BUILD
 #    if 1
 #      define MEXP(type) __declspec(dllexport) type __stdcall
@@ -158,6 +160,9 @@
 #    define MEXP(type) __declspec(dllimport) type __stdcall
 #    define MCEXP(name) class __declspec(dllimport) name
 #  endif
+*/
+# define MEXP(type) type
+# define MCEXP(name) class name
 #else
 #  ifdef MUTIL_LIB_BUILD
 #    define MEXP(type) type
@@ -167,6 +172,7 @@
 #    define MCEXP(name) class name
 #  endif
 #endif
+
 #define MYRIAD_UTIL
 
 #ifndef NULL
