@@ -1,0 +1,530 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B91B1BE618D0CCCE001A8727 /* libbncsutil.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B91B1BE318D0CCB2001A8727 /* libbncsutil.dylib */; };
+		B944387818D0AC0700B77C95 /* aura.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944383418D0AC0700B77C95 /* aura.cpp */; };
+		B944387A18D0AC0700B77C95 /* auradb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944383B18D0AC0700B77C95 /* auradb.cpp */; };
+		B944387C18D0AC0700B77C95 /* bncsutilinterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944383E18D0AC0700B77C95 /* bncsutilinterface.cpp */; };
+		B944387E18D0AC0700B77C95 /* bnet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944384118D0AC0700B77C95 /* bnet.cpp */; };
+		B944388018D0AC0700B77C95 /* bnetprotocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944384418D0AC0700B77C95 /* bnetprotocol.cpp */; };
+		B944388218D0AC0700B77C95 /* config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944384718D0AC0700B77C95 /* config.cpp */; };
+		B944388418D0AC0700B77C95 /* crc32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944384A18D0AC0700B77C95 /* crc32.cpp */; };
+		B944388618D0AC0700B77C95 /* csvparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944384D18D0AC0700B77C95 /* csvparser.cpp */; };
+		B944388818D0AC0700B77C95 /* fileutil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944385018D0AC0700B77C95 /* fileutil.cpp */; };
+		B944388A18D0AC0700B77C95 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944385318D0AC0700B77C95 /* game.cpp */; };
+		B944388C18D0AC0700B77C95 /* gameplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944385618D0AC0700B77C95 /* gameplayer.cpp */; };
+		B944388E18D0AC0700B77C95 /* gameprotocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944385918D0AC0700B77C95 /* gameprotocol.cpp */; };
+		B944389018D0AC0700B77C95 /* gameslot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944385C18D0AC0700B77C95 /* gameslot.cpp */; };
+		B944389218D0AC0700B77C95 /* gpsprotocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944385F18D0AC0700B77C95 /* gpsprotocol.cpp */; };
+		B944389418D0AC0700B77C95 /* irc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944386318D0AC0700B77C95 /* irc.cpp */; };
+		B944389718D0AC0700B77C95 /* map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944386718D0AC0700B77C95 /* map.cpp */; };
+		B944389918D0AC0700B77C95 /* sha1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944386A18D0AC0700B77C95 /* sha1.cpp */; };
+		B944389B18D0AC0700B77C95 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944386D18D0AC0700B77C95 /* socket.cpp */; };
+		B944389D18D0AC0700B77C95 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = B944387018D0AC0700B77C95 /* sqlite3.c */; };
+		B944389F18D0AC0700B77C95 /* stats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B944387418D0AC0700B77C95 /* stats.cpp */; };
+		B94438E918D0B66F00B77C95 /* storm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B94438E618D0B26800B77C95 /* storm.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B91B1BE218D0CCB2001A8727 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B91B1BDE18D0CCB2001A8727 /* bncsutil.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B91B1B9218D0C8B0001A8727;
+			remoteInfo = bncsutil;
+		};
+		B91B1BE418D0CCCB001A8727 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B91B1BDE18D0CCB2001A8727 /* bncsutil.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = B91B1B9118D0C8B0001A8727;
+			remoteInfo = bncsutil;
+		};
+		B94438E518D0B26800B77C95 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B94438E118D0B26800B77C95 /* StormLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4582DCB8B7934906B70F0300;
+			remoteInfo = storm;
+		};
+		B94438E718D0B50000B77C95 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B94438E118D0B26800B77C95 /* StormLib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 2A58839CB8E24CE5BB21A9AE;
+			remoteInfo = storm;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B94437B518D0A4E400B77C95 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = /usr/share/man/man1;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B91B1BDE18D0CCB2001A8727 /* bncsutil.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bncsutil.xcodeproj; path = bncsutil/src/bncsutil.xcodeproj; sourceTree = "<group>"; };
+		B94437B718D0A4E400B77C95 /* aura++ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "aura++"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B944383418D0AC0700B77C95 /* aura.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = aura.cpp; sourceTree = "<group>"; };
+		B944383518D0AC0700B77C95 /* aura.dbs */ = {isa = PBXFileReference; lastKnownFileType = file; path = aura.dbs; sourceTree = "<group>"; };
+		B944383618D0AC0700B77C95 /* aura.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aura.h; sourceTree = "<group>"; };
+		B944383718D0AC0700B77C95 /* aura.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = aura.o; sourceTree = "<group>"; };
+		B944383818D0AC0700B77C95 /* aura.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = aura.vcxproj; sourceTree = "<group>"; };
+		B944383918D0AC0700B77C95 /* aura.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = aura.vcxproj.filters; sourceTree = "<group>"; };
+		B944383A18D0AC0700B77C95 /* aura.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = aura.vcxproj.user; sourceTree = "<group>"; };
+		B944383B18D0AC0700B77C95 /* auradb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = auradb.cpp; sourceTree = "<group>"; };
+		B944383C18D0AC0700B77C95 /* auradb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = auradb.h; sourceTree = "<group>"; };
+		B944383D18D0AC0700B77C95 /* auradb.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = auradb.o; sourceTree = "<group>"; };
+		B944383E18D0AC0700B77C95 /* bncsutilinterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bncsutilinterface.cpp; sourceTree = "<group>"; };
+		B944383F18D0AC0700B77C95 /* bncsutilinterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bncsutilinterface.h; sourceTree = "<group>"; };
+		B944384018D0AC0700B77C95 /* bncsutilinterface.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = bncsutilinterface.o; sourceTree = "<group>"; };
+		B944384118D0AC0700B77C95 /* bnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bnet.cpp; sourceTree = "<group>"; };
+		B944384218D0AC0700B77C95 /* bnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bnet.h; sourceTree = "<group>"; };
+		B944384318D0AC0700B77C95 /* bnet.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = bnet.o; sourceTree = "<group>"; };
+		B944384418D0AC0700B77C95 /* bnetprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bnetprotocol.cpp; sourceTree = "<group>"; };
+		B944384518D0AC0700B77C95 /* bnetprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bnetprotocol.h; sourceTree = "<group>"; };
+		B944384618D0AC0700B77C95 /* bnetprotocol.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = bnetprotocol.o; sourceTree = "<group>"; };
+		B944384718D0AC0700B77C95 /* config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = config.cpp; sourceTree = "<group>"; };
+		B944384818D0AC0700B77C95 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		B944384918D0AC0700B77C95 /* config.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = config.o; sourceTree = "<group>"; };
+		B944384A18D0AC0700B77C95 /* crc32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = crc32.cpp; sourceTree = "<group>"; };
+		B944384B18D0AC0700B77C95 /* crc32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crc32.h; sourceTree = "<group>"; };
+		B944384C18D0AC0700B77C95 /* crc32.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = crc32.o; sourceTree = "<group>"; };
+		B944384D18D0AC0700B77C95 /* csvparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csvparser.cpp; sourceTree = "<group>"; };
+		B944384E18D0AC0700B77C95 /* csvparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = csvparser.h; sourceTree = "<group>"; };
+		B944384F18D0AC0700B77C95 /* csvparser.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = csvparser.o; sourceTree = "<group>"; };
+		B944385018D0AC0700B77C95 /* fileutil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileutil.cpp; sourceTree = "<group>"; };
+		B944385118D0AC0700B77C95 /* fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileutil.h; sourceTree = "<group>"; };
+		B944385218D0AC0700B77C95 /* fileutil.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = fileutil.o; sourceTree = "<group>"; };
+		B944385318D0AC0700B77C95 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
+		B944385418D0AC0700B77C95 /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
+		B944385518D0AC0700B77C95 /* game.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = game.o; sourceTree = "<group>"; };
+		B944385618D0AC0700B77C95 /* gameplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameplayer.cpp; sourceTree = "<group>"; };
+		B944385718D0AC0700B77C95 /* gameplayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gameplayer.h; sourceTree = "<group>"; };
+		B944385818D0AC0700B77C95 /* gameplayer.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gameplayer.o; sourceTree = "<group>"; };
+		B944385918D0AC0700B77C95 /* gameprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameprotocol.cpp; sourceTree = "<group>"; };
+		B944385A18D0AC0700B77C95 /* gameprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gameprotocol.h; sourceTree = "<group>"; };
+		B944385B18D0AC0700B77C95 /* gameprotocol.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gameprotocol.o; sourceTree = "<group>"; };
+		B944385C18D0AC0700B77C95 /* gameslot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameslot.cpp; sourceTree = "<group>"; };
+		B944385D18D0AC0700B77C95 /* gameslot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gameslot.h; sourceTree = "<group>"; };
+		B944385E18D0AC0700B77C95 /* gameslot.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gameslot.o; sourceTree = "<group>"; };
+		B944385F18D0AC0700B77C95 /* gpsprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gpsprotocol.cpp; sourceTree = "<group>"; };
+		B944386018D0AC0700B77C95 /* gpsprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gpsprotocol.h; sourceTree = "<group>"; };
+		B944386118D0AC0700B77C95 /* gpsprotocol.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gpsprotocol.o; sourceTree = "<group>"; };
+		B944386218D0AC0700B77C95 /* includes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
+		B944386318D0AC0700B77C95 /* irc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = irc.cpp; sourceTree = "<group>"; };
+		B944386418D0AC0700B77C95 /* irc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = irc.h; sourceTree = "<group>"; };
+		B944386518D0AC0700B77C95 /* irc.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = irc.o; sourceTree = "<group>"; };
+		B944386718D0AC0700B77C95 /* map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map.cpp; sourceTree = "<group>"; };
+		B944386818D0AC0700B77C95 /* map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
+		B944386918D0AC0700B77C95 /* map.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = map.o; sourceTree = "<group>"; };
+		B944386A18D0AC0700B77C95 /* sha1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sha1.cpp; sourceTree = "<group>"; };
+		B944386B18D0AC0700B77C95 /* sha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
+		B944386C18D0AC0700B77C95 /* sha1.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = sha1.o; sourceTree = "<group>"; };
+		B944386D18D0AC0700B77C95 /* socket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socket.cpp; sourceTree = "<group>"; };
+		B944386E18D0AC0700B77C95 /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
+		B944386F18D0AC0700B77C95 /* socket.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = socket.o; sourceTree = "<group>"; };
+		B944387018D0AC0700B77C95 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqlite3.c; sourceTree = "<group>"; };
+		B944387118D0AC0700B77C95 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3.h; sourceTree = "<group>"; };
+		B944387218D0AC0700B77C95 /* sqlite3.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = sqlite3.o; sourceTree = "<group>"; };
+		B944387318D0AC0700B77C95 /* sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3ext.h; sourceTree = "<group>"; };
+		B944387418D0AC0700B77C95 /* stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stats.cpp; sourceTree = "<group>"; };
+		B944387518D0AC0700B77C95 /* stats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stats.h; sourceTree = "<group>"; };
+		B944387618D0AC0700B77C95 /* stats.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = stats.o; sourceTree = "<group>"; };
+		B944387718D0AC0700B77C95 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		B94438E118D0B26800B77C95 /* StormLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = StormLib.xcodeproj; path = StormLib/StormLib.xcodeproj; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B94437B418D0A4E400B77C95 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B91B1BE618D0CCCE001A8727 /* libbncsutil.dylib in Frameworks */,
+				B94438E918D0B66F00B77C95 /* storm.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B91B1BDF18D0CCB2001A8727 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B91B1BE318D0CCB2001A8727 /* libbncsutil.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B94437AE18D0A4E400B77C95 = {
+			isa = PBXGroup;
+			children = (
+				B944383318D0AC0700B77C95 /* aura */,
+				B94437B818D0A4E400B77C95 /* Products */,
+				B91B1BDE18D0CCB2001A8727 /* bncsutil.xcodeproj */,
+				B94438E118D0B26800B77C95 /* StormLib.xcodeproj */,
+			);
+			sourceTree = "<group>";
+		};
+		B94437B818D0A4E400B77C95 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B94437B718D0A4E400B77C95 /* aura++ */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B944383318D0AC0700B77C95 /* aura */ = {
+			isa = PBXGroup;
+			children = (
+				B944383418D0AC0700B77C95 /* aura.cpp */,
+				B944383518D0AC0700B77C95 /* aura.dbs */,
+				B944383618D0AC0700B77C95 /* aura.h */,
+				B944383718D0AC0700B77C95 /* aura.o */,
+				B944383818D0AC0700B77C95 /* aura.vcxproj */,
+				B944383918D0AC0700B77C95 /* aura.vcxproj.filters */,
+				B944383A18D0AC0700B77C95 /* aura.vcxproj.user */,
+				B944383B18D0AC0700B77C95 /* auradb.cpp */,
+				B944383C18D0AC0700B77C95 /* auradb.h */,
+				B944383D18D0AC0700B77C95 /* auradb.o */,
+				B944383E18D0AC0700B77C95 /* bncsutilinterface.cpp */,
+				B944383F18D0AC0700B77C95 /* bncsutilinterface.h */,
+				B944384018D0AC0700B77C95 /* bncsutilinterface.o */,
+				B944384118D0AC0700B77C95 /* bnet.cpp */,
+				B944384218D0AC0700B77C95 /* bnet.h */,
+				B944384318D0AC0700B77C95 /* bnet.o */,
+				B944384418D0AC0700B77C95 /* bnetprotocol.cpp */,
+				B944384518D0AC0700B77C95 /* bnetprotocol.h */,
+				B944384618D0AC0700B77C95 /* bnetprotocol.o */,
+				B944384718D0AC0700B77C95 /* config.cpp */,
+				B944384818D0AC0700B77C95 /* config.h */,
+				B944384918D0AC0700B77C95 /* config.o */,
+				B944384A18D0AC0700B77C95 /* crc32.cpp */,
+				B944384B18D0AC0700B77C95 /* crc32.h */,
+				B944384C18D0AC0700B77C95 /* crc32.o */,
+				B944384D18D0AC0700B77C95 /* csvparser.cpp */,
+				B944384E18D0AC0700B77C95 /* csvparser.h */,
+				B944384F18D0AC0700B77C95 /* csvparser.o */,
+				B944385018D0AC0700B77C95 /* fileutil.cpp */,
+				B944385118D0AC0700B77C95 /* fileutil.h */,
+				B944385218D0AC0700B77C95 /* fileutil.o */,
+				B944385318D0AC0700B77C95 /* game.cpp */,
+				B944385418D0AC0700B77C95 /* game.h */,
+				B944385518D0AC0700B77C95 /* game.o */,
+				B944385618D0AC0700B77C95 /* gameplayer.cpp */,
+				B944385718D0AC0700B77C95 /* gameplayer.h */,
+				B944385818D0AC0700B77C95 /* gameplayer.o */,
+				B944385918D0AC0700B77C95 /* gameprotocol.cpp */,
+				B944385A18D0AC0700B77C95 /* gameprotocol.h */,
+				B944385B18D0AC0700B77C95 /* gameprotocol.o */,
+				B944385C18D0AC0700B77C95 /* gameslot.cpp */,
+				B944385D18D0AC0700B77C95 /* gameslot.h */,
+				B944385E18D0AC0700B77C95 /* gameslot.o */,
+				B944385F18D0AC0700B77C95 /* gpsprotocol.cpp */,
+				B944386018D0AC0700B77C95 /* gpsprotocol.h */,
+				B944386118D0AC0700B77C95 /* gpsprotocol.o */,
+				B944386218D0AC0700B77C95 /* includes.h */,
+				B944386318D0AC0700B77C95 /* irc.cpp */,
+				B944386418D0AC0700B77C95 /* irc.h */,
+				B944386518D0AC0700B77C95 /* irc.o */,
+				B944386718D0AC0700B77C95 /* map.cpp */,
+				B944386818D0AC0700B77C95 /* map.h */,
+				B944386918D0AC0700B77C95 /* map.o */,
+				B944386A18D0AC0700B77C95 /* sha1.cpp */,
+				B944386B18D0AC0700B77C95 /* sha1.h */,
+				B944386C18D0AC0700B77C95 /* sha1.o */,
+				B944386D18D0AC0700B77C95 /* socket.cpp */,
+				B944386E18D0AC0700B77C95 /* socket.h */,
+				B944386F18D0AC0700B77C95 /* socket.o */,
+				B944387018D0AC0700B77C95 /* sqlite3.c */,
+				B944387118D0AC0700B77C95 /* sqlite3.h */,
+				B944387218D0AC0700B77C95 /* sqlite3.o */,
+				B944387318D0AC0700B77C95 /* sqlite3ext.h */,
+				B944387418D0AC0700B77C95 /* stats.cpp */,
+				B944387518D0AC0700B77C95 /* stats.h */,
+				B944387618D0AC0700B77C95 /* stats.o */,
+				B944387718D0AC0700B77C95 /* util.h */,
+			);
+			path = aura;
+			sourceTree = "<group>";
+		};
+		B94438E218D0B26800B77C95 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B94438E618D0B26800B77C95 /* storm.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B94437B618D0A4E400B77C95 /* aura++ */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B94437C018D0A4E400B77C95 /* Build configuration list for PBXNativeTarget "aura++" */;
+			buildPhases = (
+				B94437B318D0A4E400B77C95 /* Sources */,
+				B94437B418D0A4E400B77C95 /* Frameworks */,
+				B94437B518D0A4E400B77C95 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B91B1BE518D0CCCB001A8727 /* PBXTargetDependency */,
+				B94438E818D0B50000B77C95 /* PBXTargetDependency */,
+			);
+			name = "aura++";
+			productName = "aura++";
+			productReference = B94437B718D0A4E400B77C95 /* aura++ */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B94437AF18D0A4E400B77C95 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = aura;
+			};
+			buildConfigurationList = B94437B218D0A4E400B77C95 /* Build configuration list for PBXProject "aura++" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = B94437AE18D0A4E400B77C95;
+			productRefGroup = B94437B818D0A4E400B77C95 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = B91B1BDF18D0CCB2001A8727 /* Products */;
+					ProjectRef = B91B1BDE18D0CCB2001A8727 /* bncsutil.xcodeproj */;
+				},
+				{
+					ProductGroup = B94438E218D0B26800B77C95 /* Products */;
+					ProjectRef = B94438E118D0B26800B77C95 /* StormLib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				B94437B618D0A4E400B77C95 /* aura++ */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		B91B1BE318D0CCB2001A8727 /* libbncsutil.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libbncsutil.dylib;
+			remoteRef = B91B1BE218D0CCB2001A8727 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B94438E618D0B26800B77C95 /* storm.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = storm.framework;
+			remoteRef = B94438E518D0B26800B77C95 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B94437B318D0A4E400B77C95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B944388C18D0AC0700B77C95 /* gameplayer.cpp in Sources */,
+				B944389F18D0AC0700B77C95 /* stats.cpp in Sources */,
+				B944387A18D0AC0700B77C95 /* auradb.cpp in Sources */,
+				B944389918D0AC0700B77C95 /* sha1.cpp in Sources */,
+				B944388018D0AC0700B77C95 /* bnetprotocol.cpp in Sources */,
+				B944389418D0AC0700B77C95 /* irc.cpp in Sources */,
+				B944387C18D0AC0700B77C95 /* bncsutilinterface.cpp in Sources */,
+				B944388A18D0AC0700B77C95 /* game.cpp in Sources */,
+				B944389B18D0AC0700B77C95 /* socket.cpp in Sources */,
+				B944388E18D0AC0700B77C95 /* gameprotocol.cpp in Sources */,
+				B944389218D0AC0700B77C95 /* gpsprotocol.cpp in Sources */,
+				B944389018D0AC0700B77C95 /* gameslot.cpp in Sources */,
+				B944387E18D0AC0700B77C95 /* bnet.cpp in Sources */,
+				B944387818D0AC0700B77C95 /* aura.cpp in Sources */,
+				B944389718D0AC0700B77C95 /* map.cpp in Sources */,
+				B944388418D0AC0700B77C95 /* crc32.cpp in Sources */,
+				B944388218D0AC0700B77C95 /* config.cpp in Sources */,
+				B944388618D0AC0700B77C95 /* csvparser.cpp in Sources */,
+				B944388818D0AC0700B77C95 /* fileutil.cpp in Sources */,
+				B944389D18D0AC0700B77C95 /* sqlite3.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B91B1BE518D0CCCB001A8727 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = bncsutil;
+			targetProxy = B91B1BE418D0CCCB001A8727 /* PBXContainerItemProxy */;
+		};
+		B94438E818D0B50000B77C95 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = storm;
+			targetProxy = B94438E718D0B50000B77C95 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B94437BE18D0A4E400B77C95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					bncsutil/src/,
+					StormLib/src/,
+				);
+				LIBRARY_SEARCH_PATHS = bncsutil/src/bncsutil;
+				OTHER_LDFLAGS = (
+					"-lbncsutil",
+					"-lgmp",
+					"-ldl",
+				);
+				VALID_ARCHS = x86_64;
+			};
+			name = Debug;
+		};
+		B94437BF18D0A4E400B77C95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					bncsutil/src/,
+					StormLib/src/,
+				);
+				LIBRARY_SEARCH_PATHS = bncsutil/src/bncsutil;
+				OTHER_LDFLAGS = (
+					"-lbncsutil",
+					"-lgmp",
+					"-ldl",
+				);
+				VALID_ARCHS = x86_64;
+			};
+			name = Release;
+		};
+		B94437C118D0A4E400B77C95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEPLOYMENT_LOCATION = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = "";
+				INSTALL_PATH = "$(SRCROOT)";
+				LIBRARY_SEARCH_PATHS = (
+					bncsutil/src/bncsutil,
+					/usr/local/lib,
+					"$(PROJECT_DIR)/bncsutil/src/bncsutil",
+				);
+				OTHER_LDFLAGS = (
+					"-lgmp",
+					"-ldl",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B94437C218D0A4E400B77C95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEPLOYMENT_LOCATION = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "$(SRCROOT)";
+				LIBRARY_SEARCH_PATHS = (
+					bncsutil/src/bncsutil,
+					/usr/local/lib,
+					"$(PROJECT_DIR)/bncsutil/src/bncsutil",
+				);
+				OTHER_LDFLAGS = (
+					"-lgmp",
+					"-ldl",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B94437B218D0A4E400B77C95 /* Build configuration list for PBXProject "aura++" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B94437BE18D0A4E400B77C95 /* Debug */,
+				B94437BF18D0A4E400B77C95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B94437C018D0A4E400B77C95 /* Build configuration list for PBXNativeTarget "aura++" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B94437C118D0A4E400B77C95 /* Debug */,
+				B94437C218D0A4E400B77C95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B94437AF18D0A4E400B77C95 /* Project object */;
+}
