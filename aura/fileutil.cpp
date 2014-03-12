@@ -65,7 +65,7 @@ vector<string> FilesMatch(const string &path, const string &pattern)
     if (Name == pattern)
       return vector<string> {Name};
 
-    if (Name.find(pattern) != string::npos)
+    if (Name.find(pattern) != string::npos && Name != "..")
       Files.push_back(string(data.cFileName));
 
     if (FindNextFileA(handle, &data) == FALSE)
