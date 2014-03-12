@@ -146,6 +146,7 @@
 #  define MUTIL_LIB_BUILD
 #endif
 
+/*
 #ifdef MOS_WINDOWS
 #  ifdef MUTIL_LIB_BUILD
 #    if 1
@@ -167,6 +168,13 @@
 #    define MCEXP(name) class name
 #  endif
 #endif
+*/
+
+#ifdef MOS_WINDOWS
+  #define MEXP(type) type
+  #define MCEXP(name) class name
+#endif
+
 #define MYRIAD_UTIL
 
 #ifndef NULL
