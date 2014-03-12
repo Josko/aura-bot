@@ -658,13 +658,6 @@
 			name = "Source Files";
 			sourceTree = "<group>";
 		};
-		C4455531F48340A2BC3FF0CD /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
 		E1C367940B9A494BAC1D7ED8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -677,7 +670,6 @@
 			isa = PBXGroup;
 			children = (
 				E1C367940B9A494BAC1D7ED8 /* Sources */,
-				C4455531F48340A2BC3FF0CD /* Resources */,
 				2B1A6A462D684996A2E5321F /* Products */,
 			);
 			sourceTree = "<group>";
