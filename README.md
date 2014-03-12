@@ -80,8 +80,8 @@ Now you can run Aura by executing `./aura++`.
 ### OS X
 
 Building `aura++` is verified to work with Xcode 5 (on 10.9) but it should
-be possible with Xcode 4 and even Xcode 3.4 as well 
-(as long as your OSX version is not below 10.6). 
+be possible with Xcode 4 as well 
+(as long as your OSX version is not below 10.7). 
 
 To build `aura++` you need at least 
 [Xcode](https://developer.apple.com/xcode/), downloadable from the Mac App 
