@@ -78,71 +78,47 @@
 		B91B1BDE18D0CCB2001A8727 /* bncsutil.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bncsutil.xcodeproj; path = bncsutil/src/bncsutil.xcodeproj; sourceTree = "<group>"; };
 		B94437B718D0A4E400B77C95 /* aura++ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "aura++"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B944383418D0AC0700B77C95 /* aura.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = aura.cpp; sourceTree = "<group>"; };
-		B944383518D0AC0700B77C95 /* aura.dbs */ = {isa = PBXFileReference; lastKnownFileType = file; path = aura.dbs; sourceTree = "<group>"; };
 		B944383618D0AC0700B77C95 /* aura.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aura.h; sourceTree = "<group>"; };
-		B944383718D0AC0700B77C95 /* aura.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = aura.o; sourceTree = "<group>"; };
-		B944383818D0AC0700B77C95 /* aura.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = aura.vcxproj; sourceTree = "<group>"; };
-		B944383918D0AC0700B77C95 /* aura.vcxproj.filters */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = aura.vcxproj.filters; sourceTree = "<group>"; };
-		B944383A18D0AC0700B77C95 /* aura.vcxproj.user */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = aura.vcxproj.user; sourceTree = "<group>"; };
 		B944383B18D0AC0700B77C95 /* auradb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = auradb.cpp; sourceTree = "<group>"; };
 		B944383C18D0AC0700B77C95 /* auradb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = auradb.h; sourceTree = "<group>"; };
-		B944383D18D0AC0700B77C95 /* auradb.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = auradb.o; sourceTree = "<group>"; };
 		B944383E18D0AC0700B77C95 /* bncsutilinterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bncsutilinterface.cpp; sourceTree = "<group>"; };
 		B944383F18D0AC0700B77C95 /* bncsutilinterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bncsutilinterface.h; sourceTree = "<group>"; };
-		B944384018D0AC0700B77C95 /* bncsutilinterface.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = bncsutilinterface.o; sourceTree = "<group>"; };
 		B944384118D0AC0700B77C95 /* bnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bnet.cpp; sourceTree = "<group>"; };
 		B944384218D0AC0700B77C95 /* bnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bnet.h; sourceTree = "<group>"; };
-		B944384318D0AC0700B77C95 /* bnet.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = bnet.o; sourceTree = "<group>"; };
 		B944384418D0AC0700B77C95 /* bnetprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bnetprotocol.cpp; sourceTree = "<group>"; };
 		B944384518D0AC0700B77C95 /* bnetprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bnetprotocol.h; sourceTree = "<group>"; };
-		B944384618D0AC0700B77C95 /* bnetprotocol.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = bnetprotocol.o; sourceTree = "<group>"; };
 		B944384718D0AC0700B77C95 /* config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = config.cpp; sourceTree = "<group>"; };
 		B944384818D0AC0700B77C95 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		B944384918D0AC0700B77C95 /* config.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = config.o; sourceTree = "<group>"; };
 		B944384A18D0AC0700B77C95 /* crc32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = crc32.cpp; sourceTree = "<group>"; };
 		B944384B18D0AC0700B77C95 /* crc32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crc32.h; sourceTree = "<group>"; };
-		B944384C18D0AC0700B77C95 /* crc32.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = crc32.o; sourceTree = "<group>"; };
 		B944384D18D0AC0700B77C95 /* csvparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csvparser.cpp; sourceTree = "<group>"; };
 		B944384E18D0AC0700B77C95 /* csvparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = csvparser.h; sourceTree = "<group>"; };
-		B944384F18D0AC0700B77C95 /* csvparser.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = csvparser.o; sourceTree = "<group>"; };
 		B944385018D0AC0700B77C95 /* fileutil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileutil.cpp; sourceTree = "<group>"; };
 		B944385118D0AC0700B77C95 /* fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileutil.h; sourceTree = "<group>"; };
-		B944385218D0AC0700B77C95 /* fileutil.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = fileutil.o; sourceTree = "<group>"; };
 		B944385318D0AC0700B77C95 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
 		B944385418D0AC0700B77C95 /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
-		B944385518D0AC0700B77C95 /* game.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = game.o; sourceTree = "<group>"; };
 		B944385618D0AC0700B77C95 /* gameplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameplayer.cpp; sourceTree = "<group>"; };
 		B944385718D0AC0700B77C95 /* gameplayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gameplayer.h; sourceTree = "<group>"; };
-		B944385818D0AC0700B77C95 /* gameplayer.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gameplayer.o; sourceTree = "<group>"; };
 		B944385918D0AC0700B77C95 /* gameprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameprotocol.cpp; sourceTree = "<group>"; };
 		B944385A18D0AC0700B77C95 /* gameprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gameprotocol.h; sourceTree = "<group>"; };
-		B944385B18D0AC0700B77C95 /* gameprotocol.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gameprotocol.o; sourceTree = "<group>"; };
 		B944385C18D0AC0700B77C95 /* gameslot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameslot.cpp; sourceTree = "<group>"; };
 		B944385D18D0AC0700B77C95 /* gameslot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gameslot.h; sourceTree = "<group>"; };
-		B944385E18D0AC0700B77C95 /* gameslot.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gameslot.o; sourceTree = "<group>"; };
 		B944385F18D0AC0700B77C95 /* gpsprotocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gpsprotocol.cpp; sourceTree = "<group>"; };
 		B944386018D0AC0700B77C95 /* gpsprotocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gpsprotocol.h; sourceTree = "<group>"; };
-		B944386118D0AC0700B77C95 /* gpsprotocol.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = gpsprotocol.o; sourceTree = "<group>"; };
 		B944386218D0AC0700B77C95 /* includes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
 		B944386318D0AC0700B77C95 /* irc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = irc.cpp; sourceTree = "<group>"; };
 		B944386418D0AC0700B77C95 /* irc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = irc.h; sourceTree = "<group>"; };
-		B944386518D0AC0700B77C95 /* irc.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = irc.o; sourceTree = "<group>"; };
 		B944386718D0AC0700B77C95 /* map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map.cpp; sourceTree = "<group>"; };
 		B944386818D0AC0700B77C95 /* map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
-		B944386918D0AC0700B77C95 /* map.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = map.o; sourceTree = "<group>"; };
 		B944386A18D0AC0700B77C95 /* sha1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sha1.cpp; sourceTree = "<group>"; };
 		B944386B18D0AC0700B77C95 /* sha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
-		B944386C18D0AC0700B77C95 /* sha1.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = sha1.o; sourceTree = "<group>"; };
 		B944386D18D0AC0700B77C95 /* socket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socket.cpp; sourceTree = "<group>"; };
 		B944386E18D0AC0700B77C95 /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
-		B944386F18D0AC0700B77C95 /* socket.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = socket.o; sourceTree = "<group>"; };
 		B944387018D0AC0700B77C95 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqlite3.c; sourceTree = "<group>"; };
 		B944387118D0AC0700B77C95 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3.h; sourceTree = "<group>"; };
-		B944387218D0AC0700B77C95 /* sqlite3.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = sqlite3.o; sourceTree = "<group>"; };
 		B944387318D0AC0700B77C95 /* sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3ext.h; sourceTree = "<group>"; };
 		B944387418D0AC0700B77C95 /* stats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stats.cpp; sourceTree = "<group>"; };
 		B944387518D0AC0700B77C95 /* stats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stats.h; sourceTree = "<group>"; };
-		B944387618D0AC0700B77C95 /* stats.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = stats.o; sourceTree = "<group>"; };
 		B944387718D0AC0700B77C95 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		B94438E118D0B26800B77C95 /* StormLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = StormLib.xcodeproj; path = StormLib/StormLib.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -190,71 +166,47 @@
 			isa = PBXGroup;
 			children = (
 				B944383418D0AC0700B77C95 /* aura.cpp */,
-				B944383518D0AC0700B77C95 /* aura.dbs */,
 				B944383618D0AC0700B77C95 /* aura.h */,
-				B944383718D0AC0700B77C95 /* aura.o */,
-				B944383818D0AC0700B77C95 /* aura.vcxproj */,
-				B944383918D0AC0700B77C95 /* aura.vcxproj.filters */,
-				B944383A18D0AC0700B77C95 /* aura.vcxproj.user */,
 				B944383B18D0AC0700B77C95 /* auradb.cpp */,
 				B944383C18D0AC0700B77C95 /* auradb.h */,
-				B944383D18D0AC0700B77C95 /* auradb.o */,
 				B944383E18D0AC0700B77C95 /* bncsutilinterface.cpp */,
 				B944383F18D0AC0700B77C95 /* bncsutilinterface.h */,
-				B944384018D0AC0700B77C95 /* bncsutilinterface.o */,
 				B944384118D0AC0700B77C95 /* bnet.cpp */,
 				B944384218D0AC0700B77C95 /* bnet.h */,
-				B944384318D0AC0700B77C95 /* bnet.o */,
 				B944384418D0AC0700B77C95 /* bnetprotocol.cpp */,
 				B944384518D0AC0700B77C95 /* bnetprotocol.h */,
-				B944384618D0AC0700B77C95 /* bnetprotocol.o */,
 				B944384718D0AC0700B77C95 /* config.cpp */,
 				B944384818D0AC0700B77C95 /* config.h */,
-				B944384918D0AC0700B77C95 /* config.o */,
 				B944384A18D0AC0700B77C95 /* crc32.cpp */,
 				B944384B18D0AC0700B77C95 /* crc32.h */,
-				B944384C18D0AC0700B77C95 /* crc32.o */,
 				B944384D18D0AC0700B77C95 /* csvparser.cpp */,
 				B944384E18D0AC0700B77C95 /* csvparser.h */,
-				B944384F18D0AC0700B77C95 /* csvparser.o */,
 				B944385018D0AC0700B77C95 /* fileutil.cpp */,
 				B944385118D0AC0700B77C95 /* fileutil.h */,
-				B944385218D0AC0700B77C95 /* fileutil.o */,
 				B944385318D0AC0700B77C95 /* game.cpp */,
 				B944385418D0AC0700B77C95 /* game.h */,
-				B944385518D0AC0700B77C95 /* game.o */,
 				B944385618D0AC0700B77C95 /* gameplayer.cpp */,
 				B944385718D0AC0700B77C95 /* gameplayer.h */,
-				B944385818D0AC0700B77C95 /* gameplayer.o */,
 				B944385918D0AC0700B77C95 /* gameprotocol.cpp */,
 				B944385A18D0AC0700B77C95 /* gameprotocol.h */,
-				B944385B18D0AC0700B77C95 /* gameprotocol.o */,
 				B944385C18D0AC0700B77C95 /* gameslot.cpp */,
 				B944385D18D0AC0700B77C95 /* gameslot.h */,
-				B944385E18D0AC0700B77C95 /* gameslot.o */,
 				B944385F18D0AC0700B77C95 /* gpsprotocol.cpp */,
 				B944386018D0AC0700B77C95 /* gpsprotocol.h */,
-				B944386118D0AC0700B77C95 /* gpsprotocol.o */,
 				B944386218D0AC0700B77C95 /* includes.h */,
 				B944386318D0AC0700B77C95 /* irc.cpp */,
 				B944386418D0AC0700B77C95 /* irc.h */,
-				B944386518D0AC0700B77C95 /* irc.o */,
 				B944386718D0AC0700B77C95 /* map.cpp */,
 				B944386818D0AC0700B77C95 /* map.h */,
-				B944386918D0AC0700B77C95 /* map.o */,
 				B944386A18D0AC0700B77C95 /* sha1.cpp */,
 				B944386B18D0AC0700B77C95 /* sha1.h */,
-				B944386C18D0AC0700B77C95 /* sha1.o */,
 				B944386D18D0AC0700B77C95 /* socket.cpp */,
 				B944386E18D0AC0700B77C95 /* socket.h */,
-				B944386F18D0AC0700B77C95 /* socket.o */,
 				B944387018D0AC0700B77C95 /* sqlite3.c */,
 				B944387118D0AC0700B77C95 /* sqlite3.h */,
-				B944387218D0AC0700B77C95 /* sqlite3.o */,
 				B944387318D0AC0700B77C95 /* sqlite3ext.h */,
 				B944387418D0AC0700B77C95 /* stats.cpp */,
 				B944387518D0AC0700B77C95 /* stats.h */,
-				B944387618D0AC0700B77C95 /* stats.o */,
 				B944387718D0AC0700B77C95 /* util.h */,
 			);
 			path = aura;
