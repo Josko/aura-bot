@@ -943,196 +943,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0A844AD33CAD493DBB217B47 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk;
-				SYMROOT = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/build";
-			};
-			name = MinSizeRel;
-		};
-		12981B7F763E4806ACD9BF8E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk;
-				SYMROOT = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/build";
-			};
-			name = Debug;
-		};
 		96D617C3DE664B10A18D199B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk;
-				SYMROOT = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/build";
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
-		};
-		CC469CBB6A7144C099D84366 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk;
-				SYMROOT = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/build";
-			};
-			name = RelWithDebInfo;
-		};
-		DD4B8E4E04A94326968C4A65 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 9.0.0;
-				DYLIB_CURRENT_VERSION = 9.0.0;
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_VERSION = 9.0.0;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					storm_EXPORTS,
-					_7ZIP_ST,
-					BZ_STRICT_ANSI,
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/CMakeFiles/storm.dir/Info.plist";
-				INSTALL_PATH = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/MinSizeRel";
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = DYNAMIC;
-				MACH_O_TYPE = mh_dylib;
-				OTHER_CFLAGS = (
-					"-DNDEBUG",
-					"-fPIC",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DNDEBUG",
-					"-fPIC",
-				);
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-					"-lz",
-					"-lbz2",
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = storm;
-				SDKROOT = macosx;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "$(SRCROOT)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = MinSizeRel;
-		};
-		DF6A23D6218E40CBB795E500 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 9.0.0;
-				DYLIB_CURRENT_VERSION = 9.0.0;
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_VERSION = 9.0.0;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					storm_EXPORTS,
-					_7ZIP_ST,
-					BZ_STRICT_ANSI,
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/CMakeFiles/storm.dir/Info.plist";
-				INSTALL_PATH = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/Debug";
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = DYNAMIC;
-				MACH_O_TYPE = mh_dylib;
-				OTHER_CFLAGS = "   -fPIC  ";
-				OTHER_CPLUSPLUSFLAGS = "   -fPIC  ";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-					"-lz",
-					"-lbz2",
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = storm;
-				SDKROOT = macosx;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "$(SRCROOT)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Debug;
-		};
-		EF210150850449D88594E36E /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 9.0.0;
-				DYLIB_CURRENT_VERSION = 9.0.0;
-				EXECUTABLE_PREFIX = "";
-				EXECUTABLE_SUFFIX = "";
-				FRAMEWORK_VERSION = 9.0.0;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					storm_EXPORTS,
-					_7ZIP_ST,
-					BZ_STRICT_ANSI,
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/CMakeFiles/storm.dir/Info.plist";
-				INSTALL_PATH = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/RelWithDebInfo";
-				LIBRARY_SEARCH_PATHS = "";
-				LIBRARY_STYLE = DYNAMIC;
-				MACH_O_TYPE = mh_dylib;
-				OTHER_CFLAGS = (
-					"-DNDEBUG",
-					"-fPIC",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DNDEBUG",
-					"-fPIC",
-				);
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-					"-lz",
-					"-lbz2",
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = storm;
-				SDKROOT = macosx;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "$(SRCROOT)";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = RelWithDebInfo;
 		};
 		FD2C427E51E741D7BFAE2036 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				DEPLOYMENT_LOCATION = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = "";
 				DYLIB_COMPATIBILITY_VERSION = 9.0.0;
 				DYLIB_CURRENT_VERSION = 9.0.0;
 				EXECUTABLE_PREFIX = "";
@@ -1148,8 +972,8 @@
 					BZ_STRICT_ANSI,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/CMakeFiles/storm.dir/Info.plist";
-				INSTALL_PATH = "/Users/Julian/Documents/Code/C++/GHost/aura-bot/StormLib/Release";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INSTALL_PATH = "$(SRCROOT)";
 				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = DYNAMIC;
 				MACH_O_TYPE = mh_dylib;
@@ -1169,7 +993,6 @@
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = storm;
-				SDKROOT = macosx;
 				SECTORDER_FLAGS = "";
 				SYMROOT = "$(SRCROOT)";
 				USE_HEADERMAP = NO;
@@ -1187,10 +1010,7 @@
 		48CF3A103B47414BB5702F3F /* Build configuration list for PBXProject "StormLib" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				12981B7F763E4806ACD9BF8E /* Debug */,
 				96D617C3DE664B10A18D199B /* Release */,
-				0A844AD33CAD493DBB217B47 /* MinSizeRel */,
-				CC469CBB6A7144C099D84366 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1198,10 +1018,7 @@
 		575B96FE81834773A24DE7D7 /* Build configuration list for PBXNativeTarget "storm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DF6A23D6218E40CBB795E500 /* Debug */,
 				FD2C427E51E741D7BFAE2036 /* Release */,
-				DD4B8E4E04A94326968C4A65 /* MinSizeRel */,
-				EF210150850449D88594E36E /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
