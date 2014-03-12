@@ -6,6 +6,7 @@
 *.so
 *.a
 *.dylib
+*.framework
 
 aura.exe
 aura++

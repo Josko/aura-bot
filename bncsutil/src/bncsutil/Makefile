@@ -10,7 +10,7 @@ CCOBJ = nls.o pe.o sha1.o stack.o
 ifeq ($(SYSTEM),Darwin)
 CXX = /usr/bin/g++
 CC = /usr/bin/gcc
-LDFLAGS = -dynamiclib -lgmp -L/opt/local/lib
+LDFLAGS = -dynamiclib -lgmp -L/opt/local/lib -L/usr/local/lib
 TARGET = libbncsutil.a
 CCFLAGS += -m64
 CXXFLAGS += -m64
