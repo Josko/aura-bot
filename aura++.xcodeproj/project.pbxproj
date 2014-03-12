@@ -470,14 +470,10 @@
 				DSTROOT = "";
 				INSTALL_PATH = "$(SRCROOT)";
 				LIBRARY_SEARCH_PATHS = (
-					bncsutil/src/bncsutil,
-					/usr/local/lib,
 					"$(PROJECT_DIR)/bncsutil/src/bncsutil",
+					/usr/local/lib,
 				);
-				OTHER_LDFLAGS = (
-					"-lgmp",
-					"-ldl",
-				);
+				OTHER_LDFLAGS = "-ldl";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -491,14 +487,10 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INSTALL_PATH = "$(SRCROOT)";
 				LIBRARY_SEARCH_PATHS = (
-					bncsutil/src/bncsutil,
-					/usr/local/lib,
 					"$(PROJECT_DIR)/bncsutil/src/bncsutil",
+					/usr/local/lib,
 				);
-				OTHER_LDFLAGS = (
-					"-lgmp",
-					"-ldl",
-				);
+				OTHER_LDFLAGS = "-ldl";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
