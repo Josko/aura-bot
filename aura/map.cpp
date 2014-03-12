@@ -219,7 +219,13 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
   HANDLE MapMPQ;
   bool MapMPQReady = false;
 
+#ifdef WIN32
+  const wstring MapMPQFileNameW = wstring(begin(MapMPQFileName), end(MapMPQFileName));
+
+  if (SFileOpenArchive(MapMPQFileNameW.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &MapMPQ))
+#else
   if (SFileOpenArchive(MapMPQFileName.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &MapMPQ))
+#endif
   {
     Print("[MAP] loading MPQ file [" + MapMPQFileName + "]");
     MapMPQReady = true;

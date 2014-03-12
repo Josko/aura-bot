@@ -797,10 +797,16 @@ void CAura::SetConfigs(CConfig *CFG)
 
 void CAura::ExtractScripts()
 {
-  const string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
   void  *PatchMPQ;
+  const string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
 
+#ifdef WIN32
+  const wstring PatchMPQFileNameW = wstring(begin(m_Warcraft3Path), end(m_Warcraft3Path)) + _T("War3Patch.mpq");
+
+  if (SFileOpenArchive(PatchMPQFileNameW.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ))
+#else
   if (SFileOpenArchive(PatchMPQFileName.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ))
+#endif
   {
     Print("[AURA] loading MPQ file [" + PatchMPQFileName + "]");
     void *SubFile;
