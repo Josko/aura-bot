@@ -92,7 +92,8 @@ Area (a free membership is sufficient).
 As a further prerequisite you need a more recent version of `libgmp`.
 The easiest way to get one is by using a package manager like 
 [Homebrew](http://brew.sh/).
-After a successful install open (or reopen) `Terminal.app` located in `/Applications/Utilities` and execute 
+After a successful install open (or reopen) `Terminal.app` located in 
+`/Applications/Utilities` and execute 
 
 
 	brew install gmp
@@ -112,8 +113,8 @@ refrain from deleting their build results.
 
 **Note**: the Xcode project file in `StormLib/` is *not* the one produced by
 `cmake`. 
-Please keep this in mind in case you produce a new Xcode project with `cmake` 
-— it might break `aura++.xcodeproj`.
+Please keep this in mind in case you generate a new StormLib Xcode project with 
+`cmake` — it might break `aura++.xcodeproj`.
 
 Configuring
 -----------
