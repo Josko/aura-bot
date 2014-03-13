@@ -19,7 +19,7 @@ Other changes:
 * Uses C++11
 * Has a Windows 64-bit build
 * Uses SQLite and a different database organization.
-* Tested on OS X (10.7 or later)
+* Tested on OS X (see [Building -> OS X](#os-x) for detailed requirements)
 * A lot of code removed, about 1 MB smaller binary on Linux
 * Updated SQLite library
 * Updated zlib
