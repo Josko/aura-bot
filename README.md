@@ -19,7 +19,7 @@ Other changes:
 * Uses C++11
 * Has a Windows 64-bit build
 * Uses SQLite and a different database organization.
-* Tested on OS X (10.7 or later)
+* Tested on OS X (see [Building -> OS X](#os-x) for detailed requirements)
 * A lot of code removed, about 1 MB smaller binary on Linux
 * Updated SQLite library
 * Updated zlib
@@ -80,8 +80,8 @@ Now you can run Aura by executing `./aura++`.
 ### OS X
 
 Building `aura++` is verified to work with Xcode 5 (on 10.9) but it should
-be possible with Xcode 4 and even Xcode 3.4 as well 
-(as long as your OSX version is not below 10.6). 
+be possible with Xcode 4 as well 
+(as long as your OSX version is not below 10.7). 
 
 To build `aura++` you need at least 
 [Xcode](https://developer.apple.com/xcode/), downloadable from the Mac App 
@@ -92,7 +92,8 @@ Area (a free membership is sufficient).
 As a further prerequisite you need a more recent version of `libgmp`.
 The easiest way to get one is by using a package manager like 
 [Homebrew](http://brew.sh/).
-After a successful install open (or reopen) `Terminal.app` located in `/Applications/Utilities` and execute 
+After a successful install open (or reopen) `Terminal.app` located in 
+`/Applications/Utilities` and execute 
 
 
 	brew install gmp
@@ -112,8 +113,8 @@ refrain from deleting their build results.
 
 **Note**: the Xcode project file in `StormLib/` is *not* the one produced by
 `cmake`. 
-Please keep this in mind in case you produce a new Xcode project with `cmake` 
-— it might break `aura++.xcodeproj`.
+Please keep this in mind in case you generate a new StormLib Xcode project with 
+`cmake` — it might break `aura++.xcodeproj`.
 
 Configuring
 -----------
