@@ -1061,7 +1061,12 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if (Command == "countmaps" || Command == "countmap")
         {
+#ifdef WIN32
           const auto Count = FilesMatch(m_Aura->m_MapPath, ".").size();
+#else
+          const auto Count = FilesMatch(m_Aura->m_MapPath, "").size();
+#endif
+
           QueueChatCommand("There are currently [" + ToString(Count) + "] maps", User, Whisper, m_IRC);
         }
 
@@ -1072,7 +1077,11 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if (Command == "countcfg" || Command == "countcfgs")
         {
+#ifdef WIN32
           const auto Count = FilesMatch(m_Aura->m_MapCFGPath, ".").size();
+#else
+          const auto Count = FilesMatch(m_Aura->m_MapCFGPath, "").size();
+#endif
           QueueChatCommand("There are currently [" + ToString(Count) + "] cfgs", User, Whisper, m_IRC);
         }
 
