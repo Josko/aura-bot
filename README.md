@@ -17,20 +17,19 @@ Removed features from GHost++:
 
 Other changes:
 * Uses C++11
+* Single-threaded
 * Has a Windows 64-bit build
 * Uses SQLite and a different database organization.
 * Tested on OS X (see [Building -> OS X](#os-x) for detailed requirements)
 * A lot of code removed, about 1 MB smaller binary on Linux
-* Updated SQLite library
-* Updated zlib
+* Updated libraries: StormLib, SQLite, zlib
 * Connects to and can be controlled via IRC
 * Using aggressive optimizations
-* No warnings with gcc or clang, cppcheck clean
 * Up to 11 fakeplayers can be added.
 * Uses DotA stats automagically on maps with 'DotA' in the filename
-* Single-threaded execution
 * Auto spoofcheck in private games on PvPGNs
 * More commands added either ingame or bnet
+* Checked with various tools such as clang-analyzer and cppcheck
 
 Multi-platform
 --------------
@@ -42,22 +41,23 @@ Building
 
 ### Windows
 
-Windows users must use VS2013 or any other compiler that provides C++11 support
-(VS2012 has some C++11 support but it isn't enough). Necessary .sln and .vcxproj
-files are provided. Before building, choose the Win32 or x64 platform. The binary
-shall be generated in the `..\aura-bot\aura\Release` folder. Run it from `aura-bot`
-folder.
+Windows users must use VS2013 or later. Visual Studio 2013 Express for Windows Desktop works.
+Neccessary .sln and .vcxproj files are provided. Before building, choose either the Release or Debug configurations and Win32 or x64 as the platform.
+The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 
 ### Linux
 
 Linux users will probably need some packages for it to build:
 
-* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev zlib1g-dev libbz2-dev`
-* Arch Linux -- `pacman -S base-devel`
+* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev cmake`
+* Arch Linux -- `pacman -S base-devel cmake`
 
 For building StormLib execute the following commands (line by line):	
 	
-	cd aura-bot/StormLib/stormlib
+	cd aura-bot/StormLib
+	mkdir build
+	cd build
+	cmake ..
 	make
 	sudo make install
 
