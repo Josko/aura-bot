@@ -1,4 +1,4 @@
-Aura
+﻿Aura
 ====
 
 Aura is a Warcraft III hosting-bot based on GHost++ by Varlock. It's a complete
@@ -42,7 +42,7 @@ Building
 ### Windows
 
 Windows users must use VS2013 or later. Visual Studio 2013 Express for Windows Desktop works.
-Neccessary .sln and .vcxproj files are provided. Before building, choose either the Release or Debug configurations and Win32 or x64 as the platform.
+Neccessary .sln and .vcxproj files are provided. Before building, choose the Release configuration and Win32 or x64 as the platform.
 The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 
 ### Linux
