@@ -26,10 +26,10 @@ Global
 		{CFB9AEE6-C0BB-49B0-B0F5-F564975202B8}.Release|Win32.Build.0 = Release|Win32
 		{CFB9AEE6-C0BB-49B0-B0F5-F564975202B8}.Release|x64.ActiveCfg = Release|x64
 		{CFB9AEE6-C0BB-49B0-B0F5-F564975202B8}.Release|x64.Build.0 = Release|x64
-		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|Win32.ActiveCfg = ReleaseAS|Win32
-		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|Win32.Build.0 = ReleaseAS|Win32
-		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|x64.ActiveCfg = ReleaseAS|x64
-		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|x64.Build.0 = ReleaseAS|x64
+		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|Win32.ActiveCfg = ReleaseUS|Win32
+		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|Win32.Build.0 = ReleaseUS|Win32
+		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|x64.ActiveCfg = ReleaseUS|x64
+		{78424708-1F6E-4D4B-920C-FB6D26847055}.Release|x64.Build.0 = ReleaseUS|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
