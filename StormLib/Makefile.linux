@@ -21,9 +21,11 @@
 C++ = g++
 CC = gcc
 AR = ar
-DFLAGS = -D__SYS_ZLIB
-OFLAGS =
-LFLAGS = -lbz2 -lz
+#DFLAGS = -D__SYS_ZLIB
+DFLAGS =
+OFLAGS = 
+#LFLAGS = -lbz2 -lz
+LFLAGS = 
 CFLAGS = -fPIC -D_7ZIP_ST
 CFLAGS += $(OFLAGS) $(DFLAGS)
 

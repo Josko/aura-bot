@@ -11,9 +11,10 @@
 CPP    = g++
 CC     = gcc
 CFLAGS = -Wall
-LFLAGS = -lbz2 -lz -framework Carbon
+LFLAGS = -framework Carbon
 ARCH = -arch x86_64
-DFLAGS = -D__SYS_BZLIB -D__SYS_ZLIB -D_7ZIP_ST
+#DFLAGS = -D__SYS_BZLIB -D__SYS_ZLIB -D_7ZIP_ST
+DFLAGS = -D_7ZIP_ST
 AR     = ar
 ARFLAGS= rcs
 
