@@ -63,7 +63,10 @@ vector<string> FilesMatch(const string &path, const string &pattern)
     transform(begin(Name), end(Name), begin(Name), ::tolower);
 
     if (Name == pattern)
-      return vector<string> {Name};
+    {
+      Files.push_back(string(dp->d_name));
+      break;
+    }
 
     if (Name.find(pattern) != string::npos && Name != "..")
       Files.push_back(string(data.cFileName));
@@ -87,7 +90,10 @@ vector<string> FilesMatch(const string &path, const string &pattern)
     transform(begin(Name), end(Name), begin(Name), ::tolower);
 
     if (Name == pattern)
-      return vector<string> {Name};
+    {
+      Files.push_back(string(dp->d_name));
+      break;
+    }
 
     if (Name.find(pattern) != string::npos && Name != "." && Name != "..")
       Files.push_back(string(dp->d_name));
