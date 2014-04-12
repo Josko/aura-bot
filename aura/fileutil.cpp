@@ -64,7 +64,7 @@ vector<string> FilesMatch(const string &path, const string &pattern)
 
     if (Name == pattern)
     {
-      Files.push_back(string(dp->d_name));
+      Files.push_back(string(data.cFileName));
       break;
     }
 
