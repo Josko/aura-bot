@@ -1830,6 +1830,33 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       }
 
       //
+      // !UNHOLD
+      //
+
+      else if (Command == "unhold" && !Payload.empty() && !m_GameLoading && !m_GameLoaded)
+      {
+        stringstream SS;
+        SS << Payload;
+
+        while (!SS.eof())
+        {
+          string UnholdName;
+          SS >> UnholdName;
+
+          if (SS.fail())
+          {
+            Print("[GAME: " + m_GameName + "] bad input to unhold command");
+            break;
+          }
+          else
+          {
+            SendAllChat("Removed player [" + UnholdName + "] from the hold list");
+            RemoveFromReserved(UnholdName);
+          }
+        }
+      }
+
+      //
       // !KICK (kick a player)
       //
 
@@ -4136,6 +4163,29 @@ void CGame::AddToReserved(string name)
 
     if (NameLower == name)
       player->SetReserved(true);
+  }
+}
+
+void CGame::RemoveFromReserved(string name)
+{
+  transform(begin(name), end(name), begin(name), ::tolower);
+
+  auto it = find(begin(m_Reserved), end(m_Reserved), name);
+
+  if (it != end(m_Reserved))
+  {
+    m_Reserved.erase(it);
+
+    // demote the user if they're already in the game
+
+    for (auto & player : m_Players)
+    {
+      string NameLower = player->GetName();
+      transform(begin(NameLower), end(NameLower), begin(NameLower), ::tolower);
+
+      if (NameLower == name)
+        player->SetReserved(false);
+    }
   }
 }
 

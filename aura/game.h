@@ -230,6 +230,7 @@ public:
   void ShuffleSlots();
   void AddToSpoofed(const std::string &server, const std::string &name, bool sendMessage);
   void AddToReserved(std::string name);
+  void RemoveFromReserved(std::string name);
   bool IsOwner(std::string name);
   bool IsReserved(std::string name);
   bool IsDownloading();
