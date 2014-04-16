@@ -295,11 +295,11 @@ BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN(uint32_t reason)
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(uint8_t PID, const string &name, BYTEARRAY externalIP, BYTEARRAY int32_ternalIP)
+BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(uint8_t PID, const string &name, BYTEARRAY externalIP, BYTEARRAY internalIP)
 {
   BYTEARRAY packet;
 
-  if (!name.empty() && name.size() <= 15 && externalIP.size() == 4 && int32_ternalIP.size() == 4)
+  if (!name.empty() && name.size() <= 15 && externalIP.size() == 4 && internalIP.size() == 4)
   {
     const uint8_t PlayerJoinCounter[] = {2, 0, 0, 0};
     const uint8_t Zeros[] = {0, 0, 0, 0};
@@ -324,7 +324,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(uint8_t PID, const string &name, B
     packet.push_back(0);   // AF_INET continued...
     packet.push_back(0);   // port
     packet.push_back(0);   // port continued...
-    AppendByteArrayFast(packet, int32_ternalIP);   // int32_ternal IP
+    AppendByteArrayFast(packet, internalIP);   // internal IP
     AppendByteArray(packet, Zeros, 4);   // ???
     AppendByteArray(packet, Zeros, 4);   // ???
     AssignLength(packet);
