@@ -2897,7 +2897,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             {
               uint8_t SID = (uint8_t)(Slot - 1);
 
-              if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && Team < 12 && SID < m_Slots.size())
+              if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && Team < 14 && SID < m_Slots.size())
               {
                 if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer() == 1)
                 {
