@@ -240,7 +240,9 @@ string CGame::GetPlayers() const
 
   for (const auto & player : m_Players)
   {
-    if (player->GetLeftMessageSent() == false)
+    const uint8_t SID = GetSIDFromPID(player->GetPID());
+
+    if (player->GetLeftMessageSent() == false && m_Slots[SID].GetTeam() != 12)
       Players += player->GetName() + ", ";
   }
 
@@ -250,6 +252,26 @@ string CGame::GetPlayers() const
     Players = Players.substr(0, size - 2);
 
   return Players;
+}
+
+string CGame::GetObservers() const
+{
+  string Observers;
+
+  for (const auto & player : m_Players)
+  {
+    const uint8_t SID = GetSIDFromPID(player->GetPID());
+
+    if (player->GetLeftMessageSent() == false && m_Slots[SID].GetTeam() == 12)
+      Observers += player->GetName() + ", ";
+  }
+
+  const size_t size = Observers.size();
+
+  if (size > 2)
+    Observers = Observers.substr(0, size - 2);
+
+  return Observers;
 }
 
 uint32_t CGame::SetFD(void *fd, void *send_fd, int32_t *nfds)
@@ -3541,7 +3563,7 @@ void CGame::EventGameLoaded()
     SendChat(player, "Your load time was " + ToString((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
 }
 
-uint8_t CGame::GetSIDFromPID(uint8_t PID)
+uint8_t CGame::GetSIDFromPID(uint8_t PID) const
 {
   if (m_Slots.size() > 255)
     return 255;

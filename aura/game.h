@@ -146,6 +146,7 @@ public:
   uint32_t GetNumHumanPlayers() const;
   std::string GetDescription() const;
   std::string GetPlayers() const;
+  std::string GetObservers() const;
 
   inline void SetExiting(bool nExiting)                      { m_Exiting = nExiting; }
   inline void SetRefreshError(bool nRefreshError)            { m_RefreshError = nRefreshError; }
@@ -206,7 +207,7 @@ public:
 
   // other functions
 
-  uint8_t GetSIDFromPID(uint8_t PID);
+  uint8_t GetSIDFromPID(uint8_t PID) const;
   CGamePlayer *GetPlayerFromPID(uint8_t PID);
   CGamePlayer *GetPlayerFromSID(uint8_t SID);
   CGamePlayer *GetPlayerFromName(std::string name, bool sensitive);

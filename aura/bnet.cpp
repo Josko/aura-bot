@@ -1557,7 +1557,23 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
           else
             QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+        }
 
+        //
+        // !GETOBSERVERS
+        // !GO
+        //
+
+        else if ((Command == "go" || Command == "getobservers") && !Payload.empty())
+        {
+          const int32_t GameNumber = ToInt32(Payload) - 1;
+
+          if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
+            QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);
+          else if (GameNumber == -1 && m_Aura->m_CurrentGame)
+            QueueChatCommand("Observers in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetObservers(), User, Whisper, m_IRC);
+          else
+            QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
         }
 
         //
