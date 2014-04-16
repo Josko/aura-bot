@@ -1438,7 +1438,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         else if (Command == "getclan")
         {
           SendGetClanList();
-          QueueChatCommand("Updating the bot's int32_ternal clan list from battle.net..", User, Whisper, m_IRC);
+          QueueChatCommand("Updating the bot's internal clan list from battle.net..", User, Whisper, m_IRC);
         }
 
         //
@@ -1448,7 +1448,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         else if (Command == "getfriends")
         {
           SendGetFriendsList();
-          QueueChatCommand("Updating the bot's int32_ternal friends list from battle.net..", User, Whisper, m_IRC);
+          QueueChatCommand("Updating the bot's internal friends list from battle.net..", User, Whisper, m_IRC);
         }
 
         //
