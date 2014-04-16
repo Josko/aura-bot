@@ -2208,7 +2208,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       // !DROP
       //
 
-      else if (Command == "drop" && m_GameLoaded)
+      else if ((Command == "d" || Command == "drop") && m_GameLoaded)
         StopLaggers("lagged out (dropped by admin)");
 
       //
