@@ -1663,7 +1663,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         uint32_t Kicked = 0, KickPing = 0;
 
         if (!m_GameLoading && !m_GameLoaded && !Payload.empty())
-          KickPing = ToUInt32(Payload);
+          KickPing = stoul(Payload);
 
         // copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
 
@@ -1916,7 +1916,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           SendAllChat("The game latency is " + to_string(m_Latency) + " ms");
         else
         {
-          m_Latency = ToUInt32(Payload);
+          m_Latency = stoul(Payload);
 
           if (m_Latency <= 25)
           {
@@ -2125,7 +2125,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           SendAllChat("The sync limit is " + to_string(m_SyncLimit) + " packets");
         else
         {
-          m_SyncLimit = ToUInt32(Payload);
+          m_SyncLimit = stoul(Payload);
 
           if (m_SyncLimit <= 40)
           {
@@ -2234,7 +2234,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
       else if ((Command == "downloads" || Command == "dls") && !Payload.empty())
       {
-        const uint32_t Downloads = ToUInt32(Payload);
+        const uint32_t Downloads = stoul(Payload);
 
         if (Downloads == 0)
         {

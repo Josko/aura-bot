@@ -105,7 +105,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
 
                 const string VictimName = KeyString.substr(4);
                 const uint32_t KillerColour = ValueInt;
-                const uint32_t VictimColour = ToUInt32(VictimName);
+                const uint32_t VictimColour = stoul(VictimName);
                 CGamePlayer *Killer = m_Game->GetPlayerFromColour(ValueInt);
                 CGamePlayer *Victim = m_Game->GetPlayerFromColour(VictimColour);
 
@@ -144,7 +144,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
                 if (m_Game->GetPlayerFromColour(ValueInt))
                 {
                   string AssisterName = KeyString.substr(6);
-                  const uint32_t AssisterColour = ToUInt32(AssisterName);
+                  const uint32_t AssisterColour = stoul(AssisterName);
 
                   if (!m_Players[AssisterColour])
                     m_Players[AssisterColour] = new CDBDotAPlayer();
@@ -212,7 +212,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
             {
               // these are only received at the end of the game
 
-              const uint32_t ID = ToUInt32(DataString);
+              const uint32_t ID = stoul(DataString);
 
               if ((ID >= 1 && ID <= 5) || (ID >= 7 && ID <= 11))
               {

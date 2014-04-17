@@ -32,53 +32,6 @@ inline std::string ToHexString(uint32_t i)
   return result;
 }
 
-// TODO: these ToXXX functions don't fail gracefully, they just return garbage (in the uint case usually just -1 casted to an unsigned type it looks like)
-
-inline uint16_t ToUInt16(const std::string &s)
-{
-  uint16_t result;
-  std::stringstream SS;
-  SS << s;
-  SS >> result;
-  return result;
-}
-
-inline uint32_t ToUInt32(const std::string &s)
-{
-  uint32_t result;
-  std::stringstream SS;
-  SS << s;
-  SS >> result;
-  return result;
-}
-
-inline int16_t ToInt16(const std::string &s)
-{
-  int16_t result;
-  std::stringstream SS;
-  SS << s;
-  SS >> result;
-  return result;
-}
-
-inline int32_t ToInt32(const std::string &s)
-{
-  int32_t result;
-  std::stringstream SS;
-  SS << s;
-  SS >> result;
-  return result;
-}
-
-inline double ToDouble(const std::string &s)
-{
-  double result;
-  std::stringstream SS;
-  SS << s;
-  SS >> result;
-  return result;
-}
-
 inline BYTEARRAY CreateByteArray(const uint8_t *a, int32_t size)
 {
   if (size < 1)

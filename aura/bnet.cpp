@@ -934,7 +934,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             return;
           }
 
-          uint32_t Downloads = ToUInt32(Payload);
+          uint32_t Downloads = stoul(Payload);
 
           if (Downloads == 0)
           {
@@ -961,7 +961,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         {
           // TODO: what if a game ends just as you're typing this command and the numbering changes?
 
-          uint32_t GameNumber = ToUInt32(Payload) - 1;
+          uint32_t GameNumber = stoul(Payload) - 1;
 
           if (GameNumber < m_Aura->m_Games.size())
           {
@@ -1521,7 +1521,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if ((Command == "getgame" || Command == "g") && !Payload.empty())
         {
-          const uint32_t GameNumber = ToUInt32(Payload) - 1;
+          const uint32_t GameNumber = stoul(Payload) - 1;
 
           if (GameNumber < m_Aura->m_Games.size())
             QueueChatCommand("Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
@@ -1549,7 +1549,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if ((Command == "gp" || Command == "getplayers") && !Payload.empty())
         {
-          const int32_t GameNumber = ToInt32(Payload) - 1;
+          const int32_t GameNumber = stoi(Payload) - 1;
 
           if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
             QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
@@ -1566,7 +1566,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if ((Command == "go" || Command == "getobservers") && !Payload.empty())
         {
-          const int32_t GameNumber = ToInt32(Payload) - 1;
+          const int32_t GameNumber = stoi(Payload) - 1;
 
           if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
             QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);

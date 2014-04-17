@@ -379,7 +379,7 @@ CAura::CAura(CConfig *CFG)
     if (Locale == "system")
       LocaleID = 1031;
     else
-      LocaleID = ToUInt32(Locale);
+      LocaleID = stoul(Locale);
 
     string UserName = CFG->GetString(Prefix + "username", string());
     string UserPassword = CFG->GetString(Prefix + "password", string());
@@ -916,7 +916,7 @@ void CAura::LoadIPToCountryData()
         parser >> IP1;
         parser >> IP2;
         parser >> Country;
-        m_DB->FromAdd(ToUInt32(IP1), ToUInt32(IP2), Country);
+        m_DB->FromAdd(stoul(IP1), stoul(IP2), Country);
 
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
