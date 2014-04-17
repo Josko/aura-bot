@@ -822,6 +822,11 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
       slot.SetRace(SLOTRACE_RANDOM);
   }
 
+  // force melee maps to have observer slots enabled by default
+
+  if (m_MapFilterType & MAPFILTER_TYPE_MELEE && m_MapObservers == MAPOBS_NONE)
+    m_MapObservers = MAPOBS_ALLOWED;
+
   // add observer slots
 
   if (m_MapObservers == MAPOBS_ALLOWED || m_MapObservers == MAPOBS_REFEREES)
