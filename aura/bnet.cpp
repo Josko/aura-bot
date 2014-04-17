@@ -136,7 +136,7 @@ bool CBNET::Update(void *fd, void *send_fd)
     // the socket has an error
 
     Print2("[BNET: " + m_ServerAlias + "] disconnected from battle.net due to socket error");
-    Print("[BNET: " + m_ServerAlias + "] waiting " + ToString(m_ReconnectDelay) + " seconds to reconnect");
+    Print("[BNET: " + m_ServerAlias + "] waiting " + to_string(m_ReconnectDelay) + " seconds to reconnect");
     m_BNCSUtil->Reset(m_UserName, m_UserPassword);
     m_Socket->Reset();
     m_LastDisconnectedTime = Time;
@@ -246,13 +246,13 @@ bool CBNET::Update(void *fd, void *send_fd)
 
                   if (m_EXEVersion.size() == 4)
                   {
-                    Print("[BNET: " + m_ServerAlias + "] using custom exe version bnet_custom_exeversion = " + ToString(m_EXEVersion[0]) + " " + ToString(m_EXEVersion[1]) + " " + ToString(m_EXEVersion[2]) + " " + ToString(m_EXEVersion[3]));
+                    Print("[BNET: " + m_ServerAlias + "] using custom exe version bnet_custom_exeversion = " + to_string(m_EXEVersion[0]) + " " + to_string(m_EXEVersion[1]) + " " + to_string(m_EXEVersion[2]) + " " + to_string(m_EXEVersion[3]));
                     m_BNCSUtil->SetEXEVersion(m_EXEVersion);
                   }
 
                   if (m_EXEVersionHash.size() == 4)
                   {
-                    Print("[BNET: " + m_ServerAlias + "] using custom exe version hash bnet_custom_exeversionhash = " + ToString(m_EXEVersionHash[0]) + " " + ToString(m_EXEVersionHash[1]) + " " + ToString(m_EXEVersionHash[2]) + " " + ToString(m_EXEVersionHash[3]));
+                    Print("[BNET: " + m_ServerAlias + "] using custom exe version hash bnet_custom_exeversionhash = " + to_string(m_EXEVersionHash[0]) + " " + to_string(m_EXEVersionHash[1]) + " " + to_string(m_EXEVersionHash[2]) + " " + to_string(m_EXEVersionHash[3]));
                     m_BNCSUtil->SetEXEVersionHash(m_EXEVersionHash);
                   }
 
@@ -406,7 +406,7 @@ bool CBNET::Update(void *fd, void *send_fd)
     if (!m_OutPackets.empty() && Ticks - m_LastOutPacketTicks >= WaitTicks)
     {
       if (m_OutPackets.size() > 7)
-        Print("[BNET: " + m_ServerAlias + "] packet queue warning - there are " + ToString(m_OutPackets.size()) + " packets waiting to be sent");
+        Print("[BNET: " + m_ServerAlias + "] packet queue warning - there are " + to_string(m_OutPackets.size()) + " packets waiting to be sent");
 
       m_Socket->PutBytes(m_OutPackets.front());
       m_LastOutPacketSize = m_OutPackets.front().size();
@@ -861,7 +861,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             else if (Count == 1)
               QueueChatCommand("There is 1 admin on server [" + m_Server + "]", User, Whisper, m_IRC);
             else
-              QueueChatCommand("There are " + ToString(Count) + " admins on server [" + m_Server + "]", User, Whisper, m_IRC);
+              QueueChatCommand("There are " + to_string(Count) + " admins on server [" + m_Server + "]", User, Whisper, m_IRC);
           }
           else
             QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
@@ -880,7 +880,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
           else if (Count == 1)
             QueueChatCommand("There is 1 banned user on server [" + m_Server + "]", User, Whisper, m_IRC);
           else
-            QueueChatCommand("There are " + ToString(Count) + " banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
+            QueueChatCommand("There are " + to_string(Count) + " banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
         }
 
         //
@@ -1067,7 +1067,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
           const auto Count = FilesMatch(m_Aura->m_MapPath, "").size();
 #endif
 
-          QueueChatCommand("There are currently [" + ToString(Count) + "] maps", User, Whisper, m_IRC);
+          QueueChatCommand("There are currently [" + to_string(Count) + "] maps", User, Whisper, m_IRC);
         }
 
         //
@@ -1082,7 +1082,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 #else
           const auto Count = FilesMatch(m_Aura->m_MapCFGPath, "").size();
 #endif
-          QueueChatCommand("There are currently [" + ToString(Count) + "] cfgs", User, Whisper, m_IRC);
+          QueueChatCommand("There are currently [" + to_string(Count) + "] cfgs", User, Whisper, m_IRC);
         }
 
         //
@@ -1257,7 +1257,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 if (GameNumber - 1 < m_Aura->m_Games.size())
                   m_Aura->m_Games[GameNumber - 1]->SendAllChat("ADMIN: " + Message);
                 else
-                  QueueChatCommand("Game number " + ToString(GameNumber) + " doesn't exist", User, Whisper, m_IRC);
+                  QueueChatCommand("Game number " + to_string(GameNumber) + " doesn't exist", User, Whisper, m_IRC);
               }
             }
           }
@@ -1506,7 +1506,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             CDBGamePlayerSummary *GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck(StatsUser);
 
             if (GamePlayerSummary)
-              QueueChatCommand("[" + StatsUser + "] has played " + ToString(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + ToString(GamePlayerSummary->GetAvgLoadingTime(), 2) + " seconds. Average stay: " + ToString(GamePlayerSummary->GetAvgLeftPercent()) + " percent", User, Whisper, m_IRC);
+              QueueChatCommand("[" + StatsUser + "] has played " + to_string(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + to_string(GamePlayerSummary->GetAvgLoadingTime()) + " seconds. Average stay: " + to_string(GamePlayerSummary->GetAvgLeftPercent()) + " percent", User, Whisper, m_IRC);
             else
               QueueChatCommand("[" + StatsUser + "] hasn't played any games with this bot yet", User, Whisper, m_IRC);
 
@@ -1537,9 +1537,9 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         else if ((Command == "getgames" || Command == "g") && Payload.empty())
         {
           if (m_Aura->m_CurrentGame)
-            QueueChatCommand("Game [" + m_Aura->m_CurrentGame->GetDescription() + "] is in the lobby and there are " + ToString(m_Aura->m_Games.size()) + "/" + ToString(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
+            QueueChatCommand("Game [" + m_Aura->m_CurrentGame->GetDescription() + "] is in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
           else
-            QueueChatCommand("There is no game in the lobby and there are " + ToString(m_Aura->m_Games.size()) + "/" + ToString(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
+            QueueChatCommand("There is no game in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
         }
 
         //
@@ -1596,7 +1596,24 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
             if (DotAPlayerSummary)
             {
-              const string Summary = StatsUser + " - " + ToString(DotAPlayerSummary->GetTotalGames()) + " games (W/L: " + ToString(DotAPlayerSummary->GetTotalWins()) + "/" + ToString(DotAPlayerSummary->GetTotalLosses()) + ") Hero K/D/A: " + ToString(DotAPlayerSummary->GetTotalKills()) + "/" + ToString(DotAPlayerSummary->GetTotalDeaths()) + "/" + ToString(DotAPlayerSummary->GetTotalAssists()) + " (" + ToString(DotAPlayerSummary->GetAvgKills(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgDeaths(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgAssists(), 2) + ") Creep K/D/N: " + ToString(DotAPlayerSummary->GetTotalCreepKills()) + "/" + ToString(DotAPlayerSummary->GetTotalCreepDenies()) + "/" + ToString(DotAPlayerSummary->GetTotalNeutralKills()) + " (" + ToString(DotAPlayerSummary->GetAvgCreepKills(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgCreepDenies(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgNeutralKills(), 2) + ") T/R/C: " + ToString(DotAPlayerSummary->GetTotalTowerKills()) + "/" + ToString(DotAPlayerSummary->GetTotalRaxKills()) + "/" + ToString(DotAPlayerSummary->GetTotalCourierKills());
+              const string Summary = StatsUser + " - " + to_string(DotAPlayerSummary->GetTotalGames())
+                + " games (W/L: " + to_string(DotAPlayerSummary->GetTotalWins())
+                + "/" + to_string(DotAPlayerSummary->GetTotalLosses())
+                + ") Hero K/D/A: " + to_string(DotAPlayerSummary->GetTotalKills())
+                + "/" + to_string(DotAPlayerSummary->GetTotalDeaths())
+                + "/" + to_string(DotAPlayerSummary->GetTotalAssists())
+                + " (" + to_string(DotAPlayerSummary->GetAvgKills())
+                + "/" + to_string(DotAPlayerSummary->GetAvgDeaths())
+                + "/" + to_string(DotAPlayerSummary->GetAvgAssists())
+                + ") Creep K/D/N: " + to_string(DotAPlayerSummary->GetTotalCreepKills())
+                + "/" + to_string(DotAPlayerSummary->GetTotalCreepDenies())
+                + "/" + to_string(DotAPlayerSummary->GetTotalNeutralKills())
+                + " (" + to_string(DotAPlayerSummary->GetAvgCreepKills())
+                + "/" + to_string(DotAPlayerSummary->GetAvgCreepDenies())
+                + "/" + to_string(DotAPlayerSummary->GetAvgNeutralKills())
+                + ") T/R/C: " + to_string(DotAPlayerSummary->GetTotalTowerKills())
+                + "/" + to_string(DotAPlayerSummary->GetTotalRaxKills())
+                + "/" + to_string(DotAPlayerSummary->GetTotalCourierKills());
 
               QueueChatCommand(Summary, User, Whisper, m_IRC);
 
@@ -1725,7 +1742,7 @@ void CBNET::QueueChatCommand(const string &chatCommand)
         m_OutPackets.push(m_Protocol->SEND_SID_CHATCOMMAND(chatCommand));
     }
     else
-      Print("[BNET: " + m_ServerAlias + "] too many (" + ToString(m_OutPackets.size()) + ") packets queued, discarding");
+      Print("[BNET: " + m_ServerAlias + "] too many (" + to_string(m_OutPackets.size()) + ") packets queued, discarding");
   }
 }
 

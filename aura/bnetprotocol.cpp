@@ -706,7 +706,7 @@ string CIncomingGameHost::GetIPString() const
   {
     for (uint32_t i = 0; i < 4; ++i)
     {
-      Result += ToString((uint32_t) m_IP[i]);
+      Result += to_string((uint32_t) m_IP[i]);
 
       if (i < 3)
         Result += ".";

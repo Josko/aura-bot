@@ -602,21 +602,21 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
               // let's not confuse the user by displaying erroneous map options so zero them out now
 
               MapOptions = RawMapFlags & (MAPOPT_MELEE | MAPOPT_FIXEDPLAYERSETTINGS | MAPOPT_CUSTOMFORCES);
-              Print("[MAP] calculated map_options = " + ToString(MapOptions));
+              Print("[MAP] calculated map_options = " + to_string(MapOptions));
               MapWidth = CreateByteArray((uint16_t) RawMapWidth, false);
               Print("[MAP] calculated map_width = " + ByteArrayToDecString(MapWidth));
               MapHeight = CreateByteArray((uint16_t) RawMapHeight, false);
               Print("[MAP] calculated map_height = " + ByteArrayToDecString(MapHeight));
               MapNumPlayers = RawMapNumPlayers - ClosedSlots;
-              Print("[MAP] calculated map_numplayers = " + ToString(MapNumPlayers));
+              Print("[MAP] calculated map_numplayers = " + to_string(MapNumPlayers));
               MapNumTeams = RawMapNumTeams;
-              Print("[MAP] calculated map_numteams = " + ToString(MapNumTeams));
+              Print("[MAP] calculated map_numteams = " + to_string(MapNumTeams));
 
               uint32_t SlotNum = 1;
 
               for (auto & Slot : Slots)
               {
-                Print("[MAP] calculated map_slot" + ToString(SlotNum) + " = " + ByteArrayToDecString((Slot).GetByteArray()));
+                Print("[MAP] calculated map_slot" + to_string(SlotNum) + " = " + ByteArrayToDecString((Slot).GetByteArray()));
                 ++SlotNum;
               }
 
@@ -784,7 +784,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
   {
     for (uint32_t Slot = 1; Slot <= 12; ++Slot)
     {
-      string SlotString = CFG->GetString("map_slot" + ToString(Slot), string());
+      string SlotString = CFG->GetString("map_slot" + to_string(Slot), string());
 
       if (SlotString.empty())
         break;
@@ -800,7 +800,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
     for (uint32_t Slot = 1; Slot <= 12; ++Slot)
     {
-      string SlotString = CFG->GetString("map_slot" + ToString(Slot), string());
+      string SlotString = CFG->GetString("map_slot" + to_string(Slot), string());
 
       if (SlotString.empty())
         break;
@@ -831,7 +831,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
   if (m_MapObservers == MAPOBS_ALLOWED || m_MapObservers == MAPOBS_REFEREES)
   {
-    Print("[MAP] adding " + ToString(12 - m_Slots.size()) + " observer slots");
+    Print("[MAP] adding " + to_string(12 - m_Slots.size()) + " observer slots");
 
     while (m_Slots.size() < 12)
       m_Slots.push_back(CGameSlot(0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM));

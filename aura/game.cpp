@@ -114,10 +114,10 @@ CGame::CGame(CAura *nAura, CMap *nMap, uint16_t nHostPort, uint8_t nGameState, s
     Print("[GAME: " + m_GameName + "] attempting to bind to address [" + m_Aura->m_BindAddress + "]");
 
   if (m_Socket->Listen(m_Aura->m_BindAddress, m_HostPort))
-    Print("[GAME: " + m_GameName + "] listening on port " + ToString(m_HostPort));
+    Print("[GAME: " + m_GameName + "] listening on port " + to_string(m_HostPort));
   else
   {
-    Print2("[GAME: " + m_GameName + "] error listening on port " + ToString(m_HostPort));
+    Print2("[GAME: " + m_GameName + "] error listening on port " + to_string(m_HostPort));
     m_Exiting = true;
   }
 }
@@ -224,12 +224,12 @@ uint32_t CGame::GetNumHumanPlayers() const
 
 string CGame::GetDescription() const
 {
-  string Description = m_GameName + " : " + m_OwnerName + " : " + ToString(GetNumHumanPlayers()) + "/" + ToString(m_GameLoading || m_GameLoaded ? m_StartPlayers : m_Slots.size());
+  string Description = m_GameName + " : " + m_OwnerName + " : " + to_string(GetNumHumanPlayers()) + "/" + to_string(m_GameLoading || m_GameLoaded ? m_StartPlayers : m_Slots.size());
 
   if (m_GameLoading || m_GameLoaded)
-    Description += " : " + ToString((m_GameTicks / 1000) / 60) + "m";
+    Description += " : " + to_string((m_GameTicks / 1000) / 60) + "m";
   else
-    Description += " : " + ToString((GetTime() - m_CreationTime) / 60) + "m";
+    Description += " : " + to_string((GetTime() - m_CreationTime) / 60) + "m";
 
   return Description;
 }
@@ -441,7 +441,7 @@ bool CGame::Update(void *fd, void *send_fd)
         WaitTime = (m_GProxyEmptyActions + 1) * 60;
 
       if (Time - m_StartedLaggingTime >= WaitTime)
-        StopLaggers("was automatically dropped after " + ToString(WaitTime) + " seconds");
+        StopLaggers("was automatically dropped after " + to_string(WaitTime) + " seconds");
 
       // we cannot allow the lag screen to stay up for more than ~65 seconds because Warcraft III disconnects if it doesn't receive an action packet at least this often
       // one (easy) solution is to simply drop all the laggers if they lag for more than 60 seconds
@@ -697,7 +697,7 @@ bool CGame::Update(void *fd, void *send_fd)
       // this sometimes resulted in a countdown of e.g. "6 5 3 2 1" during my testing which looks pretty dumb
       // doing it this way ensures it's always "5 4 3 2 1" but each int32_terval might not be *exactly* the same length
 
-      SendAllChat(ToString(m_CountDownCounter--) + ". . .");
+      SendAllChat(to_string(m_CountDownCounter--) + ". . .");
     }
     else if (!m_GameLoading && !m_GameLoaded)
       EventGameStarted();
@@ -901,7 +901,7 @@ void CGame::SendFakePlayerInfo(CGamePlayer *player)
   const BYTEARRAY IP = {0, 0, 0, 0};
 
   for (auto & fakeplayer : m_FakePlayers)
-    Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(fakeplayer, "Troll[" + ToString(fakeplayer) + "]", IP, IP));
+    Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(fakeplayer, "Troll[" + to_string(fakeplayer) + "]", IP, IP));
 }
 
 void CGame::SendAllActions()
@@ -1002,7 +1002,7 @@ void CGame::SendAllActions()
 
     // this program is SO FAST, I've yet to see this happen *coolface*
 
-    Print("[GAME: " + m_GameName + "] warning - the latency is " + ToString(m_Latency) + "ms but the last update was late by " + ToString(m_LastActionLateBy) + "ms");
+    Print("[GAME: " + m_GameName + "] warning - the latency is " + to_string(m_Latency) + "ms but the last update was late by " + to_string(m_LastActionLateBy) + "ms");
     m_LastActionLateBy = m_Latency;
   }
 
@@ -1086,7 +1086,7 @@ void CGame::EventPlayerDisconnectTimedOut(CGamePlayer *player)
       if (TimeRemaining > ((uint32_t) m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
-      SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + ToString(TimeRemaining) + " seconds remain)");
+      SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
       player->SetLastGProxyWaitNoticeSentTime(GetTime());
     }
 
@@ -1125,7 +1125,7 @@ void CGame::EventPlayerDisconnectSocketError(CGamePlayer *player)
       if (TimeRemaining > ((uint32_t) m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
-      SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + ToString(TimeRemaining) + " seconds remain)");
+      SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
       player->SetLastGProxyWaitNoticeSentTime(GetTime());
     }
 
@@ -1157,7 +1157,7 @@ void CGame::EventPlayerDisconnectConnectionClosed(CGamePlayer *player)
       if (TimeRemaining > ((uint32_t) m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
-      SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + ToString(TimeRemaining) + " seconds remain)");
+      SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
       player->SetLastGProxyWaitNoticeSentTime(GetTime());
     }
 
@@ -1465,7 +1465,7 @@ void CGame::EventPlayerLeft(CGamePlayer *player, uint32_t reason)
 
 void CGame::EventPlayerLoaded(CGamePlayer *player)
 {
-  Print("[GAME: " + m_GameName + "] player [" + player->GetName() + "] finished loading in " + ToString((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
+  Print("[GAME: " + m_GameName + "] player [" + player->GetName() + "] finished loading in " + to_string((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 
 
   SendAll(m_Protocol->SEND_W3GS_GAMELOADED_OTHERS(player->GetPID()));
@@ -1530,8 +1530,8 @@ void CGame::EventPlayerChatToHost(CGamePlayer *player, CIncomingChatPlayer *chat
 
       // calculate timestamp
 
-      string MinString = ToString((m_GameTicks / 1000) / 60);
-      string SecString = ToString((m_GameTicks / 1000) % 60);
+      string MinString = to_string((m_GameTicks / 1000) / 60);
+      string SecString = to_string((m_GameTicks / 1000) % 60);
 
       if (MinString.size() == 1)
         MinString.insert(0, "0");
@@ -1681,12 +1681,12 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
           if ((*i)->GetNumPings() > 0)
           {
-            Pings += ToString((*i)->GetPing(m_Aura->m_LCPings));
+            Pings += to_string((*i)->GetPing(m_Aura->m_LCPings));
 
             if (!m_GameLoaded && !m_GameLoading && !(*i)->GetReserved() && KickPing > 0 && (*i)->GetPing(m_Aura->m_LCPings) > KickPing)
             {
               (*i)->SetDeleteMe(true);
-              (*i)->SetLeftReason("was kicked for excessive ping " + ToString((*i)->GetPing(m_Aura->m_LCPings)) + " > " + ToString(KickPing));
+              (*i)->SetLeftReason("was kicked for excessive ping " + to_string((*i)->GetPing(m_Aura->m_LCPings)) + " > " + to_string(KickPing));
               (*i)->SetLeftCode(PLAYERLEAVE_LOBBY);
               OpenSlot(GetSIDFromPID((*i)->GetPID()), false);
               ++Kicked;
@@ -1713,7 +1713,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           SendAllChat(Pings);
 
         if (Kicked > 0)
-          SendAllChat("Kicking " + ToString(Kicked) + " players with pings greater than " + ToString(KickPing));
+          SendAllChat("Kicking " + to_string(Kicked) + " players with pings greater than " + to_string(KickPing));
       }
 
       //
@@ -1913,7 +1913,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       else if (Command == "latency" || Command == "l")
       {
         if (Payload.empty())
-          SendAllChat("The game latency is " + ToString(m_Latency) + " ms");
+          SendAllChat("The game latency is " + to_string(m_Latency) + " ms");
         else
         {
           m_Latency = ToUInt32(Payload);
@@ -1929,7 +1929,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             SendAllChat("Setting game latency to the maximum of 250 ms");
           }
           else
-            SendAllChat("Setting game latency to " + ToString(m_Latency) + " ms");
+            SendAllChat("Setting game latency to " + to_string(m_Latency) + " ms");
         }
       }
 
@@ -2122,7 +2122,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       else if (Command == "synclimit" || Command == "sl")
       {
         if (Payload.empty())
-          SendAllChat("The sync limit is " + ToString(m_SyncLimit) + " packets");
+          SendAllChat("The sync limit is " + to_string(m_SyncLimit) + " packets");
         else
         {
           m_SyncLimit = ToUInt32(Payload);
@@ -2138,7 +2138,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             SendAllChat("Setting sync limit to the maximum of 120 packets");
           }
           else
-            SendAllChat("Setting sync limit to " + ToString(m_SyncLimit) + " packets");
+            SendAllChat("Setting sync limit to " + to_string(m_SyncLimit) + " packets");
         }
       }
 
@@ -2422,13 +2422,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
               }
             }
 
-            SendAllChat("Checked player [" + LastMatch->GetName() + "]. Ping: " + (LastMatch->GetNumPings() > 0 ? ToString(LastMatch->GetPing(m_Aura->m_LCPings)) + "ms" : "N/A") + ", From: " + m_Aura->m_DB->FromCheck(ByteArrayToUInt32(LastMatch->GetExternalIP(), true)) + ", Admin: " + (LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No") + ", Owner: " + (IsOwner(LastMatch->GetName()) ? "Yes" : "No") + ", Spoof Checked: " + (LastMatch->GetSpoofed() ? "Yes" : "No") + ", Realm: " + (LastMatch->GetJoinedRealm().empty() ? "LAN" : LastMatch->GetJoinedRealm()) + ", Reserved: " + (LastMatch->GetReserved() ? "Yes" : "No"));
+            SendAllChat("Checked player [" + LastMatch->GetName() + "]. Ping: " + (LastMatch->GetNumPings() > 0 ? to_string(LastMatch->GetPing(m_Aura->m_LCPings)) + "ms" : "N/A") + ", From: " + m_Aura->m_DB->FromCheck(ByteArrayToUInt32(LastMatch->GetExternalIP(), true)) + ", Admin: " + (LastMatchAdminCheck || LastMatchRootAdminCheck ? "Yes" : "No") + ", Owner: " + (IsOwner(LastMatch->GetName()) ? "Yes" : "No") + ", Spoof Checked: " + (LastMatch->GetSpoofed() ? "Yes" : "No") + ", Realm: " + (LastMatch->GetJoinedRealm().empty() ? "LAN" : LastMatch->GetJoinedRealm()) + ", Reserved: " + (LastMatch->GetReserved() ? "Yes" : "No"));
           }
           else
             SendChat(player, "Unable to check player [" + Payload + "]. Found more than one match");
         }
         else
-          SendAllChat("Checked player [" + User + "]. Ping: " + (player->GetNumPings() > 0 ? ToString(player->GetPing(m_Aura->m_LCPings)) + "ms" : "N/A") + ", From: " + m_Aura->m_DB->FromCheck(ByteArrayToUInt32(player->GetExternalIP(), true)) + ", Admin: " + (AdminCheck || RootAdminCheck ? "Yes" : "No") + ", Owner: " + (IsOwner(User) ? "Yes" : "No") + ", Spoof Checked: " + (player->GetSpoofed() ? "Yes" : "No") + ", Realm: " + (player->GetJoinedRealm().empty() ? "LAN" : player->GetJoinedRealm()) + ", Reserved: " + (player->GetReserved() ? "Yes" : "No"));
+          SendAllChat("Checked player [" + User + "]. Ping: " + (player->GetNumPings() > 0 ? to_string(player->GetPing(m_Aura->m_LCPings)) + "ms" : "N/A") + ", From: " + m_Aura->m_DB->FromCheck(ByteArrayToUInt32(player->GetExternalIP(), true)) + ", Admin: " + (AdminCheck || RootAdminCheck ? "Yes" : "No") + ", Owner: " + (IsOwner(User) ? "Yes" : "No") + ", Spoof Checked: " + (player->GetSpoofed() ? "Yes" : "No") + ", Realm: " + (player->GetJoinedRealm().empty() ? "LAN" : player->GetJoinedRealm()) + ", Reserved: " + (player->GetReserved() ? "Yes" : "No"));
       }
 
       //
@@ -2965,7 +2965,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
   //
 
   if (Command == "checkme")
-    SendChat(player, "Checked player [" + User + "]. Ping: " + (player->GetNumPings() > 0 ? ToString(player->GetPing(m_Aura->m_LCPings)) + "ms" : "N/A") + ", From: " + m_Aura->m_DB->FromCheck(ByteArrayToUInt32(player->GetExternalIP(), true)) + ", Admin: " + (AdminCheck || RootAdminCheck ? "Yes" : "No") + ", Owner: " + (IsOwner(User) ? "Yes" : "No") + ", Spoof Checked: " + (player->GetSpoofed() ? "Yes" : "No") + ", Realm: " + (player->GetJoinedRealm().empty() ? "LAN" : player->GetJoinedRealm()) + ", Reserved: " + (player->GetReserved() ? "Yes" : "No"));
+    SendChat(player, "Checked player [" + User + "]. Ping: " + (player->GetNumPings() > 0 ? to_string(player->GetPing(m_Aura->m_LCPings)) + "ms" : "N/A") + ", From: " + m_Aura->m_DB->FromCheck(ByteArrayToUInt32(player->GetExternalIP(), true)) + ", Admin: " + (AdminCheck || RootAdminCheck ? "Yes" : "No") + ", Owner: " + (IsOwner(User) ? "Yes" : "No") + ", Spoof Checked: " + (player->GetSpoofed() ? "Yes" : "No") + ", Realm: " + (player->GetJoinedRealm().empty() ? "LAN" : player->GetJoinedRealm()) + ", Reserved: " + (player->GetReserved() ? "Yes" : "No"));
 
   //
   // !STATS
@@ -2985,9 +2985,9 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       if (GamePlayerSummary)
       {
         if (player->GetSpoofed() && (m_Aura->m_DB->AdminCheck(player->GetSpoofedRealm(), User) || RootAdminCheck || IsOwner(User)))
-          SendAllChat("[" + StatsUser + "] has played " + ToString(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + ToString(GamePlayerSummary->GetAvgLoadingTime(), 2) + " seconds. Average stay: " + ToString(GamePlayerSummary->GetAvgLeftPercent()) + " percent");
+          SendAllChat("[" + StatsUser + "] has played " + to_string(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + to_string(GamePlayerSummary->GetAvgLoadingTime()) + " seconds. Average stay: " + to_string(GamePlayerSummary->GetAvgLeftPercent()) + " percent");
         else
-          SendChat(player, "[" + StatsUser + "] has played " + ToString(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + ToString(GamePlayerSummary->GetAvgLoadingTime(), 2) + " seconds. Average stay: " + ToString(GamePlayerSummary->GetAvgLeftPercent()) + " percent");
+          SendChat(player, "[" + StatsUser + "] has played " + to_string(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + to_string(GamePlayerSummary->GetAvgLoadingTime()) + " seconds. Average stay: " + to_string(GamePlayerSummary->GetAvgLeftPercent()) + " percent");
 
         delete GamePlayerSummary;
       }
@@ -3019,7 +3019,24 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
       if (DotAPlayerSummary)
       {
-        const string Summary = StatsUser + " - " + ToString(DotAPlayerSummary->GetTotalGames()) + " games (W/L: " + ToString(DotAPlayerSummary->GetTotalWins()) + "/" + ToString(DotAPlayerSummary->GetTotalLosses()) + ") Hero K/D/A: " + ToString(DotAPlayerSummary->GetTotalKills()) + "/" + ToString(DotAPlayerSummary->GetTotalDeaths()) + "/" + ToString(DotAPlayerSummary->GetTotalAssists()) + " (" + ToString(DotAPlayerSummary->GetAvgKills(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgDeaths(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgAssists(), 2) + ") Creep K/D/N: " + ToString(DotAPlayerSummary->GetTotalCreepKills()) + "/" + ToString(DotAPlayerSummary->GetTotalCreepDenies()) + "/" + ToString(DotAPlayerSummary->GetTotalNeutralKills()) + " (" + ToString(DotAPlayerSummary->GetAvgCreepKills(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgCreepDenies(), 2) + "/" + ToString(DotAPlayerSummary->GetAvgNeutralKills(), 2) + ") T/R/C: " + ToString(DotAPlayerSummary->GetTotalTowerKills()) + "/" + ToString(DotAPlayerSummary->GetTotalRaxKills()) + "/" + ToString(DotAPlayerSummary->GetTotalCourierKills());
+        const string Summary = StatsUser + " - " + to_string(DotAPlayerSummary->GetTotalGames())
+          + " games (W/L: " + to_string(DotAPlayerSummary->GetTotalWins())
+          + "/" + to_string(DotAPlayerSummary->GetTotalLosses())
+          + ") Hero K/D/A: " + to_string(DotAPlayerSummary->GetTotalKills())
+          + "/" + to_string(DotAPlayerSummary->GetTotalDeaths())
+          + "/" + to_string(DotAPlayerSummary->GetTotalAssists())
+          + " (" + to_string(DotAPlayerSummary->GetAvgKills())
+          + "/" + to_string(DotAPlayerSummary->GetAvgDeaths())
+          + "/" + to_string(DotAPlayerSummary->GetAvgAssists())
+          + ") Creep K/D/N: " + to_string(DotAPlayerSummary->GetTotalCreepKills())
+          + "/" + to_string(DotAPlayerSummary->GetTotalCreepDenies())
+          + "/" + to_string(DotAPlayerSummary->GetTotalNeutralKills())
+          + " (" + to_string(DotAPlayerSummary->GetAvgCreepKills())
+          + "/" + to_string(DotAPlayerSummary->GetAvgCreepDenies())
+          + "/" + to_string(DotAPlayerSummary->GetAvgNeutralKills())
+          + ") T/R/C: " + to_string(DotAPlayerSummary->GetTotalTowerKills())
+          + "/" + to_string(DotAPlayerSummary->GetTotalRaxKills())
+          + "/" + to_string(DotAPlayerSummary->GetTotalCourierKills());
 
         if (player->GetSpoofed() && (m_Aura->m_DB->AdminCheck(player->GetSpoofedRealm(), User) || RootAdminCheck || IsOwner(User)))
           SendAllChat(Summary);
@@ -3078,7 +3095,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
           player->SetKickVote(true);
           Print("[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]");
-          SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + ToString((uint32_t) ceil((GetNumHumanPlayers() - 1) * (float) m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
+          SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string((uint32_t) ceil((GetNumHumanPlayers() - 1) * (float) m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
           SendAllChat("Type " + string(1, m_Aura->m_CommandTrigger) + "yes to vote");
         }
       }
@@ -3119,7 +3136,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         if (!m_GameLoading && !m_GameLoaded)
           OpenSlot(GetSIDFromPID(Victim->GetPID()), false);
 
-        Print("[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] passed with " + ToString(Votes) + "/" + ToString(GetNumHumanPlayers()) + " votes");
+        Print("[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] passed with " + to_string(Votes) + "/" + to_string(GetNumHumanPlayers()) + " votes");
         SendAllChat("A votekick against player [" + m_KickVotePlayer + "] has passed");
       }
       else
@@ -3129,7 +3146,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
       m_StartedKickVoteTime = 0;
     }
     else
-      SendAllChat("Player [" + User + "] voted to kick player [" + m_KickVotePlayer + "]. " + ToString(VotesNeeded - Votes) + " more votes are needed to pass");
+      SendAllChat("Player [" + User + "] voted to kick player [" + m_KickVotePlayer + "]. " + to_string(VotesNeeded - Votes) + " more votes are needed to pass");
   }
 
   return true;
@@ -3342,8 +3359,8 @@ void CGame::EventPlayerMapSize(CGamePlayer *player, CIncomingMapSize *mapSize)
 
     const float Seconds = (float)(GetTicks() - player->GetStartedDownloadingTicks()) / 1000.f;
     const float Rate = (float) MapSize / 1024.f / Seconds;
-    Print("[GAME: " + m_GameName + "] map download finished for player [" + player->GetName() + "] in " + ToString(Seconds, 1) + " seconds");
-    SendAllChat("Player [" + player->GetName() + "] downloaded the map in " + ToString(Seconds, 1) + " seconds (" + ToString(Rate, 1) + " KB/sec)");
+    Print("[GAME: " + m_GameName + "] map download finished for player [" + player->GetName() + "] in " + to_string(Seconds) + " seconds");
+    SendAllChat("Player [" + player->GetName() + "] downloaded the map in " + to_string(Seconds) + " seconds (" + to_string(Rate) + " KB/sec)");
     player->SetDownloadFinished(true);
     player->SetFinishedDownloadingTime(GetTime());
   }
@@ -3382,9 +3399,9 @@ void CGame::EventPlayerPongToHost(CGamePlayer *player)
   {
     // send a chat message because we don't normally do so when a player leaves the lobby
 
-    SendAllChat("Autokicking player [" + player->GetName()  + "] for excessive ping of " + ToString(player->GetPing(m_Aura->m_LCPings)));
+    SendAllChat("Autokicking player [" + player->GetName()  + "] for excessive ping of " + to_string(player->GetPing(m_Aura->m_LCPings)));
     player->SetDeleteMe(true);
-    player->SetLeftReason("was autokicked for excessive ping of " + ToString(player->GetPing(m_Aura->m_LCPings)));
+    player->SetLeftReason("was autokicked for excessive ping of " + to_string(player->GetPing(m_Aura->m_LCPings)));
     player->SetLeftCode(PLAYERLEAVE_LOBBY);
     OpenSlot(GetSIDFromPID(player->GetPID()), false);
   }
@@ -3392,7 +3409,7 @@ void CGame::EventPlayerPongToHost(CGamePlayer *player)
 
 void CGame::EventGameStarted()
 {
-  Print2("[GAME: " + m_GameName + "] started loading with " + ToString(GetNumHumanPlayers()) + " players");
+  Print2("[GAME: " + m_GameName + "] started loading with " + to_string(GetNumHumanPlayers()) + " players");
 
   // encode the HCL command string in the slot handicaps
   // here's how it works:
@@ -3537,7 +3554,7 @@ void CGame::EventGameStarted()
 
 void CGame::EventGameLoaded()
 {
-  Print("[GAME: " + m_GameName + "] finished loading with " + ToString(GetNumHumanPlayers()) + " players");
+  Print("[GAME: " + m_GameName + "] finished loading with " + to_string(GetNumHumanPlayers()) + " players");
 
   // send shortest, longest, and personal load times to each player
 
@@ -3555,12 +3572,12 @@ void CGame::EventGameLoaded()
 
   if (Shortest && Longest)
   {
-    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + ToString((float)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
-    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + ToString((float)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
+    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + to_string((float)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + to_string((float)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
   }
 
   for (auto & player : m_Players)
-    SendChat(player, "Your load time was " + ToString((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f, 2) + " seconds");
+    SendChat(player, "Your load time was " + to_string((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 }
 
 uint8_t CGame::GetSIDFromPID(uint8_t PID) const
@@ -4382,7 +4399,7 @@ void CGame::CreateFakePlayer()
     const uint8_t FakePlayerPID = GetNewPID();
     const BYTEARRAY IP = {0, 0, 0, 0};
 
-    SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(FakePlayerPID, "Troll[" + ToString(FakePlayerPID) + "]", IP, IP));
+    SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(FakePlayerPID, "Troll[" + to_string(FakePlayerPID) + "]", IP, IP));
     m_Slots[SID] = CGameSlot(FakePlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam(), m_Slots[SID].GetColour(), m_Slots[SID].GetRace());
     m_FakePlayers.push_back(FakePlayerPID);
     SendAllSlotInfo();

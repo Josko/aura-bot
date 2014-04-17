@@ -91,7 +91,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
             const string KeyString = string(begin(Key), end(Key));
             const uint32_t ValueInt = ByteArrayToUInt32(Value, false);
 
-            //Print( "[STATS] " + DataString + ", " + KeyString + ", " + ToString( ValueInt ) );
+            //Print( "[STATS] " + DataString + ", " + KeyString + ", " + to_string( ValueInt ) );
 
             if (DataString == "Data")
             {
@@ -205,7 +205,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
                 else if (m_Winner == 2)
                   Print("[STATS: " + m_Game->GetGameName() + "] detected winner: Scourge");
                 else
-                  Print("[STATS: " + m_Game->GetGameName() + "] detected winner: " + ToString(ValueInt));
+                  Print("[STATS: " + m_Game->GetGameName() + "] detected winner: " + to_string(ValueInt));
               }
             }
             else if (DataString.size() <= 2 && DataString.find_first_not_of("1234567890") == string::npos)
@@ -343,7 +343,7 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
     }
 
     if (DB->Commit())
-      Print("[STATS: " + m_Game->GetGameName() + "] saving " + ToString(Players) + " players");
+      Print("[STATS: " + m_Game->GetGameName() + "] saving " + to_string(Players) + " players");
     else
       Print("[STATS: " + m_Game->GetGameName() + "] unable to commit database transaction, data not saved");
   }

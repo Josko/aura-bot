@@ -23,89 +23,6 @@
 
 #include "includes.h"
 
-#ifdef __APPLE__
-inline std::string ToString(size_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-#endif
-
-inline std::string ToString(uint64_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(uint32_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(uint16_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(int64_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(int32_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(int16_t i)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << i;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(float f, int32_t digits)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << std::fixed << std::setprecision(digits) << f;
-  SS >> result;
-  return result;
-}
-
-inline std::string ToString(const double d, int32_t digits)
-{
-  std::string result;
-  std::stringstream SS;
-  SS << std::fixed << std::setprecision(digits) << d;
-  SS >> result;
-  return result;
-}
-
 inline std::string ToHexString(uint32_t i)
 {
   std::string result;
@@ -218,10 +135,10 @@ inline std::string ByteArrayToDecString(const BYTEARRAY &b)
   if (b.empty())
     return std::string();
 
-  std::string result = ToString(b[0]);
+  std::string result = std::to_string(b[0]);
 
   for (auto i = begin(b) + 1; i != end(b); ++i)
-    result += " " + ToString(*i);
+    result += " " + std::to_string(*i);
 
   return result;
 }

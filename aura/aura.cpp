@@ -184,7 +184,7 @@ int main(int, char *argv[])
       break;
     }
     else if (i < 5)
-      Print("[AURA] error setting Windows timer resolution to " + ToString(i) + " milliseconds, trying a higher resolution");
+      Print("[AURA] error setting Windows timer resolution to " + to_string(i) + " milliseconds, trying a higher resolution");
     else
     {
       Print("[AURA] error setting Windows timer resolution");
@@ -192,7 +192,7 @@ int main(int, char *argv[])
     }
   }
 
-  Print("[AURA] using Windows timer with resolution " + ToString(TimerResolution) + " milliseconds");
+  Print("[AURA] using Windows timer with resolution " + to_string(TimerResolution) + " milliseconds");
 #elif !defined(__APPLE__)
   // print the timer resolution
 
@@ -201,7 +201,7 @@ int main(int, char *argv[])
   if (clock_getres(CLOCK_MONOTONIC, &Resolution) == -1)
     Print("[AURA] error getting monotonic timer resolution");
   else
-    Print("[AURA] using monotonic timer with resolution " + ToString((double)(Resolution.tv_nsec / 1000), 2) + " microseconds");
+    Print("[AURA] using monotonic timer with resolution " + to_string((double)(Resolution.tv_nsec / 1000)) + " microseconds");
 
 #endif
 
@@ -298,10 +298,10 @@ CAura::CAura(CConfig *CFG)
   m_ReconnectPort = CFG->GetInt("bot_reconnectport", 6113);
 
   if (m_ReconnectSocket->Listen(m_BindAddress, m_ReconnectPort))
-    Print("[AURA] listening for GProxy++ reconnects on port " + ToString(m_ReconnectPort));
+    Print("[AURA] listening for GProxy++ reconnects on port " + to_string(m_ReconnectPort));
   else
   {
-    Print("[AURA] error listening for GProxy++ reconnects on port " + ToString(m_ReconnectPort));
+    Print("[AURA] error listening for GProxy++ reconnects on port " + to_string(m_ReconnectPort));
     m_Ready = false;
     return;
   }
@@ -339,8 +339,8 @@ CAura::CAura(CConfig *CFG)
     }
     else
     {
-      Channel = CFG->GetString("irc_channel" + ToString(i), string());
-      RootAdmin = CFG->GetString("irc_rootadmin" + ToString(i), string());
+      Channel = CFG->GetString("irc_channel" + to_string(i), string());
+      RootAdmin = CFG->GetString("irc_rootadmin" + to_string(i), string());
     }
 
     if (!Channel.empty())
@@ -365,7 +365,7 @@ CAura::CAura(CConfig *CFG)
     if (i == 1)
       Prefix = "bnet_";
     else
-      Prefix = "bnet" + ToString(i) + "_";
+      Prefix = "bnet" + to_string(i) + "_";
 
     string Server = CFG->GetString(Prefix + "server", string());
     string ServerAlias = CFG->GetString(Prefix + "serveralias", string());
@@ -407,10 +407,10 @@ CAura::CAura(CConfig *CFG)
     if (Server.empty())
       break;
 
-    Print("[AURA] found battle.net connection #" + ToString(i) + " for server [" + Server + "]");
+    Print("[AURA] found battle.net connection #" + to_string(i) + " for server [" + Server + "]");
 
     if (Locale == "system")
-      Print("[AURA] using system locale of " + ToString(LocaleID));
+      Print("[AURA] using system locale of " + to_string(LocaleID));
 
     m_BNETs.push_back(new CBNET(this, Server, ServerAlias, CDKeyROC, CDKeyTFT, CountryAbbrev, Country, LocaleID, UserName, UserPassword, FirstChannel, BNETCommandTrigger[0], War3Version, EXEVersion, EXEVersionHash, PasswordHashType, i));
   }
@@ -870,9 +870,9 @@ void CAura::ExtractScripts()
   else
   {
 #ifdef WIN32
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + ToString((uint32_t) GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((uint32_t) GetLastError()));
 #else
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + ToString((int32_t) GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((int32_t) GetLastError()));
 #endif
   }
 }
@@ -926,7 +926,7 @@ void CAura::LoadIPToCountryData()
         if (NewPercent != Percent && NewPercent % 10 == 0)
         {
           Percent = NewPercent;
-          Print("[AURA] iptocountry data: " + ToString(Percent) + "% loaded");
+          Print("[AURA] iptocountry data: " + to_string(Percent) + "% loaded");
         }
       }
 
@@ -991,7 +991,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
     for (auto & bnet : m_BNETs)
     {
       if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + ToString(m_MaxGames) + ") has been reached", creatorName, whisper, string());
+        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + to_string(m_MaxGames) + ") has been reached", creatorName, whisper, string());
     }
 
     return;

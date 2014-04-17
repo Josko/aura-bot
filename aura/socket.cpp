@@ -316,7 +316,7 @@ string CTCPSocket::GetErrorString() const
       return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
+  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
 }
 
 void CTCPSocket::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
@@ -695,7 +695,7 @@ string CTCPClient::GetErrorString() const
       return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
+  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
 }
 
 void CTCPClient::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
@@ -942,7 +942,7 @@ string CTCPServer::GetErrorString() const
       return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
+  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
 }
 
 void CTCPServer::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
@@ -1049,7 +1049,7 @@ bool CUDPSocket::Broadcast(uint16_t port, const BYTEARRAY &message)
 
   if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, (struct sockaddr *) &sin, sizeof(sin)) == -1)
   {
-    Print("[UDPSOCKET] failed to broadcast packet (port " + ToString(port) + ", size " + ToString(MessageString.size()) + " bytes)");
+    Print("[UDPSOCKET] failed to broadcast packet (port " + to_string(port) + ", size " + to_string(MessageString.size()) + " bytes)");
     return false;
   }
 
@@ -1210,7 +1210,7 @@ string CUDPSocket::GetErrorString() const
       return "ECONNRESET";
   }
 
-  return "UNKNOWN ERROR (" + ToString(m_Error) + ")";
+  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
 }
 
 void CUDPSocket::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)

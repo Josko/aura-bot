@@ -163,7 +163,7 @@ bool CIRC::Update(void *fd, void *send_fd)
   {
     // attempt to connect to irc
 
-    Print("[IRC: " + m_Server + "] connecting to server [" + m_Server + "] on port " + ToString(m_Port));
+    Print("[IRC: " + m_Server + "] connecting to server [" + m_Server + "] on port " + to_string(m_Port));
 
     if (m_ServerIP.empty())
     {

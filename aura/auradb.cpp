@@ -815,15 +815,15 @@ string CAuraDB::FromCheck(uint32_t ip)
       if (sqlite3_column_count((sqlite3_stmt *) FromCheckStmt) == 1)
         From = string((char *) sqlite3_column_text((sqlite3_stmt *) FromCheckStmt, 0));
       else
-        Print("[SQLITE3] error checking iptocountry [" + ToString(ip) + "] - row doesn't have 1 column");
+        Print("[SQLITE3] error checking iptocountry [" + to_string(ip) + "] - row doesn't have 1 column");
     }
     else if (RC == SQLITE_ERROR)
-      Print("[SQLITE3] error checking iptocountry [" + ToString(ip) + "] - " + m_DB->GetError());
+      Print("[SQLITE3] error checking iptocountry [" + to_string(ip) + "] - " + m_DB->GetError());
 
     m_DB->Reset(FromCheckStmt);
   }
   else
-    Print("[SQLITE3] prepare error checking iptocountry [" + ToString(ip) + "] - " + m_DB->GetError());
+    Print("[SQLITE3] prepare error checking iptocountry [" + to_string(ip) + "] - " + m_DB->GetError());
 
   return From;
 }
@@ -850,12 +850,12 @@ bool CAuraDB::FromAdd(uint32_t ip1, uint32_t ip2, const string &country)
     if (RC == SQLITE_DONE)
       Success = true;
     else if (RC == SQLITE_ERROR)
-      Print("[SQLITE3] error adding iptocountry [" + ToString(ip1) + " : " + ToString(ip2) + " : " + country + "] - " + m_DB->GetError());
+      Print("[SQLITE3] error adding iptocountry [" + to_string(ip1) + " : " + to_string(ip2) + " : " + country + "] - " + m_DB->GetError());
 
     m_DB->Reset(FromAddStmt);
   }
   else
-    Print("[SQLITE3] prepare error adding iptocountry [" + ToString(ip1) + " : " + ToString(ip2) + " : " + country + "] - " + m_DB->GetError());
+    Print("[SQLITE3] prepare error adding iptocountry [" + to_string(ip1) + " : " + to_string(ip2) + " : " + country + "] - " + m_DB->GetError());
 
   return Success;
 }
