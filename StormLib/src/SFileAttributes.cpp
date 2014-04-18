@@ -125,8 +125,6 @@ static DWORD CheckSizeOfAttributesFile(DWORD cbAttrFile, DWORD dwAttrFlags, DWOR
     if(cbAttrFile == (cbHeaderSize + cbChecksumSize1 + cbFileTimeSize1 + cbFileHashSize1 + cbPatchBitSize3))
         return dwFileTableSize;
 
-    // Invalid size of the (attributes) file
-    assert(false);
     return 0;
 }
 
