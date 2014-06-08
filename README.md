@@ -77,6 +77,11 @@ Then proceed to build Aura:
 	
 Now you can run Aura by executing `./aura++`.
 
+**Note**: gcc version needs to be 4.7 or higher along with a compatible libc.
+
+**Note**: StormLib installs itself in `/usr/local/lib` which isn't in PATH by default
+on some distros such as Arch or CentOS.
+
 ### OS X
 
 Building `aura++` is verified to work with Xcode 5 (on 10.9) but it should
