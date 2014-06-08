@@ -934,22 +934,29 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             return;
           }
 
-          uint32_t Downloads = stoul(Payload);
+          try
+          {
+            const uint32_t Downloads = stoul(Payload);
 
-          if (Downloads == 0)
-          {
-            QueueChatCommand("Map downloads disabled", User, Whisper, m_IRC);
-            m_Aura->m_AllowDownloads = 0;
+            if (Downloads == 0)
+            {
+              QueueChatCommand("Map downloads disabled", User, Whisper, m_IRC);
+              m_Aura->m_AllowDownloads = 0;
+            }
+            else if (Downloads == 1)
+            {
+              QueueChatCommand("Map downloads enabled", User, Whisper, m_IRC);
+              m_Aura->m_AllowDownloads = 1;
+            }
+            else if (Downloads == 2)
+            {
+              QueueChatCommand("Conditional map downloads enabled", User, Whisper, m_IRC);
+              m_Aura->m_AllowDownloads = 2;
+            }
           }
-          else if (Downloads == 1)
+          catch (...)
           {
-            QueueChatCommand("Map downloads enabled", User, Whisper, m_IRC);
-            m_Aura->m_AllowDownloads = 1;
-          }
-          else if (Downloads == 2)
-          {
-            QueueChatCommand("Conditional map downloads enabled", User, Whisper, m_IRC);
-            m_Aura->m_AllowDownloads = 2;
+            // do nothing
           }
         }
 
@@ -961,23 +968,30 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
         {
           // TODO: what if a game ends just as you're typing this command and the numbering changes?
 
-          uint32_t GameNumber = stoul(Payload) - 1;
-
-          if (GameNumber < m_Aura->m_Games.size())
+          try
           {
-            // if the game owner is still in the game only allow the root admin to end the game
+            const uint32_t GameNumber = stoul(Payload) - 1;
 
-            if (m_Aura->m_Games[GameNumber]->GetPlayerFromName(m_Aura->m_Games[GameNumber]->GetOwnerName(), false) && !IsRootAdmin(User))
-              QueueChatCommand("You can't end that game because the game owner [" + m_Aura->m_Games[GameNumber]->GetOwnerName() + "] is still playing", User, Whisper, m_IRC);
-            else
+            if (GameNumber < m_Aura->m_Games.size())
             {
-              QueueChatCommand("Ending game [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
-              Print("[GAME: " + m_Aura->m_Games[GameNumber]->GetGameName() + "] is over (admin ended game)");
-              m_Aura->m_Games[GameNumber]->StopPlayers("was disconnected (admin ended game)");
+              // if the game owner is still in the game only allow the root admin to end the game
+
+              if (m_Aura->m_Games[GameNumber]->GetPlayerFromName(m_Aura->m_Games[GameNumber]->GetOwnerName(), false) && !IsRootAdmin(User))
+                QueueChatCommand("You can't end that game because the game owner [" + m_Aura->m_Games[GameNumber]->GetOwnerName() + "] is still playing", User, Whisper, m_IRC);
+              else
+              {
+                QueueChatCommand("Ending game [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
+                Print("[GAME: " + m_Aura->m_Games[GameNumber]->GetGameName() + "] is over (admin ended game)");
+                m_Aura->m_Games[GameNumber]->StopPlayers("was disconnected (admin ended game)");
+              }
             }
+            else
+              QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
           }
-          else
-            QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+          catch (...)
+          {
+            // do nothing
+          }
         }
 
         //
@@ -1521,12 +1535,19 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
         else if ((Command == "getgame" || Command == "g") && !Payload.empty())
         {
-          const uint32_t GameNumber = stoul(Payload) - 1;
+          try
+          {
+            const uint32_t GameNumber = stoul(Payload) - 1;
 
-          if (GameNumber < m_Aura->m_Games.size())
-            QueueChatCommand("Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+            if (GameNumber < m_Aura->m_Games.size())
+              QueueChatCommand("Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+          }
+          catch (...)
+          {
+            // do nothing
+          }
         }
 
         //
