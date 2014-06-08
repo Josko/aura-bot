@@ -1663,7 +1663,16 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
         uint32_t Kicked = 0, KickPing = 0;
 
         if (!m_GameLoading && !m_GameLoaded && !Payload.empty())
-          KickPing = stoul(Payload);
+        {
+          try
+          {
+            KickPing = stoul(Payload);
+          }
+          catch (...)
+          {
+            // do nothing
+          }
+        }
 
         // copy the m_Players vector so we can sort by descending ping so it's easier to find players with high pings
 
@@ -1916,20 +1925,27 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           SendAllChat("The game latency is " + to_string(m_Latency) + " ms");
         else
         {
-          m_Latency = stoul(Payload);
+          try
+          {
+            m_Latency = stoul(Payload);
 
-          if (m_Latency <= 25)
-          {
-            m_Latency = 25;
-            SendAllChat("Setting game latency to the minimum of 25 ms");
+            if (m_Latency <= 25)
+            {
+              m_Latency = 25;
+              SendAllChat("Setting game latency to the minimum of 25 ms");
+            }
+            else if (m_Latency >= 250)
+            {
+              m_Latency = 250;
+              SendAllChat("Setting game latency to the maximum of 250 ms");
+            }
+            else
+              SendAllChat("Setting game latency to " + to_string(m_Latency) + " ms");
           }
-          else if (m_Latency >= 250)
+          catch (...)
           {
-            m_Latency = 250;
-            SendAllChat("Setting game latency to the maximum of 250 ms");
+            // do nothing
           }
-          else
-            SendAllChat("Setting game latency to " + to_string(m_Latency) + " ms");
         }
       }
 
@@ -2125,20 +2141,27 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
           SendAllChat("The sync limit is " + to_string(m_SyncLimit) + " packets");
         else
         {
-          m_SyncLimit = stoul(Payload);
+          try
+          {
+            m_SyncLimit = stoul(Payload);
 
-          if (m_SyncLimit <= 40)
-          {
-            m_SyncLimit = 40;
-            SendAllChat("Setting sync limit to the minimum of 40 packets");
+            if (m_SyncLimit <= 40)
+            {
+              m_SyncLimit = 40;
+              SendAllChat("Setting sync limit to the minimum of 40 packets");
+            }
+            else if (m_SyncLimit >= 120)
+            {
+              m_SyncLimit = 120;
+              SendAllChat("Setting sync limit to the maximum of 120 packets");
+            }
+            else
+              SendAllChat("Setting sync limit to " + to_string(m_SyncLimit) + " packets");
           }
-          else if (m_SyncLimit >= 120)
+          catch (...)
           {
-            m_SyncLimit = 120;
-            SendAllChat("Setting sync limit to the maximum of 120 packets");
+            // do nothing
           }
-          else
-            SendAllChat("Setting sync limit to " + to_string(m_SyncLimit) + " packets");
         }
       }
 
@@ -2234,22 +2257,29 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
       else if ((Command == "downloads" || Command == "dls") && !Payload.empty())
       {
-        const uint32_t Downloads = stoul(Payload);
+        try
+        {
+          const uint32_t Downloads = stoul(Payload);
 
-        if (Downloads == 0)
-        {
-          SendAllChat("Map downloads disabled");
-          m_Aura->m_AllowDownloads = 0;
+          if (Downloads == 0)
+          {
+            SendAllChat("Map downloads disabled");
+            m_Aura->m_AllowDownloads = 0;
+          }
+          else if (Downloads == 1)
+          {
+            SendAllChat("Map downloads enabled");
+            m_Aura->m_AllowDownloads = 1;
+          }
+          else if (Downloads == 2)
+          {
+            SendAllChat("Conditional map downloads enabled");
+            m_Aura->m_AllowDownloads = 2;
+          }
         }
-        else if (Downloads == 1)
+        catch (...)
         {
-          SendAllChat("Map downloads enabled");
-          m_Aura->m_AllowDownloads = 1;
-        }
-        else if (Downloads == 2)
-        {
-          SendAllChat("Conditional map downloads enabled");
-          m_Aura->m_AllowDownloads = 2;
+          // do nothing
         }
       }
 
