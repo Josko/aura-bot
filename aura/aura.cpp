@@ -1040,7 +1040,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
     // unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game
     // so don't rejoin the chat if we're using PVPGN
 
-    if (!bnet->GetPvPGN())
+    if (gameState == GAME_PRIVATE && !bnet->GetPvPGN())
       bnet->QueueEnterChat();
   }
 }
