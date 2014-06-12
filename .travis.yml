@@ -1,0 +1,41 @@
+language: cpp
+
+compiler:
+  - clang
+  - gcc
+
+branches:
+  only:
+    - master
+
+before_install:
+  - sudo apt-get install build-essential m4 libgmp3-dev cmake
+
+install:
+  - cd StormLib
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - sudo make install
+  - cd ../..
+  - cd bncsutil/src/bncsutil
+  - make
+  - sudo make install
+  - cd ../../..
+
+script:
+  - cd /aura
+  - make
+  - make install
+
+notifications-policy: &notifications-policy
+  on_success: change
+  on_failure: always
+
+notifications:
+  email: false
+  irc:
+    channels:
+      - "irc.quakenet.org#clan007"
+    <<: *notifications-policy
