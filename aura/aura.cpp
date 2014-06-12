@@ -54,7 +54,7 @@
 #include <mach/mach_time.h>
 #endif
 
-#define VERSION "1.22"
+#define VERSION "1.23"
 
 using namespace std;
 
