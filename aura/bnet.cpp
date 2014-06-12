@@ -1799,8 +1799,6 @@ void CBNET::QueueGameCreate(uint8_t state, const string &gameName, CMap *map, ui
 
     m_InChat = false;
 
-    // a game creation message is just a game refresh message with upTime = 0
-
     QueueGameRefresh(state, gameName, map, hostCounter);
   }
 }
