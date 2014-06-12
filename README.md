@@ -1,5 +1,9 @@
 ﻿Aura
 ====
+[![Build Status](https://secure.travis-ci.org/Josko/aura-bot.png?branch=master)](http://travis-ci.org/Josko/aura-bot)
+
+Overview
+--------
 
 Aura is a Warcraft III hosting-bot based on GHost++ by Varlock. It's a complete
 overhaul with speed and efficiency in mind and packed with fewer dependencies.
