@@ -153,7 +153,13 @@ void Print2(const string &message)
 
 int main(int, char *argv[])
 {
+  // seed the PRNG
+
   srand((uint32_t) time(nullptr));
+
+  // disable sync since we don't use cstdio anyway
+
+  ios_base::sync_with_stdio(false);
 
   // read config file
 
