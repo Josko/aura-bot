@@ -1,8 +1,15 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 ARCH = $(shell uname -m)
-CC = gcc
-CXX = g++
+
+ifndef CC
+  CC = gcc
+endif
+
+ifndef CXX
+  CXX = g++
+endif
+
 CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
