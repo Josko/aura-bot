@@ -902,7 +902,7 @@ void CAura::LoadIPToCountryData()
     else
     {
       uint8_t Percent = 0;
-      string Line, IP1, IP2, Country;
+      string Line, Skip, IP1, IP2, Country;
       CSVParser parser;
 
       // get length of file for the progress meter
@@ -919,6 +919,8 @@ void CAura::LoadIPToCountryData()
           continue;
 
         parser << Line;
+        parser >> Skip;
+        parser >> Skip;
         parser >> IP1;
         parser >> IP2;
         parser >> Country;
