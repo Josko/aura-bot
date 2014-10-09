@@ -121,7 +121,7 @@ void CSocket::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
 #endif
 }
 
-void CSocket :: Allocate(int type)
+void CSocket::Allocate(int type)
 {
   m_Socket = socket(AF_INET, type, 0);
 
@@ -134,7 +134,7 @@ void CSocket :: Allocate(int type)
   }
 }
 
-void CSocket :: Reset( )
+void CSocket::Reset( )
 {
   if (m_Socket != INVALID_SOCKET)
     closesocket(m_Socket);
@@ -458,7 +458,6 @@ bool CTCPClient::CheckConnect()
   // check if the socket is connected
 
 #ifdef WIN32
-
   if (select(1, nullptr, &fd, nullptr, &tv) == SOCKET_ERROR)
 #else
   if (select(m_Socket + 1, nullptr, &fd, nullptr, &tv) == SOCKET_ERROR)
@@ -638,7 +637,6 @@ CTCPSocket *CTCPServer::Accept(fd_set *fd)
     SOCKET NewSocket;
 
 #ifdef WIN32
-
     if ((NewSocket = accept(m_Socket, (struct sockaddr *) &Addr, &AddrLen)) != INVALID_SOCKET)
 #else
     if ((NewSocket = accept(m_Socket, (struct sockaddr *) &Addr, (socklen_t *) & AddrLen)) != INVALID_SOCKET)
