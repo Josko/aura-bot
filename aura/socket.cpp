@@ -677,18 +677,8 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
 
 void CUDPSocket::Reset()
 {
-  if (m_Socket != INVALID_SOCKET)
-    closesocket(m_Socket);
-
-  m_Socket = socket(AF_INET, SOCK_DGRAM, 0);
-
-  if (m_Socket == INVALID_SOCKET)
-  {
-    m_HasError = true;
-    m_Error = GetLastError();
-    Print("[UDPSOCKET] error (socket) - " + GetErrorString());
-    return;
-  }
+  CSocket::Reset();
+  Allocate(SOCK_DGRAM);
 
   // enable broadcast support
 
@@ -698,8 +688,4 @@ void CUDPSocket::Reset()
   // set default broadcast target
 
   m_BroadcastTarget.s_addr = INADDR_BROADCAST;
-
-  memset(&m_SIN, 0, sizeof(m_SIN));
-  m_HasError = false;
-  m_Error = 0;
 }
