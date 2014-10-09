@@ -156,14 +156,6 @@ CTCPSocket::CTCPSocket()
 {
   Allocate(SOCK_STREAM);
 
-  if (m_Socket == INVALID_SOCKET)
-  {
-    m_HasError = true;
-    m_Error = GetLastError();
-    Print("[TCPSOCKET] error (socket) - " + GetErrorString());
-    return;
-  }
-
   // make socket non blocking
 
 #ifdef WIN32
@@ -303,22 +295,7 @@ CTCPClient::CTCPClient()
   : CTCPSocket(),
     m_Connecting(false)
 {
-  if (m_Socket == INVALID_SOCKET)
-  {
-    m_HasError = true;
-    m_Error = GetLastError();
-    Print("[TCPCLIENT] error (socket) - " + GetErrorString());
-    return;
-  }
 
-  // make socket non blocking
-
-#ifdef WIN32
-  int32_t iMode = 1;
-  ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
-#else
-  fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
-#endif
 }
 
 CTCPClient::~CTCPClient()
