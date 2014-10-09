@@ -33,17 +33,128 @@ int32_t GetLastError()
 #endif
 
 //
+// CSocket
+//
+
+CSocket::CSocket( )
+  : m_Socket(INVALID_SOCKET),
+    m_HasError(false),
+    m_Error(0)
+{
+  memset(&m_SIN, 0, sizeof(m_SIN));
+}
+
+CSocket::CSocket(SOCKET nSocket, struct sockaddr_in nSIN)
+  : m_Socket(nSocket),
+    m_SIN(nSIN),
+    m_HasError(false),
+    m_Error(0)
+{
+
+}
+
+CSocket::~CSocket( )
+{
+  if (m_Socket != INVALID_SOCKET)
+    closesocket(m_Socket);
+}
+
+string CSocket::GetErrorString( ) const
+{
+  if (!m_HasError)
+    return "NO ERROR";
+
+  switch (m_Error)
+  {
+    case EWOULDBLOCK: return "EWOULDBLOCK";
+    case EINPROGRESS: return "EINPROGRESS";
+    case EALREADY: return "EALREADY";
+    case ENOTSOCK: return "ENOTSOCK";
+    case EDESTADDRREQ: return "EDESTADDRREQ";
+    case EMSGSIZE: return "EMSGSIZE";
+    case EPROTOTYPE: return "EPROTOTYPE";
+    case ENOPROTOOPT: return "ENOPROTOOPT";
+    case EPROTONOSUPPORT: return "EPROTONOSUPPORT";
+    case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
+    case EOPNOTSUPP: return "EOPNOTSUPP";
+    case EPFNOSUPPORT: return "EPFNOSUPPORT";
+    case EAFNOSUPPORT: return "EAFNOSUPPORT";
+    case EADDRINUSE: return "EADDRINUSE";
+    case EADDRNOTAVAIL: return "EADDRNOTAVAIL";
+    case ENETDOWN: return "ENETDOWN";
+    case ENETUNREACH: return "ENETUNREACH";
+    case ENETRESET: return "ENETRESET";
+    case ECONNABORTED: return "ECONNABORTED";
+    case ENOBUFS: return "ENOBUFS";
+    case EISCONN: return "EISCONN";
+    case ENOTCONN: return "ENOTCONN";
+    case ESHUTDOWN: return "ESHUTDOWN";
+    case ETOOMANYREFS: return "ETOOMANYREFS";
+    case ETIMEDOUT: return "ETIMEDOUT";
+    case ECONNREFUSED: return "ECONNREFUSED";
+    case ELOOP: return "ELOOP";
+    case ENAMETOOLONG: return "ENAMETOOLONG";
+    case EHOSTDOWN: return "EHOSTDOWN";
+    case EHOSTUNREACH: return "EHOSTUNREACH";
+    case ENOTEMPTY: return "ENOTEMPTY";
+    case EUSERS: return "EUSERS";
+    case EDQUOT: return "EDQUOT";
+    case ESTALE: return "ESTALE";
+    case EREMOTE: return "EREMOTE";
+    case ECONNRESET: return "Connection reset by peer";
+  }
+
+  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
+}
+
+void CSocket::SetFD(fd_set *fd, fd_set *send_fd, int *nfds)
+{
+  if (m_Socket == INVALID_SOCKET)
+    return;
+
+  FD_SET(m_Socket, fd);
+  FD_SET(m_Socket, send_fd);
+
+#ifndef WIN32
+  if (m_Socket > *nfds)
+    *nfds = m_Socket;
+#endif
+}
+
+void CSocket :: Allocate(int type)
+{
+  m_Socket = socket(AF_INET, type, 0);
+
+  if (m_Socket == INVALID_SOCKET)
+  {
+    m_HasError = true;
+    m_Error = GetLastError( );
+    Print("[SOCKET] error (socket) - " + GetErrorString());
+    return;
+  }
+}
+
+void CSocket :: Reset( )
+{
+  if (m_Socket != INVALID_SOCKET)
+    closesocket(m_Socket);
+
+  m_Socket = INVALID_SOCKET;
+  memset(&m_SIN, 0, sizeof(m_SIN));
+  m_HasError = false;
+  m_Error = 0;
+}
+
+//
 // CTCPSocket
 //
 
 CTCPSocket::CTCPSocket()
-  : m_LastRecv(GetTime()),
-    m_Socket(socket(AF_INET, SOCK_STREAM, 0)),
-    m_Error(0),
-    m_HasError(false),
+  : CSocket(),
+    m_LastRecv(GetTime()),
     m_Connected(false)
 {
-  memset(&m_SIN, 0, sizeof(m_SIN));
+  Allocate(SOCK_STREAM);
 
   if (m_Socket == INVALID_SOCKET)
   {
@@ -69,11 +180,8 @@ CTCPSocket::CTCPSocket()
 }
 
 CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN)
-  : m_SIN(move(nSIN)),
+  : CSocket(nSocket, nSIN),
     m_LastRecv(GetTime()),
-    m_Socket(nSocket),
-    m_Error(0),
-    m_HasError(false),
     m_Connected(true)
 {
   // make socket non blocking
@@ -107,9 +215,6 @@ void CTCPSocket::Reset()
     return;
   }
 
-  memset(&m_SIN, 0, sizeof(m_SIN));
-  m_HasError = false;
-  m_Error = 0;
   m_Connected = false;
   m_RecvBuffer.clear();
   m_SendBuffer.clear();
@@ -200,153 +305,14 @@ void CTCPSocket::Disconnect()
   m_Connected = false;
 }
 
-string CTCPSocket::GetErrorString() const
-{
-  if (!m_HasError)
-    return "NO ERROR";
-
-  switch (m_Error)
-  {
-    case EWOULDBLOCK:
-      return "EWOULDBLOCK";
-
-    case EINPROGRESS:
-      return "EINPROGRESS";
-
-    case EALREADY:
-      return "EALREADY";
-
-    case ENOTSOCK:
-      return "ENOTSOCK";
-
-    case EDESTADDRREQ:
-      return "EDESTADDRREQ";
-
-    case EMSGSIZE:
-      return "EMSGSIZE";
-
-    case EPROTOTYPE:
-      return "EPROTOTYPE";
-
-    case ENOPROTOOPT:
-      return "ENOPROTOOPT";
-
-    case EPROTONOSUPPORT:
-      return "EPROTONOSUPPORT";
-
-    case ESOCKTNOSUPPORT:
-      return "ESOCKTNOSUPPORT";
-
-    case EOPNOTSUPP:
-      return "EOPNOTSUPP";
-
-    case EPFNOSUPPORT:
-      return "EPFNOSUPPORT";
-
-    case EAFNOSUPPORT:
-      return "EAFNOSUPPORT";
-
-    case EADDRINUSE:
-      return "EADDRINUSE";
-
-    case EADDRNOTAVAIL:
-      return "EADDRNOTAVAIL";
-
-    case ENETDOWN:
-      return "ENETDOWN";
-
-    case ENETUNREACH:
-      return "ENETUNREACH";
-
-    case ENETRESET:
-      return "ENETRESET";
-
-    case ECONNABORTED:
-      return "ECONNABORTED";
-
-    case ENOBUFS:
-      return "ENOBUFS";
-
-    case EISCONN:
-      return "EISCONN";
-
-    case ENOTCONN:
-      return "ENOTCONN";
-
-    case ESHUTDOWN:
-      return "ESHUTDOWN";
-
-    case ETOOMANYREFS:
-      return "ETOOMANYREFS";
-
-    case ETIMEDOUT:
-      return "ETIMEDOUT";
-
-    case ECONNREFUSED:
-      return "ECONNREFUSED";
-
-    case ELOOP:
-      return "ELOOP";
-
-    case ENAMETOOLONG:
-      return "ENAMETOOLONG";
-
-    case EHOSTDOWN:
-      return "EHOSTDOWN";
-
-    case EHOSTUNREACH:
-      return "EHOSTUNREACH";
-
-    case ENOTEMPTY:
-      return "ENOTEMPTY";
-
-    case EUSERS:
-      return "EUSERS";
-
-    case EDQUOT:
-      return "EDQUOT";
-
-    case ESTALE:
-      return "ESTALE";
-
-    case EREMOTE:
-      return "EREMOTE";
-
-    case ECONNRESET:
-      return "ECONNRESET";
-  }
-
-  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
-}
-
-void CTCPSocket::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
-{
-  if (m_Socket == INVALID_SOCKET)
-    return;
-
-  FD_SET(m_Socket, fd);
-  FD_SET(m_Socket, send_fd);
-
-#ifndef WIN32
-
-  if (m_Socket > *nfds)
-    *nfds = m_Socket;
-
-#endif
-}
-
 //
 // CTCPClient
 //
 
 CTCPClient::CTCPClient()
-  : m_Socket(socket(AF_INET, SOCK_STREAM, 0)),
-    m_Error(0), m_HasError(false),
-    m_Connected(false),
+  : CTCPSocket(),
     m_Connecting(false)
 {
-  memset(&m_SIN, 0, sizeof(m_SIN));
-
   if (m_Socket == INVALID_SOCKET)
   {
     m_HasError = true;
@@ -579,152 +545,13 @@ void CTCPClient::DoSend(fd_set *send_fd)
   }
 }
 
-string CTCPClient::GetErrorString() const
-{
-  if (!m_HasError)
-    return "NO ERROR";
-
-  switch (m_Error)
-  {
-    case EWOULDBLOCK:
-      return "EWOULDBLOCK";
-
-    case EINPROGRESS:
-      return "EINPROGRESS";
-
-    case EALREADY:
-      return "EALREADY";
-
-    case ENOTSOCK:
-      return "ENOTSOCK";
-
-    case EDESTADDRREQ:
-      return "EDESTADDRREQ";
-
-    case EMSGSIZE:
-      return "EMSGSIZE";
-
-    case EPROTOTYPE:
-      return "EPROTOTYPE";
-
-    case ENOPROTOOPT:
-      return "ENOPROTOOPT";
-
-    case EPROTONOSUPPORT:
-      return "EPROTONOSUPPORT";
-
-    case ESOCKTNOSUPPORT:
-      return "ESOCKTNOSUPPORT";
-
-    case EOPNOTSUPP:
-      return "EOPNOTSUPP";
-
-    case EPFNOSUPPORT:
-      return "EPFNOSUPPORT";
-
-    case EAFNOSUPPORT:
-      return "EAFNOSUPPORT";
-
-    case EADDRINUSE:
-      return "EADDRINUSE";
-
-    case EADDRNOTAVAIL:
-      return "EADDRNOTAVAIL";
-
-    case ENETDOWN:
-      return "ENETDOWN";
-
-    case ENETUNREACH:
-      return "ENETUNREACH";
-
-    case ENETRESET:
-      return "ENETRESET";
-
-    case ECONNABORTED:
-      return "ECONNABORTED";
-
-    case ENOBUFS:
-      return "ENOBUFS";
-
-    case EISCONN:
-      return "EISCONN";
-
-    case ENOTCONN:
-      return "ENOTCONN";
-
-    case ESHUTDOWN:
-      return "ESHUTDOWN";
-
-    case ETOOMANYREFS:
-      return "ETOOMANYREFS";
-
-    case ETIMEDOUT:
-      return "ETIMEDOUT";
-
-    case ECONNREFUSED:
-      return "ECONNREFUSED";
-
-    case ELOOP:
-      return "ELOOP";
-
-    case ENAMETOOLONG:
-      return "ENAMETOOLONG";
-
-    case EHOSTDOWN:
-      return "EHOSTDOWN";
-
-    case EHOSTUNREACH:
-      return "EHOSTUNREACH";
-
-    case ENOTEMPTY:
-      return "ENOTEMPTY";
-
-    case EUSERS:
-      return "EUSERS";
-
-    case EDQUOT:
-      return "EDQUOT";
-
-    case ESTALE:
-      return "ESTALE";
-
-    case EREMOTE:
-      return "EREMOTE";
-
-    case ECONNRESET:
-      return "ECONNRESET";
-  }
-
-  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
-}
-
-void CTCPClient::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
-{
-  if (m_Socket == INVALID_SOCKET)
-    return;
-
-  FD_SET(m_Socket, fd);
-  FD_SET(m_Socket, send_fd);
-
-#ifndef WIN32
-
-  if (m_Socket > *nfds)
-    *nfds = m_Socket;
-
-#endif
-}
-
 //
 // CTCPServer
 //
 
 CTCPServer::CTCPServer()
-  : m_Socket(socket(AF_INET, SOCK_STREAM, 0)),
-    m_Error(0),
-    m_HasError(false)
+  : CTCPSocket()
 {
-  memset(&m_SIN, 0, sizeof(m_SIN));
-
   if (m_Socket == INVALID_SOCKET)
   {
     m_HasError = true;
@@ -826,150 +653,15 @@ CTCPSocket *CTCPServer::Accept(fd_set *fd)
   return nullptr;
 }
 
-string CTCPServer::GetErrorString() const
-{
-  if (!m_HasError)
-    return "NO ERROR";
-
-  switch (m_Error)
-  {
-    case EWOULDBLOCK:
-      return "EWOULDBLOCK";
-
-    case EINPROGRESS:
-      return "EINPROGRESS";
-
-    case EALREADY:
-      return "EALREADY";
-
-    case ENOTSOCK:
-      return "ENOTSOCK";
-
-    case EDESTADDRREQ:
-      return "EDESTADDRREQ";
-
-    case EMSGSIZE:
-      return "EMSGSIZE";
-
-    case EPROTOTYPE:
-      return "EPROTOTYPE";
-
-    case ENOPROTOOPT:
-      return "ENOPROTOOPT";
-
-    case EPROTONOSUPPORT:
-      return "EPROTONOSUPPORT";
-
-    case ESOCKTNOSUPPORT:
-      return "ESOCKTNOSUPPORT";
-
-    case EOPNOTSUPP:
-      return "EOPNOTSUPP";
-
-    case EPFNOSUPPORT:
-      return "EPFNOSUPPORT";
-
-    case EAFNOSUPPORT:
-      return "EAFNOSUPPORT";
-
-    case EADDRINUSE:
-      return "EADDRINUSE";
-
-    case EADDRNOTAVAIL:
-      return "EADDRNOTAVAIL";
-
-    case ENETDOWN:
-      return "ENETDOWN";
-
-    case ENETUNREACH:
-      return "ENETUNREACH";
-
-    case ENETRESET:
-      return "ENETRESET";
-
-    case ECONNABORTED:
-      return "ECONNABORTED";
-
-    case ENOBUFS:
-      return "ENOBUFS";
-
-    case EISCONN:
-      return "EISCONN";
-
-    case ENOTCONN:
-      return "ENOTCONN";
-
-    case ESHUTDOWN:
-      return "ESHUTDOWN";
-
-    case ETOOMANYREFS:
-      return "ETOOMANYREFS";
-
-    case ETIMEDOUT:
-      return "ETIMEDOUT";
-
-    case ECONNREFUSED:
-      return "ECONNREFUSED";
-
-    case ELOOP:
-      return "ELOOP";
-
-    case ENAMETOOLONG:
-      return "ENAMETOOLONG";
-
-    case EHOSTDOWN:
-      return "EHOSTDOWN";
-
-    case EHOSTUNREACH:
-      return "EHOSTUNREACH";
-
-    case ENOTEMPTY:
-      return "ENOTEMPTY";
-
-    case EUSERS:
-      return "EUSERS";
-
-    case EDQUOT:
-      return "EDQUOT";
-
-    case ESTALE:
-      return "ESTALE";
-
-    case EREMOTE:
-      return "EREMOTE";
-
-    case ECONNRESET:
-      return "ECONNRESET";
-  }
-
-  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
-}
-
-void CTCPServer::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
-{
-  if (m_Socket == INVALID_SOCKET)
-    return;
-
-  FD_SET(m_Socket, fd);
-  FD_SET(m_Socket, send_fd);
-
-#ifndef WIN32
-
-  if (m_Socket > *nfds)
-    *nfds = m_Socket;
-
-#endif
-}
-
 //
 // CUDPSocket
 //
 
 CUDPSocket::CUDPSocket()
-  : m_Socket(socket(AF_INET, SOCK_DGRAM, 0)),
-    m_Error(0),
-    m_HasError(false)
+  : CSocket()
 {
+  Allocate(SOCK_DGRAM);
+
   if (m_Socket == INVALID_SOCKET)
   {
     m_HasError = true;
@@ -1092,141 +784,6 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
   // belonging to the target address directly
 
   setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char *) &OptVal, sizeof(int32_t));
-}
-
-string CUDPSocket::GetErrorString() const
-{
-  if (!m_HasError)
-    return "NO ERROR";
-
-  switch (m_Error)
-  {
-    case EWOULDBLOCK:
-      return "EWOULDBLOCK";
-
-    case EINPROGRESS:
-      return "EINPROGRESS";
-
-    case EALREADY:
-      return "EALREADY";
-
-    case ENOTSOCK:
-      return "ENOTSOCK";
-
-    case EDESTADDRREQ:
-      return "EDESTADDRREQ";
-
-    case EMSGSIZE:
-      return "EMSGSIZE";
-
-    case EPROTOTYPE:
-      return "EPROTOTYPE";
-
-    case ENOPROTOOPT:
-      return "ENOPROTOOPT";
-
-    case EPROTONOSUPPORT:
-      return "EPROTONOSUPPORT";
-
-    case ESOCKTNOSUPPORT:
-      return "ESOCKTNOSUPPORT";
-
-    case EOPNOTSUPP:
-      return "EOPNOTSUPP";
-
-    case EPFNOSUPPORT:
-      return "EPFNOSUPPORT";
-
-    case EAFNOSUPPORT:
-      return "EAFNOSUPPORT";
-
-    case EADDRINUSE:
-      return "EADDRINUSE";
-
-    case EADDRNOTAVAIL:
-      return "EADDRNOTAVAIL";
-
-    case ENETDOWN:
-      return "ENETDOWN";
-
-    case ENETUNREACH:
-      return "ENETUNREACH";
-
-    case ENETRESET:
-      return "ENETRESET";
-
-    case ECONNABORTED:
-      return "ECONNABORTED";
-
-    case ENOBUFS:
-      return "ENOBUFS";
-
-    case EISCONN:
-      return "EISCONN";
-
-    case ENOTCONN:
-      return "ENOTCONN";
-
-    case ESHUTDOWN:
-      return "ESHUTDOWN";
-
-    case ETOOMANYREFS:
-      return "ETOOMANYREFS";
-
-    case ETIMEDOUT:
-      return "ETIMEDOUT";
-
-    case ECONNREFUSED:
-      return "ECONNREFUSED";
-
-    case ELOOP:
-      return "ELOOP";
-
-    case ENAMETOOLONG:
-      return "ENAMETOOLONG";
-
-    case EHOSTDOWN:
-      return "EHOSTDOWN";
-
-    case EHOSTUNREACH:
-      return "EHOSTUNREACH";
-
-    case ENOTEMPTY:
-      return "ENOTEMPTY";
-
-    case EUSERS:
-      return "EUSERS";
-
-    case EDQUOT:
-      return "EDQUOT";
-
-    case ESTALE:
-      return "ESTALE";
-
-    case EREMOTE:
-      return "EREMOTE";
-
-    case ECONNRESET:
-      return "ECONNRESET";
-  }
-
-  return "UNKNOWN ERROR (" + to_string(m_Error) + ")";
-}
-
-void CUDPSocket::SetFD(fd_set *fd, fd_set *send_fd, int32_t *nfds)
-{
-  if (m_Socket == INVALID_SOCKET)
-    return;
-
-  FD_SET(m_Socket, fd);
-  FD_SET(m_Socket, send_fd);
-
-#ifndef WIN32
-
-  if (m_Socket > *nfds)
-    *nfds = m_Socket;
-
-#endif
 }
 
 void CUDPSocket::Reset()
