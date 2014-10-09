@@ -329,34 +329,7 @@ CTCPClient::~CTCPClient()
 
 void CTCPClient::Reset()
 {
-  if (m_Socket != INVALID_SOCKET)
-    closesocket(m_Socket);
-
-  m_Socket = socket(AF_INET, SOCK_STREAM, 0);
-
-  if (m_Socket == INVALID_SOCKET)
-  {
-    m_HasError = true;
-    m_Error = GetLastError();
-    Print("[TCPCLIENT] error (socket) - " + GetErrorString());
-    return;
-  }
-
-  memset(&m_SIN, 0, sizeof(m_SIN));
-  m_HasError = false;
-  m_Error = 0;
-  m_Connected = false;
-  m_RecvBuffer.clear();
-  m_SendBuffer.clear();
-
-  // make socket non blocking
-
-#ifdef WIN32
-  int32_t iMode = 1;
-  ioctlsocket(m_Socket, FIONBIO, (u_long FAR *) & iMode);
-#else
-  fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
-#endif
+  CTCPSocket::Reset();
   m_Connecting = false;
 }
 
@@ -470,68 +443,12 @@ bool CTCPClient::CheckConnect()
 
 void CTCPClient::DoRecv(fd_set *fd)
 {
-  if (m_Socket == INVALID_SOCKET || m_HasError || !m_Connected)
-    return;
-
-  if (FD_ISSET(m_Socket, fd))
-  {
-    // data is waiting, receive it
-
-    char buffer[1024];
-    int32_t c = recv(m_Socket, buffer, 1024, 0);
-
-    if (c > 0)
-    {
-      // success! add the received data to the buffer
-
-      m_RecvBuffer += string(buffer, c);
-    }
-    else if (c == SOCKET_ERROR && GetLastError() != EWOULDBLOCK)
-    {
-      // receive error
-
-      m_HasError = true;
-      m_Error = GetLastError();
-      Print("[TCPCLIENT] error (recv) - " + GetErrorString());
-      return;
-    }
-    else if (c == 0)
-    {
-      // the other end closed the connection
-
-      Print("[TCPCLIENT] closed by remote host");
-      m_Connected = false;
-    }
-  }
+  CTCPSocket::DoRecv(fd);
 }
 
 void CTCPClient::DoSend(fd_set *send_fd)
 {
-  if (m_Socket == INVALID_SOCKET || m_HasError || !m_Connected || m_SendBuffer.empty())
-    return;
-
-  if (FD_ISSET(m_Socket, send_fd))
-  {
-    // socket is ready, send it
-
-    int32_t s = send(m_Socket, m_SendBuffer.c_str(), (int32_t) m_SendBuffer.size(), MSG_NOSIGNAL);
-
-    if (s > 0)
-    {
-      // success! only some of the data may have been sent, remove it from the buffer
-
-      m_SendBuffer = m_SendBuffer.substr(s);
-    }
-    else if (s == SOCKET_ERROR && GetLastError() != EWOULDBLOCK)
-    {
-      // send error
-
-      m_HasError = true;
-      m_Error = GetLastError();
-      Print("[TCPCLIENT] error (send) - " + GetErrorString());
-      return;
-    }
-  }
+  CTCPSocket::DoSend(send_fd);
 }
 
 //
@@ -541,14 +458,6 @@ void CTCPClient::DoSend(fd_set *send_fd)
 CTCPServer::CTCPServer()
   : CTCPSocket()
 {
-  if (m_Socket == INVALID_SOCKET)
-  {
-    m_HasError = true;
-    m_Error = GetLastError();
-    Print("[TCPSERVER] error (socket) - " + GetErrorString());
-    return;
-  }
-
   // make socket non blocking
 
 #ifdef WIN32
@@ -649,14 +558,6 @@ CUDPSocket::CUDPSocket()
   : CSocket()
 {
   Allocate(SOCK_DGRAM);
-
-  if (m_Socket == INVALID_SOCKET)
-  {
-    m_HasError = true;
-    m_Error = GetLastError();
-    Print("[UDPSOCKET] error (socket) - " + GetErrorString());
-    return;
-  }
 
   // enable broadcast support
 
