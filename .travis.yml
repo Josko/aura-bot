@@ -40,7 +40,7 @@ install:
 
 script:
   - make
-  - make install
+  - sudo make install
 
 notifications-policy: &notifications-policy
   on_success: change
