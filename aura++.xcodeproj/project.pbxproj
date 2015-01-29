@@ -209,7 +209,7 @@
 				B944387518D0AC0700B77C95 /* stats.h */,
 				B944387718D0AC0700B77C95 /* util.h */,
 			);
-			path = aura;
+			path = src;
 			sourceTree = "<group>";
 		};
 		B94438E218D0B26800B77C95 /* Products */ = {
