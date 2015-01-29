@@ -647,7 +647,7 @@ bool CAura::Update()
       {
         // bytes 2 and 3 contain the length of the packet
 
-        uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
 
         if (Bytes.size() >= Length)
         {
@@ -821,7 +821,7 @@ void CAura::ExtractScripts()
 
     if (SFileOpenFileEx(PatchMPQ, "Scripts\\common.j", 0, &SubFile))
     {
-      uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+      const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
@@ -848,7 +848,7 @@ void CAura::ExtractScripts()
 
     if (SFileOpenFileEx(PatchMPQ, "Scripts\\blizzard.j", 0, &SubFile))
     {
-      uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+      const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
@@ -908,7 +908,7 @@ void CAura::LoadIPToCountryData()
       // get length of file for the progress meter
 
       in.seekg(0, ios::end);
-      uint32_t FileLength = in.tellg();
+      const uint32_t FileLength = in.tellg();
       in.seekg(0, ios::beg);
 
       while (!in.eof())
