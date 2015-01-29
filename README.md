@@ -75,13 +75,13 @@ Continue building bncsutil:
 Then proceed to build Aura:
 
 	cd ../../..
-	cd aura
-	make && make install
-	cd ..
-	
-Now you can run Aura by executing `./aura++`.
+	make
+
+Now you can run Aura by executing `./aura++` or install it to your path using `sudo make install`.
 
 **Note**: gcc version needs to be 4.7 or higher along with a compatible libc.
+
+**Note**: clang needs to be 3.4 or higher along with ld gold linker (ie. package binutils-gold for ubuntu)
 
 **Note**: StormLib installs itself in `/usr/local/lib` which isn't in PATH by default
 on some distros such as Arch or CentOS.
