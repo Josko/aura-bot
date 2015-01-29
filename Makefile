@@ -13,7 +13,7 @@ endif
 CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
-OFLAGS = -O3
+OFLAGS = -O3 -flto
 LFLAGS = -L. -L/usr/local/lib/ -L../bncsutil/src/bncsutil/ -lstorm -lbncsutil -ldl -lgmp
 
 ifeq ($(ARCH),x86_64)
