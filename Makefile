@@ -43,8 +43,28 @@ endif
 CCFLAGS += $(OFLAGS) -DSQLITE_THREADSAFE=0 -I.
 CXXFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/src/
 
-OBJS = aura/bncsutilinterface.o aura/bnet.o aura/bnetprotocol.o aura/config.o aura/crc32.o aura/csvparser.o aura/game.o aura/gameplayer.o aura/gameprotocol.o aura/gameslot.o aura/gpsprotocol.o aura/aura.o aura/auradb.o aura/map.o aura/sha1.o aura/socket.o aura/stats.o aura/irc.o aura/fileutil.o
-COBJS = aura/sqlite3.o
+OBJS = src/bncsutilinterface.o \
+			 src/bnet.o \
+			 src/bnetprotocol.o \
+			 src/config.o \
+			 src/crc32.o \
+			 src/csvparser.o \
+			 src/game.o \
+			 src/gameplayer.o \
+			 src/gameprotocol.o \
+			 src/gameslot.o \
+			 src/gpsprotocol.o \
+			 src/aura.o \
+			 src/auradb.o \
+			 src/map.o \
+			 src/sha1.o \
+			 src/socket.o \
+			 src/stats.o \
+			 src/irc.o \
+			 src/fileutil.o
+
+COBJS = src/sqlite3.o
+
 PROGS = aura++
 
 all: $(OBJS) $(COBJS) $(PROGS)
