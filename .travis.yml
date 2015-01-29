@@ -39,7 +39,6 @@ install:
   - cd ../../..
 
 script:
-  - cd aura
   - make
   - make install
 

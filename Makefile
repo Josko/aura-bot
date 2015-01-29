@@ -81,7 +81,8 @@ clean:
 	@echo "Binary and object files cleaned."
 
 install:
-	@cp $(PROGS) ..
+	@install -D $(PROGS) "$(DESTDIR)/usr/bin/$(PROGS)"
+	@echo "Binary $(PROGS) installed to $(DESTDIR)/usr/bin"
 
 $(OBJS): %.o: %.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c $<
