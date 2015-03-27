@@ -61,7 +61,7 @@ protected:
   std::vector<std::string> m_Reserved;          // std::vector of player names with reserved slots (from the !hold command)
   std::set<std::string> m_IgnoredNames;         // set of player names to NOT print ban messages for when joining because they've already been printed
   std::vector<uint8_t> m_FakePlayers;           // the fake player's PIDs (if present)
-  CMap *m_Map;                                  // std::map data
+  CMap *m_Map;                                  // map data
   std::string m_GameName;                       // game name
   std::string m_LastGameName;                   // last game name (the previous game name before it was rehosted)
   std::string m_VirtualHostName;                // host's name
@@ -69,8 +69,8 @@ protected:
   std::string m_CreatorName;                    // name of the player who created this game
   std::string m_CreatorServer;                  // battle.net server the player who created this game was on
   std::string m_KickVotePlayer;                 // the player to be kicked with the currently running kick vote
-  std::string m_HCLCommandString;               // the "HostBot Command Library" command std::string, used to pass a limited amount of data to specially designed std::maps
-  std::string m_MapPath;                        // store the std::map path to save in the database on game end
+  std::string m_HCLCommandString;               // the "HostBot Command Library" command std::string, used to pass a limited amount of data to specially designed maps
+  std::string m_MapPath;                        // store the map path to save in the database on game end
   uint32_t m_RandomSeed;                        // the random seed sent to the Warcraft III clients
   uint32_t m_HostCounter;                       // a unique game number
   uint32_t m_EntryKey;                          // random entry key for LAN, used to prove that a player is actually joining from LAN
@@ -81,8 +81,8 @@ protected:
   uint32_t m_CreationTime;                      // GetTime when the game was created
   uint32_t m_LastPingTime;                      // GetTime when the last ping was sent
   uint32_t m_LastRefreshTime;                   // GetTime when the last game refresh was sent
-  uint32_t m_LastDownloadTicks;                 // GetTicks when the last std::map download cycle was performed
-  uint32_t m_DownloadCounter;                   // # of std::map bytes downloaded in the last second
+  uint32_t m_LastDownloadTicks;                 // GetTicks when the last map download cycle was performed
+  uint32_t m_DownloadCounter;                   // # of map bytes downloaded in the last second
   uint32_t m_LastDownloadCounterResetTicks;     // GetTicks when the download counter was last reset
   uint32_t m_LastCountDownTicks;                // GetTicks when the last countdown message was sent
   uint32_t m_CountDownCounter;                  // the countdown is finished when this reaches zero

@@ -231,7 +231,7 @@ class CDBGamePlayerSummary
 {
 private:
   uint32_t m_TotalGames;            // total number of games played
-  float m_AvgLoadingTime;           // average loading time in milliseconds (this could be skewed because different std::maps have different load times)
+  float m_AvgLoadingTime;           // average loading time in milliseconds (this could be skewed because different maps have different load times)
   uint32_t m_AvgLeftPercent;        // average time at which the player left the game expressed as a percentage of the game duration (0-100)
 
 public:

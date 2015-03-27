@@ -95,10 +95,10 @@ private:
   uint32_t m_LeftCode;                      // the code to be sent in W3GS_PLAYERLEAVE_OTHERS for why this player left the game
   uint32_t m_SyncCounter;                   // the number of keepalive packets received from this player
   uint32_t m_JoinTime;                      // GetTime when the player joined the game (used to delay sending the /whois a few seconds to allow for some lag)
-  uint32_t m_LastMapPartSent;               // the last std::mappart sent to the player (for sending more than one part at a time)
-  uint32_t m_LastMapPartAcked;              // the last std::mappart acknowledged by the player
-  uint32_t m_StartedDownloadingTicks;       // GetTicks when the player started downloading the std::map
-  uint32_t m_FinishedDownloadingTime;       // GetTime when the player finished downloading the std::map
+  uint32_t m_LastMapPartSent;               // the last mappart sent to the player (for sending more than one part at a time)
+  uint32_t m_LastMapPartAcked;              // the last mappart acknowledged by the player
+  uint32_t m_StartedDownloadingTicks;       // GetTicks when the player started downloading the map
+  uint32_t m_FinishedDownloadingTime;       // GetTime when the player finished downloading the map
   uint32_t m_FinishedLoadingTicks;          // GetTicks when the player finished loading the game
   uint32_t m_StartedLaggingTicks;           // GetTicks when the player started laggin
   uint32_t m_LastGProxyWaitNoticeSentTime;  // GetTime when the last disconnection notice has been sent when using GProxy++
@@ -109,9 +109,9 @@ private:
   bool m_Reserved;                          // if the player is reserved (VIP) or not
   bool m_WhoisShouldBeSent;                 // if a battle.net /whois should be sent for this player or not
   bool m_WhoisSent;                         // if we've sent a battle.net /whois for this player yet (for spoof checking)
-  bool m_DownloadAllowed;                   // if we're allowed to download the std::map or not (used with permission based std::map downloads)
-  bool m_DownloadStarted;                   // if we've started downloading the std::map or not
-  bool m_DownloadFinished;                  // if we've finished downloading the std::map or not
+  bool m_DownloadAllowed;                   // if we're allowed to download the map or not (used with permission based map downloads)
+  bool m_DownloadStarted;                   // if we've started downloading the map or not
+  bool m_DownloadFinished;                  // if we've finished downloading the map or not
   bool m_FinishedLoading;                   // if the player has finished loading or not
   bool m_Lagging;                           // if the player is lagging or not (on the lag screen)
   bool m_DropVote;                          // if the player voted to drop the laggers or not (on the lag screen)
