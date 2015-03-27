@@ -109,7 +109,6 @@
       <AdditionalDependencies>kernel32.lib;version.lib;mpir64.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)BNCSutil64.dll</OutputFile>
       <AdditionalLibraryDirectories>..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ModuleDefinitionFile>bncsutil.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -132,9 +131,6 @@
       <AdditionalDependencies>version.lib;mpir64.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="bncsutil.def" />
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\bncsutil\bsha1.cpp" />
     <ClCompile Include="..\src\bncsutil\cdkeydecoder.cpp" />
