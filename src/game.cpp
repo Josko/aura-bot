@@ -164,8 +164,8 @@ uint32_t CGame::GetNextTimedActionTicks() const
 {
   // return the number of ticks (ms) until the next "timed action", which for our purposes is the next game update
   // the main Aura++ loop will make sure the next loop update happens at or before this value
-  // note: there's no reason this function couldn't take int32_to account the game's other timers too but they're far less critical
-  // warning: this function must take int32_to account when actions are not being sent (e.g. during loading or lagging)
+  // note: there's no reason this function couldn't take into account the game's other timers too but they're far less critical
+  // warning: this function must take into account when actions are not being sent (e.g. during loading or lagging)
 
   if (!m_GameLoaded || m_Lagging)
     return 50;
@@ -1331,7 +1331,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer *potential, CIncomingJoinPlayer *
   if (GetNumPlayers() >= 11)
     DeleteVirtualHost();
 
-  // turning the CPotentialPlayer int32_to a CGamePlayer is a bit of a pain because we have to be careful not to close the socket
+  // turning the CPotentialPlayer into a CGamePlayer is a bit of a pain because we have to be careful not to close the socket
   // this problem is solved by setting the socket to nullptr before deletion and handling the nullptr case in the destructor
   // we also have to be careful to not modify the m_Potentials vector since we're currently looping through it
 
@@ -1711,7 +1711,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
           if ((m_GameLoading || m_GameLoaded) && Pings.size() > 100)
           {
-            // cut the text int32_to multiple lines ingame
+            // cut the text into multiple lines ingame
 
             SendAllChat(Pings);
             Pings.clear();
@@ -1747,7 +1747,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
 
           if ((m_GameLoading || m_GameLoaded) && Froms.size() > 100)
           {
-            // cut the text int32_to multiple lines ingame
+            // cut the text into multiple lines ingame
 
             SendAllChat(Froms);
             Froms.clear();
@@ -4073,7 +4073,7 @@ void CGame::ColourSlot(uint8_t SID, uint8_t colour)
       // the requested colour is currently "taken" by an unused (open or closed) slot
       // but we allow the colour to persist within a slot so if we only update the existing player's colour the unused slot will have the same colour
       // this isn't really a problem except that if someone then joins the game they'll receive the unused slot's colour resulting in a duplicate
-      // one way to solve this (which we do here) is to swap the player's current colour int32_to the unused slot
+      // one way to solve this (which we do here) is to swap the player's current colour into the unused slot
 
       m_Slots[TakenSID].SetColour(m_Slots[SID].GetColour());
       m_Slots[SID].SetColour(colour);

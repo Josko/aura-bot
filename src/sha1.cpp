@@ -140,7 +140,7 @@ void CSHA1::Transform( uint32_t state[5], uint8_t buffer[64] )
   R4( c, d, e, a, b, 78 );
   R4( b, c, d, e, a, 79 );
 
-  // Add the working vars back int32_to state[]
+  // Add the working vars back into state[]
   state[0] += a;
   state[1] += b;
   state[2] += c;

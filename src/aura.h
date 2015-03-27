@@ -66,7 +66,7 @@ public:
   uint32_t m_ReconnectWaitTime;                 // config value: the maximum number of minutes to wait for a GProxy++ reliable reconnect
   uint32_t m_MaxGames;                          // config value: maximum number of games in progress
   uint32_t m_HostCounter;                       // the current host counter (a unique number to identify a game, incremented each time a game is created)
-  uint32_t m_AllowDownloads;                    // config value: map downloads or not
+  uint32_t m_AllowDownloads;                    // config value: allow map downloads or not
   uint32_t m_MaxDownloaders;                    // config value: maximum number of map downloaders at the same time
   uint32_t m_MaxDownloadSpeed;                  // config value: maximum total map download speed in KB/sec
   uint32_t m_AutoKickPing;                      // config value: auto kick players with ping higher than this

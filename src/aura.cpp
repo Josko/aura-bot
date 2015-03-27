@@ -895,7 +895,7 @@ void CAura::LoadIPToCountryData()
     Print("[AURA] started loading [ip-to-country.csv]");
 
     // the begin and commit statements are optimizations
-    // we're about to insert ~4 MB of data int32_to the database so if we allow the database to treat each insert as a transaction it will take a LONG time
+    // we're about to insert ~4 MB of data into the database so if we allow the database to treat each insert as a transaction it will take a LONG time
 
     if (!m_DB->Begin())
       Print("[AURA] warning - failed to begin database transaction, iptocountry data not loaded");

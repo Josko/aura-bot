@@ -249,7 +249,7 @@ inline BYTEARRAY ExtractHexNumbers(std::string &s)
 
 inline void AssignLength(BYTEARRAY &content)
 {
-  // insert the actual length of the content array int32_to bytes 3 and 4 (indices 2 and 3)
+  // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
   const uint16_t Size = (uint16_t) content.size();
 
