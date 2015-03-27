@@ -82,7 +82,7 @@ protected:
   CTCPSocket *m_Socket;                     // note: we permit m_Socket to be NULL in this class to allow for the virtual host player which doesn't really exist
 
 private:
-  BYTEARRAY m_InternalIP;                   // the player's int32_ternal IP address as reported by the player when connecting
+  BYTEARRAY m_InternalIP;                   // the player's internal IP address as reported by the player when connecting
   std::vector<uint32_t> m_Pings;            // store the last few (10) pings received so we can take an average
   std::queue<uint32_t> m_CheckSums;         // the last few checksums the player has sent (for detecting desyncs)
   std::queue<BYTEARRAY> m_GProxyBuffer;     // buffer with data used with GProxy++
