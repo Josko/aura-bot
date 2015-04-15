@@ -99,7 +99,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
               // you could use these to calculate killing sprees and double or triple kills (you'd have to make up your own time restrictions though)
               // you could also build a table of "who killed who" data
 
-              if (KeyString.size() >= 5 && KeyString.substr(0, 4) == "Hero")
+              if (KeyString.size() >= 5 && KeyString.compare(0, 4, "Hero") == 0)
               {
                 // a hero died
 
@@ -137,7 +137,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
                   }
                 }
               }
-              else if (KeyString.size() >= 7 && KeyString.substr(0, 6) == "Assist")
+              else if (KeyString.size() >= 7 && KeyString.compare(0, 6, "Assist") == 0)
               {
                 // check if the assist was on a non-leaver
 
@@ -152,7 +152,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
                   m_Players[AssisterColour]->IncAssists();
                 }
               }
-              else if (KeyString.size() >= 8 && KeyString.substr(0, 5) == "Tower")
+              else if (KeyString.size() >= 8 && KeyString.compare(0, 5, "Tower") == 0)
               {
                 // a tower died
 
@@ -164,7 +164,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
                   m_Players[ValueInt]->IncTowerKills();
                 }
               }
-              else if (KeyString.size() >= 6 && KeyString.substr(0, 3) == "Rax")
+              else if (KeyString.size() >= 6 && KeyString.compare(0, 3, "Rax") == 0)
               {
                 // a rax died
 
@@ -176,7 +176,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
                   m_Players[ValueInt]->IncRaxKills();
                 }
               }
-              else if (KeyString.size() >= 8 && KeyString.substr(0, 7) == "Courier")
+              else if (KeyString.size() >= 8 && KeyString.compare(0, 7, "Courier") == 0)
               {
                 // a courier died
 
