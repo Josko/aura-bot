@@ -215,7 +215,7 @@ void CIRC::ExtractPackets()
     // out: PONG :2748459196
     // respond to the packet sent by the server
 
-    if (Packets_Packet.substr(0, 4) == "PING")
+    if (Packets_Packet.compare(0, 4, "PING") == 0)
     {
       SendIRC("PONG :" + Packets_Packet.substr(6));
       continue;
@@ -225,7 +225,7 @@ void CIRC::ExtractPackets()
     // in: NOTICE AUTH :*** Checking Ident
     // print the message on console
 
-    if (Packets_Packet.substr(0, 6) == "NOTICE")
+    if (Packets_Packet.compare(0, 6, "NOTICE") == 0)
     {
       Print("[IRC: " + m_Server + "] " + Packets_Packet);
       continue;
