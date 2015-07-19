@@ -6,12 +6,12 @@ static constexpr uint64_t HashCode(const char *str, const uint64_t pos, const ui
   return str[pos] ? (HashCode(str, pos + 1, 31 * hash + str[pos])) : hash;
 }
 
-constexpr uint64_t HashCode(const char *str) {
+static constexpr uint64_t HashCode(const char *str) {
   return HashCode(str, 0, 7);
 }
 
 // runtime function for std::string
 
-uint64_t HashCode(const std::string &str) {
+static uint64_t HashCode(const std::string &str) {
   return HashCode(str.c_str());
 }
