@@ -119,21 +119,6 @@ uint32_t GetTicks()
 #endif
 }
 
-static void SignalCatcher(int32_t)
-{
-  Print("[!!!] caught signal SIGINT, exiting NOW");
-
-  if (gAura)
-  {
-    if (gAura->m_Exiting)
-      exit(1);
-    else
-      gAura->m_Exiting = true;
-  }
-  else
-    exit(1);
-}
-
 void Print(const string &message)
 {
   cout << message << endl;
@@ -168,7 +153,19 @@ int main(int, char *argv[])
 
   Print("[AURA] starting up");
 
-  signal(SIGINT, SignalCatcher);
+  signal(SIGINT, [](int32_t) -> void {
+    Print("[!!!] caught signal SIGINT, exiting NOW");
+
+    if (gAura)
+    {
+      if (gAura->m_Exiting)
+        exit(1);
+      else
+        gAura->m_Exiting = true;
+    }
+    else
+      exit(1);
+  });
 
 #ifndef WIN32
   // disable SIGPIPE since some systems like OS X don't define MSG_NOSIGNAL
