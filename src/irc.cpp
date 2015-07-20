@@ -77,7 +77,7 @@ uint32_t CIRC::SetFD(void *fd, void *send_fd, int32_t *nfds)
 
 bool CIRC::Update(void *fd, void *send_fd)
 {
-  const uint32_t Time = GetTime();
+  const uint64_t Time = GetTime();
 
   if (m_Socket->HasError())
   {
@@ -190,7 +190,7 @@ bool CIRC::Update(void *fd, void *send_fd)
 
 void CIRC::ExtractPackets()
 {
-  const uint32_t Time = GetTime();
+  const uint64_t Time = GetTime();
   string *Recv = m_Socket->GetBytes();
 
   // separate packets using the CRLF delimiter

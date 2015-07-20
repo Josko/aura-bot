@@ -160,7 +160,7 @@ CGame::~CGame()
   delete m_Stats;
 }
 
-uint32_t CGame::GetNextTimedActionTicks() const
+uint64_t CGame::GetNextTimedActionTicks() const
 {
   // return the number of ticks (ms) until the next "timed action", which for our purposes is the next game update
   // the main Aura++ loop will make sure the next loop update happens at or before this value
@@ -170,7 +170,7 @@ uint32_t CGame::GetNextTimedActionTicks() const
   if (!m_GameLoaded || m_Lagging)
     return 50;
 
-  const uint32_t TicksSinceLastUpdate = GetTicks() - m_LastActionSentTicks;
+  const uint64_t TicksSinceLastUpdate = GetTicks() - m_LastActionSentTicks;
 
   if (TicksSinceLastUpdate > m_Latency - m_LastActionLateBy)
     return 0;
@@ -304,7 +304,7 @@ uint32_t CGame::SetFD(void *fd, void *send_fd, int32_t *nfds)
 
 bool CGame::Update(void *fd, void *send_fd)
 {
-  const uint32_t Time = GetTime(), Ticks = GetTicks();
+  const uint64_t Time = GetTime(), Ticks = GetTicks();
 
   // ping every 5 seconds
   // changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
@@ -435,7 +435,7 @@ bool CGame::Update(void *fd, void *send_fd)
         }
       }
 
-      uint32_t WaitTime = 60;
+      uint64_t WaitTime = 60;
 
       if (UsingGProxy)
         WaitTime = (m_GProxyEmptyActions + 1) * 60;
@@ -989,9 +989,9 @@ void CGame::SendAllActions()
   else
     SendAll(m_Protocol->SEND_W3GS_INCOMING_ACTION(m_Actions, m_Latency));
 
-  const uint32_t Ticks = GetTicks();
-  const uint32_t ActualSendInterval = Ticks - m_LastActionSentTicks;
-  const uint32_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
+  const uint64_t Ticks = GetTicks();
+  const uint64_t ActualSendInterval = Ticks - m_LastActionSentTicks;
+  const uint64_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
   m_LastActionLateBy = ActualSendInterval - ExpectedSendInterval;
 
   if (m_LastActionLateBy > m_Latency)
@@ -1081,9 +1081,9 @@ void CGame::EventPlayerDisconnectTimedOut(CGamePlayer *player)
 
     if (GetTime() - player->GetLastGProxyWaitNoticeSentTime() >= 20)
     {
-      uint32_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
+      uint64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((uint32_t) m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > ((uint64_t) m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1120,9 +1120,9 @@ void CGame::EventPlayerDisconnectSocketError(CGamePlayer *player)
 
     if (GetTime() - player->GetLastGProxyWaitNoticeSentTime() >= 20)
     {
-      uint32_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
+      uint64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((uint32_t) m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > ((uint64_t) m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1152,9 +1152,9 @@ void CGame::EventPlayerDisconnectConnectionClosed(CGamePlayer *player)
 
     if (GetTime() - player->GetLastGProxyWaitNoticeSentTime() >= 20)
     {
-      uint32_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
+      uint64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((uint32_t) m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > ((uint64_t) m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");

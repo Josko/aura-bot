@@ -125,7 +125,7 @@ uint32_t CBNET::SetFD(void *fd, void *send_fd, int32_t *nfds)
 
 bool CBNET::Update(void *fd, void *send_fd)
 {
-  const uint32_t Ticks = GetTicks(), Time = GetTime();
+  const uint64_t Ticks = GetTicks(), Time = GetTime();
 
   // we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
   // that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
@@ -394,7 +394,7 @@ bool CBNET::Update(void *fd, void *send_fd)
     // check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
     // this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.5 seconds if it was "medium", and 4 seconds if it was "big"
 
-    uint32_t WaitTicks;
+    uint64_t WaitTicks;
 
     if (m_LastOutPacketSize < 10)
       WaitTicks = 1300;

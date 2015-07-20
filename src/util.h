@@ -61,6 +61,14 @@ inline BYTEARRAY CreateByteArray(uint32_t i, bool reverse)
     return BYTEARRAY { (uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t) i };
 }
 
+inline BYTEARRAY CreateByteArray(int64_t i, bool reverse)
+{
+  if (!reverse)
+    return BYTEARRAY { (uint8_t) i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24) };
+  else
+    return BYTEARRAY { (uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t) i };
+}
+
 inline uint16_t ByteArrayToUInt16(const BYTEARRAY &b, bool reverse, uint32_t start = 0)
 {
   if (b.size() < start + 2)
@@ -155,6 +163,11 @@ inline void AppendByteArray(BYTEARRAY &b, uint16_t i, bool reverse)
 }
 
 inline void AppendByteArray(BYTEARRAY &b, uint32_t i, bool reverse)
+{
+  AppendByteArray(b, CreateByteArray(i, reverse));
+}
+
+inline void AppendByteArray(BYTEARRAY &b, int64_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
