@@ -71,32 +71,32 @@ protected:
   std::string m_KickVotePlayer;                 // the player to be kicked with the currently running kick vote
   std::string m_HCLCommandString;               // the "HostBot Command Library" command std::string, used to pass a limited amount of data to specially designed maps
   std::string m_MapPath;                        // store the map path to save in the database on game end
+  int64_t m_GameTicks;                          // ingame ticks
+  int64_t m_CreationTime;                       // GetTime when the game was created
+  int64_t m_LastPingTime;                       // GetTime when the last ping was sent
+  int64_t m_LastRefreshTime;                    // GetTime when the last game refresh was sent
+  int64_t m_LastDownloadTicks;                  // GetTicks when the last map download cycle was performed
+  int64_t m_LastDownloadCounterResetTicks;      // GetTicks when the download counter was last reset
+  int64_t m_LastCountDownTicks;                 // GetTicks when the last countdown message was sent
+  int64_t m_StartedLoadingTicks;                // GetTicks when the game started loading
+  int64_t m_LastActionSentTicks;                // GetTicks when the last action packet was sent
+  int64_t m_LastActionLateBy;                   // the number of ticks we were late sending the last action packet by
+  int64_t m_StartedLaggingTime;                 // GetTime when the last lag screen started
+  int64_t m_LastLagScreenTime;                  // GetTime when the last lag screen was active (continuously updated)
+  int64_t m_LastReservedSeen;                   // GetTime when the last reserved player was seen in the lobby
+  int64_t m_StartedKickVoteTime;                // GetTime when the kick vote was started
+  int64_t m_GameOverTime;                       // GetTime when the game was over
+  int64_t m_LastPlayerLeaveTicks;               // GetTicks when the most recent player left the game
+  int64_t m_LastLagScreenResetTime;             // GetTime when the "lag" screen was last reset
   uint32_t m_RandomSeed;                        // the random seed sent to the Warcraft III clients
   uint32_t m_HostCounter;                       // a unique game number
   uint32_t m_EntryKey;                          // random entry key for LAN, used to prove that a player is actually joining from LAN
   uint32_t m_Latency;                           // the number of ms to wait between sending action packets (we queue any received during this time)
   uint32_t m_SyncLimit;                         // the maximum number of packets a player can fall out of sync before starting the lag screen
   uint32_t m_SyncCounter;                       // the number of actions sent so far (for determining if anyone is lagging)
-  uint64_t m_GameTicks;                         // ingame ticks
-  uint64_t m_CreationTime;                      // GetTime when the game was created
-  uint64_t m_LastPingTime;                      // GetTime when the last ping was sent
-  uint64_t m_LastRefreshTime;                   // GetTime when the last game refresh was sent
-  uint64_t m_LastDownloadTicks;                 // GetTicks when the last map download cycle was performed
   uint32_t m_DownloadCounter;                   // # of map bytes downloaded in the last second
-  uint64_t m_LastDownloadCounterResetTicks;     // GetTicks when the download counter was last reset
-  uint64_t m_LastCountDownTicks;                // GetTicks when the last countdown message was sent
   uint32_t m_CountDownCounter;                  // the countdown is finished when this reaches zero
-  uint64_t m_StartedLoadingTicks;               // GetTicks when the game started loading
   uint32_t m_StartPlayers;                      // number of players when the game started
-  uint64_t m_LastLagScreenResetTime;            // GetTime when the "lag" screen was last reset
-  uint64_t m_LastActionSentTicks;               // GetTicks when the last action packet was sent
-  uint64_t m_LastActionLateBy;                  // the number of ticks we were late sending the last action packet by
-  uint64_t m_StartedLaggingTime;                // GetTime when the last lag screen started
-  uint64_t m_LastLagScreenTime;                 // GetTime when the last lag screen was active (continuously updated)
-  uint64_t m_LastReservedSeen;                  // GetTime when the last reserved player was seen in the lobby
-  uint64_t m_StartedKickVoteTime;               // GetTime when the kick vote was started
-  uint64_t m_GameOverTime;                      // GetTime when the game was over
-  uint64_t m_LastPlayerLeaveTicks;              // GetTicks when the most recent player left the game
   uint16_t m_HostPort;                          // the port to host games on
   uint8_t m_GameState;                          // game state, public or private
   uint8_t m_VirtualHostPID;                     // host's PID
@@ -132,14 +132,14 @@ public:
   inline std::string GetCreatorName() const         { return m_CreatorName; }
   inline std::string GetCreatorServer() const       { return m_CreatorServer; }
   inline uint32_t GetHostCounter() const            { return m_HostCounter; }
-  inline uint64_t GetLastLagScreenTime() const      { return m_LastLagScreenTime; }
+  inline int64_t GetLastLagScreenTime() const       { return m_LastLagScreenTime; }
   inline bool GetLocked() const                     { return m_Locked; }
   inline bool GetCountDownStarted() const           { return m_CountDownStarted; }
   inline bool GetGameLoading() const                { return m_GameLoading; }
   inline bool GetGameLoaded() const                 { return m_GameLoaded; }
   inline bool GetLagging() const                    { return m_Lagging; }
 
-  uint64_t GetNextTimedActionTicks() const;
+  int64_t GetNextTimedActionTicks() const;
   uint32_t GetSlotsOccupied() const;
   uint32_t GetSlotsOpen() const;
   uint32_t GetNumPlayers() const;

@@ -94,16 +94,16 @@ private:
   uint32_t m_TotalPacketsReceived;          // the total number of packets received from the player
   uint32_t m_LeftCode;                      // the code to be sent in W3GS_PLAYERLEAVE_OTHERS for why this player left the game
   uint32_t m_SyncCounter;                   // the number of keepalive packets received from this player
-  uint64_t m_JoinTime;                      // GetTime when the player joined the game (used to delay sending the /whois a few seconds to allow for some lag)
+  int64_t m_JoinTime;                       // GetTime when the player joined the game (used to delay sending the /whois a few seconds to allow for some lag)
   uint32_t m_LastMapPartSent;               // the last mappart sent to the player (for sending more than one part at a time)
   uint32_t m_LastMapPartAcked;              // the last mappart acknowledged by the player
-  uint64_t m_StartedDownloadingTicks;       // GetTicks when the player started downloading the map
-  uint64_t m_FinishedDownloadingTime;       // GetTime when the player finished downloading the map
-  uint64_t m_FinishedLoadingTicks;          // GetTicks when the player finished loading the game
-  uint64_t m_StartedLaggingTicks;           // GetTicks when the player started laggin
-  uint64_t m_LastGProxyWaitNoticeSentTime;  // GetTime when the last disconnection notice has been sent when using GProxy++
+  int64_t m_StartedDownloadingTicks;        // GetTicks when the player started downloading the map
+  int64_t m_FinishedDownloadingTime;        // GetTime when the player finished downloading the map
+  int64_t m_FinishedLoadingTicks;           // GetTicks when the player finished loading the game
+  int64_t m_StartedLaggingTicks;            // GetTicks when the player started laggin
+  int64_t m_LastGProxyWaitNoticeSentTime;   // GetTime when the last disconnection notice has been sent when using GProxy++
   uint32_t m_GProxyReconnectKey;            // the GProxy++ reconnect key
-  uint64_t m_LastGProxyAckTime;             // GetTime when we last acknowledged GProxy++ packet
+  int64_t m_LastGProxyAckTime;              // GetTime when we last acknowledged GProxy++ packet
   uint8_t m_PID;                            // the player's PID
   bool m_Spoofed;                           // if the player has spoof checked or not
   bool m_Reserved;                          // if the player is reserved (VIP) or not
@@ -144,14 +144,14 @@ public:
   inline std::string GetJoinedRealm() const                           { return m_JoinedRealm; }
   inline uint32_t GetLeftCode() const                                 { return m_LeftCode; }
   inline uint32_t GetSyncCounter() const                              { return m_SyncCounter; }
-  inline uint64_t GetJoinTime() const                                 { return m_JoinTime; }
+  inline int64_t GetJoinTime() const                                  { return m_JoinTime; }
   inline uint32_t GetLastMapPartSent() const                          { return m_LastMapPartSent; }
   inline uint32_t GetLastMapPartAcked() const                         { return m_LastMapPartAcked; }
-  inline uint64_t GetStartedDownloadingTicks() const                  { return m_StartedDownloadingTicks; }
-  inline uint64_t GetFinishedDownloadingTime() const                  { return m_FinishedDownloadingTime; }
-  inline uint64_t GetFinishedLoadingTicks() const                     { return m_FinishedLoadingTicks; }
-  inline uint64_t GetStartedLaggingTicks() const                      { return m_StartedLaggingTicks; }
-  inline uint64_t GetLastGProxyWaitNoticeSentTime() const             { return m_LastGProxyWaitNoticeSentTime; }
+  inline int64_t GetStartedDownloadingTicks() const                   { return m_StartedDownloadingTicks; }
+  inline int64_t GetFinishedDownloadingTime() const                   { return m_FinishedDownloadingTime; }
+  inline int64_t GetFinishedLoadingTicks() const                      { return m_FinishedLoadingTicks; }
+  inline int64_t GetStartedLaggingTicks() const                       { return m_StartedLaggingTicks; }
+  inline int64_t GetLastGProxyWaitNoticeSentTime() const              { return m_LastGProxyWaitNoticeSentTime; }
   inline uint32_t GetGProxyReconnectKey() const                       { return m_GProxyReconnectKey; }
   inline bool GetGProxy() const                                       { return m_GProxy; }
   inline bool GetGProxyDisconnectNoticeSent() const                   { return m_GProxyDisconnectNoticeSent; }
