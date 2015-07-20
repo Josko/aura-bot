@@ -3624,7 +3624,7 @@ uint8_t CGame::GetSIDFromPID(uint8_t PID) const
   return 255;
 }
 
-CGamePlayer *CGame::GetPlayerFromPID(uint8_t PID)
+CGamePlayer *CGame::GetPlayerFromPID(uint8_t PID) const
 {
   for (auto & player : m_Players)
   {
@@ -3635,7 +3635,7 @@ CGamePlayer *CGame::GetPlayerFromPID(uint8_t PID)
   return nullptr;
 }
 
-CGamePlayer *CGame::GetPlayerFromSID(uint8_t SID)
+CGamePlayer *CGame::GetPlayerFromSID(uint8_t SID) const
 {
   if (SID >= m_Slots.size())
     return nullptr;
@@ -3651,7 +3651,7 @@ CGamePlayer *CGame::GetPlayerFromSID(uint8_t SID)
   return nullptr;
 }
 
-CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive)
+CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive) const
 {
   if (!sensitive)
     transform(begin(name), end(name), begin(name), ::tolower);
@@ -3673,7 +3673,7 @@ CGamePlayer *CGame::GetPlayerFromName(string name, bool sensitive)
   return nullptr;
 }
 
-uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player)
+uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer **player) const
 {
   transform(begin(name), end(name), begin(name), ::tolower);
   uint32_t Matches = 0;
@@ -3718,7 +3718,7 @@ string CGame::GetDBPlayerNameFromColour(uint8_t colour) const
   return string();
 }
 
-CGamePlayer *CGame::GetPlayerFromColour(uint8_t colour)
+CGamePlayer *CGame::GetPlayerFromColour(uint8_t colour) const
 {
   for (uint8_t i = 0; i < m_Slots.size(); ++i)
   {
@@ -3729,7 +3729,7 @@ CGamePlayer *CGame::GetPlayerFromColour(uint8_t colour)
   return nullptr;
 }
 
-uint8_t CGame::GetNewPID()
+uint8_t CGame::GetNewPID() const
 {
   // find an unused PID for a new player to use
 
@@ -3770,7 +3770,7 @@ uint8_t CGame::GetNewPID()
   return 255;
 }
 
-uint8_t CGame::GetNewColour()
+uint8_t CGame::GetNewColour() const
 {
   // find an unused colour for a player to use
 
@@ -3796,7 +3796,7 @@ uint8_t CGame::GetNewColour()
   return 12;
 }
 
-BYTEARRAY CGame::GetPIDs()
+BYTEARRAY CGame::GetPIDs() const
 {
   BYTEARRAY result;
 
@@ -3809,7 +3809,7 @@ BYTEARRAY CGame::GetPIDs()
   return result;
 }
 
-BYTEARRAY CGame::GetPIDs(uint8_t excludePID)
+BYTEARRAY CGame::GetPIDs(uint8_t excludePID) const
 {
   BYTEARRAY result;
 
@@ -3822,7 +3822,7 @@ BYTEARRAY CGame::GetPIDs(uint8_t excludePID)
   return result;
 }
 
-uint8_t CGame::GetHostPID()
+uint8_t CGame::GetHostPID() const
 {
   // return the player to be considered the host (it can be any player) - mainly used for sending text messages from the bot
   // try to find the virtual host player first
@@ -3854,7 +3854,7 @@ uint8_t CGame::GetHostPID()
   return 255;
 }
 
-uint8_t CGame::GetEmptySlot(bool reserved)
+uint8_t CGame::GetEmptySlot(bool reserved) const
 {
   if (m_Slots.size() > 255)
     return 255;
@@ -3912,7 +3912,7 @@ uint8_t CGame::GetEmptySlot(bool reserved)
   return 255;
 }
 
-uint8_t CGame::GetEmptySlot(uint8_t team, uint8_t PID)
+uint8_t CGame::GetEmptySlot(uint8_t team, uint8_t PID) const
 {
   if (m_Slots.size() > 255)
     return 255;
@@ -4258,7 +4258,7 @@ void CGame::RemoveFromReserved(string name)
   }
 }
 
-bool CGame::IsOwner(string name)
+bool CGame::IsOwner(string name) const
 {
   string OwnerLower = m_OwnerName;
   transform(begin(name), end(name), begin(name), ::tolower);
@@ -4267,7 +4267,7 @@ bool CGame::IsOwner(string name)
   return name == OwnerLower;
 }
 
-bool CGame::IsReserved(string name)
+bool CGame::IsReserved(string name) const
 {
   transform(begin(name), end(name), begin(name), ::tolower);
 
@@ -4280,7 +4280,7 @@ bool CGame::IsReserved(string name)
   return false;
 }
 
-bool CGame::IsDownloading()
+bool CGame::IsDownloading() const
 {
   // returns true if at least one player is downloading the map
 

@@ -46,7 +46,7 @@ public:
 private:
   CTCPClient *m_Socket;                     // the connection to battle.net
   CBNETProtocol *m_Protocol;                // battle.net protocol
-  CBNCSUtilInterface *m_BNCSUtil;           // the int32_terface to the bncsutil library (used for logging into battle.net)
+  CBNCSUtilInterface *m_BNCSUtil;           // the interface to the bncsutil library (used for logging into battle.net)
   std::queue<BYTEARRAY> m_OutPackets;       // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
   std::vector<std::string> m_Friends;       // std::vector of friends
   std::vector<std::string> m_Clan;          // std::vector of clan members
@@ -74,7 +74,7 @@ private:
   uint64_t m_LastOutPacketSize;             // byte size of the last packet we sent from the m_OutPackets queue
   uint64_t m_LastAdminRefreshTime;          // GetTime when the admin list was last refreshed from the database
   uint64_t m_LastBanRefreshTime;            // GetTime when the ban list was last refreshed from the database
-  uint64_t m_ReconnectDelay;                // int32_terval between two consecutive connect attempts
+  uint64_t m_ReconnectDelay;                // interval between two consecutive connect attempts
   uint8_t m_War3Version;                    // custom warcraft 3 version for PvPGN users
   char m_CommandTrigger;                    // the character prefix to identify commands
   bool m_Exiting;                           // set to true and this class will be deleted next update

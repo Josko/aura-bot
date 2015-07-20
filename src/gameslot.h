@@ -56,8 +56,8 @@ private:
   uint8_t m_Handicap;       // handicap
 
 public:
-  explicit CGameSlot(BYTEARRAY &n);
-  CGameSlot(uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType = 1, uint8_t nHandicap = 100);
+  explicit CGameSlot(const BYTEARRAY &n);
+  CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const uint8_t nSlotStatus, const uint8_t nComputer, const uint8_t nTeam, const uint8_t nColour, const uint8_t nRace, const uint8_t nComputerType = 1, const uint8_t nHandicap = 100);
   ~CGameSlot();
 
   inline uint8_t GetPID() const                           { return m_PID; }
@@ -69,7 +69,7 @@ public:
   inline uint8_t GetRace() const                          { return m_Race; }
   inline uint8_t GetComputerType() const                  { return m_ComputerType; }
   inline uint8_t GetHandicap() const                      { return m_Handicap; }
-  BYTEARRAY GetByteArray() const;
+  inline BYTEARRAY GetByteArray() const                   { return BYTEARRAY {m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap}; }
 
   inline void SetPID(uint8_t nPID)                       { m_PID = nPID; }
   inline void SetDownloadStatus(uint8_t nDownloadStatus) { m_DownloadStatus = nDownloadStatus; }

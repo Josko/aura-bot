@@ -67,21 +67,6 @@ int64_t GetTicks()
   return chrono::duration_cast<chrono::milliseconds>(time_now.time_since_epoch()).count();
 }
 
-static void SignalCatcher(int32_t)
-{
-  Print("[!!!] caught signal SIGINT, exiting NOW");
-
-  if (gAura)
-  {
-    if (gAura->m_Exiting)
-      exit(1);
-    else
-      gAura->m_Exiting = true;
-  }
-  else
-    exit(1);
-}
-
 void Print(const string &message)
 {
   cout << message << endl;
@@ -116,7 +101,19 @@ int main(int, char *argv[])
 
   Print("[AURA] starting up");
 
-  signal(SIGINT, SignalCatcher);
+  signal(SIGINT, [](int32_t) -> void {
+    Print("[!!!] caught signal SIGINT, exiting NOW");
+
+    if (gAura)
+    {
+      if (gAura->m_Exiting)
+        exit(1);
+      else
+        gAura->m_Exiting = true;
+    }
+    else
+      exit(1);
+  });
 
 #ifndef WIN32
   // disable SIGPIPE since some systems like OS X don't define MSG_NOSIGNAL
@@ -460,13 +457,8 @@ bool CAura::Update()
       usecBlock = game->GetNextTimedActionTicks() * 1000;
   }
 
-  static struct timeval tv;
-  tv.tv_sec = 0;
-  tv.tv_usec = usecBlock;
-
-  static struct timeval send_tv;
-  send_tv.tv_sec = 0;
-  send_tv.tv_usec = 0;
+  struct timeval tv = { .tv_sec = 0, .tv_usec = static_cast<long int>(usecBlock) };
+  struct timeval send_tv = { .tv_sec = 0, .tv_usec = 0 };
 
 #ifdef WIN32
   select(1, &fd, nullptr, nullptr, &tv);

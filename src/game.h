@@ -208,19 +208,19 @@ public:
   // other functions
 
   uint8_t GetSIDFromPID(uint8_t PID) const;
-  CGamePlayer *GetPlayerFromPID(uint8_t PID);
-  CGamePlayer *GetPlayerFromSID(uint8_t SID);
-  CGamePlayer *GetPlayerFromName(std::string name, bool sensitive);
-  uint32_t GetPlayerFromNamePartial(std::string name, CGamePlayer **player);
+  CGamePlayer *GetPlayerFromPID(uint8_t PID) const;
+  CGamePlayer *GetPlayerFromSID(uint8_t SID) const;
+  CGamePlayer *GetPlayerFromName(std::string name, bool sensitive) const;
+  uint32_t GetPlayerFromNamePartial(std::string name, CGamePlayer **player) const;
   std::string GetDBPlayerNameFromColour(uint8_t colour) const;
-  CGamePlayer *GetPlayerFromColour(uint8_t colour);
-  uint8_t GetNewPID();
-  uint8_t GetNewColour();
-  BYTEARRAY GetPIDs();
-  BYTEARRAY GetPIDs(uint8_t excludePID);
-  uint8_t GetHostPID();
-  uint8_t GetEmptySlot(bool reserved);
-  uint8_t GetEmptySlot(uint8_t team, uint8_t PID);
+  CGamePlayer *GetPlayerFromColour(uint8_t colour) const;
+  uint8_t GetNewPID() const;
+  uint8_t GetNewColour() const;
+  BYTEARRAY GetPIDs() const;
+  BYTEARRAY GetPIDs(uint8_t excludePID) const;
+  uint8_t GetHostPID() const;
+  uint8_t GetEmptySlot(bool reserved) const;
+  uint8_t GetEmptySlot(uint8_t team, uint8_t PID) const;
   void SwapSlots(uint8_t SID1, uint8_t SID2);
   void OpenSlot(uint8_t SID, bool kick);
   void CloseSlot(uint8_t SID, bool kick);
@@ -232,9 +232,9 @@ public:
   void AddToSpoofed(const std::string &server, const std::string &name, bool sendMessage);
   void AddToReserved(std::string name);
   void RemoveFromReserved(std::string name);
-  bool IsOwner(std::string name);
-  bool IsReserved(std::string name);
-  bool IsDownloading();
+  bool IsOwner(std::string name) const;
+  bool IsReserved(std::string name) const;
+  bool IsDownloading() const;
   void StartCountDown(bool force);
   void StopPlayers(const std::string &reason);
   void StopLaggers(const std::string &reason);
