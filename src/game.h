@@ -88,7 +88,7 @@ protected:
   int64_t m_GameOverTime;                       // GetTime when the game was over
   int64_t m_LastPlayerLeaveTicks;               // GetTicks when the most recent player left the game
   int64_t m_LastLagScreenResetTime;             // GetTime when the "lag" screen was last reset
-  uint32_t m_RandomSeed;                        // the random seed sent to the Warcraft III clients
+  int64_t m_RandomSeed;                         // the random seed sent to the Warcraft III clients
   uint32_t m_HostCounter;                       // a unique game number
   uint32_t m_EntryKey;                          // random entry key for LAN, used to prove that a player is actually joining from LAN
   uint32_t m_Latency;                           // the number of ms to wait between sending action packets (we queue any received during this time)

@@ -446,7 +446,7 @@ bool CAura::Update()
   // before we call select we need to determine how long to block for
   // 50 ms is the hard maximum
 
-  unsigned long usecBlock = 50000;
+  int64_t usecBlock = 50000;
 
   for (auto & game : m_Games)
   {

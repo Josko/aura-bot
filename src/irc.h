@@ -41,9 +41,9 @@ public:
   std::string m_NicknameCpy;
   std::string m_Username;
   std::string m_Password;
-  uint64_t m_LastConnectionAttemptTime;
-  uint64_t m_LastPacketTime;
-  uint64_t m_LastAntiIdleTime;
+  int64_t m_LastConnectionAttemptTime;
+  int64_t m_LastPacketTime;
+  int64_t m_LastAntiIdleTime;
   uint16_t m_Port;
   int8_t m_CommandTrigger;
   bool m_Exiting;

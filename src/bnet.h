@@ -69,10 +69,10 @@ private:
   int64_t m_LastConnectionAttemptTime;      // GetTime when we last attempted to connect to battle.net
   int64_t m_LastNullTime;                   // GetTime when the last null packet was sent for detecting disconnects
   int64_t m_LastOutPacketTicks;             // GetTicks when the last packet was sent for the m_OutPackets queue
-  int64_t m_LastOutPacketSize;              // byte size of the last packet we sent from the m_OutPackets queue
   int64_t m_LastAdminRefreshTime;           // GetTime when the admin list was last refreshed from the database
   int64_t m_LastBanRefreshTime;             // GetTime when the ban list was last refreshed from the database
   int64_t m_ReconnectDelay;                 // interval between two consecutive connect attempts
+  uint32_t m_LastOutPacketSize;             // byte size of the last packet we sent from the m_OutPackets queue
   uint32_t m_LocaleID;                      // see: http://msdn.microsoft.com/en-us/library/0h88fahh%28VS.85%29.aspx
   uint32_t m_HostCounterID;                 // the host counter ID to identify players from this realm
   uint8_t m_War3Version;                    // custom warcraft 3 version for PvPGN users

@@ -55,14 +55,15 @@ CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC
     m_UserPassword(nUserPassword),
     m_FirstChannel(move(nFirstChannel)),
     m_PasswordHashType(move(nPasswordHashType)),
-    m_LocaleID(nLocaleID), m_HostCounterID(nHostCounterID),
     m_LastDisconnectedTime(0),
     m_LastConnectionAttemptTime(0),
     m_LastNullTime(0),
     m_LastOutPacketTicks(0),
-    m_LastOutPacketSize(0),
     m_LastAdminRefreshTime(GetTime()),
     m_LastBanRefreshTime(GetTime()),
+    m_LastOutPacketSize(0),
+    m_LocaleID(nLocaleID),
+    m_HostCounterID(nHostCounterID),
     m_War3Version(nWar3Version),
     m_CommandTrigger(nCommandTrigger),
     m_Exiting(false),
@@ -126,7 +127,7 @@ uint32_t CBNET::SetFD(void *fd, void *send_fd, int32_t *nfds)
 
 bool CBNET::Update(void *fd, void *send_fd)
 {
-  const uint64_t Ticks = GetTicks(), Time = GetTime();
+  const int64_t Ticks = GetTicks(), Time = GetTime();
 
   // we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
   // that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
@@ -395,7 +396,7 @@ bool CBNET::Update(void *fd, void *send_fd)
     // check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
     // this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.5 seconds if it was "medium", and 4 seconds if it was "big"
 
-    uint64_t WaitTicks;
+    int64_t WaitTicks;
 
     if (m_LastOutPacketSize < 10)
       WaitTicks = 1300;
