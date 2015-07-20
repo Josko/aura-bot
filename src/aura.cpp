@@ -48,7 +48,7 @@
 #include <process.h>
 #endif
 
-#define VERSION "1.24"
+#define VERSION "1.30"
 
 using namespace std;
 
