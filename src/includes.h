@@ -40,8 +40,8 @@ typedef std::pair<uint8_t, std::string> PIDPlayer;
 
 // time
 
-uint32_t GetTime();   // seconds
-uint32_t GetTicks();  // milliseconds
+int64_t GetTime();   // seconds
+int64_t GetTicks();  // milliseconds
 
 #ifdef WIN32
 #define MILLISLEEP( x ) Sleep( x )

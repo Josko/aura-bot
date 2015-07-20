@@ -37,7 +37,7 @@
 
 #include <csignal>
 #include <cstdlib>
-#include <ctime>
+#include <chrono>
 
 #define __STORMLIB_SELF__
 #include <StormLib.h>
@@ -46,12 +46,6 @@
 #include <ws2tcpip.h>
 #include <winsock.h>
 #include <process.h>
-#else
-#include <sys/time.h>
-#endif
-
-#ifdef __APPLE__
-#include <mach/mach_time.h>
 #endif
 
 #define VERSION "1.24"
@@ -61,62 +55,16 @@ using namespace std;
 static CAura *gAura = nullptr;
 bool gRestart = false;
 
-uint32_t GetTime()
+int64_t GetTime()
 {
-#ifdef WIN32
-  // don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
-  // don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
-  // use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
-
-  return timeGetTime() / 1000;
-#elif __APPLE__
-  const uint64_t current = mach_absolute_time();
-  static mach_timebase_info_data_t info = { 0, 0 };
-
-  // get timebase info
-
-  if (info.denom == 0)
-    mach_timebase_info(&info);
-
-  const uint64_t elapsednano = current * (info.numer / info.denom);
-
-  // convert ns to s
-
-  return elapsednano / 1000000000;
-#else
-  static struct timespec t;
-  clock_gettime(CLOCK_MONOTONIC, &t);
-  return t.tv_sec;
-#endif
+  chrono::steady_clock::time_point time_now = chrono::steady_clock::now();
+  return chrono::duration_cast<chrono::seconds>(time_now.time_since_epoch()).count();
 }
 
-uint32_t GetTicks()
+int64_t GetTicks()
 {
-#ifdef WIN32
-  // don't use GetTickCount anymore because it's not accurate enough (~16ms resolution)
-  // don't use QueryPerformanceCounter anymore because it isn't guaranteed to be strictly increasing on some systems and thus requires "smoothing" code
-  // use timeGetTime instead, which typically has a high resolution (5ms or more) but we request a lower resolution on startup
-
-  return timeGetTime();
-#elif __APPLE__
-  const uint64_t current = mach_absolute_time();
-  static mach_timebase_info_data_t info = { 0, 0 };
-
-  // get timebase info
-
-  if (info.denom == 0)
-    mach_timebase_info(&info);
-
-  const uint64_t elapsednano = current * (info.numer / info.denom);
-
-  // convert ns to ms
-
-  return elapsednano / 1000000;
-#else
-  static struct timespec t;
-  clock_gettime(CLOCK_MONOTONIC, &t);
-  return t.tv_sec * 1000 + t.tv_nsec / 1000000;
-#endif
+  chrono::steady_clock::time_point time_now = chrono::steady_clock::now();
+  return chrono::duration_cast<chrono::milliseconds>(time_now.time_since_epoch()).count();
 }
 
 static void SignalCatcher(int32_t)
@@ -176,40 +124,10 @@ int main(int, char *argv[])
   signal(SIGPIPE, SIG_IGN);
 #endif
 
-#ifdef WIN32
-  // initialize timer resolution
-  // attempt to set the resolution as low as possible from 1ms to 5ms
 
-  uint32_t TimerResolution = 0;
-
-  for (uint32_t i = 1; i <= 5; ++i)
-  {
-    if (timeBeginPeriod(i) == TIMERR_NOERROR)
-    {
-      TimerResolution = i;
-      break;
-    }
-    else if (i < 5)
-      Print("[AURA] error setting Windows timer resolution to " + to_string(i) + " milliseconds, trying a higher resolution");
-    else
-    {
-      Print("[AURA] error setting Windows timer resolution");
-      return 1;
-    }
-  }
-
-  Print("[AURA] using Windows timer with resolution " + to_string(TimerResolution) + " milliseconds");
-#elif !defined(__APPLE__)
-  // print the timer resolution
-
-  struct timespec Resolution;
-
-  if (clock_getres(CLOCK_MONOTONIC, &Resolution) == -1)
-    Print("[AURA] error getting monotonic timer resolution");
-  else
-    Print("[AURA] using monotonic timer with resolution " + to_string((double)(Resolution.tv_nsec / 1000)) + " microseconds");
-
-#endif
+// print timer resolution
+const std::chrono::duration<double, std::milli> one_second = chrono::steady_clock::duration(1);
+Print("[AURA] using monotonic timer with resolution " + to_string(one_second.count()) + " microseconds");
 
 #ifdef WIN32
   // initialize winsock

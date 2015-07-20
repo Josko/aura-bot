@@ -187,7 +187,7 @@ uint32_t CGamePlayer::GetPing(bool LCPing) const
 
 bool CGamePlayer::Update(void *fd)
 {
-  const uint32_t Time = GetTime();
+  const uint64_t Time = GetTime();
 
   // wait 4 seconds after joining before sending the /whois or /w
   // if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
