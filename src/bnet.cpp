@@ -31,6 +31,7 @@
 #include "gameprotocol.h"
 #include "game.h"
 #include "irc.h"
+#include "hash.h"
 
 using namespace std;
 
@@ -567,6 +568,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
       transform(begin(Command), end(Command), begin(Command), ::tolower);
 
+      const uint64_t CommandHash = HashCode(Command);
+
       if (IsAdmin(User) || IsRootAdmin(User))
       {
         Print("[BNET: " + m_ServerAlias + "] admin [" + User + "] sent command [" + Message + "]");
@@ -575,917 +578,1087 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
          * ADMIN COMMANDS *
          ******************/
 
-        //
-        // !MAP (load map file)
-        //
-
-        if (Command == "map")
+        switch (CommandHash)
         {
-          if (Payload.empty())
-            QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
-          else
+          //
+          // !MAP (load map file)
+          //
+
+          case HashCode("map"):
           {
-            if (!FileExists(m_Aura->m_MapPath))
-            {
-              Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
-              QueueChatCommand("Error listing maps - map path doesn't exist", User, Whisper, m_IRC);
-            }
+            if (Payload.empty())
+              QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
             else
             {
-              const vector<string> Matches = MapFilesMatch(Payload);
-
-              if (Matches.empty())
-                QueueChatCommand("No maps found with that name", User, Whisper, m_IRC);
-              else if (Matches.size() == 1)
+              if (!FileExists(m_Aura->m_MapPath))
               {
-                const string File = Matches.at(0);
-                QueueChatCommand("Loading map file [" + File + "]", User, Whisper, m_IRC);
-
-                // hackhack: create a config file in memory with the required information to load the map
-
-                CConfig MapCFG;
-                MapCFG.Set("map_path", "Maps\\Download\\" + File);
-                MapCFG.Set("map_localpath", File);
-
-                if (File.find("DotA") != string::npos)
-                  MapCFG.Set("map_type", "dota");
-
-                m_Aura->m_Map->Load(&MapCFG, File);
+                Print("[BNET: " + m_ServerAlias + "] error listing maps - map path doesn't exist");
+                QueueChatCommand("Error listing maps - map path doesn't exist", User, Whisper, m_IRC);
               }
               else
               {
-                string FoundMaps;
+                const vector<string> Matches = MapFilesMatch(Payload);
 
-                for (const auto & match : Matches)
-                  FoundMaps += match + ", ";
+                if (Matches.empty())
+                  QueueChatCommand("No maps found with that name", User, Whisper, m_IRC);
+                else if (Matches.size() == 1)
+                {
+                  const string File = Matches.at(0);
+                  QueueChatCommand("Loading map file [" + File + "]", User, Whisper, m_IRC);
 
-                QueueChatCommand("Maps: " + FoundMaps.substr(0, FoundMaps.size() - 2), User, Whisper, m_IRC);
+                  // hackhack: create a config file in memory with the required information to load the map
+
+                  CConfig MapCFG;
+                  MapCFG.Set("map_path", "Maps\\Download\\" + File);
+                  MapCFG.Set("map_localpath", File);
+
+                  if (File.find("DotA") != string::npos)
+                    MapCFG.Set("map_type", "dota");
+
+                  m_Aura->m_Map->Load(&MapCFG, File);
+                }
+                else
+                {
+                  string FoundMaps;
+
+                  for (const auto & match : Matches)
+                    FoundMaps += match + ", ";
+
+                  QueueChatCommand("Maps: " + FoundMaps.substr(0, FoundMaps.size() - 2), User, Whisper, m_IRC);
+                }
               }
             }
+
+            break;
           }
-        }
 
-        //
-        // !UNHOST
-        //
+          //
+          // !UNHOST
+          //
 
-        else if (Command == "unhost" || Command == "uh")
-        {
-          if (m_Aura->m_CurrentGame)
+          case HashCode("unhost"):
+          case HashCode("uh"):
           {
-            if (m_Aura->m_CurrentGame->GetCountDownStarted())
-              QueueChatCommand("Unable to unhost game [" + m_Aura->m_CurrentGame->GetDescription() + "]. The countdown has started, just wait a few seconds", User, Whisper, m_IRC);
-
-            // if the game owner is still in the game only allow the root admin to unhost the game
-
-            else if (m_Aura->m_CurrentGame->GetPlayerFromName(m_Aura->m_CurrentGame->GetOwnerName(), false) && !IsRootAdmin(User))
-              QueueChatCommand("You can't unhost that game because the game owner [" + m_Aura->m_CurrentGame->GetOwnerName() + "] is in the lobby", User, Whisper, m_IRC);
-            else
+            if (m_Aura->m_CurrentGame)
             {
-              QueueChatCommand("Unhosting game [" + m_Aura->m_CurrentGame->GetDescription() + "]", User, Whisper, m_IRC);
-              m_Aura->m_CurrentGame->SetExiting(true);
-            }
-          }
-          else
-            QueueChatCommand("Unable to unhost game. There is no game in the lobby", User, Whisper, m_IRC);
-        }
+              if (m_Aura->m_CurrentGame->GetCountDownStarted())
+                QueueChatCommand("Unable to unhost game [" + m_Aura->m_CurrentGame->GetDescription() + "]. The countdown has started, just wait a few seconds", User, Whisper, m_IRC);
 
-        //
-        // !PUB (host public game)
-        //
+              // if the game owner is still in the game only allow the root admin to unhost the game
 
-        else if (Command == "pub" && !Payload.empty())
-          m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, Payload, User, User, m_Server, Whisper);
-
-        //
-        // !PRIV (host private game)
-        //
-
-        else if (Command == "priv" && !Payload.empty())
-          m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, Payload, User, User, m_Server, Whisper);
-
-        //
-        // !LOAD (load config file)
-        //
-
-        else if (Command == "load")
-        {
-          if (Payload.empty())
-            QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
-          else
-          {
-            if (!FileExists(m_Aura->m_MapCFGPath))
-            {
-              Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
-              QueueChatCommand("Error listing map configs - map config path doesn't exist", User, Whisper, m_IRC);
-            }
-            else
-            {
-              const vector<string> Matches = ConfigFilesMatch(Payload);
-
-              if (Matches.empty())
-                QueueChatCommand("No map configs found with that name", User, Whisper, m_IRC);
-              else if (Matches.size() == 1)
+              else if (m_Aura->m_CurrentGame->GetPlayerFromName(m_Aura->m_CurrentGame->GetOwnerName(), false) && !IsRootAdmin(User))
+                QueueChatCommand("You can't unhost that game because the game owner [" + m_Aura->m_CurrentGame->GetOwnerName() + "] is in the lobby", User, Whisper, m_IRC);
+              else
               {
-                const string File = Matches.at(0);
-                QueueChatCommand("Loading config file [" + m_Aura->m_MapCFGPath + File + "]", User, Whisper, m_IRC);
-                CConfig MapCFG;
-                MapCFG.Read(m_Aura->m_MapCFGPath + File);
-                m_Aura->m_Map->Load(&MapCFG, m_Aura->m_MapCFGPath + File);
+                QueueChatCommand("Unhosting game [" + m_Aura->m_CurrentGame->GetDescription() + "]", User, Whisper, m_IRC);
+                m_Aura->m_CurrentGame->SetExiting(true);
+              }
+            }
+            else
+              QueueChatCommand("Unable to unhost game. There is no game in the lobby", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !PUB (host public game)
+          //
+
+          case HashCode("pub"):
+          {
+            if (!Payload.empty())
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, Payload, User, User, m_Server, Whisper);
+
+            break;
+          }
+
+          //
+          // !PRIV (host private game)
+          //
+
+          case HashCode("priv"):
+          {
+            if (!Payload.empty())
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, Payload, User, User, m_Server, Whisper);
+
+            break;
+          }
+
+          //
+          // !LOAD (load config file)
+          //
+
+          case HashCode("load"):
+          {
+            if (Payload.empty())
+              QueueChatCommand("The currently loaded map/config file is: [" + m_Aura->m_Map->GetCFGFile() + "]", User, Whisper, m_IRC);
+            else
+            {
+              if (!FileExists(m_Aura->m_MapCFGPath))
+              {
+                Print("[BNET: " + m_ServerAlias + "] error listing map configs - map config path doesn't exist");
+                QueueChatCommand("Error listing map configs - map config path doesn't exist", User, Whisper, m_IRC);
               }
               else
               {
-                string FoundMapConfigs;
+                const vector<string> Matches = ConfigFilesMatch(Payload);
 
-                for (const auto & match : Matches)
-                  FoundMapConfigs += match + ", ";
+                if (Matches.empty())
+                  QueueChatCommand("No map configs found with that name", User, Whisper, m_IRC);
+                else if (Matches.size() == 1)
+                {
+                  const string File = Matches.at(0);
+                  QueueChatCommand("Loading config file [" + m_Aura->m_MapCFGPath + File + "]", User, Whisper, m_IRC);
+                  CConfig MapCFG;
+                  MapCFG.Read(m_Aura->m_MapCFGPath + File);
+                  m_Aura->m_Map->Load(&MapCFG, m_Aura->m_MapCFGPath + File);
+                }
+                else
+                {
+                  string FoundMapConfigs;
 
-                QueueChatCommand("Maps configs: " + FoundMapConfigs.substr(0, FoundMapConfigs.size() - 2), User, Whisper, m_IRC);
+                  for (const auto & match : Matches)
+                    FoundMapConfigs += match + ", ";
+
+                  QueueChatCommand("Maps configs: " + FoundMapConfigs.substr(0, FoundMapConfigs.size() - 2), User, Whisper, m_IRC);
+                }
               }
             }
+
+            break;
           }
-        }
 
-        //
-        // !ADDADMIN
-        //
+          //
+          // !ADDADMIN
+          //
 
-        else if (Command == "addadmin" && !Payload.empty())
-        {
-          if (IsRootAdmin(User))
+          case HashCode("addadmin"):
           {
-            if (IsAdmin(Payload))
-              QueueChatCommand("Error. User [" + Payload + "] is already an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
-            else if (m_Aura->m_DB->AdminAdd(m_Server, Payload))
-              QueueChatCommand("Added user [" + Payload + "] to the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
+            if (Payload.empty())
+              break;
+
+            if (IsRootAdmin(User))
+            {
+              if (IsAdmin(Payload))
+                QueueChatCommand("Error. User [" + Payload + "] is already an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else if (m_Aura->m_DB->AdminAdd(m_Server, Payload))
+                QueueChatCommand("Added user [" + Payload + "] to the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("Error adding user [" + Payload + "] to the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
+            }
             else
-              QueueChatCommand("Error adding user [" + Payload + "] to the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
-          }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
 
-        //
-        // !ADDBAN
-        // !BAN
-        //
-
-        else if ((Command == "addban" || Command == "ban") && !Payload.empty())
-        {
-          // extract the victim and the reason
-          // e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
-
-          string Victim, Reason;
-          stringstream SS;
-          SS << Payload;
-          SS >> Victim;
-
-          if (!SS.eof())
-          {
-            getline(SS, Reason);
-            string::size_type Start = Reason.find_first_not_of(" ");
-
-            if (Start != string::npos)
-              Reason = Reason.substr(Start);
+            break;
           }
 
-          CDBBan *Ban = IsBannedName(Victim);
+          //
+          // !ADDBAN
+          // !BAN
+          //
 
-          if (Ban)
+          case HashCode("addban"):
+          case HashCode("ban"):
           {
-            QueueChatCommand("Error. User [" + Victim + "] is already banned on server [" + m_Server + "]", User, Whisper, m_IRC);
+            if (Payload.empty())
+              break;
+
+            // extract the victim and the reason
+            // e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
+
+            string Victim, Reason;
+            stringstream SS;
+            SS << Payload;
+            SS >> Victim;
+
+            if (!SS.eof())
+            {
+              getline(SS, Reason);
+              string::size_type Start = Reason.find_first_not_of(" ");
+
+              if (Start != string::npos)
+                Reason = Reason.substr(Start);
+            }
+
+            CDBBan *Ban = IsBannedName(Victim);
+
+            if (Ban)
+            {
+              QueueChatCommand("Error. User [" + Victim + "] is already banned on server [" + m_Server + "]", User, Whisper, m_IRC);
+
+              delete Ban;
+            }
+            else if (m_Aura->m_DB->BanAdd(m_Server, Victim, User, Reason))
+              QueueChatCommand("Banned user [" + Victim + "] on server [" + m_Server + "]", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("Error banning user [" + Victim + "] on server [" + m_Server + "]", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !CHANNEL (change channel)
+          //
+
+          case HashCode("channel"):
+          {
+            if (Payload.empty())
+              break;
+
+            QueueChatCommand("/join " + Payload);
+            break;
+          }
+
+          //
+          // !CHECKADMIN
+          //
+
+          case HashCode("checkadmin"):
+          {
+            if (Payload.empty())
+              break;
+
+            if (IsRootAdmin(User))
+            {
+              if (IsAdmin(Payload))
+                QueueChatCommand("User [" + Payload + "] is an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("User [" + Payload + "] is not an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !CHECKBAN
+          //
+
+          case HashCode("checkban"):
+          {
+            if (Payload.empty())
+              break;
+
+            CDBBan *Ban = IsBannedName(Payload);
+
+            if (Ban)
+              QueueChatCommand("User [" + Payload + "] was banned on server [" + m_Server + "] on " + Ban->GetDate() + " by [" + Ban->GetAdmin() + "] because [" + Ban->GetReason() + "]", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("User [" + Payload + "] is not banned on server [" + m_Server + "]", User, Whisper, m_IRC);
 
             delete Ban;
-          }
-          else if (m_Aura->m_DB->BanAdd(m_Server, Victim, User, Reason))
-            QueueChatCommand("Banned user [" + Victim + "] on server [" + m_Server + "]", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Error banning user [" + Victim + "] on server [" + m_Server + "]", User, Whisper, m_IRC);
-        }
-
-        //
-        // !CHANNEL (change channel)
-        //
-
-        else if (Command == "channel" && !Payload.empty())
-          QueueChatCommand("/join " + Payload);
-
-        //
-        // !CHECKADMIN
-        //
-
-        else if (Command == "checkadmin" && !Payload.empty())
-        {
-          if (IsRootAdmin(User))
-          {
-            if (IsAdmin(Payload))
-              QueueChatCommand("User [" + Payload + "] is an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
-            else
-              QueueChatCommand("User [" + Payload + "] is not an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
-          }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
-
-        //
-        // !CHECKBAN
-        //
-
-        else if (Command == "checkban" && !Payload.empty())
-        {
-          CDBBan *Ban = IsBannedName(Payload);
-
-          if (Ban)
-            QueueChatCommand("User [" + Payload + "] was banned on server [" + m_Server + "] on " + Ban->GetDate() + " by [" + Ban->GetAdmin() + "] because [" + Ban->GetReason() + "]", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("User [" + Payload + "] is not banned on server [" + m_Server + "]", User, Whisper, m_IRC);
-
-          delete Ban;
-        }
-
-        //
-        // !CLOSE (close slot)
-        //
-
-        else if (Command == "close" && !Payload.empty() && m_Aura->m_CurrentGame)
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-          {
-            // close as many slots as specified, e.g. "5 10" closes slots 5 and 10
-
-            stringstream SS;
-            SS << Payload;
-
-            while (!SS.eof())
-            {
-              uint32_t SID;
-              SS >> SID;
-
-              if (SS.fail())
-              {
-                Print("[BNET: " + m_ServerAlias + "] bad input to close command");
-                break;
-              }
-              else
-                m_Aura->m_CurrentGame->CloseSlot((uint8_t)(SID - 1), true);
-            }
-          }
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
-
-        //
-        // !CLOSEALL
-        //
-
-        else if (Command == "closeall" && m_Aura->m_CurrentGame)
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-            m_Aura->m_CurrentGame->CloseAllSlots();
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
-
-        //
-        // !COUNTADMINS
-        //
-
-        else if (Command == "countadmins")
-        {
-          if (IsRootAdmin(User))
-          {
-            uint32_t Count = m_Aura->m_DB->AdminCount(m_Server);
-
-            if (Count == 0)
-              QueueChatCommand("There are no admins on server [" + m_Server + "]", User, Whisper, m_IRC);
-            else if (Count == 1)
-              QueueChatCommand("There is 1 admin on server [" + m_Server + "]", User, Whisper, m_IRC);
-            else
-              QueueChatCommand("There are " + to_string(Count) + " admins on server [" + m_Server + "]", User, Whisper, m_IRC);
-          }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
-
-        //
-        // !COUNTBANS
-        //
-
-        else if (Command == "countbans")
-        {
-          uint32_t Count = m_Aura->m_DB->BanCount(m_Server);
-
-          if (Count == 0)
-            QueueChatCommand("There are no banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
-          else if (Count == 1)
-            QueueChatCommand("There is 1 banned user on server [" + m_Server + "]", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("There are " + to_string(Count) + " banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
-        }
-
-        //
-        // !DELADMIN
-        //
-
-        else if (Command == "deladmin" && !Payload.empty())
-        {
-          if (IsRootAdmin(User))
-          {
-            if (!IsAdmin(Payload))
-              QueueChatCommand("User [" + Payload + "] is not an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
-            else if (m_Aura->m_DB->AdminRemove(m_Server, Payload))
-              QueueChatCommand("Deleted user [" + Payload + "] from the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
-            else
-              QueueChatCommand("Error deleting user [" + Payload + "] from the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
-          }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
-
-        //
-        // !DELBAN
-        // !UNBAN
-        //
-
-        else if ((Command == "delban" || Command == "unban") && !Payload.empty())
-        {
-          if (m_Aura->m_DB->BanRemove(Payload))
-            QueueChatCommand("Unbanned user [" + Payload + "] on all realms", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Error unbanning user [" + Payload + "] on all realms", User, Whisper, m_IRC);
-        }
-
-        //
-        // !DOWNLOADS
-        // !DLS
-        //
-
-        else if ((Command == "downloads" || Command == "dls"))
-        {
-          if (Payload.empty())
-          {
-            if (m_Aura->m_AllowDownloads == 0)
-              QueueChatCommand("Map downloads disabled", User, Whisper, m_IRC);
-            else if (m_Aura->m_AllowDownloads == 1)
-              QueueChatCommand("Map downloads enabled", User, Whisper, m_IRC);
-            else if (m_Aura->m_AllowDownloads == 2)
-              QueueChatCommand("Conditional map downloads enabled", User, Whisper, m_IRC);
-
-            return;
+            break;
           }
 
-          try
+          //
+          // !CLOSE (close slot)
+          //
+
+          case HashCode("close"):
           {
-            const uint32_t Downloads = stoul(Payload);
-
-            if (Downloads == 0)
-            {
-              QueueChatCommand("Map downloads disabled", User, Whisper, m_IRC);
-              m_Aura->m_AllowDownloads = 0;
-            }
-            else if (Downloads == 1)
-            {
-              QueueChatCommand("Map downloads enabled", User, Whisper, m_IRC);
-              m_Aura->m_AllowDownloads = 1;
-            }
-            else if (Downloads == 2)
-            {
-              QueueChatCommand("Conditional map downloads enabled", User, Whisper, m_IRC);
-              m_Aura->m_AllowDownloads = 2;
-            }
-          }
-          catch (...)
-          {
-            // do nothing
-          }
-        }
-
-        //
-        // !END
-        //
-
-        else if (Command == "end" && !Payload.empty())
-        {
-          // TODO: what if a game ends just as you're typing this command and the numbering changes?
-
-          try
-          {
-            const uint32_t GameNumber = stoul(Payload) - 1;
-
-            if (GameNumber < m_Aura->m_Games.size())
-            {
-              // if the game owner is still in the game only allow the root admin to end the game
-
-              if (m_Aura->m_Games[GameNumber]->GetPlayerFromName(m_Aura->m_Games[GameNumber]->GetOwnerName(), false) && !IsRootAdmin(User))
-                QueueChatCommand("You can't end that game because the game owner [" + m_Aura->m_Games[GameNumber]->GetOwnerName() + "] is still playing", User, Whisper, m_IRC);
-              else
-              {
-                QueueChatCommand("Ending game [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
-                Print("[GAME: " + m_Aura->m_Games[GameNumber]->GetGameName() + "] is over (admin ended game)");
-                m_Aura->m_Games[GameNumber]->StopPlayers("was disconnected (admin ended game)");
-              }
-            }
-            else
-              QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
-          }
-          catch (...)
-          {
-            // do nothing
-          }
-        }
-
-        //
-        // !HOLD (hold a slot for someone)
-        //
-
-        else if (Command == "hold" && !Payload.empty() && m_Aura->m_CurrentGame)
-        {
-          // hold as many players as specified, e.g. "Varlock Kilranin" holds players "Varlock" and "Kilranin"
-
-          stringstream SS;
-          SS << Payload;
-
-          while (!SS.eof())
-          {
-            string HoldName;
-            SS >> HoldName;
-
-            if (SS.fail())
-            {
-              Print("[BNET: " + m_ServerAlias + "] bad input to hold command");
+            if (Payload.empty() || !m_Aura->m_CurrentGame)
               break;
-            }
-            else
+
+            if (!m_Aura->m_CurrentGame->GetLocked())
             {
-              QueueChatCommand("Added player [" + HoldName + "] to the hold list", User, Whisper, m_IRC);
-              m_Aura->m_CurrentGame->AddToReserved(HoldName);
-            }
-          }
-        }
+              // close as many slots as specified, e.g. "5 10" closes slots 5 and 10
 
-        //
-        // !SENDLAN
-        //
+              stringstream SS;
+              SS << Payload;
 
-        else if (Command == "sendlan" && m_Aura->m_CurrentGame && !Payload.empty() && !m_Aura->m_CurrentGame->GetCountDownStarted())
-        {
-          // extract the ip and the port
-          // e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
-
-          string IP;
-          uint32_t Port = 6112;
-          stringstream SS;
-          SS << Payload;
-          SS >> IP;
-
-          if (!SS.eof())
-            SS >> Port;
-
-          if (SS.fail())
-            QueueChatCommand("Bad input to sendlan command", User, Whisper, m_IRC);
-          else
-          {
-            // construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
-            // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
-            // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
-            // since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
-            // when a player joins a game we can obtain the ID from the received host counter
-            // note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
-
-            // we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
-            // we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
-            // this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
-            // however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
-            // nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
-            // we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
-            // so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
-            // the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
-
-            // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
-            // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
-
-            m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t) MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
-          }
-        }
-
-        //
-        // !COUNTMAPS
-        // !COUNTMAP
-        //
-
-        else if (Command == "countmaps" || Command == "countmap")
-        {
-#ifdef WIN32
-          const auto Count = FilesMatch(m_Aura->m_MapPath, ".").size();
-#else
-          const auto Count = FilesMatch(m_Aura->m_MapPath, "").size();
-#endif
-
-          QueueChatCommand("There are currently [" + to_string(Count) + "] maps", User, Whisper, m_IRC);
-        }
-
-        //
-        // !COUNTCFG
-        // !COUNTCFGS
-        //
-
-        else if (Command == "countcfg" || Command == "countcfgs")
-        {
-#ifdef WIN32
-          const auto Count = FilesMatch(m_Aura->m_MapCFGPath, ".").size();
-#else
-          const auto Count = FilesMatch(m_Aura->m_MapCFGPath, "").size();
-#endif
-          QueueChatCommand("There are currently [" + to_string(Count) + "] cfgs", User, Whisper, m_IRC);
-        }
-
-        //
-        // !DELETECFG
-        //
-
-        else if (Command == "deletecfg" && IsRootAdmin(User) && !Payload.empty())
-        {
-          if (Payload.find(".cfg") == string::npos)
-            Payload.append(".cfg");
-
-          if (!remove((m_Aura->m_MapCFGPath + Payload).c_str()))
-            QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Removal failed", User, Whisper, m_IRC);
-        }
-
-        //
-        // !DELETEMAP
-        //
-
-        else if (Command == "deletemap" && IsRootAdmin(User) && !Payload.empty())
-        {
-          if (Payload.find(".w3x") == string::npos && Payload.find(".w3m") == string::npos)
-            Payload.append(".w3x");
-
-          if (!remove((m_Aura->m_MapPath + Payload).c_str()))
-            QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Removal failed", User, Whisper, m_IRC);
-        }
-
-        //
-        // !OPEN (open slot)
-        //
-
-        else if (Command == "open" && !Payload.empty() && m_Aura->m_CurrentGame)
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-          {
-            // open as many slots as specified, e.g. "5 10" opens slots 5 and 10
-
-            stringstream SS;
-            SS << Payload;
-
-            while (!SS.eof())
-            {
-              uint32_t SID;
-              SS >> SID;
-
-              if (SS.fail())
+              while (!SS.eof())
               {
-                Print("[BNET: " + m_ServerAlias + "] bad input to open command");
-                break;
-              }
-              else
-                m_Aura->m_CurrentGame->OpenSlot((uint8_t)(SID - 1), true);
-            }
-          }
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
-
-        //
-        // !OPENALL
-        //
-
-        else if (Command == "openall" && m_Aura->m_CurrentGame)
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-            m_Aura->m_CurrentGame->OpenAllSlots();
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
-
-        //
-        // !PRIVBY (host private game by other player)
-        //
-
-        else if (Command == "privby" && !Payload.empty())
-        {
-          // extract the owner and the game name
-          // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
-
-          string Owner, GameName;
-          string::size_type GameNameStart = Payload.find(" ");
-
-          if (GameNameStart != string::npos)
-          {
-            Owner = Payload.substr(0, GameNameStart);
-            GameName = Payload.substr(GameNameStart + 1);
-            m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper);
-          }
-        }
-
-        //
-        // !PUBBY (host public game by other player)
-        //
-
-        else if (Command == "pubby" && !Payload.empty())
-        {
-          // extract the owner and the game name
-          // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
-
-          string Owner, GameName;
-          string::size_type GameNameStart = Payload.find(" ");
-
-          if (GameNameStart != string::npos)
-          {
-            Owner = Payload.substr(0, GameNameStart);
-            GameName = Payload.substr(GameNameStart + 1);
-            m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper);
-          }
-        }
-
-        //
-        // !RELOAD
-        //
-
-        else if (Command == "reload")
-        {
-          if (IsRootAdmin(User))
-          {
-            QueueChatCommand("Reloading configuration files", User, Whisper, m_IRC);
-            m_Aura->ReloadConfigs();
-          }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
-
-        //
-        // !SAY
-        //
-
-        else if (Command == "say" && !Payload.empty())
-        {
-          if (IsRootAdmin(User) || Payload[0] != '/')
-            QueueChatCommand(Payload);
-        }
-
-        //
-        // !SAYGAME
-        //
-
-        else if (Command == "saygame" && !Payload.empty())
-        {
-          if (IsRootAdmin(User))
-          {
-            // extract the game number and the message
-            // e.g. "3 hello everyone" -> game number: "3", message: "hello everyone"
-
-            uint32_t GameNumber;
-            string Message;
-            stringstream SS;
-            SS << Payload;
-            SS >> GameNumber;
-
-            if (SS.fail())
-              Print("[BNET: " + m_ServerAlias + "] bad input #1 to saygame command");
-            else
-            {
-              if (SS.eof())
-                Print("[BNET: " + m_ServerAlias + "] missing input #2 to saygame command");
-              else
-              {
-                getline(SS, Message);
-                string::size_type Start = Message.find_first_not_of(" ");
-
-                if (Start != string::npos)
-                  Message = Message.substr(Start);
-
-                if (GameNumber - 1 < m_Aura->m_Games.size())
-                  m_Aura->m_Games[GameNumber - 1]->SendAllChat("ADMIN: " + Message);
-                else
-                  QueueChatCommand("Game number " + to_string(GameNumber) + " doesn't exist", User, Whisper, m_IRC);
-              }
-            }
-          }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
-
-        //
-        // !SAYGAMES
-        //
-
-        else if (Command == "saygames" && !Payload.empty())
-        {
-          if (IsRootAdmin(User))
-          {
-            if (m_Aura->m_CurrentGame)
-              m_Aura->m_CurrentGame->SendAllChat(Payload);
-
-            for (auto & game : m_Aura->m_Games)
-              game->SendAllChat("ADMIN: " + Payload);
-          }
-          else
-          {
-            if (m_Aura->m_CurrentGame)
-              m_Aura->m_CurrentGame->SendAllChat(Payload);
-
-            for (auto & game : m_Aura->m_Games)
-              game->SendAllChat("ADMIN (" + User + "): " + Payload);
-          }
-        }
-
-        //
-        // !SP
-        //
-
-        else if (Command == "sp" && m_Aura->m_CurrentGame && !m_Aura->m_CurrentGame->GetCountDownStarted())
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-          {
-            m_Aura->m_CurrentGame->SendAllChat("Shuffling players");
-            m_Aura->m_CurrentGame->ShuffleSlots();
-          }
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
-
-        //
-        // !START
-        // !S
-        //
-
-        else if ((Command == "start" || Command == "s") && m_Aura->m_CurrentGame && !m_Aura->m_CurrentGame->GetCountDownStarted() && m_Aura->m_CurrentGame->GetNumHumanPlayers() > 0)
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-          {
-            // if the player sent "!start force" skip the checks and start the countdown
-            // otherwise check that the game is ready to start
-
-            if (Payload == "force")
-              m_Aura->m_CurrentGame->StartCountDown(true);
-            else
-              m_Aura->m_CurrentGame->StartCountDown(false);
-          }
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
-
-        //
-        // !SWAP (swap slots)
-        //
-
-        else if (Command == "swap" && !Payload.empty() && m_Aura->m_CurrentGame)
-        {
-          if (!m_Aura->m_CurrentGame->GetLocked())
-          {
-            uint32_t SID1, SID2;
-            stringstream SS;
-            SS << Payload;
-            SS >> SID1;
-
-            if (SS.fail())
-              Print("[BNET: " + m_ServerAlias + "] bad input #1 to swap command");
-            else
-            {
-              if (SS.eof())
-                Print("[BNET: " + m_ServerAlias + "] missing input #2 to swap command");
-              else
-              {
-                SS >> SID2;
+                uint32_t SID;
+                SS >> SID;
 
                 if (SS.fail())
-                  Print("[BNET: " + m_ServerAlias + "] bad input #2 to swap command");
+                {
+                  Print("[BNET: " + m_ServerAlias + "] bad input to close command");
+                  break;
+                }
                 else
-                  m_Aura->m_CurrentGame->SwapSlots((uint8_t)(SID1 - 1), (uint8_t)(SID2 - 1));
+                  m_Aura->m_CurrentGame->CloseSlot((uint8_t)(SID - 1), true);
               }
             }
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
+
+            break;
           }
-          else
-            QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
-        }
 
-        //
-        // !RESTART
-        //
+          //
+          // !CLOSEALL
+          //
 
-        else if (Command == "restart")
-        {
-          if ((!m_Aura->m_Games.size() && !m_Aura->m_CurrentGame) || Payload == "force")
+          case HashCode("closeall"):
           {
-            m_Exiting = true;
+            if (!m_Aura->m_CurrentGame)
+              break;
 
-            // gRestart is defined in aura.cpp
+            if (!m_Aura->m_CurrentGame->GetLocked())
+              m_Aura->m_CurrentGame->CloseAllSlots();
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
 
-            extern bool gRestart;
-            gRestart = true;
+            break;
           }
-          else
-            QueueChatCommand("Games in progress, use !restart force", User, Whisper, m_IRC);
-        }
 
-        //
-        // !W
-        //
+          //
+          // !COUNTADMINS
+          //
 
-        else if (Command == "w" && !Payload.empty())
-        {
-          // extract the name and the message
-          // e.g. "Varlock hello there!" -> name: "Varlock", message: "hello there!"
-
-          string Name;
-          string Message;
-          string::size_type MessageStart = Payload.find(" ");
-
-          if (MessageStart != string::npos)
+          case HashCode("countadmins"):
           {
-            Name = Payload.substr(0, MessageStart);
-            Message = Payload.substr(MessageStart + 1);
+            if (IsRootAdmin(User))
+            {
+              uint32_t Count = m_Aura->m_DB->AdminCount(m_Server);
 
-            for (auto & bnet : m_Aura->m_BNETs)
-              bnet->QueueChatCommand(Message, Name, true, string());
+              if (Count == 0)
+                QueueChatCommand("There are no admins on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else if (Count == 1)
+                QueueChatCommand("There is 1 admin on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("There are " + to_string(Count) + " admins on server [" + m_Server + "]", User, Whisper, m_IRC);
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
           }
-        }
 
-        //
-        // !DISABLE
-        //
+          //
+          // !COUNTBANS
+          //
 
-        else if (Command == "disable")
-        {
-          if (IsRootAdmin(User))
+          case HashCode("countbans"):
           {
-            QueueChatCommand("Creation of new games has been disabled (if there is a game in the lobby it will not be automatically unhosted)", User, Whisper, m_IRC);
-            m_Aura->m_Enabled = false;
+            uint32_t Count = m_Aura->m_DB->BanCount(m_Server);
+
+            if (Count == 0)
+              QueueChatCommand("There are no banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
+            else if (Count == 1)
+              QueueChatCommand("There is 1 banned user on server [" + m_Server + "]", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("There are " + to_string(Count) + " banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
+
+            break;
           }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
 
-        //
-        // !ENABLE
-        //
+          //
+          // !DELADMIN
+          //
 
-        else if (Command == "enable")
-        {
-          if (IsRootAdmin(User))
+          case HashCode("deladmin"):
           {
-            QueueChatCommand("Creation of new games has been enabled", User, Whisper, m_IRC);
-            m_Aura->m_Enabled = true;
+            if (Payload.empty())
+              break;
+
+            if (IsRootAdmin(User))
+            {
+              if (!IsAdmin(Payload))
+                QueueChatCommand("User [" + Payload + "] is not an admin on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else if (m_Aura->m_DB->AdminRemove(m_Server, Payload))
+                QueueChatCommand("Deleted user [" + Payload + "] from the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("Error deleting user [" + Payload + "] from the admin database on server [" + m_Server + "]", User, Whisper, m_IRC);
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
           }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
-        }
 
-        //
-        // !GETCLAN
-        //
+          //
+          // !DELBAN
+          // !UNBAN
+          //
 
-        else if (Command == "getclan")
-        {
-          SendGetClanList();
-          QueueChatCommand("Updating the bot's internal clan list from battle.net..", User, Whisper, m_IRC);
-        }
-
-        //
-        // !GETFRIENDS
-        //
-
-        else if (Command == "getfriends")
-        {
-          SendGetFriendsList();
-          QueueChatCommand("Updating the bot's internal friends list from battle.net..", User, Whisper, m_IRC);
-        }
-
-        //
-        // !EXIT
-        // !QUIT
-        //
-
-        else if (Command == "exit" || Command == "quit")
-        {
-          if (IsRootAdmin(User))
+          case HashCode("delban"):
+          case HashCode("unban"):
           {
-            if (Payload == "force")
-              m_Exiting = true;
+            if (Payload.empty())
+              break;
+
+            if (m_Aura->m_DB->BanRemove(Payload))
+              QueueChatCommand("Unbanned user [" + Payload + "] on all realms", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("Error unbanning user [" + Payload + "] on all realms", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !DOWNLOADS
+          // !DLS
+          //
+
+          case HashCode("downloads"):
+          case HashCode("dls"):
+          {
+            if (Payload.empty())
+            {
+              if (m_Aura->m_AllowDownloads == 0)
+                QueueChatCommand("Map downloads disabled", User, Whisper, m_IRC);
+              else if (m_Aura->m_AllowDownloads == 1)
+                QueueChatCommand("Map downloads enabled", User, Whisper, m_IRC);
+              else if (m_Aura->m_AllowDownloads == 2)
+                QueueChatCommand("Conditional map downloads enabled", User, Whisper, m_IRC);
+
+              break;
+            }
+
+            try
+            {
+              const uint32_t Downloads = stoul(Payload);
+
+              if (Downloads == 0)
+              {
+                QueueChatCommand("Map downloads disabled", User, Whisper, m_IRC);
+                m_Aura->m_AllowDownloads = 0;
+              }
+              else if (Downloads == 1)
+              {
+                QueueChatCommand("Map downloads enabled", User, Whisper, m_IRC);
+                m_Aura->m_AllowDownloads = 1;
+              }
+              else if (Downloads == 2)
+              {
+                QueueChatCommand("Conditional map downloads enabled", User, Whisper, m_IRC);
+                m_Aura->m_AllowDownloads = 2;
+              }
+            }
+            catch (...)
+            {
+              // do nothing
+            }
+
+            break;
+          }
+
+          //
+          // !END
+          //
+
+          case HashCode("end"):
+          {
+            if (Payload.empty())
+              break;
+
+            // TODO: what if a game ends just as you're typing this command and the numbering changes?
+
+            try
+            {
+              const uint32_t GameNumber = stoul(Payload) - 1;
+
+              if (GameNumber < m_Aura->m_Games.size())
+              {
+                // if the game owner is still in the game only allow the root admin to end the game
+
+                if (m_Aura->m_Games[GameNumber]->GetPlayerFromName(m_Aura->m_Games[GameNumber]->GetOwnerName(), false) && !IsRootAdmin(User))
+                  QueueChatCommand("You can't end that game because the game owner [" + m_Aura->m_Games[GameNumber]->GetOwnerName() + "] is still playing", User, Whisper, m_IRC);
+                else
+                {
+                  QueueChatCommand("Ending game [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
+                  Print("[GAME: " + m_Aura->m_Games[GameNumber]->GetGameName() + "] is over (admin ended game)");
+                  m_Aura->m_Games[GameNumber]->StopPlayers("was disconnected (admin ended game)");
+                }
+              }
+              else
+                QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+            }
+            catch (...)
+            {
+              // do nothing
+            }
+
+            break;
+          }
+
+          //
+          // !HOLD (hold a slot for someone)
+          //
+
+          case HashCode("hold"):
+          {
+            if (Payload.empty() || !m_Aura->m_CurrentGame)
+              break;
+
+            // hold as many players as specified, e.g. "Varlock Kilranin" holds players "Varlock" and "Kilranin"
+
+            stringstream SS;
+            SS << Payload;
+
+            while (!SS.eof())
+            {
+              string HoldName;
+              SS >> HoldName;
+
+              if (SS.fail())
+              {
+                Print("[BNET: " + m_ServerAlias + "] bad input to hold command");
+                break;
+              }
+              else
+              {
+                QueueChatCommand("Added player [" + HoldName + "] to the hold list", User, Whisper, m_IRC);
+                m_Aura->m_CurrentGame->AddToReserved(HoldName);
+              }
+            }
+
+            break;
+          }
+
+          //
+          // !SENDLAN
+          //
+
+          case HashCode("sendlan"):
+          {
+            if (Payload.empty() || !m_Aura->m_CurrentGame || m_Aura->m_CurrentGame->GetCountDownStarted())
+              break;
+
+            // extract the ip and the port
+            // e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
+
+            string IP;
+            uint32_t Port = 6112;
+            stringstream SS;
+            SS << Payload;
+            SS >> IP;
+
+            if (!SS.eof())
+              SS >> Port;
+
+            if (SS.fail())
+              QueueChatCommand("Bad input to sendlan command", User, Whisper, m_IRC);
             else
             {
-              if (m_Aura->m_CurrentGame || !m_Aura->m_Games.empty())
-                QueueChatCommand("At least one game is in the lobby or in progress. Use 'force' to shutdown anyway", User, Whisper, m_IRC);
-              else
-                m_Exiting = true;
+              // construct a fixed host counter which will be used to identify players from this "realm" (i.e. LAN)
+              // the fixed host counter's 4 most significant bits will contain a 4 bit ID (0-15)
+              // the rest of the fixed host counter will contain the 28 least significant bits of the actual host counter
+              // since we're destroying 4 bits of information here the actual host counter should not be greater than 2^28 which is a reasonable assumption
+              // when a player joins a game we can obtain the ID from the received host counter
+              // note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
+
+              // we send 12 for SlotsTotal because this determines how many PID's Warcraft 3 allocates
+              // we need to make sure Warcraft 3 allocates at least SlotsTotal + 1 but at most 12 PID's
+              // this is because we need an extra PID for the virtual host player (but we always delete the virtual host player when the 12th person joins)
+              // however, we can't send 13 for SlotsTotal because this causes Warcraft 3 to crash when sharing control of units
+              // nor can we send SlotsTotal because then Warcraft 3 crashes when playing maps with less than 12 PID's (because of the virtual host player taking an extra PID)
+              // we also send 12 for SlotsOpen because Warcraft 3 assumes there's always at least one player in the game (the host)
+              // so if we try to send accurate numbers it'll always be off by one and results in Warcraft 3 assuming the game is full when it still needs one more player
+              // the easiest solution is to simply send 12 for both so the game will always show up as (1/12) players
+
+              // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
+              // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
+
+              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t) MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
             }
+
+            break;
           }
-          else
-            QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+          //
+          // !COUNTMAPS
+          // !COUNTMAP
+          //
+
+          case HashCode("countmap"):
+          case HashCode("countmaps"):
+          {
+#ifdef WIN32
+            const auto Count = FilesMatch(m_Aura->m_MapPath, ".").size();
+#else
+            const auto Count = FilesMatch(m_Aura->m_MapPath, "").size();
+#endif
+
+            QueueChatCommand("There are currently [" + to_string(Count) + "] maps", User, Whisper, m_IRC);
+            break;
+          }
+
+          //
+          // !COUNTCFG
+          // !COUNTCFGS
+          //
+
+          case HashCode("countcfg"):
+          case HashCode("countcfgs"):
+          {
+#ifdef WIN32
+            const auto Count = FilesMatch(m_Aura->m_MapCFGPath, ".").size();
+#else
+            const auto Count = FilesMatch(m_Aura->m_MapCFGPath, "").size();
+#endif
+            QueueChatCommand("There are currently [" + to_string(Count) + "] cfgs", User, Whisper, m_IRC);
+            break;
+          }
+
+          //
+          // !DELETECFG
+          //
+
+          case HashCode("deletecfg"):
+          {
+            if (Payload.empty() || !IsRootAdmin(User))
+              break;
+
+            if (Payload.find(".cfg") == string::npos)
+              Payload.append(".cfg");
+
+            if (!remove((m_Aura->m_MapCFGPath + Payload).c_str()))
+              QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("Removal failed", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !DELETEMAP
+          //
+
+          case HashCode("deletemap"):
+          {
+            if (Payload.empty() || !IsRootAdmin(User))
+              break;
+
+            if (Payload.find(".w3x") == string::npos && Payload.find(".w3m") == string::npos)
+              Payload.append(".w3x");
+
+            if (!remove((m_Aura->m_MapPath + Payload).c_str()))
+              QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("Removal failed", User, Whisper, m_IRC);
+          }
+
+          //
+          // !OPEN (open slot)
+          //
+
+          case HashCode("open"):
+          {
+            if (Payload.empty() || !m_Aura->m_CurrentGame)
+              break;
+
+            if (!m_Aura->m_CurrentGame->GetLocked())
+            {
+              // open as many slots as specified, e.g. "5 10" opens slots 5 and 10
+
+              stringstream SS;
+              SS << Payload;
+
+              while (!SS.eof())
+              {
+                uint32_t SID;
+                SS >> SID;
+
+                if (SS.fail())
+                {
+                  Print("[BNET: " + m_ServerAlias + "] bad input to open command");
+                  break;
+                }
+                else
+                  m_Aura->m_CurrentGame->OpenSlot((uint8_t)(SID - 1), true);
+              }
+            }
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !OPENALL
+          //
+
+          case HashCode("openall"):
+          {
+            if (!m_Aura->m_CurrentGame)
+              break;
+
+            if (!m_Aura->m_CurrentGame->GetLocked())
+              m_Aura->m_CurrentGame->OpenAllSlots();
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !PRIVBY (host private game by other player)
+          //
+
+          case HashCode("privby"):
+          {
+            if (Payload.empty())
+              break;
+
+            // extract the owner and the game name
+            // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
+
+            string Owner, GameName;
+            string::size_type GameNameStart = Payload.find(" ");
+
+            if (GameNameStart != string::npos)
+            {
+              Owner = Payload.substr(0, GameNameStart);
+              GameName = Payload.substr(GameNameStart + 1);
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper);
+            }
+
+            break;
+          }
+
+          //
+          // !PUBBY (host public game by other player)
+          //
+
+          case HashCode("pubby"):
+          {
+            if (Payload.empty())
+              break;
+
+            // extract the owner and the game name
+            // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
+
+            string Owner, GameName;
+            string::size_type GameNameStart = Payload.find(" ");
+
+            if (GameNameStart != string::npos)
+            {
+              Owner = Payload.substr(0, GameNameStart);
+              GameName = Payload.substr(GameNameStart + 1);
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper);
+            }
+
+            break;
+          }
+
+          //
+          // !RELOAD
+          //
+
+          case HashCode("reload"):
+          {
+            if (IsRootAdmin(User))
+            {
+              QueueChatCommand("Reloading configuration files", User, Whisper, m_IRC);
+              m_Aura->ReloadConfigs();
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !SAY
+          //
+
+          case HashCode("say"):
+          {
+            if (Payload.empty())
+              break;
+
+            if (IsRootAdmin(User) || Payload[0] != '/')
+              QueueChatCommand(Payload);
+
+            break;
+          }
+
+          //
+          // !SAYGAME
+          //
+
+          case HashCode("saygame"):
+          {
+            if (Payload.empty())
+              break;
+
+            if (IsRootAdmin(User))
+            {
+              // extract the game number and the message
+              // e.g. "3 hello everyone" -> game number: "3", message: "hello everyone"
+
+              uint32_t GameNumber;
+              string Message;
+              stringstream SS;
+              SS << Payload;
+              SS >> GameNumber;
+
+              if (SS.fail())
+                Print("[BNET: " + m_ServerAlias + "] bad input #1 to saygame command");
+              else
+              {
+                if (SS.eof())
+                  Print("[BNET: " + m_ServerAlias + "] missing input #2 to saygame command");
+                else
+                {
+                  getline(SS, Message);
+                  string::size_type Start = Message.find_first_not_of(" ");
+
+                  if (Start != string::npos)
+                    Message = Message.substr(Start);
+
+                  if (GameNumber - 1 < m_Aura->m_Games.size())
+                    m_Aura->m_Games[GameNumber - 1]->SendAllChat("ADMIN: " + Message);
+                  else
+                    QueueChatCommand("Game number " + to_string(GameNumber) + " doesn't exist", User, Whisper, m_IRC);
+                }
+              }
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !SAYGAMES
+          //
+
+          case HashCode("saygames"):
+          {
+            if (Payload.empty())
+              break;
+
+            if (IsRootAdmin(User))
+            {
+              if (m_Aura->m_CurrentGame)
+                m_Aura->m_CurrentGame->SendAllChat(Payload);
+
+              for (auto & game : m_Aura->m_Games)
+                game->SendAllChat("ADMIN: " + Payload);
+            }
+            else
+            {
+              if (m_Aura->m_CurrentGame)
+                m_Aura->m_CurrentGame->SendAllChat(Payload);
+
+              for (auto & game : m_Aura->m_Games)
+                game->SendAllChat("ADMIN (" + User + "): " + Payload);
+            }
+
+            break;
+          }
+
+          //
+          // !SP
+          //
+
+          case HashCode("sp"):
+          {
+            if (!m_Aura->m_CurrentGame || m_Aura->m_CurrentGame->GetCountDownStarted())
+              break;
+
+            if (!m_Aura->m_CurrentGame->GetLocked())
+            {
+              m_Aura->m_CurrentGame->SendAllChat("Shuffling players");
+              m_Aura->m_CurrentGame->ShuffleSlots();
+            }
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !START
+          // !S
+          //
+
+          case HashCode("s"):
+          case HashCode("start"):
+          {
+            if (!m_Aura->m_CurrentGame || m_Aura->m_CurrentGame->GetCountDownStarted() || m_Aura->m_CurrentGame->GetNumHumanPlayers() == 0)
+              break;
+
+            if (!m_Aura->m_CurrentGame->GetLocked())
+            {
+              // if the player sent "!start force" skip the checks and start the countdown
+              // otherwise check that the game is ready to start
+
+              if (Payload == "force")
+                m_Aura->m_CurrentGame->StartCountDown(true);
+              else
+                m_Aura->m_CurrentGame->StartCountDown(false);
+            }
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !SWAP (swap slots)
+          //
+
+          case HashCode("swap"):
+          {
+            if (Payload.empty() || !m_Aura->m_CurrentGame)
+              break;
+
+            if (!m_Aura->m_CurrentGame->GetLocked())
+            {
+              uint32_t SID1, SID2;
+              stringstream SS;
+              SS << Payload;
+              SS >> SID1;
+
+              if (SS.fail())
+                Print("[BNET: " + m_ServerAlias + "] bad input #1 to swap command");
+              else
+              {
+                if (SS.eof())
+                  Print("[BNET: " + m_ServerAlias + "] missing input #2 to swap command");
+                else
+                {
+                  SS >> SID2;
+
+                  if (SS.fail())
+                    Print("[BNET: " + m_ServerAlias + "] bad input #2 to swap command");
+                  else
+                    m_Aura->m_CurrentGame->SwapSlots((uint8_t)(SID1 - 1), (uint8_t)(SID2 - 1));
+                }
+              }
+            }
+            else
+              QueueChatCommand("This command is disabled while the game is locked", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !RESTART
+          //
+
+          case HashCode("restart"):
+          {
+            if ((!m_Aura->m_Games.size() && !m_Aura->m_CurrentGame) || Payload == "force")
+            {
+              m_Exiting = true;
+
+              // gRestart is defined in aura.cpp
+
+              extern bool gRestart;
+              gRestart = true;
+            }
+            else
+              QueueChatCommand("Games in progress, use !restart force", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !W
+          //
+
+          case HashCode("w"):
+          {
+            if (Payload.empty())
+              break;
+
+            // extract the name and the message
+            // e.g. "Varlock hello there!" -> name: "Varlock", message: "hello there!"
+
+            string Name;
+            string Message;
+            string::size_type MessageStart = Payload.find(" ");
+
+            if (MessageStart != string::npos)
+            {
+              Name = Payload.substr(0, MessageStart);
+              Message = Payload.substr(MessageStart + 1);
+
+              for (auto & bnet : m_Aura->m_BNETs)
+                bnet->QueueChatCommand(Message, Name, true, string());
+            }
+
+            break;
+          }
+
+          //
+          // !DISABLE
+          //
+
+          case HashCode("disable"):
+          {
+            if (IsRootAdmin(User))
+            {
+              QueueChatCommand("Creation of new games has been disabled (if there is a game in the lobby it will not be automatically unhosted)", User, Whisper, m_IRC);
+              m_Aura->m_Enabled = false;
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !ENABLE
+          //
+
+          case HashCode("enable"):
+          {
+            if (IsRootAdmin(User))
+            {
+              QueueChatCommand("Creation of new games has been enabled", User, Whisper, m_IRC);
+              m_Aura->m_Enabled = true;
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !GETCLAN
+          //
+
+          case HashCode("getclan"):
+          {
+            SendGetClanList();
+            QueueChatCommand("Updating the bot's internal clan list from battle.net..", User, Whisper, m_IRC);
+            break;
+          }
+
+          //
+          // !GETFRIENDS
+          //
+
+          case HashCode("getfriends"):
+          {
+            SendGetFriendsList();
+            QueueChatCommand("Updating the bot's internal friends list from battle.net..", User, Whisper, m_IRC);
+            break;
+          }
+
+          //
+          // !EXIT
+          // !QUIT
+          //
+
+          case HashCode("exit"):
+          case HashCode("quit"):
+          {
+            if (IsRootAdmin(User))
+            {
+              if (Payload == "force")
+                m_Exiting = true;
+              else
+              {
+                if (m_Aura->m_CurrentGame || !m_Aura->m_Games.empty())
+                  QueueChatCommand("At least one game is in the lobby or in progress. Use 'force' to shutdown anyway", User, Whisper, m_IRC);
+                else
+                  m_Exiting = true;
+              }
+            }
+            else
+              QueueChatCommand("You don't have access to that command", User, Whisper, m_IRC);
+
+            break;
+          }
         }
       }
       else
@@ -1502,174 +1675,207 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
       if (IsAdmin(User) || IsRootAdmin(User) || m_OutPackets.size() < 3)
       {
-        //
-        // !STATS
-        //
-
-        if (Command == "stats")
+        switch (CommandHash)
         {
-          string StatsUser = User;
+          //
+          // !STATS
+          //
 
-          if (!Payload.empty())
-            StatsUser = Payload;
-
-          // check for potential abuse
-
-          if (StatsUser.size() < 16 && StatsUser[0] != '/')
+          case HashCode("stats"):
           {
-            CDBGamePlayerSummary *GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck(StatsUser);
+            string StatsUser = User;
 
-            if (GamePlayerSummary)
-              QueueChatCommand("[" + StatsUser + "] has played " + to_string(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + to_string(GamePlayerSummary->GetAvgLoadingTime()) + " seconds. Average stay: " + to_string(GamePlayerSummary->GetAvgLeftPercent()) + " percent", User, Whisper, m_IRC);
-            else
-              QueueChatCommand("[" + StatsUser + "] hasn't played any games with this bot yet", User, Whisper, m_IRC);
+            if (!Payload.empty())
+              StatsUser = Payload;
 
-            delete GamePlayerSummary;
+            // check for potential abuse
+
+            if (StatsUser.size() < 16 && StatsUser[0] != '/')
+            {
+              CDBGamePlayerSummary *GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck(StatsUser);
+
+              if (GamePlayerSummary)
+                QueueChatCommand("[" + StatsUser + "] has played " + to_string(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + to_string(GamePlayerSummary->GetAvgLoadingTime()) + " seconds. Average stay: " + to_string(GamePlayerSummary->GetAvgLeftPercent()) + " percent", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("[" + StatsUser + "] hasn't played any games with this bot yet", User, Whisper, m_IRC);
+
+              delete GamePlayerSummary;
+            }
           }
-        }
 
-        //
-        // !GETGAME
-        // !G
-        //
+          //
+          // !GETGAME
+          // !G
+          //
 
-        else if ((Command == "getgame" || Command == "g") && !Payload.empty())
-        {
-          try
+          case HashCode("g"):
+          case HashCode("getgame"):
           {
-            const uint32_t GameNumber = stoul(Payload) - 1;
+            if (Payload.empty())
+            {
+              if (m_Aura->m_CurrentGame)
+                QueueChatCommand("Game [" + m_Aura->m_CurrentGame->GetDescription() + "] is in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("There is no game in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
+                break;
+            }
 
-            if (GameNumber < m_Aura->m_Games.size())
-              QueueChatCommand("Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
+            try
+            {
+              const uint32_t GameNumber = stoul(Payload) - 1;
+
+              if (GameNumber < m_Aura->m_Games.size())
+                QueueChatCommand("Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
+              else
+                QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+            }
+            catch (...)
+            {
+              // do nothing
+            }
+
+            break;
+          }
+
+          //
+          // !GETGAMES
+          // !G
+          //
+
+          case HashCode("getgames"):
+          {
+            if (m_Aura->m_CurrentGame)
+              QueueChatCommand("Game [" + m_Aura->m_CurrentGame->GetDescription() + "] is in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
+            else
+              QueueChatCommand("There is no game in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !GETPLAYERS
+          // !GP
+          //
+
+          case HashCode("gp"):
+          case HashCode("getplayers"):
+          {
+            if (Payload.empty())
+              break;
+
+            const int32_t GameNumber = stoi(Payload) - 1;
+
+            if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
+              QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
+            else if (GameNumber == -1 && m_Aura->m_CurrentGame)
+              QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
             else
               QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+
+            break;
           }
-          catch (...)
+
+          //
+          // !GETOBSERVERS
+          // !GO
+          //
+
+          case HashCode("go"):
+          case HashCode("getobservers"):
           {
-            // do nothing
-          }
-        }
+            if (Payload.empty())
+              break;
 
-        //
-        // !GETGAMES
-        // !G
-        //
+            const int32_t GameNumber = stoi(Payload) - 1;
 
-        else if ((Command == "getgames" || Command == "g") && Payload.empty())
-        {
-          if (m_Aura->m_CurrentGame)
-            QueueChatCommand("Game [" + m_Aura->m_CurrentGame->GetDescription() + "] is in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
-          else
-            QueueChatCommand("There is no game in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
-        }
-
-        //
-        // !GETPLAYERS
-        // !GP
-        //
-
-        else if ((Command == "gp" || Command == "getplayers") && !Payload.empty())
-        {
-          const int32_t GameNumber = stoi(Payload) - 1;
-
-          if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
-            QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
-          else if (GameNumber == -1 && m_Aura->m_CurrentGame)
-            QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
-        }
-
-        //
-        // !GETOBSERVERS
-        // !GO
-        //
-
-        else if ((Command == "go" || Command == "getobservers") && !Payload.empty())
-        {
-          const int32_t GameNumber = stoi(Payload) - 1;
-
-          if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
-            QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);
-          else if (GameNumber == -1 && m_Aura->m_CurrentGame)
-            QueueChatCommand("Observers in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetObservers(), User, Whisper, m_IRC);
-          else
-            QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
-        }
-
-        //
-        // !STATSDOTA
-        // !SD
-        //
-
-        else if (Command == "statsdota" || Command == "sd")
-        {
-          string StatsUser = User;
-
-          if (!Payload.empty())
-            StatsUser = Payload;
-
-          // check for potential abuse
-
-          if (!StatsUser.empty() && StatsUser.size() < 16 && StatsUser[0] != '/')
-          {
-            const CDBDotAPlayerSummary *DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck(StatsUser);
-
-            if (DotAPlayerSummary)
-            {
-              const string Summary = StatsUser + " - " + to_string(DotAPlayerSummary->GetTotalGames())
-                + " games (W/L: " + to_string(DotAPlayerSummary->GetTotalWins())
-                + "/" + to_string(DotAPlayerSummary->GetTotalLosses())
-                + ") Hero K/D/A: " + to_string(DotAPlayerSummary->GetTotalKills())
-                + "/" + to_string(DotAPlayerSummary->GetTotalDeaths())
-                + "/" + to_string(DotAPlayerSummary->GetTotalAssists())
-                + " (" + to_string(DotAPlayerSummary->GetAvgKills())
-                + "/" + to_string(DotAPlayerSummary->GetAvgDeaths())
-                + "/" + to_string(DotAPlayerSummary->GetAvgAssists())
-                + ") Creep K/D/N: " + to_string(DotAPlayerSummary->GetTotalCreepKills())
-                + "/" + to_string(DotAPlayerSummary->GetTotalCreepDenies())
-                + "/" + to_string(DotAPlayerSummary->GetTotalNeutralKills())
-                + " (" + to_string(DotAPlayerSummary->GetAvgCreepKills())
-                + "/" + to_string(DotAPlayerSummary->GetAvgCreepDenies())
-                + "/" + to_string(DotAPlayerSummary->GetAvgNeutralKills())
-                + ") T/R/C: " + to_string(DotAPlayerSummary->GetTotalTowerKills())
-                + "/" + to_string(DotAPlayerSummary->GetTotalRaxKills())
-                + "/" + to_string(DotAPlayerSummary->GetTotalCourierKills());
-
-              QueueChatCommand(Summary, User, Whisper, m_IRC);
-
-              delete DotAPlayerSummary;
-            }
+            if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
+              QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);
+            else if (GameNumber == -1 && m_Aura->m_CurrentGame)
+              QueueChatCommand("Observers in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetObservers(), User, Whisper, m_IRC);
             else
-              QueueChatCommand("[" + StatsUser + "] hasn't played any DotA games here", User, Whisper, m_IRC);
+              QueueChatCommand("Game number " + Payload + " doesn't exist", User, Whisper, m_IRC);
+
+            break;
+          }
+
+          //
+          // !STATSDOTA
+          // !SD
+          //
+
+          case HashCode("sd"):
+          case HashCode("statsdota"):
+          {
+            string StatsUser = User;
+
+            if (!Payload.empty())
+              StatsUser = Payload;
+
+            // check for potential abuse
+
+            if (!StatsUser.empty() && StatsUser.size() < 16 && StatsUser[0] != '/')
+            {
+              const CDBDotAPlayerSummary *DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck(StatsUser);
+
+              if (DotAPlayerSummary)
+              {
+                const string Summary = StatsUser + " - " + to_string(DotAPlayerSummary->GetTotalGames())
+                  + " games (W/L: " + to_string(DotAPlayerSummary->GetTotalWins())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalLosses())
+                  + ") Hero K/D/A: " + to_string(DotAPlayerSummary->GetTotalKills())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalDeaths())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalAssists())
+                  + " (" + to_string(DotAPlayerSummary->GetAvgKills())
+                  + "/" + to_string(DotAPlayerSummary->GetAvgDeaths())
+                  + "/" + to_string(DotAPlayerSummary->GetAvgAssists())
+                  + ") Creep K/D/N: " + to_string(DotAPlayerSummary->GetTotalCreepKills())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalCreepDenies())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalNeutralKills())
+                  + " (" + to_string(DotAPlayerSummary->GetAvgCreepKills())
+                  + "/" + to_string(DotAPlayerSummary->GetAvgCreepDenies())
+                  + "/" + to_string(DotAPlayerSummary->GetAvgNeutralKills())
+                  + ") T/R/C: " + to_string(DotAPlayerSummary->GetTotalTowerKills())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalRaxKills())
+                  + "/" + to_string(DotAPlayerSummary->GetTotalCourierKills());
+
+                QueueChatCommand(Summary, User, Whisper, m_IRC);
+
+                delete DotAPlayerSummary;
+              }
+              else
+                QueueChatCommand("[" + StatsUser + "] hasn't played any DotA games here", User, Whisper, m_IRC);
+            }
+
+            break;
+          }
+
+          //
+          // !STATUS
+          //
+
+          case HashCode("status"):
+          {
+            string message = "Status: ";
+
+            for (auto & bnet : m_Aura->m_BNETs)
+              message += bnet->GetServer() + (bnet->GetLoggedIn() ? " [online], " : " [offline], ");
+
+            message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
+
+            QueueChatCommand(message, User, Whisper, m_IRC);
+            break;
+          }
+
+          //
+          // !VERSION
+          //
+
+          case HashCode("version"):
+          {
+            QueueChatCommand("Version: Aura " + m_Aura->m_Version, User, Whisper, m_IRC);
+            break;
           }
         }
-
-        //
-        // !STATUS
-        //
-
-        else if (Command == "status")
-        {
-          string message = "Status: ";
-
-          for (auto & bnet : m_Aura->m_BNETs)
-            message += bnet->GetServer() + (bnet->GetLoggedIn() ? " [online], " : " [offline], ");
-
-          message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
-
-          QueueChatCommand(message, User, Whisper, m_IRC);
-        }
-
-        //
-        // !VERSION
-        //
-
-        else if (Command == "version")
-        {
-          QueueChatCommand("Version: Aura " + m_Aura->m_Version, User, Whisper, m_IRC);
-        }
-
       }
     }
   }
