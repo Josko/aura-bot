@@ -170,10 +170,6 @@ int main(int, char *argv[])
 
   Print("[AURA] shutting down winsock");
   WSACleanup();
-
-  // shutdown timer
-
-  timeEndPeriod(TimerResolution);
 #endif
 
   // restart the program
