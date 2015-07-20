@@ -542,13 +542,8 @@ bool CAura::Update()
       usecBlock = game->GetNextTimedActionTicks() * 1000;
   }
 
-  static struct timeval tv;
-  tv.tv_sec = 0;
-  tv.tv_usec = usecBlock;
-
-  static struct timeval send_tv;
-  send_tv.tv_sec = 0;
-  send_tv.tv_usec = 0;
+  struct timeval tv = { .tv_sec = 0, .tv_usec = static_cast<long int>(usecBlock) };
+  struct timeval send_tv = { .tv_sec = 0, .tv_usec = 0 };
 
 #ifdef WIN32
   select(1, &fd, nullptr, nullptr, &tv);
