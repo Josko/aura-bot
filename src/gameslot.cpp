@@ -27,7 +27,7 @@ using namespace std;
 // CGameSlot
 //
 
-CGameSlot::CGameSlot(BYTEARRAY &n)
+CGameSlot::CGameSlot(const BYTEARRAY &n)
   : m_PID(0),
     m_DownloadStatus(255),
     m_SlotStatus(SLOTSTATUS_OPEN),
@@ -60,7 +60,7 @@ CGameSlot::CGameSlot(BYTEARRAY &n)
   }
 }
 
-CGameSlot::CGameSlot(uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus, uint8_t nComputer, uint8_t nTeam, uint8_t nColour, uint8_t nRace, uint8_t nComputerType, uint8_t nHandicap)
+CGameSlot::CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const uint8_t nSlotStatus, const uint8_t nComputer, const uint8_t nTeam, const uint8_t nColour, const uint8_t nRace, const uint8_t nComputerType, const uint8_t nHandicap)
   : m_PID(nPID),
     m_DownloadStatus(nDownloadStatus),
     m_SlotStatus(nSlotStatus),
@@ -77,9 +77,4 @@ CGameSlot::CGameSlot(uint8_t nPID, uint8_t nDownloadStatus, uint8_t nSlotStatus,
 CGameSlot::~CGameSlot()
 {
 
-}
-
-BYTEARRAY CGameSlot::GetByteArray() const
-{
-  return BYTEARRAY {m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap};
 }
