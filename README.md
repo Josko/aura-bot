@@ -45,7 +45,7 @@ Building
 
 ### Windows
 
-Windows users must use VS2013 or later. Visual Studio 2013 Express for Windows Desktop works.
+Windows users must use VS2015 or later. Visual Studio 2015 RC works.
 Neccessary .sln and .vcxproj files are provided. Before building, choose the Release configuration and Win32 or x64 as the platform.
 The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 
