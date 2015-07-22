@@ -23,6 +23,7 @@ install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
 
   # clang 3.5
+  - if [ "$CXX" == "clang++" ]; then sudo apt-get -qq update; fi
   - if [ "$CXX" == "clang++" ]; then sudo apt-get install -qq clang-3.5; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; CC="clang-3.5"; fi
   - if [ "$CXX" == "clang++" ]; then export LD_LIBRARY_PATH="/usr/lib/llvm-${LLVM_VERSION}/lib/"; fi
