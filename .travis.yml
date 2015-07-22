@@ -22,9 +22,11 @@ install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
 
-  # clang 3.4
-  - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq binutils-gold llvm-3.5 llvm-3.5-dev libedit2 libedit-dev; fi
+  # clang 3.5
+  - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq binutils-gold clang-3.5; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.5"; CC="clang-3.5"; fi
+  - if [ "$CXX" == "clang++" ]; then export LD_LIBRARY_PATH="/usr/lib/llvm-${LLVM_VERSION}/lib/"; fi
+  - if [ "$CXX" == "clang++" ]; then export PATH="/usr/lib/llvm-${LLVM_VERSION}/bin:$PATH"; fi
 
   - cd StormLib
   - mkdir build
