@@ -1,6 +1,7 @@
 ﻿Aura
 ====
 [![Build Status](https://secure.travis-ci.org/Josko/aura-bot.png?branch=master)](http://travis-ci.org/Josko/aura-bot)
+[![Build status](https://ci.appveyor.com/api/projects/status/u67db01q5nbt172l/branch/master?svg=true)](https://ci.appveyor.com/project/Josko/aura-bot/branch/master)
 
 Overview
 --------
@@ -44,6 +45,8 @@ Building
 --------
 
 ### Windows
+
+**Note**: Version 1.30 with compile time string hashing is broken on Windows even with VS2015 RC.
 
 Windows users must use VS2015 or later. Visual Studio 2015 RC works.
 Neccessary .sln and .vcxproj files are provided. Before building, choose the Release configuration and Win32 or x64 as the platform.
