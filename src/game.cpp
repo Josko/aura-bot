@@ -1984,10 +1984,10 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
                 m_Latency = 10;
                 SendAllChat("Setting game latency to the minimum of 10 ms");
               }
-              else if (m_Latency >= 250)
+              else if (m_Latency >= 500)
               {
-                m_Latency = 250;
-                SendAllChat("Setting game latency to the maximum of 250 ms");
+                m_Latency = 500;
+                SendAllChat("Setting game latency to the maximum of 500 ms");
               }
               else
                 SendAllChat("Setting game latency to " + to_string(m_Latency) + " ms");
