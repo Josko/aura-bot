@@ -1979,10 +1979,10 @@ bool CGame::EventPlayerBotCommand(CGamePlayer *player, string &command, string &
             {
               m_Latency = stoul(Payload);
 
-              if (m_Latency <= 25)
+              if (m_Latency <= 10)
               {
-                m_Latency = 25;
-                SendAllChat("Setting game latency to the minimum of 25 ms");
+                m_Latency = 10;
+                SendAllChat("Setting game latency to the minimum of 10 ms");
               }
               else if (m_Latency >= 250)
               {
