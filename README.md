@@ -46,9 +46,7 @@ Building
 
 ### Windows
 
-**Note**: Version 1.30 with compile time string hashing is broken on Windows even with VS2015 RC.
-
-Windows users must use VS2015 or later. Visual Studio 2015 RC works.
+Windows users must use VS2015 or later. Visual Studio 2015 Community edition works.
 Neccessary .sln and .vcxproj files are provided. Before building, choose the Release configuration and Win32 or x64 as the platform.
 The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 
