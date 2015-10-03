@@ -337,7 +337,7 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
         else if ((m_Winner == 2 && Colour >= 1 && Colour <= 5) || (m_Winner == 1 && Colour >= 7 && Colour <= 11))
           Win = 2;
 
-        Aura->m_DB->DotAPlayerAdd(m_Game->GetDBPlayerNameFromColour(Colour), Win, player->GetKills(), player->GetDeaths(), player->GetCreepKills(), player->GetCreepDenies(), player->GetAssists(), player->GetNeutralKills(), player->GetTowerKills(), player->GetRaxKills(), player->GetCourierKills());
+        Aura->m_DB->DotAPlayerAdd(Name, Win, player->GetKills(), player->GetDeaths(), player->GetCreepKills(), player->GetCreepDenies(), player->GetAssists(), player->GetNeutralKills(), player->GetTowerKills(), player->GetRaxKills(), player->GetCourierKills());
         ++Players;
       }
     }
