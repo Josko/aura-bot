@@ -227,7 +227,7 @@ CAura::CAura(CConfig *CFG)
   m_CRC->Initialize();
   m_HostPort = CFG->GetInt("bot_hostport", 6112);
   m_DefaultMap = CFG->GetString("bot_defaultmap", "dota");
-  m_LANWar3Version = CFG->GetInt("lan_war3version", 26);
+  m_LANWar3Version = CFG->GetInt("lan_war3version", 27);
 
   // read the rest of the general configuration
 
@@ -317,7 +317,7 @@ CAura::CAura(CConfig *CFG)
     }
 
     string BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
-    uint8_t War3Version = CFG->GetInt(Prefix + "custom_war3version", 26);
+    uint8_t War3Version = CFG->GetInt(Prefix + "custom_war3version", 27);
     BYTEARRAY EXEVersion = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
     BYTEARRAY EXEVersionHash = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
     string PasswordHashType = CFG->GetString(Prefix + "custom_passwordhashtype", string());
