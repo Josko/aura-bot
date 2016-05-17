@@ -1718,7 +1718,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 QueueChatCommand("Game [" + m_Aura->m_CurrentGame->GetDescription() + "] is in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
               else
                 QueueChatCommand("There is no game in the lobby and there are " + to_string(m_Aura->m_Games.size()) + "/" + to_string(m_Aura->m_MaxGames) + " other games in progress", User, Whisper, m_IRC);
-                break;
+              break;
             }
 
             try
