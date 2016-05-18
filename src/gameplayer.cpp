@@ -414,10 +414,13 @@ bool CGamePlayer::Update(void *fd)
   if (m_GProxy && m_Game->GetGameLoaded())
     return m_DeleteMe;
 
+  if (m_DeleteMe)
+      return true;
+
   if (m_Socket)
     return m_Socket->HasError() || !m_Socket->GetConnected();
 
-  return m_DeleteMe;
+  return false;
 }
 
 void CGamePlayer::Send(const BYTEARRAY &data)
