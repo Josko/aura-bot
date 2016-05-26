@@ -43,12 +43,6 @@ typedef std::pair<uint8_t, std::string> PIDPlayer;
 int64_t GetTime();   // seconds
 int64_t GetTicks();  // milliseconds
 
-#ifdef WIN32
-#define MILLISLEEP( x ) Sleep( x )
-#else
-#define MILLISLEEP( x ) usleep( ( x ) * 1000 )
-#endif
-
 // network
 
 #undef FD_SETSIZE
