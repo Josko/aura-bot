@@ -34,14 +34,24 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <chrono>
 
 typedef std::vector<uint8_t> BYTEARRAY;
 typedef std::pair<uint8_t, std::string> PIDPlayer;
 
 // time
 
-int64_t GetTime();   // seconds
-int64_t GetTicks();  // milliseconds
+inline int64_t GetTime()
+{
+  const std::chrono::steady_clock::time_point time_now = std::chrono::steady_clock::now();
+  return std::chrono::duration_cast<std::chrono::seconds>(time_now.time_since_epoch()).count();
+}
+
+inline int64_t GetTicks()
+{
+  const std::chrono::steady_clock::time_point time_now = std::chrono::steady_clock::now();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(time_now.time_since_epoch()).count();
+}
 
 // network
 

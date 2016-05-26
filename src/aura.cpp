@@ -37,7 +37,6 @@
 
 #include <csignal>
 #include <cstdlib>
-#include <chrono>
 #include <thread>
 
 #define __STORMLIB_SELF__
@@ -56,17 +55,6 @@ using namespace std;
 static CAura *gAura = nullptr;
 bool gRestart = false;
 
-int64_t GetTime()
-{
-  chrono::steady_clock::time_point time_now = chrono::steady_clock::now();
-  return chrono::duration_cast<chrono::seconds>(time_now.time_since_epoch()).count();
-}
-
-int64_t GetTicks()
-{
-  chrono::steady_clock::time_point time_now = chrono::steady_clock::now();
-  return chrono::duration_cast<chrono::milliseconds>(time_now.time_since_epoch()).count();
-}
 
 void Print(const string &message)
 {
@@ -125,7 +113,7 @@ int main(int, char *argv[])
 
   // print timer resolution
 
-  const std::chrono::duration<double, std::nano> resolution = chrono::steady_clock::duration(1);
+  const std::chrono::duration<double, std::nano> resolution = std::chrono::steady_clock::duration(1);
   Print("[AURA] using monotonic timer with resolution " + to_string(resolution.count()) + " nanoseconds");
 
 #ifdef WIN32
