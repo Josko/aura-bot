@@ -248,7 +248,7 @@ void CMap::Load(CConfig *CFG, const string &nCFGFile)
 
     // calculate map_info (this is actually the CRC)
 
-    MapInfo = CreateByteArray((uint32_t) m_Aura->m_CRC->FullCRC((uint8_t *) m_MapData.c_str(), m_MapData.size()), false);
+    MapInfo = CreateByteArray((uint32_t) m_Aura->m_CRC->CalculateCRC((uint8_t *) m_MapData.c_str(), m_MapData.size()), false);
     Print("[MAP] calculated map_info = " + ByteArrayToDecString(MapInfo));
 
     // calculate map_crc (this is not the CRC) and map_sha1

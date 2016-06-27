@@ -403,7 +403,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction *> acti
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(begin(subpacket), end(subpacket)).c_str(), subpacket.size()), false);
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->CalculateCRC((uint8_t *) string(begin(subpacket), end(subpacket)).c_str(), subpacket.size()), false);
     crc32.resize(2);
 
     // finish subpacket
@@ -571,7 +571,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_MAPPART(uint8_t fromPID, uint8_t toPID, uint3
 
     // calculate crc
 
-    const BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) mapData->c_str() + start, End - start), false);
+    const BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->CalculateCRC((uint8_t *) mapData->c_str() + start, End - start), false);
     AppendByteArrayFast(packet, crc32);
 
     // map data
@@ -607,7 +607,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncomingAction *> act
 
     // calculate crc (we only care about the first 2 bytes though)
 
-    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->FullCRC((uint8_t *) string(begin(subpacket), end(subpacket)).c_str(), subpacket.size()), false);
+    BYTEARRAY crc32 = CreateByteArray(m_Aura->m_CRC->CalculateCRC((uint8_t *) string(begin(subpacket), end(subpacket)).c_str(), subpacket.size()), false);
     crc32.resize(2);
 
     // finish subpacket
