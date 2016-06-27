@@ -1,6 +1,7 @@
 #ifndef AURA_CRC32_H_
 #define AURA_CRC32_H_
 
+#include <cstdlib>
 #include <cstdint>
 
 constexpr std::size_t MaxSlices = 16;
