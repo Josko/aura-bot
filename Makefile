@@ -11,7 +11,7 @@ ifndef CXX
 endif
 
 CCFLAGS = -fno-builtin
-CXXFLAGS = -std=c++11 -pipe -Wall -Wextra -fno-builtin
+CXXFLAGS = -std=c++14 -pipe -Wall -Wextra -fno-builtin
 DFLAGS = 
 OFLAGS = -O3 -flto
 LFLAGS = -L. -L/usr/local/lib/ -L../bncsutil/src/bncsutil/ -lstorm -lbncsutil -ldl -lgmp
@@ -65,24 +65,24 @@ OBJS = src/bncsutilinterface.o \
 
 COBJS = src/sqlite3.o
 
-PROGS = aura++
+PROG = aura++
 
-all: $(OBJS) $(COBJS) $(PROGS)
+all: $(OBJS) $(COBJS) $(PROG)
 	@echo "Used CFLAGS: $(CXXFLAGS)"
 
-aura++: $(OBJS) $(COBJS)
+$(PROG): $(OBJS) $(COBJS)
 	@$(CXX) -o aura++ $(OBJS) $(COBJS) $(CXXFLAGS) $(LFLAGS)
 	@echo "[BIN] $@ created."
-	@strip aura++
+	@strip "$(PROG)"
 	@echo "[BIN] Stripping the binary."
 
 clean:
-	@rm -f $(OBJS) $(COBJS) $(PROGS)
+	@rm -f $(OBJS) $(COBJS) $(PROG)
 	@echo "Binary and object files cleaned."
 
 install:
-	@install -D $(PROGS) "$(DESTDIR)/usr/bin/$(PROGS)"
-	@echo "Binary $(PROGS) installed to $(DESTDIR)/usr/bin"
+	@install -D $(PROG) "$(DESTDIR)/usr/bin/$(PROG)"
+	@echo "Binary $(PROG) installed to $(DESTDIR)/usr/bin"
 
 $(OBJS): %.o: %.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c $<
@@ -91,3 +91,8 @@ $(OBJS): %.o: %.cpp
 $(COBJS): %.o: %.c
 	@$(CC) -o $@ $(CCFLAGS) -c $<
 	@echo "[$(CC)] $@"
+
+clang-tidy:
+	@for file in $(OBJS); do \
+		clang-tidy "src/$$(basename $$file .o).cpp" -checks=* -- "$(CXXFLAGS) $(DFLAGS)"; \
+	done;
