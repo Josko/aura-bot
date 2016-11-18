@@ -23,20 +23,20 @@
 
 #include "includes.h"
 
-#define SLOTSTATUS_OPEN     0
-#define SLOTSTATUS_CLOSED   1
+#define SLOTSTATUS_OPEN 0
+#define SLOTSTATUS_CLOSED 1
 #define SLOTSTATUS_OCCUPIED 2
 
-#define SLOTRACE_HUMAN      1
-#define SLOTRACE_ORC        2
-#define SLOTRACE_NIGHTELF   4
-#define SLOTRACE_UNDEAD     8
-#define SLOTRACE_RANDOM     32
+#define SLOTRACE_HUMAN 1
+#define SLOTRACE_ORC 2
+#define SLOTRACE_NIGHTELF 4
+#define SLOTRACE_UNDEAD 8
+#define SLOTRACE_RANDOM 32
 #define SLOTRACE_SELECTABLE 64
 
-#define SLOTCOMP_EASY       0
-#define SLOTCOMP_NORMAL     1
-#define SLOTCOMP_HARD       2
+#define SLOTCOMP_EASY 0
+#define SLOTCOMP_NORMAL 1
+#define SLOTCOMP_HARD 2
 
 //
 // CGameSlot
@@ -56,30 +56,30 @@ private:
   uint8_t m_Handicap;       // handicap
 
 public:
-  explicit CGameSlot(const BYTEARRAY &n);
+  explicit CGameSlot(const BYTEARRAY& n);
   CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const uint8_t nSlotStatus, const uint8_t nComputer, const uint8_t nTeam, const uint8_t nColour, const uint8_t nRace, const uint8_t nComputerType = 1, const uint8_t nHandicap = 100);
   ~CGameSlot();
 
-  inline uint8_t GetPID() const                           { return m_PID; }
-  inline uint8_t GetDownloadStatus() const                { return m_DownloadStatus; }
-  inline uint8_t GetSlotStatus() const                    { return m_SlotStatus; }
-  inline uint8_t GetComputer() const                      { return m_Computer; }
-  inline uint8_t GetTeam() const                          { return m_Team; }
-  inline uint8_t GetColour() const                        { return m_Colour; }
-  inline uint8_t GetRace() const                          { return m_Race; }
-  inline uint8_t GetComputerType() const                  { return m_ComputerType; }
-  inline uint8_t GetHandicap() const                      { return m_Handicap; }
-  inline BYTEARRAY GetByteArray() const                   { return BYTEARRAY {m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap}; }
+  inline uint8_t   GetPID() const { return m_PID; }
+  inline uint8_t   GetDownloadStatus() const { return m_DownloadStatus; }
+  inline uint8_t   GetSlotStatus() const { return m_SlotStatus; }
+  inline uint8_t   GetComputer() const { return m_Computer; }
+  inline uint8_t   GetTeam() const { return m_Team; }
+  inline uint8_t   GetColour() const { return m_Colour; }
+  inline uint8_t   GetRace() const { return m_Race; }
+  inline uint8_t   GetComputerType() const { return m_ComputerType; }
+  inline uint8_t   GetHandicap() const { return m_Handicap; }
+  inline BYTEARRAY GetByteArray() const { return BYTEARRAY{m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap}; }
 
-  inline void SetPID(uint8_t nPID)                       { m_PID = nPID; }
+  inline void SetPID(uint8_t nPID) { m_PID = nPID; }
   inline void SetDownloadStatus(uint8_t nDownloadStatus) { m_DownloadStatus = nDownloadStatus; }
-  inline void SetSlotStatus(uint8_t nSlotStatus)         { m_SlotStatus = nSlotStatus; }
-  inline void SetComputer(uint8_t nComputer)             { m_Computer = nComputer; }
-  inline void SetTeam(uint8_t nTeam)                     { m_Team = nTeam; }
-  inline void SetColour(uint8_t nColour)                 { m_Colour = nColour; }
-  inline void SetRace(uint8_t nRace)                     { m_Race = nRace; }
-  inline void SetComputerType(uint8_t nComputerType)     { m_ComputerType = nComputerType; }
-  inline void SetHandicap(uint8_t nHandicap)             { m_Handicap = nHandicap; }
+  inline void SetSlotStatus(uint8_t nSlotStatus) { m_SlotStatus = nSlotStatus; }
+  inline void SetComputer(uint8_t nComputer) { m_Computer = nComputer; }
+  inline void SetTeam(uint8_t nTeam) { m_Team = nTeam; }
+  inline void SetColour(uint8_t nColour) { m_Colour = nColour; }
+  inline void SetRace(uint8_t nRace) { m_Race = nRace; }
+  inline void SetComputerType(uint8_t nComputerType) { m_ComputerType = nComputerType; }
+  inline void SetHandicap(uint8_t nHandicap) { m_Handicap = nHandicap; }
 };
 
-#endif  // AURA_GAMESLOT_H_
+#endif // AURA_GAMESLOT_H_

@@ -41,20 +41,20 @@ bool FileExists(string file)
   return (stat(file.c_str(), &fileinfo) == 0);
 }
 #else
-bool FileExists(const string &file)
+bool FileExists(const string& file)
 {
   struct stat fileinfo;
   return (stat(file.c_str(), &fileinfo) == 0);
 }
 #endif
 
-vector<string> FilesMatch(const string &path, const string &pattern)
+vector<string> FilesMatch(const string& path, const string& pattern)
 {
   vector<string> Files;
 
 #ifdef WIN32
   WIN32_FIND_DATAA data;
-  HANDLE handle = FindFirstFileA((path + "\\*").c_str(), &data);
+  HANDLE           handle = FindFirstFileA((path + "\\*").c_str(), &data);
   memset(&data, 0, sizeof(WIN32_FIND_DATAA));
 
   while (handle != INVALID_HANDLE_VALUE)
@@ -77,12 +77,12 @@ vector<string> FilesMatch(const string &path, const string &pattern)
 
   FindClose(handle);
 #else
-  DIR *dir = opendir(path.c_str());
+  DIR* dir = opendir(path.c_str());
 
   if (dir == nullptr)
     return Files;
 
-  struct dirent *dp = nullptr;
+  struct dirent* dp = nullptr;
 
   while ((dp = readdir(dir)) != nullptr)
   {
@@ -105,7 +105,7 @@ vector<string> FilesMatch(const string &path, const string &pattern)
   return Files;
 }
 
-string FileRead(const string &file, uint32_t start, uint32_t length)
+string FileRead(const string& file, uint32_t start, uint32_t length)
 {
   ifstream IS;
   IS.open(file.c_str(), ios::binary);
@@ -139,7 +139,7 @@ string FileRead(const string &file, uint32_t start, uint32_t length)
   return BufferString;
 }
 
-string FileRead(const string &file)
+string FileRead(const string& file)
 {
   ifstream IS;
   IS.open(file.c_str(), ios::binary);
@@ -170,7 +170,7 @@ string FileRead(const string &file)
     return string();
 }
 
-bool FileWrite(const string &file, uint8_t *data, uint32_t length)
+bool FileWrite(const string& file, uint8_t* data, uint32_t length)
 {
   ofstream OS;
   OS.open(file.c_str(), ios::binary);
@@ -183,7 +183,7 @@ bool FileWrite(const string &file, uint8_t *data, uint32_t length)
 
   // write data
 
-  OS.write((const char *)data, length);
+  OS.write((const char*)data, length);
   OS.close();
   return true;
 }

@@ -41,17 +41,17 @@ class CAuraDB;
 class CStats
 {
 protected:
-  CGame *m_Game;
-  CDBDotAPlayer *m_Players[12];
-  uint8_t m_Winner;
+  CGame*         m_Game;
+  CDBDotAPlayer* m_Players[12];
+  uint8_t        m_Winner;
 
 public:
-  explicit CStats(CGame *nGame);
+  explicit CStats(CGame* nGame);
   ~CStats();
-  CStats(CStats &) = delete;
+  CStats(CStats&) = delete;
 
-  bool ProcessAction(CIncomingAction *Action);
-  void Save(CAura *CAura, CAuraDB *DB);
+  bool ProcessAction(CIncomingAction* Action);
+  void Save(CAura* CAura, CAuraDB* DB);
 };
 
-#endif  // AURA_STATS_H_
+#endif // AURA_STATS_H_

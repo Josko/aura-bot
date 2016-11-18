@@ -39,7 +39,7 @@ using namespace std;
 // CBNET
 //
 
-CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
+CBNET::CBNET(CAura* nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
   : m_Aura(nAura),
     m_Socket(new CTCPClient()),
     m_Protocol(new CBNETProtocol()),
@@ -74,12 +74,12 @@ CBNET::CBNET(CAura *nAura, string nServer, string nServerAlias, string nCDKeyROC
 {
   if (m_PasswordHashType == "pvpgn" || m_EXEVersion.size() == 4 || m_EXEVersionHash.size() == 4)
   {
-    m_PvPGN = true;
+    m_PvPGN          = true;
     m_ReconnectDelay = 90;
   }
   else
   {
-    m_PvPGN = false;
+    m_PvPGN          = false;
     m_ReconnectDelay = 240;
   }
 
@@ -114,18 +114,18 @@ CBNET::~CBNET()
   delete m_BNCSUtil;
 }
 
-uint32_t CBNET::SetFD(void *fd, void *send_fd, int32_t *nfds)
+uint32_t CBNET::SetFD(void* fd, void* send_fd, int32_t* nfds)
 {
   if (!m_Socket->HasError() && m_Socket->GetConnected())
   {
-    m_Socket->SetFD((fd_set *) fd, (fd_set *) send_fd, nfds);
+    m_Socket->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
     return 1;
   }
 
   return 0;
 }
 
-bool CBNET::Update(void *fd, void *send_fd)
+bool CBNET::Update(void* fd, void* send_fd)
 {
   const int64_t Ticks = GetTicks(), Time = GetTime();
 
@@ -142,9 +142,9 @@ bool CBNET::Update(void *fd, void *send_fd)
     m_BNCSUtil->Reset(m_UserName, m_UserPassword);
     m_Socket->Reset();
     m_LastDisconnectedTime = Time;
-    m_LoggedIn = false;
-    m_InChat = false;
-    m_WaitingToConnect = true;
+    m_LoggedIn             = false;
+    m_InChat               = false;
+    m_WaitingToConnect     = true;
     return m_Exiting;
   }
 
@@ -152,16 +152,16 @@ bool CBNET::Update(void *fd, void *send_fd)
   {
     // the socket is connected and everything appears to be working properly
 
-    m_Socket->DoRecv((fd_set *) fd);
+    m_Socket->DoRecv((fd_set*)fd);
 
     // extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
 
-    string *RecvBuffer = m_Socket->GetBytes();
-    BYTEARRAY Bytes = CreateByteArray((uint8_t *) RecvBuffer->c_str(), RecvBuffer->size());
-    uint32_t LengthProcessed = 0;
+    string*   RecvBuffer      = m_Socket->GetBytes();
+    BYTEARRAY Bytes           = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
+    uint32_t  LengthProcessed = 0;
 
-    CIncomingGameHost *GameHost;
-    CIncomingChatEvent *ChatEvent;
+    CIncomingGameHost*  GameHost;
+    CIncomingChatEvent* ChatEvent;
 
     // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -173,8 +173,8 @@ bool CBNET::Update(void *fd, void *send_fd)
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
-        const BYTEARRAY Data = BYTEARRAY(begin(Bytes), begin(Bytes) + Length);
+        const uint16_t  Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const BYTEARRAY Data   = BYTEARRAY(begin(Bytes), begin(Bytes) + Length);
 
         if (Bytes.size() >= Length)
         {
@@ -261,7 +261,6 @@ bool CBNET::Update(void *fd, void *send_fd)
                   Print("[BNET: " + m_ServerAlias + "] attempting to auth as Warcraft III: The Frozen Throne");
 
                   m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_CHECK(m_Protocol->GetClientToken(), m_BNCSUtil->GetEXEVersion(), m_BNCSUtil->GetEXEVersionHash(), m_BNCSUtil->GetKeyInfoROC(), m_BNCSUtil->GetKeyInfoTFT(), m_BNCSUtil->GetEXEInfo(), "Aura"));
-
                 }
                 else
                 {
@@ -424,7 +423,7 @@ bool CBNET::Update(void *fd, void *send_fd)
       m_LastNullTime = Time;
     }
 
-    m_Socket->DoSend((fd_set *) send_fd);
+    m_Socket->DoSend((fd_set*)send_fd);
     return m_Exiting;
   }
 
@@ -436,8 +435,8 @@ bool CBNET::Update(void *fd, void *send_fd)
     m_LastDisconnectedTime = Time;
     m_BNCSUtil->Reset(m_UserName, m_UserPassword);
     m_Socket->Reset();
-    m_LoggedIn = false;
-    m_InChat = false;
+    m_LoggedIn         = false;
+    m_InChat           = false;
     m_WaitingToConnect = true;
     return m_Exiting;
   }
@@ -470,7 +469,7 @@ bool CBNET::Update(void *fd, void *send_fd)
       m_Socket->Connect(m_Aura->m_BindAddress, m_ServerIP, 6112);
     }
 
-    m_WaitingToConnect = false;
+    m_WaitingToConnect          = false;
     m_LastConnectionAttemptTime = Time;
   }
 
@@ -485,8 +484,8 @@ bool CBNET::Update(void *fd, void *send_fd)
       Print2("[BNET: " + m_ServerAlias + "] connected");
       m_Socket->PutBytes(m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR());
       m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_INFO(m_War3Version, m_LocaleID, m_CountryAbbrev, m_Country));
-      m_Socket->DoSend((fd_set *) send_fd);
-      m_LastNullTime = Time;
+      m_Socket->DoSend((fd_set*)send_fd);
+      m_LastNullTime       = Time;
       m_LastOutPacketTicks = Ticks;
 
       while (!m_OutPackets.empty())
@@ -502,7 +501,7 @@ bool CBNET::Update(void *fd, void *send_fd)
       Print("[BNET: " + m_ServerAlias + "] waiting 90 seconds to reconnect");
       m_Socket->Reset();
       m_LastDisconnectedTime = Time;
-      m_WaitingToConnect = true;
+      m_WaitingToConnect     = true;
       return m_Exiting;
     }
   }
@@ -510,12 +509,12 @@ bool CBNET::Update(void *fd, void *send_fd)
   return m_Exiting;
 }
 
-void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
+void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 {
-  CBNETProtocol::IncomingChatEvent Event = chatEvent->GetChatEvent();
-  bool Whisper = (Event == CBNETProtocol::EID_WHISPER);
-  string User = chatEvent->GetUser();
-  string Message = chatEvent->GetMessage();
+  CBNETProtocol::IncomingChatEvent Event   = chatEvent->GetChatEvent();
+  bool                             Whisper = (Event == CBNETProtocol::EID_WHISPER);
+  string                           User    = chatEvent->GetUser();
+  string                           Message = chatEvent->GetMessage();
 
   // handle spoof checking for current game
   // this case covers whispers - we assume that anyone who sends a whisper to the bot with message "spoofcheck" should be considered spoof checked
@@ -536,7 +535,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
     string::size_type MessageStart = Message.find(" ");
 
-    m_IRC = Message.substr(0, MessageStart);
+    m_IRC   = Message.substr(0, MessageStart);
     Message = Message.substr(MessageStart + 1);
   }
   else
@@ -556,7 +555,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
       // extract the command trigger, the command, and the payload
       // e.g. "!say hello world" -> command: "say", payload: "hello world"
 
-      string Command, Payload;
+      string            Command, Payload;
       string::size_type PayloadStart = Message.find(" ");
 
       if (PayloadStart != string::npos)
@@ -622,7 +621,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 {
                   string FoundMaps;
 
-                  for (const auto & match : Matches)
+                  for (const auto& match : Matches)
                     FoundMaps += match + ", ";
 
                   QueueChatCommand("Maps: " + FoundMaps.substr(0, FoundMaps.size() - 2), User, Whisper, m_IRC);
@@ -718,7 +717,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 {
                   string FoundMapConfigs;
 
-                  for (const auto & match : Matches)
+                  for (const auto& match : Matches)
                     FoundMapConfigs += match + ", ";
 
                   QueueChatCommand("Maps configs: " + FoundMapConfigs.substr(0, FoundMapConfigs.size() - 2), User, Whisper, m_IRC);
@@ -767,7 +766,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             // extract the victim and the reason
             // e.g. "Varlock leaver after dying" -> victim: "Varlock", reason: "leaver after dying"
 
-            string Victim, Reason;
+            string       Victim, Reason;
             stringstream SS;
             SS << Payload;
             SS >> Victim;
@@ -781,7 +780,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
                 Reason = Reason.substr(Start);
             }
 
-            CDBBan *Ban = IsBannedName(Victim);
+            CDBBan* Ban = IsBannedName(Victim);
 
             if (Ban)
             {
@@ -841,7 +840,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             if (Payload.empty())
               break;
 
-            CDBBan *Ban = IsBannedName(Payload);
+            CDBBan* Ban = IsBannedName(Payload);
 
             if (Ban)
               QueueChatCommand("User [" + Payload + "] was banned on server [" + m_Server + "] on " + Ban->GetDate() + " by [" + Ban->GetAdmin() + "] because [" + Ban->GetReason() + "]", User, Whisper, m_IRC);
@@ -1122,8 +1121,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             // extract the ip and the port
             // e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
 
-            string IP;
-            uint32_t Port = 6112;
+            string       IP;
+            uint32_t     Port = 6112;
             stringstream SS;
             SS << Payload;
             SS >> IP;
@@ -1154,7 +1153,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
               // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
               // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t) MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
+              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t)MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
             }
 
             break;
@@ -1298,12 +1297,12 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             // extract the owner and the game name
             // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
 
-            string Owner, GameName;
+            string            Owner, GameName;
             string::size_type GameNameStart = Payload.find(" ");
 
             if (GameNameStart != string::npos)
             {
-              Owner = Payload.substr(0, GameNameStart);
+              Owner    = Payload.substr(0, GameNameStart);
               GameName = Payload.substr(GameNameStart + 1);
               m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper);
             }
@@ -1323,12 +1322,12 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             // extract the owner and the game name
             // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
 
-            string Owner, GameName;
+            string            Owner, GameName;
             string::size_type GameNameStart = Payload.find(" ");
 
             if (GameNameStart != string::npos)
             {
-              Owner = Payload.substr(0, GameNameStart);
+              Owner    = Payload.substr(0, GameNameStart);
               GameName = Payload.substr(GameNameStart + 1);
               m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper);
             }
@@ -1382,8 +1381,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
               // extract the game number and the message
               // e.g. "3 hello everyone" -> game number: "3", message: "hello everyone"
 
-              uint32_t GameNumber;
-              string Message;
+              uint32_t     GameNumber;
+              string       Message;
               stringstream SS;
               SS << Payload;
               SS >> GameNumber;
@@ -1429,7 +1428,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
               if (m_Aura->m_CurrentGame)
                 m_Aura->m_CurrentGame->SendAllChat(Payload);
 
-              for (auto & game : m_Aura->m_Games)
+              for (auto& game : m_Aura->m_Games)
                 game->SendAllChat("ADMIN: " + Payload);
             }
             else
@@ -1437,7 +1436,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
               if (m_Aura->m_CurrentGame)
                 m_Aura->m_CurrentGame->SendAllChat(Payload);
 
-              for (auto & game : m_Aura->m_Games)
+              for (auto& game : m_Aura->m_Games)
                 game->SendAllChat("ADMIN (" + User + "): " + Payload);
             }
 
@@ -1502,7 +1501,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
             if (!m_Aura->m_CurrentGame->GetLocked())
             {
-              uint32_t SID1, SID2;
+              uint32_t     SID1, SID2;
               stringstream SS;
               SS << Payload;
               SS >> SID1;
@@ -1563,16 +1562,16 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
             // extract the name and the message
             // e.g. "Varlock hello there!" -> name: "Varlock", message: "hello there!"
 
-            string Name;
-            string Message;
+            string            Name;
+            string            Message;
             string::size_type MessageStart = Payload.find(" ");
 
             if (MessageStart != string::npos)
             {
-              Name = Payload.substr(0, MessageStart);
+              Name    = Payload.substr(0, MessageStart);
               Message = Payload.substr(MessageStart + 1);
 
-              for (auto & bnet : m_Aura->m_BNETs)
+              for (auto& bnet : m_Aura->m_BNETs)
                 bnet->QueueChatCommand(Message, Name, true, string());
             }
 
@@ -1693,7 +1692,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
             if (StatsUser.size() < 16 && StatsUser[0] != '/')
             {
-              CDBGamePlayerSummary *GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck(StatsUser);
+              CDBGamePlayerSummary* GamePlayerSummary = m_Aura->m_DB->GamePlayerSummaryCheck(StatsUser);
 
               if (GamePlayerSummary)
                 QueueChatCommand("[" + StatsUser + "] has played " + to_string(GamePlayerSummary->GetTotalGames()) + " games with this bot. Average loading time: " + to_string(GamePlayerSummary->GetAvgLoadingTime()) + " seconds. Average stay: " + to_string(GamePlayerSummary->GetAvgLeftPercent()) + " percent", User, Whisper, m_IRC);
@@ -1766,7 +1765,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
             const int32_t GameNumber = stoi(Payload) - 1;
 
-            if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
+            if (-1 < GameNumber && GameNumber < (int32_t)m_Aura->m_Games.size())
               QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
             else if (GameNumber == -1 && m_Aura->m_CurrentGame)
               QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
@@ -1789,7 +1788,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
             const int32_t GameNumber = stoi(Payload) - 1;
 
-            if (-1 < GameNumber && GameNumber < (int32_t) m_Aura->m_Games.size())
+            if (-1 < GameNumber && GameNumber < (int32_t)m_Aura->m_Games.size())
               QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);
             else if (GameNumber == -1 && m_Aura->m_CurrentGame)
               QueueChatCommand("Observers in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetObservers(), User, Whisper, m_IRC);
@@ -1816,28 +1815,11 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
             if (!StatsUser.empty() && StatsUser.size() < 16 && StatsUser[0] != '/')
             {
-              const CDBDotAPlayerSummary *DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck(StatsUser);
+              const CDBDotAPlayerSummary* DotAPlayerSummary = m_Aura->m_DB->DotAPlayerSummaryCheck(StatsUser);
 
               if (DotAPlayerSummary)
               {
-                const string Summary = StatsUser + " - " + to_string(DotAPlayerSummary->GetTotalGames())
-                  + " games (W/L: " + to_string(DotAPlayerSummary->GetTotalWins())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalLosses())
-                  + ") Hero K/D/A: " + to_string(DotAPlayerSummary->GetTotalKills())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalDeaths())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalAssists())
-                  + " (" + to_string(DotAPlayerSummary->GetAvgKills())
-                  + "/" + to_string(DotAPlayerSummary->GetAvgDeaths())
-                  + "/" + to_string(DotAPlayerSummary->GetAvgAssists())
-                  + ") Creep K/D/N: " + to_string(DotAPlayerSummary->GetTotalCreepKills())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalCreepDenies())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalNeutralKills())
-                  + " (" + to_string(DotAPlayerSummary->GetAvgCreepKills())
-                  + "/" + to_string(DotAPlayerSummary->GetAvgCreepDenies())
-                  + "/" + to_string(DotAPlayerSummary->GetAvgNeutralKills())
-                  + ") T/R/C: " + to_string(DotAPlayerSummary->GetTotalTowerKills())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalRaxKills())
-                  + "/" + to_string(DotAPlayerSummary->GetTotalCourierKills());
+                const string Summary = StatsUser + " - " + to_string(DotAPlayerSummary->GetTotalGames()) + " games (W/L: " + to_string(DotAPlayerSummary->GetTotalWins()) + "/" + to_string(DotAPlayerSummary->GetTotalLosses()) + ") Hero K/D/A: " + to_string(DotAPlayerSummary->GetTotalKills()) + "/" + to_string(DotAPlayerSummary->GetTotalDeaths()) + "/" + to_string(DotAPlayerSummary->GetTotalAssists()) + " (" + to_string(DotAPlayerSummary->GetAvgKills()) + "/" + to_string(DotAPlayerSummary->GetAvgDeaths()) + "/" + to_string(DotAPlayerSummary->GetAvgAssists()) + ") Creep K/D/N: " + to_string(DotAPlayerSummary->GetTotalCreepKills()) + "/" + to_string(DotAPlayerSummary->GetTotalCreepDenies()) + "/" + to_string(DotAPlayerSummary->GetTotalNeutralKills()) + " (" + to_string(DotAPlayerSummary->GetAvgCreepKills()) + "/" + to_string(DotAPlayerSummary->GetAvgCreepDenies()) + "/" + to_string(DotAPlayerSummary->GetAvgNeutralKills()) + ") T/R/C: " + to_string(DotAPlayerSummary->GetTotalTowerKills()) + "/" + to_string(DotAPlayerSummary->GetTotalRaxKills()) + "/" + to_string(DotAPlayerSummary->GetTotalCourierKills());
 
                 QueueChatCommand(Summary, User, Whisper, m_IRC);
 
@@ -1858,7 +1840,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
           {
             string message = "Status: ";
 
-            for (auto & bnet : m_Aura->m_BNETs)
+            for (auto& bnet : m_Aura->m_BNETs)
               message += bnet->GetServer() + (bnet->GetLoggedIn() ? " [online], " : " [offline], ");
 
             message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
@@ -1897,7 +1879,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent *chatEvent)
 
     if (m_Aura->m_CurrentGame)
     {
-      string UserName;
+      string            UserName;
       string::size_type Split = Message.find(" ");
 
       if (Split != string::npos)
@@ -1951,7 +1933,7 @@ void CBNET::QueueEnterChat()
     m_OutPackets.push(m_Protocol->SEND_SID_ENTERCHAT());
 }
 
-void CBNET::QueueChatCommand(const string &chatCommand)
+void CBNET::QueueChatCommand(const string& chatCommand)
 {
   if (chatCommand.empty())
     return;
@@ -1974,7 +1956,7 @@ void CBNET::QueueChatCommand(const string &chatCommand)
   }
 }
 
-void CBNET::QueueChatCommand(const string &chatCommand, const string &user, bool whisper, const string &irc)
+void CBNET::QueueChatCommand(const string& chatCommand, const string& user, bool whisper, const string& irc)
 {
   if (chatCommand.empty())
     return;
@@ -1997,7 +1979,7 @@ void CBNET::QueueChatCommand(const string &chatCommand, const string &user, bool
     QueueChatCommand(chatCommand);
 }
 
-void CBNET::QueueGameCreate(uint8_t state, const string &gameName, CMap *map, uint32_t hostCounter)
+void CBNET::QueueGameCreate(uint8_t state, const string& gameName, CMap* map, uint32_t hostCounter)
 {
   if (m_LoggedIn && map)
   {
@@ -2010,7 +1992,7 @@ void CBNET::QueueGameCreate(uint8_t state, const string &gameName, CMap *map, ui
   }
 }
 
-void CBNET::QueueGameRefresh(uint8_t state, const string &gameName, CMap *map, uint32_t hostCounter)
+void CBNET::QueueGameRefresh(uint8_t state, const string& gameName, CMap* map, uint32_t hostCounter)
 {
   if (m_LoggedIn && map)
   {
@@ -2085,25 +2067,25 @@ bool CBNET::IsRootAdmin(string name)
   return false;
 }
 
-CDBBan *CBNET::IsBannedName(string name)
+CDBBan* CBNET::IsBannedName(string name)
 {
   transform(begin(name), end(name), begin(name), ::tolower);
 
-  if (CDBBan *Ban = m_Aura->m_DB->BanCheck(m_Server, name))
+  if (CDBBan* Ban = m_Aura->m_DB->BanCheck(m_Server, name))
     return Ban;
 
   return nullptr;
 }
 
-void CBNET::HoldFriends(CGame *game)
+void CBNET::HoldFriends(CGame* game)
 {
-  for (auto & friend_ : m_Friends)
+  for (auto& friend_ : m_Friends)
     game->AddToReserved(friend_);
 }
 
-void CBNET::HoldClan(CGame *game)
+void CBNET::HoldClan(CGame* game)
 {
-  for (auto & clanmate : m_Clan)
+  for (auto& clanmate : m_Clan)
     game->AddToReserved(clanmate);
 }
 
@@ -2120,7 +2102,7 @@ vector<string> CBNET::MapFilesMatch(string pattern)
 
   vector<string> Matches;
 
-  for (auto & mapName : MapList)
+  for (auto& mapName : MapList)
   {
     string lowerMapName(mapName);
     transform(begin(lowerMapName), end(lowerMapName), begin(lowerMapName), ::tolower);
@@ -2140,7 +2122,7 @@ vector<string> CBNET::ConfigFilesMatch(string pattern)
 
   vector<string> Matches;
 
-  for (auto & cfgName : ConfigList)
+  for (auto& cfgName : ConfigList)
   {
     string lowerCfgName(cfgName);
     transform(begin(lowerCfgName), end(lowerCfgName), begin(lowerCfgName), ::tolower);

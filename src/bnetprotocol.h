@@ -35,37 +35,36 @@ class CIncomingChatEvent;
 class CBNETProtocol
 {
 public:
-
   enum Protocol
   {
-    SID_NULL                    = 0,    // 0x0
-    SID_STOPADV                 = 2,    // 0x2
-    SID_GETADVLISTEX            = 9,    // 0x9
-    SID_ENTERCHAT               = 10,   // 0xA
-    SID_JOINCHANNEL             = 12,   // 0xC
-    SID_CHATCOMMAND             = 14,   // 0xE
-    SID_CHATEVENT               = 15,   // 0xF
-    SID_CHECKAD                 = 21,   // 0x15
-    SID_STARTADVEX3             = 28,   // 0x1C
-    SID_DISPLAYAD               = 33,   // 0x21
-    SID_NOTIFYJOIN              = 34,   // 0x22
-    SID_PING                    = 37,   // 0x25
-    SID_LOGONRESPONSE           = 41,   // 0x29
-    SID_NETGAMEPORT             = 69,   // 0x45
-    SID_AUTH_INFO               = 80,   // 0x50
-    SID_AUTH_CHECK              = 81,   // 0x51
-    SID_AUTH_ACCOUNTLOGON       = 83,   // 0x53
-    SID_AUTH_ACCOUNTLOGONPROOF  = 84,   // 0x54
-    SID_WARDEN                  = 94,   // 0x5E
-    SID_FRIENDLIST              = 101,  // 0x65
-    SID_FRIENDSUPDATE           = 102,  // 0x66
-    SID_CLANMEMBERLIST          = 125,  // 0x7D
-    SID_CLANMEMBERSTATUSCHANGE  = 127   // 0x7F
+    SID_NULL                   = 0,   // 0x0
+    SID_STOPADV                = 2,   // 0x2
+    SID_GETADVLISTEX           = 9,   // 0x9
+    SID_ENTERCHAT              = 10,  // 0xA
+    SID_JOINCHANNEL            = 12,  // 0xC
+    SID_CHATCOMMAND            = 14,  // 0xE
+    SID_CHATEVENT              = 15,  // 0xF
+    SID_CHECKAD                = 21,  // 0x15
+    SID_STARTADVEX3            = 28,  // 0x1C
+    SID_DISPLAYAD              = 33,  // 0x21
+    SID_NOTIFYJOIN             = 34,  // 0x22
+    SID_PING                   = 37,  // 0x25
+    SID_LOGONRESPONSE          = 41,  // 0x29
+    SID_NETGAMEPORT            = 69,  // 0x45
+    SID_AUTH_INFO              = 80,  // 0x50
+    SID_AUTH_CHECK             = 81,  // 0x51
+    SID_AUTH_ACCOUNTLOGON      = 83,  // 0x53
+    SID_AUTH_ACCOUNTLOGONPROOF = 84,  // 0x54
+    SID_WARDEN                 = 94,  // 0x5E
+    SID_FRIENDLIST             = 101, // 0x65
+    SID_FRIENDSUPDATE          = 102, // 0x66
+    SID_CLANMEMBERLIST         = 125, // 0x7D
+    SID_CLANMEMBERSTATUSCHANGE = 127  // 0x7F
   };
 
   enum KeyResult
   {
-    KR_GOOD = 0,
+    KR_GOOD             = 0,
     KR_OLD_GAME_VERSION = 256,
     KR_INVALID_VERSION  = 257,
     KR_ROC_KEY_IN_USE   = 513,
@@ -93,65 +92,65 @@ public:
   };
 
 private:
-  BYTEARRAY m_ClientToken;          // set in constructor
-  BYTEARRAY m_LogonType;            // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_ServerToken;          // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_MPQFileTime;          // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_IX86VerFileName;      // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_ValueStringFormula;   // set in RECEIVE_SID_AUTH_INFO
-  BYTEARRAY m_KeyState;             // set in RECEIVE_SID_AUTH_CHECK
-  BYTEARRAY m_KeyStateDescription;  // set in RECEIVE_SID_AUTH_CHECK
-  BYTEARRAY m_Salt;                 // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
-  BYTEARRAY m_ServerPublicKey;      // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
-  BYTEARRAY m_UniqueName;           // set in RECEIVE_SID_ENTERCHAT
+  BYTEARRAY m_ClientToken;         // set in constructor
+  BYTEARRAY m_LogonType;           // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_ServerToken;         // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_MPQFileTime;         // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_IX86VerFileName;     // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_ValueStringFormula;  // set in RECEIVE_SID_AUTH_INFO
+  BYTEARRAY m_KeyState;            // set in RECEIVE_SID_AUTH_CHECK
+  BYTEARRAY m_KeyStateDescription; // set in RECEIVE_SID_AUTH_CHECK
+  BYTEARRAY m_Salt;                // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
+  BYTEARRAY m_ServerPublicKey;     // set in RECEIVE_SID_AUTH_ACCOUNTLOGON
+  BYTEARRAY m_UniqueName;          // set in RECEIVE_SID_ENTERCHAT
 
 public:
   CBNETProtocol();
   ~CBNETProtocol();
 
-  inline BYTEARRAY GetClientToken() const             { return m_ClientToken; }
-  inline BYTEARRAY GetLogonType() const               { return m_LogonType; }
-  inline BYTEARRAY GetServerToken() const             { return m_ServerToken; }
-  inline BYTEARRAY GetMPQFileTime() const             { return m_MPQFileTime; }
-  inline BYTEARRAY GetIX86VerFileName() const         { return m_IX86VerFileName; }
-  inline std::string GetIX86VerFileNameString() const      { return std::string(begin(m_IX86VerFileName), end(m_IX86VerFileName)); }
-  inline BYTEARRAY GetValueStringFormula() const      { return m_ValueStringFormula; }
-  inline std::string GetValueStringFormulaString() const   { return std::string(begin(m_ValueStringFormula), end(m_ValueStringFormula)); }
-  inline BYTEARRAY GetKeyState() const                { return m_KeyState; }
-  inline std::string GetKeyStateDescription() const        { return std::string(begin(m_KeyStateDescription), end(m_KeyStateDescription)); }
-  inline BYTEARRAY GetSalt() const                    { return m_Salt; }
-  inline BYTEARRAY GetServerPublicKey() const         { return m_ServerPublicKey; }
-  inline BYTEARRAY GetUniqueName() const              { return m_UniqueName; }
+  inline BYTEARRAY   GetClientToken() const { return m_ClientToken; }
+  inline BYTEARRAY   GetLogonType() const { return m_LogonType; }
+  inline BYTEARRAY   GetServerToken() const { return m_ServerToken; }
+  inline BYTEARRAY   GetMPQFileTime() const { return m_MPQFileTime; }
+  inline BYTEARRAY   GetIX86VerFileName() const { return m_IX86VerFileName; }
+  inline std::string GetIX86VerFileNameString() const { return std::string(begin(m_IX86VerFileName), end(m_IX86VerFileName)); }
+  inline BYTEARRAY   GetValueStringFormula() const { return m_ValueStringFormula; }
+  inline std::string GetValueStringFormulaString() const { return std::string(begin(m_ValueStringFormula), end(m_ValueStringFormula)); }
+  inline BYTEARRAY   GetKeyState() const { return m_KeyState; }
+  inline std::string GetKeyStateDescription() const { return std::string(begin(m_KeyStateDescription), end(m_KeyStateDescription)); }
+  inline BYTEARRAY   GetSalt() const { return m_Salt; }
+  inline BYTEARRAY   GetServerPublicKey() const { return m_ServerPublicKey; }
+  inline BYTEARRAY   GetUniqueName() const { return m_UniqueName; }
 
   // receive functions
 
-  bool RECEIVE_SID_NULL(const BYTEARRAY &data);
-  CIncomingGameHost *RECEIVE_SID_GETADVLISTEX(const BYTEARRAY &data);
-  bool RECEIVE_SID_ENTERCHAT(const BYTEARRAY &data);
-  CIncomingChatEvent *RECEIVE_SID_CHATEVENT(const BYTEARRAY &data);
-  bool RECEIVE_SID_CHECKAD(const BYTEARRAY &data);
-  bool RECEIVE_SID_STARTADVEX3(const BYTEARRAY &data);
-  BYTEARRAY RECEIVE_SID_PING(const BYTEARRAY &data);
-  bool RECEIVE_SID_AUTH_INFO(const BYTEARRAY &data);
-  bool RECEIVE_SID_AUTH_CHECK(const BYTEARRAY &data);
-  bool RECEIVE_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY &data);
-  bool RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &data);
-  std::vector<std::string> RECEIVE_SID_FRIENDLIST(const BYTEARRAY &data);
-  std::vector<std::string> RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY &data);
+  bool RECEIVE_SID_NULL(const BYTEARRAY& data);
+  CIncomingGameHost* RECEIVE_SID_GETADVLISTEX(const BYTEARRAY& data);
+  bool RECEIVE_SID_ENTERCHAT(const BYTEARRAY& data);
+  CIncomingChatEvent* RECEIVE_SID_CHATEVENT(const BYTEARRAY& data);
+  bool RECEIVE_SID_CHECKAD(const BYTEARRAY& data);
+  bool RECEIVE_SID_STARTADVEX3(const BYTEARRAY& data);
+  BYTEARRAY RECEIVE_SID_PING(const BYTEARRAY& data);
+  bool RECEIVE_SID_AUTH_INFO(const BYTEARRAY& data);
+  bool RECEIVE_SID_AUTH_CHECK(const BYTEARRAY& data);
+  bool RECEIVE_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY& data);
+  bool RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY& data);
+  std::vector<std::string> RECEIVE_SID_FRIENDLIST(const BYTEARRAY& data);
+  std::vector<std::string> RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY& data);
 
   // send functions
 
   BYTEARRAY SEND_PROTOCOL_INITIALIZE_SELECTOR();
   BYTEARRAY SEND_SID_NULL();
   BYTEARRAY SEND_SID_STOPADV();
-  BYTEARRAY SEND_SID_GETADVLISTEX(const std::string &gameName);
+  BYTEARRAY SEND_SID_GETADVLISTEX(const std::string& gameName);
   BYTEARRAY SEND_SID_ENTERCHAT();
-  BYTEARRAY SEND_SID_JOINCHANNEL(const std::string &channel);
-  BYTEARRAY SEND_SID_CHATCOMMAND(const std::string &command);
+  BYTEARRAY SEND_SID_JOINCHANNEL(const std::string& channel);
+  BYTEARRAY SEND_SID_CHATCOMMAND(const std::string& command);
   BYTEARRAY SEND_SID_CHECKAD();
-  BYTEARRAY SEND_SID_STARTADVEX3(uint8_t state, const BYTEARRAY &mapGameType, const BYTEARRAY &mapFlags, const BYTEARRAY &mapWidth, const BYTEARRAY &mapHeight, const std::string &gameName, const std::string &hostName, uint32_t upTime, const std::string &mapPath, const BYTEARRAY &mapCRC, const BYTEARRAY &mapSHA1, uint32_t hostCounter);
-  BYTEARRAY SEND_SID_NOTIFYJOIN(const std::string &gameName);
-  BYTEARRAY SEND_SID_PING(const BYTEARRAY &pingValue);
+  BYTEARRAY SEND_SID_STARTADVEX3(uint8_t state, const BYTEARRAY& mapGameType, const BYTEARRAY& mapFlags, const BYTEARRAY& mapWidth, const BYTEARRAY& mapHeight, const std::string& gameName, const std::string& hostName, uint32_t upTime, const std::string& mapPath, const BYTEARRAY& mapCRC, const BYTEARRAY& mapSHA1, uint32_t hostCounter);
+  BYTEARRAY SEND_SID_NOTIFYJOIN(const std::string& gameName);
+  BYTEARRAY SEND_SID_PING(const BYTEARRAY& pingValue);
   BYTEARRAY SEND_SID_LOGONRESPONSE(BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, std::string accountName);
   BYTEARRAY SEND_SID_NETGAMEPORT(uint16_t serverPort);
   BYTEARRAY SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, std::string countryAbbrev, std::string country);
@@ -164,7 +163,7 @@ public:
   // other functions
 
 private:
-  bool ValidateLength(const BYTEARRAY &content);
+  bool ValidateLength(const BYTEARRAY& content);
 };
 
 //
@@ -175,19 +174,19 @@ class CIncomingGameHost
 {
 private:
   std::string m_GameName;
-  BYTEARRAY m_IP;
-  BYTEARRAY m_HostCounter;
-  uint16_t m_Port;
+  BYTEARRAY   m_IP;
+  BYTEARRAY   m_HostCounter;
+  uint16_t    m_Port;
 
 public:
-  CIncomingGameHost(const BYTEARRAY &nIP, uint16_t nPort, const std::string &nGameName, const BYTEARRAY &nHostCounter);
+  CIncomingGameHost(const BYTEARRAY& nIP, uint16_t nPort, const std::string& nGameName, const BYTEARRAY& nHostCounter);
   ~CIncomingGameHost();
 
-  std::string GetIPString() const;
-  inline BYTEARRAY GetIP() const          { return m_IP; }
-  inline uint16_t GetPort() const         { return m_Port; }
-  inline std::string GetGameName() const       { return m_GameName; }
-  inline BYTEARRAY GetHostCounter() const { return m_HostCounter; }
+  std::string        GetIPString() const;
+  inline BYTEARRAY   GetIP() const { return m_IP; }
+  inline uint16_t    GetPort() const { return m_Port; }
+  inline std::string GetGameName() const { return m_GameName; }
+  inline BYTEARRAY   GetHostCounter() const { return m_HostCounter; }
 };
 
 //
@@ -197,17 +196,17 @@ public:
 class CIncomingChatEvent
 {
 private:
-  std::string m_User;
-  std::string m_Message;
+  std::string                      m_User;
+  std::string                      m_Message;
   CBNETProtocol::IncomingChatEvent m_ChatEvent;
 
 public:
-  CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const std::string &nUser, const std::string &nMessage);
+  CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const std::string& nUser, const std::string& nMessage);
   ~CIncomingChatEvent();
 
-  inline CBNETProtocol::IncomingChatEvent GetChatEvent() const    { return m_ChatEvent; }
-  inline std::string GetUser() const                                   { return m_User; }
-  inline std::string GetMessage() const                                { return m_Message; }
+  inline CBNETProtocol::IncomingChatEvent GetChatEvent() const { return m_ChatEvent; }
+  inline std::string                      GetUser() const { return m_User; }
+  inline std::string                      GetMessage() const { return m_Message; }
 };
 
-#endif  // AURA_BNETPROTOCOL_H_
+#endif // AURA_BNETPROTOCOL_H_

@@ -31,34 +31,34 @@ class CTCPClient;
 class CIRC
 {
 public:
-  CAura *m_Aura;
-  CTCPClient *m_Socket;
+  CAura*                   m_Aura;
+  CTCPClient*              m_Socket;
   std::vector<std::string> m_Channels;
   std::vector<std::string> m_RootAdmins;
-  std::string m_Server;
-  std::string m_ServerIP;
-  std::string m_Nickname;
-  std::string m_NicknameCpy;
-  std::string m_Username;
-  std::string m_Password;
-  int64_t m_LastConnectionAttemptTime;
-  int64_t m_LastPacketTime;
-  int64_t m_LastAntiIdleTime;
-  uint16_t m_Port;
-  int8_t m_CommandTrigger;
-  bool m_Exiting;
-  bool m_WaitingToConnect;
-  bool m_OriginalNick;
+  std::string              m_Server;
+  std::string              m_ServerIP;
+  std::string              m_Nickname;
+  std::string              m_NicknameCpy;
+  std::string              m_Username;
+  std::string              m_Password;
+  int64_t                  m_LastConnectionAttemptTime;
+  int64_t                  m_LastPacketTime;
+  int64_t                  m_LastAntiIdleTime;
+  uint16_t                 m_Port;
+  int8_t                   m_CommandTrigger;
+  bool                     m_Exiting;
+  bool                     m_WaitingToConnect;
+  bool                     m_OriginalNick;
 
-  CIRC(CAura *nAura, const std::string &nServer, const std::string &nNickname, const std::string &nUsername, const std::string &nPassword, const std::vector<std::string> &nChannels, const std::vector<std::string> &nRootAdmins, uint16_t nPort, int8_t nCommandTrigger);
+  CIRC(CAura* nAura, const std::string& nServer, const std::string& nNickname, const std::string& nUsername, const std::string& nPassword, const std::vector<std::string>& nChannels, const std::vector<std::string>& nRootAdmins, uint16_t nPort, int8_t nCommandTrigger);
   ~CIRC();
-  CIRC(CIRC &) = delete;
+  CIRC(CIRC&) = delete;
 
-  uint32_t SetFD(void *fd, void *send_fd, int32_t *nfds);
-  bool Update(void *fd, void *send_fd);
+  uint32_t SetFD(void* fd, void* send_fd, int32_t* nfds);
+  bool Update(void* fd, void* send_fd);
   void ExtractPackets();
-  void SendIRC(const std::string &message);
-  void SendMessageIRC(const std::string &message, const std::string &target);
+  void SendIRC(const std::string& message);
+  void SendMessageIRC(const std::string& message, const std::string& target);
 };
 
-#endif  // AURA_IRC_H_
+#endif // AURA_IRC_H_

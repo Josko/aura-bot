@@ -32,30 +32,30 @@ using namespace std;
 // CStats
 //
 
-CStats::CStats(CGame *nGame)
+CStats::CStats(CGame* nGame)
   : m_Game(nGame),
     m_Winner(0)
 {
   Print("[STATS] using dota stats");
 
-  for (auto & player : m_Players)
+  for (auto& player : m_Players)
     player = nullptr;
 }
 
 CStats::~CStats()
 {
-  for (auto & player : m_Players)
+  for (auto& player : m_Players)
   {
     if (player)
       delete player;
   }
 }
 
-bool CStats::ProcessAction(CIncomingAction *Action)
+bool CStats::ProcessAction(CIncomingAction* Action)
 {
-  uint32_t i = 0;
-  const BYTEARRAY *ActionData = Action->GetAction();
-  BYTEARRAY Data, Key, Value;
+  uint32_t         i          = 0;
+  const BYTEARRAY* ActionData = Action->GetAction();
+  BYTEARRAY        Data, Key, Value;
 
   // dota actions with real time replay data start with 0x6b then the nullptr terminated string "dr.x"
   // unfortunately more than one action can be sent in a single packet and the length of each action isn't explicitly represented in the packet
@@ -86,10 +86,10 @@ bool CStats::ProcessAction(CIncomingAction *Action)
           {
             // the 4 byte int32_teger should be the value
 
-            Value = BYTEARRAY(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
-            const string DataString = string(begin(Data), end(Data));
-            const string KeyString = string(begin(Key), end(Key));
-            const uint32_t ValueInt = ByteArrayToUInt32(Value, false);
+            Value                     = BYTEARRAY(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
+            const string   DataString = string(begin(Data), end(Data));
+            const string   KeyString  = string(begin(Key), end(Key));
+            const uint32_t ValueInt   = ByteArrayToUInt32(Value, false);
 
             //Print( "[STATS] " + DataString + ", " + KeyString + ", " + to_string( ValueInt ) );
 
@@ -103,11 +103,11 @@ bool CStats::ProcessAction(CIncomingAction *Action)
               {
                 // a hero died
 
-                const string VictimName = KeyString.substr(4);
+                const string   VictimName   = KeyString.substr(4);
                 const uint32_t KillerColour = ValueInt;
                 const uint32_t VictimColour = stoul(VictimName);
-                CGamePlayer *Killer = m_Game->GetPlayerFromColour(ValueInt);
-                CGamePlayer *Victim = m_Game->GetPlayerFromColour(VictimColour);
+                CGamePlayer*   Killer       = m_Game->GetPlayerFromColour(ValueInt);
+                CGamePlayer*   Victim       = m_Game->GetPlayerFromColour(VictimColour);
 
                 if (!m_Players[ValueInt])
                   m_Players[ValueInt] = new CDBDotAPlayer();
@@ -143,7 +143,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
 
                 if (m_Game->GetPlayerFromColour(ValueInt))
                 {
-                  string AssisterName = KeyString.substr(6);
+                  string         AssisterName   = KeyString.substr(6);
                   const uint32_t AssisterColour = stoul(AssisterName);
 
                   if (!m_Players[AssisterColour])
@@ -200,7 +200,7 @@ bool CStats::ProcessAction(CIncomingAction *Action)
 
                 m_Winner = ValueInt;
 
-                if (m_Winner  == 1)
+                if (m_Winner == 1)
                   Print("[STATS: " + m_Game->GetGameName() + "] detected winner: Sentinel");
                 else if (m_Winner == 2)
                   Print("[STATS: " + m_Game->GetGameName() + "] detected winner: Scourge");
@@ -274,13 +274,12 @@ bool CStats::ProcessAction(CIncomingAction *Action)
     }
     else
       ++i;
-  }
-  while (ActionData->size() >= i + 6);
+  } while (ActionData->size() >= i + 6);
 
   return m_Winner != 0;
 }
 
-void CStats::Save(CAura *Aura, CAuraDB *DB)
+void CStats::Save(CAura* Aura, CAuraDB* DB)
 {
   if (DB->Begin())
   {
@@ -320,12 +319,12 @@ void CStats::Save(CAura *Aura, CAuraDB *DB)
       }
     }
 
-    for (auto & player : m_Players)
+    for (auto& player : m_Players)
     {
       if (player)
       {
         const uint32_t Colour = player->GetNewColour();
-        const string Name = m_Game->GetDBPlayerNameFromColour(Colour);
+        const string   Name   = m_Game->GetDBPlayerNameFromColour(Colour);
 
         if (Name.empty())
           continue;

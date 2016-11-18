@@ -30,23 +30,23 @@ using namespace std;
 // CQSLITE3 (wrapper class)
 //
 
-CSQLITE3::CSQLITE3(const string &filename)
+CSQLITE3::CSQLITE3(const string& filename)
   : m_Ready(true)
 {
-  if (sqlite3_open_v2(filename.c_str(), (sqlite3 **) &m_DB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr) != SQLITE_OK)
+  if (sqlite3_open_v2(filename.c_str(), (sqlite3**)&m_DB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr) != SQLITE_OK)
     m_Ready = false;
 }
 
 CSQLITE3::~CSQLITE3()
 {
-  sqlite3_close((sqlite3 *) m_DB);
+  sqlite3_close((sqlite3*)m_DB);
 }
 
 //
 // CAuraDB
 //
 
-CAuraDB::CAuraDB(CConfig *CFG)
+CAuraDB::CAuraDB(CConfig* CFG)
   : FromAddStmt(nullptr),
     FromCheckStmt(nullptr),
     BanCheckStmt(nullptr),
@@ -67,15 +67,15 @@ CAuraDB::CAuraDB(CConfig *CFG)
 
     Print(string("[SQLITE3] error opening database [" + m_File + "] - ") + m_DB->GetError());
     m_HasError = true;
-    m_Error = "error opening database";
+    m_Error    = "error opening database";
     return;
   }
 
   // find the schema number so we can determine whether we need to upgrade or not
 
-  string SchemaNumber;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("SELECT value FROM config WHERE name=\"schema_number\"", (void **) &Statement);
+  string        SchemaNumber;
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("SELECT value FROM config WHERE name=\"schema_number\"", (void**)&Statement);
 
   if (Statement)
   {
@@ -84,7 +84,7 @@ CAuraDB::CAuraDB(CConfig *CFG)
     if (RC == SQLITE_ROW)
     {
       if (sqlite3_column_count(Statement) == 1)
-        SchemaNumber = string((char *) sqlite3_column_text(Statement, 0));
+        SchemaNumber = string((char*)sqlite3_column_text(Statement, 0));
       else
         Print("[SQLITE3] error getting schema number - row doesn't have 1 column");
     }
@@ -119,7 +119,7 @@ CAuraDB::CAuraDB(CConfig *CFG)
     if (m_DB->Exec("CREATE TABLE config ( name TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )") != SQLITE_OK)
       Print("[SQLITE3] error creating config table - " + m_DB->GetError());
 
-    m_DB->Prepare("INSERT INTO config VALUES ( \"schema_number\", ? )", (void **) &Statement);
+    m_DB->Prepare("INSERT INTO config VALUES ( \"schema_number\", ? )", (void**)&Statement);
 
     if (Statement)
     {
@@ -167,11 +167,11 @@ CAuraDB::~CAuraDB()
   delete m_DB;
 }
 
-uint32_t CAuraDB::AdminCount(const string &server)
+uint32_t CAuraDB::AdminCount(const string& server)
 {
-  uint32_t Count = 0;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("SELECT COUNT(*) FROM admins WHERE server=?", (void **) &Statement);
+  uint32_t      Count = 0;
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("SELECT COUNT(*) FROM admins WHERE server=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -192,18 +192,18 @@ uint32_t CAuraDB::AdminCount(const string &server)
   return Count;
 }
 
-bool CAuraDB::AdminCheck(const string &server, string user)
+bool CAuraDB::AdminCheck(const string& server, string user)
 {
   bool IsAdmin = false;
   transform(begin(user), end(user), begin(user), ::tolower);
 
   if (!AdminCheckStmt)
-    m_DB->Prepare("SELECT * FROM admins WHERE server=? AND name=?", (void **) &AdminCheckStmt);
+    m_DB->Prepare("SELECT * FROM admins WHERE server=? AND name=?", (void**)&AdminCheckStmt);
 
   if (AdminCheckStmt)
   {
-    sqlite3_bind_text((sqlite3_stmt *) AdminCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text((sqlite3_stmt *) AdminCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text((sqlite3_stmt*)AdminCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text((sqlite3_stmt*)AdminCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
     const int32_t RC = m_DB->Step(AdminCheckStmt);
 
@@ -227,8 +227,8 @@ bool CAuraDB::AdminCheck(string user)
   bool IsAdmin = false;
   transform(begin(user), end(user), begin(user), ::tolower);
 
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("SELECT * FROM admins WHERE name=?", (void **) &Statement);
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("SELECT * FROM admins WHERE name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -251,20 +251,20 @@ bool CAuraDB::AdminCheck(string user)
   return IsAdmin;
 }
 
-bool CAuraDB::RootAdminCheck(const string &server, string user)
+bool CAuraDB::RootAdminCheck(const string& server, string user)
 {
   bool IsRoot = false;
   transform(begin(user), end(user), begin(user), ::tolower);
 
   if (!RootAdminCheckStmt)
-    m_DB->Prepare("SELECT * FROM rootadmins WHERE server=? AND name=?", (void **) &RootAdminCheckStmt);
+    m_DB->Prepare("SELECT * FROM rootadmins WHERE server=? AND name=?", (void**)&RootAdminCheckStmt);
 
   if (RootAdminCheckStmt)
   {
-    sqlite3_bind_text((sqlite3_stmt *) RootAdminCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text((sqlite3_stmt *) RootAdminCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text((sqlite3_stmt*)RootAdminCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text((sqlite3_stmt*)RootAdminCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
-    const int32_t RC = m_DB->Step((sqlite3_stmt *) RootAdminCheckStmt);
+    const int32_t RC = m_DB->Step((sqlite3_stmt*)RootAdminCheckStmt);
 
     // we're just checking to see if the query returned a row, we don't need to check the row data itself
 
@@ -273,7 +273,7 @@ bool CAuraDB::RootAdminCheck(const string &server, string user)
     else if (RC == SQLITE_ERROR)
       Print("[SQLITE3] error checking admin [" + user + "] - " + m_DB->GetError());
 
-    m_DB->Reset((sqlite3_stmt *) RootAdminCheckStmt);
+    m_DB->Reset((sqlite3_stmt*)RootAdminCheckStmt);
   }
   else
     Print("[SQLITE3] prepare error checking admin [" + user + "] - " + m_DB->GetError());
@@ -286,8 +286,8 @@ bool CAuraDB::RootAdminCheck(string user)
   bool IsRoot = false;
   transform(begin(user), end(user), begin(user), ::tolower);
 
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("SELECT * FROM rootadmins WHERE name=?", (void **) &Statement);
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("SELECT * FROM rootadmins WHERE name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -310,13 +310,13 @@ bool CAuraDB::RootAdminCheck(string user)
   return IsRoot;
 }
 
-bool CAuraDB::AdminAdd(const string &server, string user)
+bool CAuraDB::AdminAdd(const string& server, string user)
 {
   bool Success = false;
   transform(begin(user), end(user), begin(user), ::tolower);
 
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("INSERT INTO admins ( server, name ) VALUES ( ?, ? )", (void **) &Statement);
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("INSERT INTO admins ( server, name ) VALUES ( ?, ? )", (void**)&Statement);
 
   if (Statement)
   {
@@ -338,13 +338,13 @@ bool CAuraDB::AdminAdd(const string &server, string user)
   return Success;
 }
 
-bool CAuraDB::RootAdminAdd(const string &server, string user)
+bool CAuraDB::RootAdminAdd(const string& server, string user)
 {
   bool Success = false;
   transform(begin(user), end(user), begin(user), ::tolower);
 
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("INSERT INTO rootadmins ( server, name ) VALUES ( ?, ? )", (void **) &Statement);
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("INSERT INTO rootadmins ( server, name ) VALUES ( ?, ? )", (void**)&Statement);
 
   if (Statement)
   {
@@ -366,12 +366,12 @@ bool CAuraDB::RootAdminAdd(const string &server, string user)
   return Success;
 }
 
-bool CAuraDB::AdminRemove(const string &server, string user)
+bool CAuraDB::AdminRemove(const string& server, string user)
 {
-  bool Success = false;
-  sqlite3_stmt *Statement;
+  bool          Success = false;
+  sqlite3_stmt* Statement;
   transform(begin(user), end(user), begin(user), ::tolower);
-  m_DB->Prepare("DELETE FROM admins WHERE server=? AND name=?", (void **) &Statement);
+  m_DB->Prepare("DELETE FROM admins WHERE server=? AND name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -393,11 +393,11 @@ bool CAuraDB::AdminRemove(const string &server, string user)
   return Success;
 }
 
-uint32_t CAuraDB::BanCount(const string &server)
+uint32_t CAuraDB::BanCount(const string& server)
 {
-  uint32_t Count = 0;
-  sqlite3_stmt *Statement;
-  m_DB->Prepare("SELECT COUNT(*) FROM bans WHERE server=?", (void **) &Statement);
+  uint32_t      Count = 0;
+  sqlite3_stmt* Statement;
+  m_DB->Prepare("SELECT COUNT(*) FROM bans WHERE server=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -418,29 +418,29 @@ uint32_t CAuraDB::BanCount(const string &server)
   return Count;
 }
 
-CDBBan *CAuraDB::BanCheck(const string &server, string user)
+CDBBan* CAuraDB::BanCheck(const string& server, string user)
 {
-  CDBBan *Ban = nullptr;
+  CDBBan* Ban = nullptr;
   transform(begin(user), end(user), begin(user), ::tolower);
 
   if (!BanCheckStmt)
-    m_DB->Prepare("SELECT name, date, admin, reason FROM bans WHERE server=? AND name=?", (void **) &BanCheckStmt);
+    m_DB->Prepare("SELECT name, date, admin, reason FROM bans WHERE server=? AND name=?", (void**)&BanCheckStmt);
 
   if (BanCheckStmt)
   {
-    sqlite3_bind_text((sqlite3_stmt *) BanCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text((sqlite3_stmt *) BanCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text((sqlite3_stmt*)BanCheckStmt, 1, server.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text((sqlite3_stmt*)BanCheckStmt, 2, user.c_str(), -1, SQLITE_TRANSIENT);
 
     const int32_t RC = m_DB->Step(BanCheckStmt);
 
     if (RC == SQLITE_ROW)
     {
-      if (sqlite3_column_count((sqlite3_stmt *) BanCheckStmt) == 4)
+      if (sqlite3_column_count((sqlite3_stmt*)BanCheckStmt) == 4)
       {
-        string Name = string((char *) sqlite3_column_text((sqlite3_stmt *) BanCheckStmt, 0));
-        string Date = string((char *) sqlite3_column_text((sqlite3_stmt *) BanCheckStmt, 1));
-        string Admin = string((char *) sqlite3_column_text((sqlite3_stmt *) BanCheckStmt, 2));
-        string Reason = string((char *) sqlite3_column_text((sqlite3_stmt *) BanCheckStmt, 3));
+        string Name   = string((char*)sqlite3_column_text((sqlite3_stmt*)BanCheckStmt, 0));
+        string Date   = string((char*)sqlite3_column_text((sqlite3_stmt*)BanCheckStmt, 1));
+        string Admin  = string((char*)sqlite3_column_text((sqlite3_stmt*)BanCheckStmt, 2));
+        string Reason = string((char*)sqlite3_column_text((sqlite3_stmt*)BanCheckStmt, 3));
 
         Ban = new CDBBan(server, Name, Date, Admin, Reason);
       }
@@ -458,12 +458,12 @@ CDBBan *CAuraDB::BanCheck(const string &server, string user)
   return Ban;
 }
 
-bool CAuraDB::BanAdd(const string &server, string user, const string &admin, const string &reason)
+bool CAuraDB::BanAdd(const string& server, string user, const string& admin, const string& reason)
 {
-  bool Success = false;
-  sqlite3_stmt *Statement;
+  bool          Success = false;
+  sqlite3_stmt* Statement;
   transform(begin(user), end(user), begin(user), ::tolower);
-  m_DB->Prepare("INSERT INTO bans ( server, name, date, admin, reason ) VALUES ( ?, ?, date('now'), ?, ? )", (void **) &Statement);
+  m_DB->Prepare("INSERT INTO bans ( server, name, date, admin, reason ) VALUES ( ?, ?, date('now'), ?, ? )", (void**)&Statement);
 
   if (Statement)
   {
@@ -487,12 +487,12 @@ bool CAuraDB::BanAdd(const string &server, string user, const string &admin, con
   return Success;
 }
 
-bool CAuraDB::BanRemove(const string &server, string user)
+bool CAuraDB::BanRemove(const string& server, string user)
 {
-  bool Success = false;
-  sqlite3_stmt *Statement;
+  bool          Success = false;
+  sqlite3_stmt* Statement;
   transform(begin(user), end(user), begin(user), ::tolower);
-  m_DB->Prepare("DELETE FROM bans WHERE server=? AND name=?", (void **) &Statement);
+  m_DB->Prepare("DELETE FROM bans WHERE server=? AND name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -516,10 +516,10 @@ bool CAuraDB::BanRemove(const string &server, string user)
 
 bool CAuraDB::BanRemove(string user)
 {
-  bool Success = false;
-  sqlite3_stmt *Statement;
+  bool          Success = false;
+  sqlite3_stmt* Statement;
   transform(begin(user), end(user), begin(user), ::tolower);
-  m_DB->Prepare("DELETE FROM bans WHERE name=?", (void **) &Statement);
+  m_DB->Prepare("DELETE FROM bans WHERE name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -542,15 +542,15 @@ bool CAuraDB::BanRemove(string user)
 
 void CAuraDB::GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration, uint64_t left)
 {
-  sqlite3_stmt *Statement;
+  sqlite3_stmt* Statement;
   transform(begin(name), end(name), begin(name), ::tolower);
 
   // check if entry exists
 
-  int32_t RC;
+  int32_t  RC;
   uint32_t Games = 0;
 
-  m_DB->Prepare("SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void **) &Statement);
+  m_DB->Prepare("SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -578,7 +578,7 @@ void CAuraDB::GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration
   {
     // insert new entry
 
-    m_DB->Prepare("INSERT INTO players ( name, games, loadingtime, duration, left ) VALUES ( ?, ?, ?, ?, ? )", (void **) &Statement);
+    m_DB->Prepare("INSERT INTO players ( name, games, loadingtime, duration, left ) VALUES ( ?, ?, ?, ?, ? )", (void**)&Statement);
 
     if (Statement == nullptr)
     {
@@ -596,7 +596,7 @@ void CAuraDB::GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration
   {
     // update existing entry
 
-    m_DB->Prepare("UPDATE players SET games=?, loadingtime=?, duration=?, left=? WHERE name=?", (void **) &Statement);
+    m_DB->Prepare("UPDATE players SET games=?, loadingtime=?, duration=?, left=? WHERE name=?", (void**)&Statement);
 
     if (Statement == nullptr)
     {
@@ -619,12 +619,12 @@ void CAuraDB::GamePlayerAdd(string name, uint64_t loadingtime, uint64_t duration
   m_DB->Finalize(Statement);
 }
 
-CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck(string name)
+CDBGamePlayerSummary* CAuraDB::GamePlayerSummaryCheck(string name)
 {
-  sqlite3_stmt *Statement;
-  CDBGamePlayerSummary *GamePlayerSummary = nullptr;
+  sqlite3_stmt*         Statement;
+  CDBGamePlayerSummary* GamePlayerSummary = nullptr;
   transform(begin(name), end(name), begin(name), ::tolower);
-  m_DB->Prepare("SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void **) &Statement);
+  m_DB->Prepare("SELECT games, loadingtime, duration, left FROM players WHERE name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -636,12 +636,12 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck(string name)
     {
       if (sqlite3_column_count(Statement) == 4)
       {
-        const uint32_t TotalGames = sqlite3_column_int(Statement, 0);
+        const uint32_t TotalGames  = sqlite3_column_int(Statement, 0);
         const uint64_t LoadingTime = sqlite3_column_int64(Statement, 1);
-        const uint64_t Left = sqlite3_column_int64(Statement, 2);
-        const uint64_t Duration = sqlite3_column_int64(Statement, 3);
+        const uint64_t Left        = sqlite3_column_int64(Statement, 2);
+        const uint64_t Duration    = sqlite3_column_int64(Statement, 3);
 
-        GamePlayerSummary = new CDBGamePlayerSummary(TotalGames, (float) LoadingTime / TotalGames / 1000, (float) Duration / Left * 100);
+        GamePlayerSummary = new CDBGamePlayerSummary(TotalGames, (float)LoadingTime / TotalGames / 1000, (float)Duration / Left * 100);
       }
       else
         Print("[SQLITE3] error checking gameplayersummary [" + name + "] - row doesn't have 4 columns");
@@ -659,14 +659,14 @@ CDBGamePlayerSummary *CAuraDB::GamePlayerSummaryCheck(string name)
 
 void CAuraDB::DotAPlayerAdd(string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills)
 {
-  bool Success = false;
-  sqlite3_stmt *Statement;
+  bool          Success = false;
+  sqlite3_stmt* Statement;
   transform(begin(name), end(name), begin(name), ::tolower);
-  m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
+  m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void**)&Statement);
 
-  int32_t RC;
-  uint32_t Dotas = 1;
-  uint32_t Wins = 0;
+  int32_t  RC;
+  uint32_t Dotas  = 1;
+  uint32_t Wins   = 0;
   uint32_t Losses = 0;
 
   if (winner == 1)
@@ -714,7 +714,7 @@ void CAuraDB::DotAPlayerAdd(string name, uint32_t winner, uint32_t kills, uint32
     return;
   }
 
-  m_DB->Prepare("UPDATE players SET dotas=?, wins=?, losses=?, kills=?, deaths=?, creepkills=?, creepdenies=?, assists=?, neutralkills=?, towerkills=?, raxkills=?, courierkills=? WHERE name=?", (void **) &Statement);
+  m_DB->Prepare("UPDATE players SET dotas=?, wins=?, losses=?, kills=?, deaths=?, creepkills=?, creepdenies=?, assists=?, neutralkills=?, towerkills=?, raxkills=?, courierkills=? WHERE name=?", (void**)&Statement);
 
   if (Statement == nullptr)
   {
@@ -744,12 +744,12 @@ void CAuraDB::DotAPlayerAdd(string name, uint32_t winner, uint32_t kills, uint32
   m_DB->Finalize(Statement);
 }
 
-CDBDotAPlayerSummary *CAuraDB::DotAPlayerSummaryCheck(string name)
+CDBDotAPlayerSummary* CAuraDB::DotAPlayerSummaryCheck(string name)
 {
-  sqlite3_stmt *Statement;
-  CDBDotAPlayerSummary *DotAPlayerSummary = nullptr;
+  sqlite3_stmt*         Statement;
+  CDBDotAPlayerSummary* DotAPlayerSummary = nullptr;
   transform(begin(name), end(name), begin(name), ::tolower);
-  m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void **) &Statement);
+  m_DB->Prepare("SELECT dotas, wins, losses, kills, deaths, creepkills, creepdenies, assists, neutralkills, towerkills, raxkills, courierkills FROM players WHERE name=?", (void**)&Statement);
 
   if (Statement)
   {
@@ -765,16 +765,16 @@ CDBDotAPlayerSummary *CAuraDB::DotAPlayerSummaryCheck(string name)
 
         if (TotalGames != 0)
         {
-          const uint32_t TotalWins = sqlite3_column_int(Statement, 1);
-          const uint32_t TotalLosses = sqlite3_column_int(Statement, 2);
-          const uint32_t TotalKills = sqlite3_column_int(Statement, 3);
-          const uint32_t TotalDeaths = sqlite3_column_int(Statement, 4);
-          const uint32_t TotalCreepKills = sqlite3_column_int(Statement, 5);
-          const uint32_t TotalCreepDenies = sqlite3_column_int(Statement, 6);
-          const uint32_t TotalAssists = sqlite3_column_int(Statement, 7);
+          const uint32_t TotalWins         = sqlite3_column_int(Statement, 1);
+          const uint32_t TotalLosses       = sqlite3_column_int(Statement, 2);
+          const uint32_t TotalKills        = sqlite3_column_int(Statement, 3);
+          const uint32_t TotalDeaths       = sqlite3_column_int(Statement, 4);
+          const uint32_t TotalCreepKills   = sqlite3_column_int(Statement, 5);
+          const uint32_t TotalCreepDenies  = sqlite3_column_int(Statement, 6);
+          const uint32_t TotalAssists      = sqlite3_column_int(Statement, 7);
           const uint32_t TotalNeutralKills = sqlite3_column_int(Statement, 8);
-          const uint32_t TotalTowerKills = sqlite3_column_int(Statement, 9);
-          const uint32_t TotalRaxKills = sqlite3_column_int(Statement, 10);
+          const uint32_t TotalTowerKills   = sqlite3_column_int(Statement, 9);
+          const uint32_t TotalRaxKills     = sqlite3_column_int(Statement, 10);
           const uint32_t TotalCourierKills = sqlite3_column_int(Statement, 11);
 
           DotAPlayerSummary = new CDBDotAPlayerSummary(TotalGames, TotalWins, TotalLosses, TotalKills, TotalDeaths, TotalCreepKills, TotalCreepDenies, TotalAssists, TotalNeutralKills, TotalTowerKills, TotalRaxKills, TotalCourierKills);
@@ -799,21 +799,21 @@ string CAuraDB::FromCheck(uint32_t ip)
   string From = "??";
 
   if (!FromCheckStmt)
-    m_DB->Prepare("SELECT country FROM iptocountry WHERE ip1<=? AND ip2>=?", (void **) &FromCheckStmt);
+    m_DB->Prepare("SELECT country FROM iptocountry WHERE ip1<=? AND ip2>=?", (void**)&FromCheckStmt);
 
   if (FromCheckStmt)
   {
     // we bind the ip as an int32_t64 because SQLite treats it as signed
 
-    sqlite3_bind_int64((sqlite3_stmt *) FromCheckStmt, 1, ip);
-    sqlite3_bind_int64((sqlite3_stmt *) FromCheckStmt, 2, ip);
+    sqlite3_bind_int64((sqlite3_stmt*)FromCheckStmt, 1, ip);
+    sqlite3_bind_int64((sqlite3_stmt*)FromCheckStmt, 2, ip);
 
     const int32_t RC = m_DB->Step(FromCheckStmt);
 
     if (RC == SQLITE_ROW)
     {
-      if (sqlite3_column_count((sqlite3_stmt *) FromCheckStmt) == 1)
-        From = string((char *) sqlite3_column_text((sqlite3_stmt *) FromCheckStmt, 0));
+      if (sqlite3_column_count((sqlite3_stmt*)FromCheckStmt) == 1)
+        From = string((char*)sqlite3_column_text((sqlite3_stmt*)FromCheckStmt, 0));
       else
         Print("[SQLITE3] error checking iptocountry [" + to_string(ip) + "] - row doesn't have 1 column");
     }
@@ -828,22 +828,22 @@ string CAuraDB::FromCheck(uint32_t ip)
   return From;
 }
 
-bool CAuraDB::FromAdd(uint32_t ip1, uint32_t ip2, const string &country)
+bool CAuraDB::FromAdd(uint32_t ip1, uint32_t ip2, const string& country)
 {
   // a big thank you to tjado for help with the iptocountry feature
 
   bool Success = false;
 
   if (!FromAddStmt)
-    m_DB->Prepare("INSERT INTO iptocountry VALUES ( ?, ?, ? )", (void **) &FromAddStmt);
+    m_DB->Prepare("INSERT INTO iptocountry VALUES ( ?, ?, ? )", (void**)&FromAddStmt);
 
   if (FromAddStmt)
   {
     // we bind the ip as an int32_t64 because SQLite treats it as signed
 
-    sqlite3_bind_int64((sqlite3_stmt *) FromAddStmt, 1, ip1);
-    sqlite3_bind_int64((sqlite3_stmt *) FromAddStmt, 2, ip2);
-    sqlite3_bind_text((sqlite3_stmt *) FromAddStmt, 3, country.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64((sqlite3_stmt*)FromAddStmt, 1, ip1);
+    sqlite3_bind_int64((sqlite3_stmt*)FromAddStmt, 2, ip2);
+    sqlite3_bind_text((sqlite3_stmt*)FromAddStmt, 3, country.c_str(), -1, SQLITE_TRANSIENT);
 
     int32_t RC = m_DB->Step(FromAddStmt);
 
@@ -864,37 +864,33 @@ bool CAuraDB::FromAdd(uint32_t ip1, uint32_t ip2, const string &country)
 // CDBBan
 //
 
-CDBBan::CDBBan(const string &nServer, const string &nName, const string &nDate, const string &nAdmin, const string &nReason)
+CDBBan::CDBBan(const string& nServer, const string& nName, const string& nDate, const string& nAdmin, const string& nReason)
   : m_Server(nServer),
     m_Name(nName),
     m_Date(nDate),
     m_Admin(nAdmin),
     m_Reason(nReason)
 {
-
 }
 
 CDBBan::~CDBBan()
 {
-
 }
 
 //
 // CDBGamePlayer
 //
 
-CDBGamePlayer::CDBGamePlayer(const string &nName, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour)
+CDBGamePlayer::CDBGamePlayer(const string& nName, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour)
   : m_Name(nName),
     m_LoadingTime(nLoadingTime),
     m_Left(nLeft),
     m_Colour(nColour)
 {
-
 }
 
 CDBGamePlayer::~CDBGamePlayer()
 {
-
 }
 
 //
@@ -906,12 +902,10 @@ CDBGamePlayerSummary::CDBGamePlayerSummary(uint32_t nTotalGames, float nAvgLoadi
     m_AvgLoadingTime(nAvgLoadingTime),
     m_AvgLeftPercent(nAvgLeftPercent)
 {
-
 }
 
 CDBGamePlayerSummary::~CDBGamePlayerSummary()
 {
-
 }
 
 //
@@ -931,7 +925,6 @@ CDBDotAPlayer::CDBDotAPlayer()
     m_RaxKills(0),
     m_CourierKills(0)
 {
-
 }
 
 CDBDotAPlayer::CDBDotAPlayer(uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nNeutralKills, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills)
@@ -945,12 +938,10 @@ CDBDotAPlayer::CDBDotAPlayer(uint32_t nKills, uint32_t nDeaths, uint32_t nCreepK
     m_RaxKills(nRaxKills),
     m_CourierKills(nCourierKills)
 {
-
 }
 
 CDBDotAPlayer::~CDBDotAPlayer()
 {
-
 }
 
 //
@@ -971,10 +962,8 @@ CDBDotAPlayerSummary::CDBDotAPlayerSummary(uint32_t nTotalGames, uint32_t nTotal
     m_TotalRaxKills(nTotalRaxKills),
     m_TotalCourierKills(nTotalCourierKills)
 {
-
 }
 
 CDBDotAPlayerSummary::~CDBDotAPlayerSummary()
 {
-
 }

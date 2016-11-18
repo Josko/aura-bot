@@ -23,15 +23,14 @@
 // CGameProtocol
 //
 
-#define GPS_HEADER_CONSTANT         248
+#define GPS_HEADER_CONSTANT 248
 
-#define REJECTGPS_INVALID           1
-#define REJECTGPS_NOTFOUND          2
+#define REJECTGPS_INVALID 1
+#define REJECTGPS_NOTFOUND 2
 
 class CGPSProtocol
 {
 public:
-
   enum Protocol
   {
     GPS_INIT      = 1,
@@ -56,4 +55,4 @@ public:
   BYTEARRAY SEND_GPSS_REJECT(uint32_t reason);
 };
 
-#endif  // AURA_GPSPROTOCOL_H_
+#endif // AURA_GPSPROTOCOL_H_

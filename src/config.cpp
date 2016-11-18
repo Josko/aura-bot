@@ -31,15 +31,13 @@ using namespace std;
 
 CConfig::CConfig()
 {
-
 }
 
 CConfig::~CConfig()
 {
-
 }
 
-void CConfig::Read(const string &file)
+void CConfig::Read(const string& file)
 {
   ifstream in;
   in.open(file.c_str());
@@ -70,10 +68,10 @@ void CConfig::Read(const string &file)
       if (Split == string::npos)
         continue;
 
-      string::size_type KeyStart = Line.find_first_not_of(" ");
-      string::size_type KeyEnd = Line.find(" ", KeyStart);
+      string::size_type KeyStart   = Line.find_first_not_of(" ");
+      string::size_type KeyEnd     = Line.find(" ", KeyStart);
       string::size_type ValueStart = Line.find_first_not_of(" ", Split + 1);
-      string::size_type ValueEnd = Line.size();
+      string::size_type ValueEnd   = Line.size();
 
       if (ValueStart != string::npos)
         m_CFG[Line.substr(KeyStart, KeyEnd - KeyStart)] = Line.substr(ValueStart, ValueEnd - ValueStart);
@@ -83,12 +81,12 @@ void CConfig::Read(const string &file)
   }
 }
 
-bool CConfig::Exists(const string &key)
+bool CConfig::Exists(const string& key)
 {
   return m_CFG.find(key) != end(m_CFG);
 }
 
-int32_t CConfig::GetInt(const string &key, int32_t x)
+int32_t CConfig::GetInt(const string& key, int32_t x)
 {
   if (m_CFG.find(key) == end(m_CFG))
     return x;
@@ -96,7 +94,7 @@ int32_t CConfig::GetInt(const string &key, int32_t x)
     return atoi(m_CFG[key].c_str());
 }
 
-string CConfig::GetString(const string &key, const string &x)
+string CConfig::GetString(const string& key, const string& x)
 {
   if (m_CFG.find(key) == end(m_CFG))
     return x;
@@ -104,7 +102,7 @@ string CConfig::GetString(const string &key, const string &x)
     return m_CFG[key];
 }
 
-void CConfig::Set(const string &key, const string &x)
+void CConfig::Set(const string& key, const string& x)
 {
   m_CFG[key] = x;
 }

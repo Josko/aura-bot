@@ -97,22 +97,22 @@ struct sqlite3_stmt;
 class CSQLITE3
 {
 private:
-  void *m_DB;
-  bool m_Ready;
+  void* m_DB;
+  bool  m_Ready;
 
 public:
-  explicit CSQLITE3(const std::string &filename);
+  explicit CSQLITE3(const std::string& filename);
   ~CSQLITE3();
-  CSQLITE3(CSQLITE3 &) = delete;
+  CSQLITE3(CSQLITE3&) = delete;
 
-  inline bool GetReady() const                                        { return m_Ready; }
-  inline std::string GetError() const                                 { return sqlite3_errmsg((sqlite3 *) m_DB); }
+  inline bool        GetReady() const { return m_Ready; }
+  inline std::string GetError() const { return sqlite3_errmsg((sqlite3*)m_DB); }
 
-  inline int32_t Step(void *Statement)                                { return sqlite3_step((sqlite3_stmt *) Statement); }
-  inline int32_t Prepare(const std::string &query, void **Statement)  { return sqlite3_prepare_v2((sqlite3 *) m_DB, query.c_str(), -1, (sqlite3_stmt **) Statement, nullptr); }
-  inline int32_t Finalize(void *Statement)                            { return sqlite3_finalize((sqlite3_stmt *) Statement); }
-  inline int32_t Reset(void *Statement)                               { return sqlite3_reset((sqlite3_stmt *) Statement); }
-  inline int32_t Exec(const std::string &query)                       { return sqlite3_exec((sqlite3 *) m_DB, query.c_str(), nullptr, nullptr, nullptr); }
+  inline int32_t Step(void* Statement) { return sqlite3_step((sqlite3_stmt*)Statement); }
+  inline int32_t Prepare(const std::string& query, void** Statement) { return sqlite3_prepare_v2((sqlite3*)m_DB, query.c_str(), -1, (sqlite3_stmt**)Statement, nullptr); }
+  inline int32_t Finalize(void* Statement) { return sqlite3_finalize((sqlite3_stmt*)Statement); }
+  inline int32_t Reset(void* Statement) { return sqlite3_reset((sqlite3_stmt*)Statement); }
+  inline int32_t Exec(const std::string& query) { return sqlite3_exec((sqlite3*)m_DB, query.c_str(), nullptr, nullptr, nullptr); }
 };
 
 //
@@ -127,7 +127,7 @@ class CDBBan;
 class CAuraDB
 {
 private:
-  CSQLITE3 *m_DB;
+  CSQLITE3*   m_DB;
   std::string m_File;
   std::string m_Error;
 
@@ -135,43 +135,44 @@ private:
   // this is an optimization because preparing statements takes time
   // however it only pays off if you're going to be using the statement extremely often
 
-  void *FromAddStmt;          // for faster startup time
-  void *FromCheckStmt;        // frequently used
-  void *BanCheckStmt;         // frequently used
-  void *AdminCheckStmt;       // frequently used
-  void *RootAdminCheckStmt;   // frequently used
+  void* FromAddStmt;        // for faster startup time
+  void* FromCheckStmt;      // frequently used
+  void* BanCheckStmt;       // frequently used
+  void* AdminCheckStmt;     // frequently used
+  void* RootAdminCheckStmt; // frequently used
 
   bool m_HasError;
+
 public:
-  explicit CAuraDB(CConfig *CFG);
+  explicit CAuraDB(CConfig* CFG);
   ~CAuraDB();
-  CAuraDB(CAuraDB &) = delete;
+  CAuraDB(CAuraDB&) = delete;
 
-  inline bool HasError() const                 { return m_HasError; }
-  inline std::string GetError() const          { return m_Error; }
+  inline bool        HasError() const { return m_HasError; }
+  inline std::string GetError() const { return m_Error; }
 
-  inline bool Begin() const                    { return m_DB->Exec("BEGIN TRANSACTION") == SQLITE_OK; }
-  inline bool Commit() const                   { return m_DB->Exec("COMMIT TRANSACTION") == SQLITE_OK; }
+  inline bool Begin() const { return m_DB->Exec("BEGIN TRANSACTION") == SQLITE_OK; }
+  inline bool Commit() const { return m_DB->Exec("COMMIT TRANSACTION") == SQLITE_OK; }
 
   std::string FromCheck(uint32_t ip);
-  bool FromAdd(uint32_t ip1, uint32_t ip2, const std::string &country);
-  uint32_t AdminCount(const std::string &server);
-  bool AdminCheck(const std::string &server, std::string user);
+  bool FromAdd(uint32_t ip1, uint32_t ip2, const std::string& country);
+  uint32_t AdminCount(const std::string& server);
+  bool AdminCheck(const std::string& server, std::string user);
   bool AdminCheck(std::string user);
-  bool RootAdminCheck(const std::string &server, std::string user);
+  bool RootAdminCheck(const std::string& server, std::string user);
   bool RootAdminCheck(std::string user);
-  bool AdminAdd(const std::string &server, std::string user);
-  bool RootAdminAdd(const std::string &server, std::string user);
-  bool AdminRemove(const std::string &server, std::string user);
-  uint32_t BanCount(const std::string &server);
-  CDBBan *BanCheck(const std::string &server, std::string user);
-  bool BanAdd(const std::string &server, std::string user, const std::string &admin, const std::string &reason);
-  bool BanRemove(const std::string &server, std::string user);
+  bool AdminAdd(const std::string& server, std::string user);
+  bool RootAdminAdd(const std::string& server, std::string user);
+  bool AdminRemove(const std::string& server, std::string user);
+  uint32_t BanCount(const std::string& server);
+  CDBBan* BanCheck(const std::string& server, std::string user);
+  bool BanAdd(const std::string& server, std::string user, const std::string& admin, const std::string& reason);
+  bool BanRemove(const std::string& server, std::string user);
   bool BanRemove(std::string user);
   void GamePlayerAdd(std::string name, uint64_t loadingtime, uint64_t duration, uint64_t left);
-  CDBGamePlayerSummary *GamePlayerSummaryCheck(std::string name);
+  CDBGamePlayerSummary* GamePlayerSummaryCheck(std::string name);
   void DotAPlayerAdd(std::string name, uint32_t winner, uint32_t kills, uint32_t deaths, uint32_t creepkills, uint32_t creepdenies, uint32_t assists, uint32_t neutralkills, uint32_t towerkills, uint32_t raxkills, uint32_t courierkills);
-  CDBDotAPlayerSummary *DotAPlayerSummaryCheck(std::string name);
+  CDBDotAPlayerSummary* DotAPlayerSummaryCheck(std::string name);
 };
 
 //
@@ -188,14 +189,14 @@ private:
   std::string m_Reason;
 
 public:
-  CDBBan(const std::string &nServer, const std::string &nName, const std::string &nDate, const std::string &nAdmin, const std::string &nReason);
+  CDBBan(const std::string& nServer, const std::string& nName, const std::string& nDate, const std::string& nAdmin, const std::string& nReason);
   ~CDBBan();
 
-  inline std::string GetServer() const                 { return m_Server; }
-  inline std::string GetName() const                   { return m_Name; }
-  inline std::string GetDate() const                   { return m_Date; }
-  inline std::string GetAdmin() const                  { return m_Admin; }
-  inline std::string GetReason() const                 { return m_Reason; }
+  inline std::string GetServer() const { return m_Server; }
+  inline std::string GetName() const { return m_Name; }
+  inline std::string GetDate() const { return m_Date; }
+  inline std::string GetAdmin() const { return m_Admin; }
+  inline std::string GetReason() const { return m_Reason; }
 };
 
 //
@@ -206,21 +207,21 @@ class CDBGamePlayer
 {
 private:
   std::string m_Name;
-  uint64_t m_LoadingTime;
-  uint64_t m_Left;
-  uint32_t m_Colour;
+  uint64_t    m_LoadingTime;
+  uint64_t    m_Left;
+  uint32_t    m_Colour;
 
 public:
-  CDBGamePlayer(const std::string &name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
+  CDBGamePlayer(const std::string& name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
   ~CDBGamePlayer();
 
-  inline std::string GetName() const                    { return m_Name; }
-  inline uint64_t GetLoadingTime() const                { return m_LoadingTime; }
-  inline uint64_t GetLeft() const                       { return m_Left; }
-  inline uint32_t GetColour() const                     { return m_Colour; }
+  inline std::string GetName() const { return m_Name; }
+  inline uint64_t    GetLoadingTime() const { return m_LoadingTime; }
+  inline uint64_t    GetLeft() const { return m_Left; }
+  inline uint32_t    GetColour() const { return m_Colour; }
 
-  inline void SetLoadingTime(uint64_t nLoadingTime)     { m_LoadingTime = nLoadingTime; }
-  inline void SetLeft(uint64_t nLeft)                   { m_Left = nLeft; }
+  inline void SetLoadingTime(uint64_t nLoadingTime) { m_LoadingTime = nLoadingTime; }
+  inline void SetLeft(uint64_t nLeft) { m_Left = nLeft; }
 };
 
 //
@@ -230,17 +231,17 @@ public:
 class CDBGamePlayerSummary
 {
 private:
-  uint32_t m_TotalGames;            // total number of games played
-  float m_AvgLoadingTime;           // average loading time in milliseconds (this could be skewed because different maps have different load times)
-  uint32_t m_AvgLeftPercent;        // average time at which the player left the game expressed as a percentage of the game duration (0-100)
+  uint32_t m_TotalGames;     // total number of games played
+  float    m_AvgLoadingTime; // average loading time in milliseconds (this could be skewed because different maps have different load times)
+  uint32_t m_AvgLeftPercent; // average time at which the player left the game expressed as a percentage of the game duration (0-100)
 
 public:
   CDBGamePlayerSummary(uint32_t nTotalGames, float nAvgLoadingTime, uint32_t nAvgLeftPercent);
   ~CDBGamePlayerSummary();
 
-  inline uint32_t GetTotalGames() const                { return m_TotalGames; }
-  inline float GetAvgLoadingTime() const               { return m_AvgLoadingTime; }
-  inline uint32_t GetAvgLeftPercent() const            { return m_AvgLeftPercent; }
+  inline uint32_t GetTotalGames() const { return m_TotalGames; }
+  inline float    GetAvgLoadingTime() const { return m_AvgLoadingTime; }
+  inline uint32_t GetAvgLeftPercent() const { return m_AvgLeftPercent; }
 };
 
 //
@@ -267,31 +268,30 @@ public:
   CDBDotAPlayer(uint32_t nKills, uint32_t nDeaths, uint32_t nCreepKills, uint32_t nCreepDenies, uint32_t nAssists, uint32_t nNeutralKills, uint32_t nTowerKills, uint32_t nRaxKills, uint32_t nCourierKills);
   ~CDBDotAPlayer();
 
-  inline uint32_t GetColour() const                     { return m_Colour; }
-  inline uint32_t GetNewColour() const                  { return m_NewColour; }
-  inline uint32_t GetKills() const                      { return m_Kills; }
-  inline uint32_t GetDeaths() const                     { return m_Deaths; }
-  inline uint32_t GetCreepKills() const                 { return m_CreepKills; }
-  inline uint32_t GetCreepDenies() const                { return m_CreepDenies; }
-  inline uint32_t GetAssists() const                    { return m_Assists; }
-  inline uint32_t GetNeutralKills() const               { return m_NeutralKills; }
-  inline uint32_t GetTowerKills() const                 { return m_TowerKills; }
-  inline uint32_t GetRaxKills() const                   { return m_RaxKills; }
-  inline uint32_t GetCourierKills() const               { return m_CourierKills; }
+  inline uint32_t GetColour() const { return m_Colour; }
+  inline uint32_t GetNewColour() const { return m_NewColour; }
+  inline uint32_t GetKills() const { return m_Kills; }
+  inline uint32_t GetDeaths() const { return m_Deaths; }
+  inline uint32_t GetCreepKills() const { return m_CreepKills; }
+  inline uint32_t GetCreepDenies() const { return m_CreepDenies; }
+  inline uint32_t GetAssists() const { return m_Assists; }
+  inline uint32_t GetNeutralKills() const { return m_NeutralKills; }
+  inline uint32_t GetTowerKills() const { return m_TowerKills; }
+  inline uint32_t GetRaxKills() const { return m_RaxKills; }
+  inline uint32_t GetCourierKills() const { return m_CourierKills; }
 
+  inline void IncKills() { ++m_Kills; }
+  inline void IncDeaths() { ++m_Deaths; }
+  inline void IncAssists() { ++m_Assists; }
+  inline void IncTowerKills() { ++m_TowerKills; }
+  inline void IncRaxKills() { ++m_RaxKills; }
+  inline void IncCourierKills() { ++m_CourierKills; }
 
-  inline void IncKills()                                { ++m_Kills; }
-  inline void IncDeaths()                               { ++m_Deaths; }
-  inline void IncAssists()                              { ++m_Assists; }
-  inline void IncTowerKills()                           { ++m_TowerKills; }
-  inline void IncRaxKills()                             { ++m_RaxKills; }
-  inline void IncCourierKills()                         { ++m_CourierKills; }
-
-  inline void SetColour(uint32_t nColour)               { m_Colour = nColour; }
-  inline void SetNewColour(uint32_t nNewColour)         { m_NewColour = nNewColour; }
-  inline void SetCreepKills(uint32_t nCreepKills)       { m_CreepKills = nCreepKills; }
-  inline void SetCreepDenies(uint32_t nCreepDenies)     { m_CreepDenies = nCreepDenies; }
-  inline void SetNeutralKills(uint32_t nNeutralKills)   { m_NeutralKills = nNeutralKills; }
+  inline void SetColour(uint32_t nColour) { m_Colour = nColour; }
+  inline void SetNewColour(uint32_t nNewColour) { m_NewColour = nNewColour; }
+  inline void SetCreepKills(uint32_t nCreepKills) { m_CreepKills = nCreepKills; }
+  inline void SetCreepDenies(uint32_t nCreepDenies) { m_CreepDenies = nCreepDenies; }
+  inline void SetNeutralKills(uint32_t nNeutralKills) { m_NeutralKills = nNeutralKills; }
 };
 
 //
@@ -318,27 +318,27 @@ public:
   CDBDotAPlayerSummary(uint32_t nTotalGames, uint32_t nTotalWins, uint32_t nTotalLosses, uint32_t nTotalKills, uint32_t nTotalDeaths, uint32_t nTotalCreepKills, uint32_t nTotalCreepDenies, uint32_t nTotalAssists, uint32_t nTotalNeutralKills, uint32_t nTotalTowerKills, uint32_t nTotalRaxKills, uint32_t nTotalCourierKills);
   ~CDBDotAPlayerSummary();
 
-  inline uint32_t GetTotalGames() const           { return m_TotalGames; }
-  inline uint32_t GetTotalWins() const            { return m_TotalWins; }
-  inline uint32_t GetTotalLosses() const          { return m_TotalLosses; }
-  inline uint32_t GetTotalKills() const           { return m_TotalKills; }
-  inline uint32_t GetTotalDeaths() const          { return m_TotalDeaths; }
-  inline uint32_t GetTotalCreepKills() const      { return m_TotalCreepKills; }
-  inline uint32_t GetTotalCreepDenies() const     { return m_TotalCreepDenies; }
-  inline uint32_t GetTotalAssists() const         { return m_TotalAssists; }
-  inline uint32_t GetTotalNeutralKills() const    { return m_TotalNeutralKills; }
-  inline uint32_t GetTotalTowerKills() const      { return m_TotalTowerKills; }
-  inline uint32_t GetTotalRaxKills() const        { return m_TotalRaxKills; }
-  inline uint32_t GetTotalCourierKills() const    { return m_TotalCourierKills; }
-  inline float GetAvgKills() const                { return m_TotalGames > 0 ? (float) m_TotalKills / m_TotalGames : 0.f; }
-  inline float GetAvgDeaths() const               { return m_TotalGames > 0 ? (float) m_TotalDeaths / m_TotalGames : 0.f; }
-  inline float GetAvgCreepKills() const           { return m_TotalGames > 0 ? (float) m_TotalCreepKills / m_TotalGames : 0.f; }
-  inline float GetAvgCreepDenies() const          { return m_TotalGames > 0 ? (float) m_TotalCreepDenies / m_TotalGames : 0.f; }
-  inline float GetAvgAssists() const              { return m_TotalGames > 0 ? (float) m_TotalAssists / m_TotalGames : 0.f; }
-  inline float GetAvgNeutralKills() const         { return m_TotalGames > 0 ? (float) m_TotalNeutralKills / m_TotalGames : 0.f; }
-  inline float GetAvgTowerKills() const           { return m_TotalGames > 0 ? (float) m_TotalTowerKills / m_TotalGames : 0.f; }
-  inline float GetAvgRaxKills() const             { return m_TotalGames > 0 ? (float) m_TotalRaxKills / m_TotalGames : 0.f; }
-  inline float GetAvgCourierKills() const         { return m_TotalGames > 0 ? (float) m_TotalCourierKills / m_TotalGames : 0.f; }
+  inline uint32_t GetTotalGames() const { return m_TotalGames; }
+  inline uint32_t GetTotalWins() const { return m_TotalWins; }
+  inline uint32_t GetTotalLosses() const { return m_TotalLosses; }
+  inline uint32_t GetTotalKills() const { return m_TotalKills; }
+  inline uint32_t GetTotalDeaths() const { return m_TotalDeaths; }
+  inline uint32_t GetTotalCreepKills() const { return m_TotalCreepKills; }
+  inline uint32_t GetTotalCreepDenies() const { return m_TotalCreepDenies; }
+  inline uint32_t GetTotalAssists() const { return m_TotalAssists; }
+  inline uint32_t GetTotalNeutralKills() const { return m_TotalNeutralKills; }
+  inline uint32_t GetTotalTowerKills() const { return m_TotalTowerKills; }
+  inline uint32_t GetTotalRaxKills() const { return m_TotalRaxKills; }
+  inline uint32_t GetTotalCourierKills() const { return m_TotalCourierKills; }
+  inline float    GetAvgKills() const { return m_TotalGames > 0 ? (float)m_TotalKills / m_TotalGames : 0.f; }
+  inline float    GetAvgDeaths() const { return m_TotalGames > 0 ? (float)m_TotalDeaths / m_TotalGames : 0.f; }
+  inline float    GetAvgCreepKills() const { return m_TotalGames > 0 ? (float)m_TotalCreepKills / m_TotalGames : 0.f; }
+  inline float    GetAvgCreepDenies() const { return m_TotalGames > 0 ? (float)m_TotalCreepDenies / m_TotalGames : 0.f; }
+  inline float    GetAvgAssists() const { return m_TotalGames > 0 ? (float)m_TotalAssists / m_TotalGames : 0.f; }
+  inline float    GetAvgNeutralKills() const { return m_TotalGames > 0 ? (float)m_TotalNeutralKills / m_TotalGames : 0.f; }
+  inline float    GetAvgTowerKills() const { return m_TotalGames > 0 ? (float)m_TotalTowerKills / m_TotalGames : 0.f; }
+  inline float    GetAvgRaxKills() const { return m_TotalGames > 0 ? (float)m_TotalRaxKills / m_TotalGames : 0.f; }
+  inline float    GetAvgCourierKills() const { return m_TotalGames > 0 ? (float)m_TotalCourierKills / m_TotalGames : 0.f; }
 };
 
-#endif  // AURA_AURADB_H_
+#endif // AURA_AURADB_H_

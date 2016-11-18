@@ -26,12 +26,10 @@
 
 CGPSProtocol::CGPSProtocol()
 {
-
 }
 
 CGPSProtocol::~CGPSProtocol()
 {
-
 }
 
 ///////////////////////

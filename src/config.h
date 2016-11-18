@@ -34,11 +34,11 @@ public:
   CConfig();
   ~CConfig();
 
-  void Read(const std::string &file);
-  bool Exists(const std::string &key);
-  int32_t GetInt(const std::string &key, int32_t x);
-  std::string GetString(const std::string &key, const std::string &x);
-  void Set(const std::string &key, const std::string &x);
+  void Read(const std::string& file);
+  bool Exists(const std::string& key);
+  int32_t GetInt(const std::string& key, int32_t x);
+  std::string GetString(const std::string& key, const std::string& x);
+  void Set(const std::string& key, const std::string& x);
 };
 
-#endif  // AURA_CONFIG_H_
+#endif // AURA_CONFIG_H_

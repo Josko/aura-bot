@@ -27,7 +27,7 @@ using namespace std;
 // CGameSlot
 //
 
-CGameSlot::CGameSlot(const BYTEARRAY &n)
+CGameSlot::CGameSlot(const BYTEARRAY& n)
   : m_PID(0),
     m_DownloadStatus(255),
     m_SlotStatus(SLOTSTATUS_OPEN),
@@ -42,13 +42,13 @@ CGameSlot::CGameSlot(const BYTEARRAY &n)
 
   if (size >= 7)
   {
-    m_PID = n[0];
+    m_PID            = n[0];
     m_DownloadStatus = n[1];
-    m_SlotStatus = n[2];
-    m_Computer = n[3];
-    m_Team = n[4];
-    m_Colour = n[5];
-    m_Race = n[6];
+    m_SlotStatus     = n[2];
+    m_Computer       = n[3];
+    m_Team           = n[4];
+    m_Colour         = n[5];
+    m_Race           = n[6];
 
     if (size >= 8)
     {
@@ -71,10 +71,8 @@ CGameSlot::CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const ui
     m_ComputerType(nComputerType),
     m_Handicap(nHandicap)
 {
-
 }
 
 CGameSlot::~CGameSlot()
 {
-
 }

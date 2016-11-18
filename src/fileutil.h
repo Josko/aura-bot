@@ -26,12 +26,12 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 #ifdef WIN32
 bool FileExists(std::string file);
 #else
-bool FileExists(const std::string &file);
+bool FileExists(const std::string& file);
 #endif
 
-std::vector<std::string> FilesMatch(const std::string &path, const std::string &pattern);
-std::string FileRead(const std::string &file, uint32_t start, uint32_t length);
-std::string FileRead(const std::string &file);
-bool FileWrite(const std::string &file, uint8_t *data, uint32_t length);
+std::vector<std::string> FilesMatch(const std::string& path, const std::string& pattern);
+std::string FileRead(const std::string& file, uint32_t start, uint32_t length);
+std::string FileRead(const std::string& file);
+bool FileWrite(const std::string& file, uint8_t* data, uint32_t length);
 
-#endif  // AURA_FILEUTIL_H_
+#endif // AURA_FILEUTIL_H_

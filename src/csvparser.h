@@ -40,17 +40,17 @@ using namespace std;
 class CSVParser
 {
 private:
-  std::string m_sData;
+  std::string            m_sData;
   std::string::size_type m_nPos;
-  void SkipSpaces();
+  void                   SkipSpaces();
 
 public:
   CSVParser();
-  const CSVParser &operator <<(const std::string &sIn);
-  const CSVParser &operator <<(const char *sIn);
-  CSVParser &operator >>(int &nOut);
-  CSVParser &operator >>(double &nOut);
-  CSVParser &operator >>(string &sOut);
+  const CSVParser& operator<<(const std::string& sIn);
+  const CSVParser& operator<<(const char* sIn);
+  CSVParser& operator>>(int& nOut);
+  CSVParser& operator>>(double& nOut);
+  CSVParser& operator>>(string& sOut);
 };
 
-#endif  // AURA_CSVPARSER_H_
+#endif // AURA_CSVPARSER_H_

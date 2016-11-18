@@ -31,7 +31,7 @@ using namespace std;
 //// CIRC ////
 //////////////
 
-CIRC::CIRC(CAura *nAura, const string &nServer, const string &nNickname, const string &nUsername, const string &nPassword, const vector<string> &nChannels, const vector<string> &nRootAdmins, uint16_t nPort, int8_t nCommandTrigger)
+CIRC::CIRC(CAura* nAura, const string& nServer, const string& nNickname, const string& nUsername, const string& nPassword, const vector<string>& nChannels, const vector<string>& nRootAdmins, uint16_t nPort, int8_t nCommandTrigger)
   : m_Aura(nAura),
     m_Socket(new CTCPClient),
     m_Channels(nChannels),
@@ -62,20 +62,20 @@ CIRC::~CIRC()
   delete m_Socket;
 }
 
-uint32_t CIRC::SetFD(void *fd, void *send_fd, int32_t *nfds)
+uint32_t CIRC::SetFD(void* fd, void* send_fd, int32_t* nfds)
 {
   // irc socket
 
   if (!m_Socket->HasError() && m_Socket->GetConnected())
   {
-    m_Socket->SetFD((fd_set *) fd, (fd_set *) send_fd, nfds);
+    m_Socket->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
     return 0;
   }
 
   return 1;
 }
 
-bool CIRC::Update(void *fd, void *send_fd)
+bool CIRC::Update(void* fd, void* send_fd)
 {
   const int64_t Time = GetTime();
 
@@ -85,7 +85,7 @@ bool CIRC::Update(void *fd, void *send_fd)
 
     Print("[IRC: " + m_Server + "] disconnected due to socket error,  waiting 60 seconds to reconnect");
     m_Socket->Reset();
-    m_WaitingToConnect = true;
+    m_WaitingToConnect          = true;
     m_LastConnectionAttemptTime = Time;
     return m_Exiting;
   }
@@ -108,9 +108,9 @@ bool CIRC::Update(void *fd, void *send_fd)
       m_LastAntiIdleTime = Time;
     }
 
-    m_Socket->DoRecv((fd_set *) fd);
+    m_Socket->DoRecv((fd_set*)fd);
     ExtractPackets();
-    m_Socket->DoSend((fd_set *) send_fd);
+    m_Socket->DoSend((fd_set*)send_fd);
     return m_Exiting;
   }
 
@@ -120,7 +120,7 @@ bool CIRC::Update(void *fd, void *send_fd)
 
     Print("[IRC: " + m_Server + "] disconnected, waiting 60 seconds to reconnect");
     m_Socket->Reset();
-    m_WaitingToConnect = true;
+    m_WaitingToConnect          = true;
     m_LastConnectionAttemptTime = Time;
     return m_Exiting;
   }
@@ -139,7 +139,7 @@ bool CIRC::Update(void *fd, void *send_fd)
       SendIRC("NICK " + m_Nickname);
       SendIRC("USER " + m_Username + " " + m_Nickname + " " + m_Username + " :aura-bot");
 
-      m_Socket->DoSend((fd_set *) send_fd);
+      m_Socket->DoSend((fd_set*)send_fd);
 
       Print("[IRC: " + m_Server + "] connected");
 
@@ -154,7 +154,7 @@ bool CIRC::Update(void *fd, void *send_fd)
       Print("[IRC: " + m_Server + "] connect timed out, waiting 60 seconds to reconnect");
       m_Socket->Reset();
       m_LastConnectionAttemptTime = Time;
-      m_WaitingToConnect = true;
+      m_WaitingToConnect          = true;
       return m_Exiting;
     }
   }
@@ -181,7 +181,7 @@ bool CIRC::Update(void *fd, void *send_fd)
       m_Socket->Connect(string(), m_ServerIP, m_Port);
     }
 
-    m_WaitingToConnect = false;
+    m_WaitingToConnect          = false;
     m_LastConnectionAttemptTime = Time;
   }
 
@@ -191,13 +191,13 @@ bool CIRC::Update(void *fd, void *send_fd)
 void CIRC::ExtractPackets()
 {
   const int64_t Time = GetTime();
-  string *Recv = m_Socket->GetBytes();
+  string*       Recv = m_Socket->GetBytes();
 
   // separate packets using the CRLF delimiter
 
   vector<string> Packets = Tokenize(*Recv, '\n');
 
-  for (auto & Packets_Packet : Packets)
+  for (auto& Packets_Packet : Packets)
   {
     // delete the superflous '\r'
 
@@ -260,7 +260,8 @@ void CIRC::ExtractPackets()
 
       // skip the username
 
-      for (; Tokens[0][i] != '@'; ++i);
+      for (; Tokens[0][i] != '@'; ++i)
+        ;
 
       // get the hostname
 
@@ -277,7 +278,7 @@ void CIRC::ExtractPackets()
 
       // relay messages to bnets
 
-      for (auto & bnet : m_Aura->m_BNETs)
+      for (auto& bnet : m_Aura->m_BNETs)
       {
         if (Message[0] == bnet->GetCommandTrigger())
         {
@@ -294,8 +295,8 @@ void CIRC::ExtractPackets()
 
       // extract command and payload
 
-      string Command, Payload;
-      const string :: size_type PayloadStart = Message.find(" ");
+      string                  Command, Payload;
+      const string::size_type PayloadStart = Message.find(" ");
 
       bool Root = false;
 
@@ -308,7 +309,7 @@ void CIRC::ExtractPackets()
         }
       }
 
-      if (PayloadStart != string :: npos)
+      if (PayloadStart != string::npos)
       {
         Command = Message.substr(1, PayloadStart - 1);
         Payload = Message.substr(PayloadStart + 1);
@@ -325,7 +326,7 @@ void CIRC::ExtractPackets()
       if (Command == "nick" && Root)
       {
         SendIRC("NICK :" + Payload);
-        m_Nickname = Payload;
+        m_Nickname     = Payload;
         m_OriginalNick = false;
       }
 
@@ -364,7 +365,7 @@ void CIRC::ExtractPackets()
 
       // join channels
 
-      for (auto & channel : m_Channels)
+      for (auto& channel : m_Channels)
         SendIRC("JOIN " + channel);
 
       continue;
@@ -392,7 +393,7 @@ void CIRC::ExtractPackets()
   m_Socket->ClearRecvBuffer();
 }
 
-void CIRC::SendIRC(const string &message)
+void CIRC::SendIRC(const string& message)
 {
   // max message length is 512 bytes including the trailing CRLF
 
@@ -400,14 +401,14 @@ void CIRC::SendIRC(const string &message)
     m_Socket->PutBytes(message + LF);
 }
 
-void CIRC::SendMessageIRC(const string &message, const string &target)
+void CIRC::SendMessageIRC(const string& message, const string& target)
 {
   // max message length is 512 bytes including the trailing CRLF
 
   if (m_Socket->GetConnected())
   {
     if (target.empty())
-      for (auto & channel : m_Channels)
+      for (auto& channel : m_Channels)
         m_Socket->PutBytes("PRIVMSG " + channel + " :" + (message.size() > 450 ? message.substr(0, 450) : message) + LF);
     else
       m_Socket->PutBytes("PRIVMSG " + target + " :" + (message.size() > 450 ? message.substr(0, 450) : message) + LF);

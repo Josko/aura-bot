@@ -29,29 +29,46 @@
 class CSHA1
 {
 public:
-  // Rotate x bits to the left
-#define ROL32(value, bits) (((value)<<(bits))|((value)>>(32-(bits))))
+// Rotate x bits to the left
+#define ROL32(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
 #ifdef AURA_BIG_ENDIAN
 #define SHABLK0(i) (block->l[i])
 #else
-#define SHABLK0(i) (block->l[i] = (ROL32(block->l[i],24) & 0xFF00FF00) \
-			| (ROL32(block->l[i],8) & 0x00FF00FF))
+#define SHABLK0(i) (block->l[i] = (ROL32(block->l[i], 24) & 0xFF00FF00) | (ROL32(block->l[i], 8) & 0x00FF00FF))
 #endif
 
-#define SHABLK(i) (block->l[i&15] = ROL32(block->l[(i+13)&15] ^ block->l[(i+8)&15] \
-		^ block->l[(i+2)&15] ^ block->l[i&15],1))
+#define SHABLK(i) (block->l[i & 15] = ROL32(block->l[(i + 13) & 15] ^ block->l[(i + 8) & 15] ^ block->l[(i + 2) & 15] ^ block->l[i & 15], 1))
 
-  // SHA-1 rounds
-#define R0(v,w,x,y,z,i) { z+=((w&(x^y))^y)+SHABLK0(i)+0x5A827999+ROL32(v,5); w=ROL32(w,30); }
-#define R1(v,w,x,y,z,i) { z+=((w&(x^y))^y)+SHABLK(i)+0x5A827999+ROL32(v,5); w=ROL32(w,30); }
-#define R2(v,w,x,y,z,i) { z+=(w^x^y)+SHABLK(i)+0x6ED9EBA1+ROL32(v,5); w=ROL32(w,30); }
-#define R3(v,w,x,y,z,i) { z+=(((w|x)&y)|(w&x))+SHABLK(i)+0x8F1BBCDC+ROL32(v,5); w=ROL32(w,30); }
-#define R4(v,w,x,y,z,i) { z+=(w^x^y)+SHABLK(i)+0xCA62C1D6+ROL32(v,5); w=ROL32(w,30); }
+// SHA-1 rounds
+#define R0(v, w, x, y, z, i)                                          \
+  {                                                                   \
+    z += ((w & (x ^ y)) ^ y) + SHABLK0(i) + 0x5A827999 + ROL32(v, 5); \
+    w = ROL32(w, 30);                                                 \
+  }
+#define R1(v, w, x, y, z, i)                                         \
+  {                                                                  \
+    z += ((w & (x ^ y)) ^ y) + SHABLK(i) + 0x5A827999 + ROL32(v, 5); \
+    w = ROL32(w, 30);                                                \
+  }
+#define R2(v, w, x, y, z, i)                                 \
+  {                                                          \
+    z += (w ^ x ^ y) + SHABLK(i) + 0x6ED9EBA1 + ROL32(v, 5); \
+    w = ROL32(w, 30);                                        \
+  }
+#define R3(v, w, x, y, z, i)                                               \
+  {                                                                        \
+    z += (((w | x) & y) | (w & x)) + SHABLK(i) + 0x8F1BBCDC + ROL32(v, 5); \
+    w = ROL32(w, 30);                                                      \
+  }
+#define R4(v, w, x, y, z, i)                                 \
+  {                                                          \
+    z += (w ^ x ^ y) + SHABLK(i) + 0xCA62C1D6 + ROL32(v, 5); \
+    w = ROL32(w, 30);                                        \
+  }
 
-  typedef union
-  {
-    uint8_t c[64];
+  typedef union {
+    uint8_t  c[64];
     uint32_t l[16];
   } SHA1_WORKSPACE_BLOCK;
 
@@ -59,30 +76,31 @@ public:
 
   enum
   {
-    REPORT_HEX = 0, REPORT_DIGIT = 1
+    REPORT_HEX   = 0,
+    REPORT_DIGIT = 1
   };
 
   // Constructor and Destructor
-  CSHA1( );
-  virtual ~CSHA1( );
+  CSHA1();
+  virtual ~CSHA1();
 
   uint32_t m_state[5];
   uint32_t m_count[2];
-  uint8_t m_buffer[64];
-  uint8_t m_digest[20];
+  uint8_t  m_buffer[64];
+  uint8_t  m_digest[20];
 
-  void Reset( );
+  void Reset();
 
   // Update the hash value
-  void Update( uint8_t* data, uint32_t len );
+  void Update(uint8_t* data, uint32_t len);
 
   // Finalize hash and report
-  void Final( );
-  void GetHash( uint8_t *uDest );
+  void Final();
+  void GetHash(uint8_t* uDest);
 
 private:
   // Private SHA-1 transformation
-  void Transform( uint32_t state[5], uint8_t buffer[64] );
+  void Transform(uint32_t state[5], uint8_t buffer[64]);
 };
 
-#endif  // AURA_SHA1_H_
+#endif // AURA_SHA1_H_

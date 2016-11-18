@@ -52,16 +52,15 @@
 
 using namespace std;
 
-static CAura *gAura = nullptr;
-bool gRestart = false;
+static CAura* gAura    = nullptr;
+bool          gRestart = false;
 
-
-void Print(const string &message)
+void Print(const string& message)
 {
   cout << message << endl;
 }
 
-void Print2(const string &message)
+void Print2(const string& message)
 {
   cout << message << endl;
 
@@ -73,11 +72,11 @@ void Print2(const string &message)
 // main
 //
 
-int main(int, char *argv[])
+int main(int, char* argv[])
 {
   // seed the PRNG
 
-  srand((uint32_t) time(nullptr));
+  srand((uint32_t)time(nullptr));
 
   // disable sync since we don't use cstdio anyway
 
@@ -109,7 +108,6 @@ int main(int, char *argv[])
 
   signal(SIGPIPE, SIG_IGN);
 #endif
-
 
   // print timer resolution
 
@@ -144,7 +142,8 @@ int main(int, char *argv[])
   {
     // loop
 
-    while (!gAura->Update());
+    while (!gAura->Update())
+      ;
   }
   else
     Print("[AURA] check your aura.cfg and configure Aura properly");
@@ -179,7 +178,7 @@ int main(int, char *argv[])
 // CAura
 //
 
-CAura::CAura(CConfig *CFG)
+CAura::CAura(CConfig* CFG)
   : m_IRC(nullptr),
     m_UDPSocket(new CUDPSocket()),
     m_ReconnectSocket(new CTCPServer()),
@@ -214,8 +213,8 @@ CAura::CAura(CConfig *CFG)
   }
 
   m_CRC->Initialize();
-  m_HostPort = CFG->GetInt("bot_hostport", 6112);
-  m_DefaultMap = CFG->GetString("bot_defaultmap", "dota");
+  m_HostPort       = CFG->GetInt("bot_hostport", 6112);
+  m_DefaultMap     = CFG->GetString("bot_defaultmap", "dota");
   m_LANWar3Version = CFG->GetInt("lan_war3version", 27);
 
   // read the rest of the general configuration
@@ -224,12 +223,12 @@ CAura::CAura(CConfig *CFG)
 
   // get the irc configuration
 
-  string IRC_Server = CFG->GetString("irc_server", string());
-  string IRC_NickName = CFG->GetString("irc_nickname", string());
-  string IRC_UserName = CFG->GetString("irc_username", string());
-  string IRC_Password = CFG->GetString("irc_password", string());
-  string IRC_CommandTrigger = CFG->GetString("irc_commandtrigger", "!");
-  uint32_t IRC_Port = CFG->GetInt("irc_port", 6667);
+  string   IRC_Server         = CFG->GetString("irc_server", string());
+  string   IRC_NickName       = CFG->GetString("irc_nickname", string());
+  string   IRC_UserName       = CFG->GetString("irc_username", string());
+  string   IRC_Password       = CFG->GetString("irc_password", string());
+  string   IRC_CommandTrigger = CFG->GetString("irc_commandtrigger", "!");
+  uint32_t IRC_Port           = CFG->GetInt("irc_port", 6667);
 
   // get the irc channels and root admins
 
@@ -241,12 +240,12 @@ CAura::CAura(CConfig *CFG)
 
     if (i == 1)
     {
-      Channel = CFG->GetString("irc_channel", string());
+      Channel   = CFG->GetString("irc_channel", string());
       RootAdmin = CFG->GetString("irc_rootadmin", string());
     }
     else
     {
-      Channel = CFG->GetString("irc_channel" + to_string(i), string());
+      Channel   = CFG->GetString("irc_channel" + to_string(i), string());
       RootAdmin = CFG->GetString("irc_rootadmin" + to_string(i), string());
     }
 
@@ -274,13 +273,13 @@ CAura::CAura(CConfig *CFG)
     else
       Prefix = "bnet" + to_string(i) + "_";
 
-    string Server = CFG->GetString(Prefix + "server", string());
-    string ServerAlias = CFG->GetString(Prefix + "serveralias", string());
-    string CDKeyROC = CFG->GetString(Prefix + "cdkeyroc", string());
-    string CDKeyTFT = CFG->GetString(Prefix + "cdkeytft", string());
-    string CountryAbbrev = CFG->GetString(Prefix + "countryabbrev", "DEU");
-    string Country = CFG->GetString(Prefix + "country", "Germany");
-    string Locale = CFG->GetString(Prefix + "locale", "system");
+    string   Server        = CFG->GetString(Prefix + "server", string());
+    string   ServerAlias   = CFG->GetString(Prefix + "serveralias", string());
+    string   CDKeyROC      = CFG->GetString(Prefix + "cdkeyroc", string());
+    string   CDKeyTFT      = CFG->GetString(Prefix + "cdkeytft", string());
+    string   CountryAbbrev = CFG->GetString(Prefix + "countryabbrev", "DEU");
+    string   Country       = CFG->GetString(Prefix + "country", "Germany");
+    string   Locale        = CFG->GetString(Prefix + "locale", "system");
     uint32_t LocaleID;
 
     if (Locale == "system")
@@ -288,14 +287,14 @@ CAura::CAura(CConfig *CFG)
     else
       LocaleID = stoul(Locale);
 
-    string UserName = CFG->GetString(Prefix + "username", string());
+    string UserName     = CFG->GetString(Prefix + "username", string());
     string UserPassword = CFG->GetString(Prefix + "password", string());
     string FirstChannel = CFG->GetString(Prefix + "firstchannel", "The Void");
-    string RootAdmins = CFG->GetString(Prefix + "rootadmins", string());
+    string RootAdmins   = CFG->GetString(Prefix + "rootadmins", string());
 
     // add each root admin to the rootadmin table
 
-    string User;
+    string       User;
     stringstream SS;
     SS << RootAdmins;
 
@@ -305,11 +304,11 @@ CAura::CAura(CConfig *CFG)
       m_DB->RootAdminAdd(Server, User);
     }
 
-    string BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
-    uint8_t War3Version = CFG->GetInt(Prefix + "custom_war3version", 27);
-    BYTEARRAY EXEVersion = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
-    BYTEARRAY EXEVersionHash = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
-    string PasswordHashType = CFG->GetString(Prefix + "custom_passwordhashtype", string());
+    string    BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
+    uint8_t   War3Version        = CFG->GetInt(Prefix + "custom_war3version", 27);
+    BYTEARRAY EXEVersion         = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
+    BYTEARRAY EXEVersionHash     = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
+    string    PasswordHashType   = CFG->GetString(Prefix + "custom_passwordhashtype", string());
 
     if (Server.empty())
       break;
@@ -363,15 +362,15 @@ CAura::~CAura()
   if (m_Map)
     delete m_Map;
 
-  for (auto & socket : m_ReconnectSockets)
+  for (auto& socket : m_ReconnectSockets)
     delete socket;
 
-  for (auto & bnet : m_BNETs)
+  for (auto& bnet : m_BNETs)
     delete bnet;
 
   delete m_CurrentGame;
 
-  for (auto & game : m_Games)
+  for (auto& game : m_Games)
     delete game;
 
   delete m_DB;
@@ -387,7 +386,7 @@ bool CAura::Update()
   // take every socket we own and throw it in one giant select statement so we can block on all sockets
 
   int32_t nfds = 0;
-  fd_set fd, send_fd;
+  fd_set  fd, send_fd;
   FD_ZERO(&fd);
   FD_ZERO(&send_fd);
 
@@ -398,12 +397,12 @@ bool CAura::Update()
 
   // 2. all running games' player sockets
 
-  for (auto & game : m_Games)
+  for (auto& game : m_Games)
     NumFDs += game->SetFD(&fd, &send_fd, &nfds);
 
   // 3. all battle.net sockets
 
-  for (auto & bnet : m_BNETs)
+  for (auto& bnet : m_BNETs)
     NumFDs += bnet->SetFD(&fd, &send_fd, &nfds);
 
   // 4. irc socket
@@ -426,7 +425,7 @@ bool CAura::Update()
 
   // 6. reconnect sockets
 
-  for (auto & socket : m_ReconnectSockets)
+  for (auto& socket : m_ReconnectSockets)
   {
     socket->SetFD(&fd, &send_fd, &nfds);
     ++NumFDs;
@@ -437,18 +436,18 @@ bool CAura::Update()
 
   int64_t usecBlock = 50000;
 
-  for (auto & game : m_Games)
+  for (auto& game : m_Games)
   {
     if (game->GetNextTimedActionTicks() * 1000 < usecBlock)
       usecBlock = game->GetNextTimedActionTicks() * 1000;
   }
 
   struct timeval tv;
-  tv.tv_sec = 0;
+  tv.tv_sec  = 0;
   tv.tv_usec = static_cast<long int>(usecBlock);
 
   struct timeval send_tv;
-  send_tv.tv_sec = 0;
+  send_tv.tv_sec  = 0;
   send_tv.tv_usec = 0;
 
 #ifdef WIN32
@@ -497,7 +496,7 @@ bool CAura::Update()
       delete m_CurrentGame;
       m_CurrentGame = nullptr;
 
-      for (auto & bnet : m_BNETs)
+      for (auto& bnet : m_BNETs)
       {
         bnet->QueueGameUncreate();
         bnet->QueueEnterChat();
@@ -509,7 +508,7 @@ bool CAura::Update()
 
   // update battle.net connections
 
-  for (auto & bnet : m_BNETs)
+  for (auto& bnet : m_BNETs)
   {
     if (bnet->Update(&fd, &send_fd))
       Exit = true;
@@ -522,7 +521,7 @@ bool CAura::Update()
 
   // update GProxy++ reliable reconnect sockets
 
-  CTCPSocket *NewSocket = m_ReconnectSocket->Accept(&fd);
+  CTCPSocket* NewSocket = m_ReconnectSocket->Accept(&fd);
 
   if (NewSocket)
     m_ReconnectSockets.push_back(NewSocket);
@@ -537,8 +536,8 @@ bool CAura::Update()
     }
 
     (*i)->DoRecv(&fd);
-    string *RecvBuffer = (*i)->GetBytes();
-    const BYTEARRAY Bytes = CreateByteArray((uint8_t *) RecvBuffer->c_str(), RecvBuffer->size());
+    string*         RecvBuffer = (*i)->GetBytes();
+    const BYTEARRAY Bytes      = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes
 
@@ -555,17 +554,17 @@ bool CAura::Update()
           if (Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13)
           {
             const uint32_t ReconnectKey = ByteArrayToUInt32(Bytes, false, 5);
-            const uint32_t LastPacket = ByteArrayToUInt32(Bytes, false, 9);
+            const uint32_t LastPacket   = ByteArrayToUInt32(Bytes, false, 9);
 
             // look for a matching player in a running game
 
-            CGamePlayer *Match = nullptr;
+            CGamePlayer* Match = nullptr;
 
-            for (auto & game : m_Games)
+            for (auto& game : m_Games)
             {
               if (game->GetGameLoaded())
               {
-                CGamePlayer *Player = game->GetPlayerFromPID(Bytes[4]);
+                CGamePlayer* Player = game->GetPlayerFromPID(Bytes[4]);
 
                 if (Player && Player->GetGProxy() && Player->GetGProxyReconnectKey() == ReconnectKey)
                 {
@@ -628,7 +627,7 @@ bool CAura::Update()
   return m_Exiting || Exit;
 }
 
-void CAura::EventBNETGameRefreshFailed(CBNET *bnet)
+void CAura::EventBNETGameRefreshFailed(CBNET* bnet)
 {
   if (m_CurrentGame)
   {
@@ -647,9 +646,9 @@ void CAura::EventBNETGameRefreshFailed(CBNET *bnet)
   }
 }
 
-void CAura::EventGameDeleted(CGame *game)
+void CAura::EventGameDeleted(CGame* game)
 {
-  for (auto & bnet : m_BNETs)
+  for (auto& bnet : m_BNETs)
   {
     bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over");
 
@@ -665,20 +664,20 @@ void CAura::ReloadConfigs()
   SetConfigs(&CFG);
 }
 
-void CAura::SetConfigs(CConfig *CFG)
+void CAura::SetConfigs(CConfig* CFG)
 {
   // this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
   // it just set the easily reloadable values
 
-  m_Warcraft3Path = AddPathSeparator(CFG->GetString("bot_war3path", "C:\\Program Files\\Warcraft III\\"));
-  m_BindAddress = CFG->GetString("bot_bindaddress", string());
-  m_ReconnectWaitTime = CFG->GetInt("bot_reconnectwaittime", 3);
-  m_MaxGames = CFG->GetInt("bot_maxgames", 20);
+  m_Warcraft3Path          = AddPathSeparator(CFG->GetString("bot_war3path", "C:\\Program Files\\Warcraft III\\"));
+  m_BindAddress            = CFG->GetString("bot_bindaddress", string());
+  m_ReconnectWaitTime      = CFG->GetInt("bot_reconnectwaittime", 3);
+  m_MaxGames               = CFG->GetInt("bot_maxgames", 20);
   string BotCommandTrigger = CFG->GetString("bot_commandtrigger", "!");
-  m_CommandTrigger = BotCommandTrigger[0];
+  m_CommandTrigger         = BotCommandTrigger[0];
 
-  m_MapCFGPath = AddPathSeparator(CFG->GetString("bot_mapcfgpath", string()));
-  m_MapPath = AddPathSeparator(CFG->GetString("bot_mappath", string()));
+  m_MapCFGPath      = AddPathSeparator(CFG->GetString("bot_mapcfgpath", string()));
+  m_MapPath         = AddPathSeparator(CFG->GetString("bot_mappath", string()));
   m_VirtualHostName = CFG->GetString("bot_virtualhostname", "|cFF4080C0Aura");
 
   if (m_VirtualHostName.size() > 15)
@@ -687,15 +686,15 @@ void CAura::SetConfigs(CConfig *CFG)
     Print("[AURA] warning - bot_virtualhostname is longer than 15 characters, using default virtual host name");
   }
 
-  m_AutoLock = CFG->GetInt("bot_autolock", 0) == 0 ? false : true;
-  m_AllowDownloads = CFG->GetInt("bot_allowdownloads", 0);
-  m_MaxDownloaders = CFG->GetInt("bot_maxdownloaders", 3);
-  m_MaxDownloadSpeed = CFG->GetInt("bot_maxdownloadspeed", 100);
-  m_LCPings = CFG->GetInt("bot_lcpings", 1) == 0 ? false : true;
-  m_AutoKickPing = CFG->GetInt("bot_autokickping", 300);
-  m_LobbyTimeLimit = CFG->GetInt("bot_lobbytimelimit", 2);
-  m_Latency = CFG->GetInt("bot_latency", 100);
-  m_SyncLimit = CFG->GetInt("bot_synclimit", 50);
+  m_AutoLock           = CFG->GetInt("bot_autolock", 0) == 0 ? false : true;
+  m_AllowDownloads     = CFG->GetInt("bot_allowdownloads", 0);
+  m_MaxDownloaders     = CFG->GetInt("bot_maxdownloaders", 3);
+  m_MaxDownloadSpeed   = CFG->GetInt("bot_maxdownloadspeed", 100);
+  m_LCPings            = CFG->GetInt("bot_lcpings", 1) == 0 ? false : true;
+  m_AutoKickPing       = CFG->GetInt("bot_autokickping", 300);
+  m_LobbyTimeLimit     = CFG->GetInt("bot_lobbytimelimit", 2);
+  m_Latency            = CFG->GetInt("bot_latency", 100);
+  m_SyncLimit          = CFG->GetInt("bot_synclimit", 50);
   m_VoteKickPercentage = CFG->GetInt("bot_votekickpercentage", 70);
 
   if (m_VoteKickPercentage > 100)
@@ -704,7 +703,7 @@ void CAura::SetConfigs(CConfig *CFG)
 
 void CAura::ExtractScripts()
 {
-  void  *PatchMPQ;
+  void*        PatchMPQ;
   const string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
 
 #ifdef WIN32
@@ -716,7 +715,7 @@ void CAura::ExtractScripts()
 #endif
   {
     Print("[AURA] loading MPQ file [" + PatchMPQFileName + "]");
-    void *SubFile;
+    void* SubFile;
 
     // common.j
 
@@ -727,17 +726,17 @@ void CAura::ExtractScripts()
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
         auto  SubFileData = new int8_t[FileLength];
-        DWORD BytesRead = 0;
+        DWORD BytesRead   = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print("[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]");
-          FileWrite(m_MapCFGPath + "common.j", (uint8_t *) SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "common.j", (uint8_t*)SubFileData, BytesRead);
         }
         else
           Print("[AURA] warning - unable to extract Scripts\\common.j from MPQ file");
 
-        delete [] SubFileData;
+        delete[] SubFileData;
       }
 
       SFileCloseFile(SubFile);
@@ -754,17 +753,17 @@ void CAura::ExtractScripts()
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
         auto  SubFileData = new int8_t[FileLength];
-        DWORD BytesRead = 0;
+        DWORD BytesRead   = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print("[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]");
-          FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t *) SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t*)SubFileData, BytesRead);
         }
         else
           Print("[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file");
 
-        delete [] SubFileData;
+        delete[] SubFileData;
       }
 
       SFileCloseFile(SubFile);
@@ -777,9 +776,9 @@ void CAura::ExtractScripts()
   else
   {
 #ifdef WIN32
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((uint32_t) GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((uint32_t)GetLastError()));
 #else
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((int32_t) GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((int32_t)GetLastError()));
 #endif
   }
 }
@@ -802,8 +801,8 @@ void CAura::LoadIPToCountryData()
       Print("[AURA] warning - failed to begin database transaction, iptocountry data not loaded");
     else
     {
-      uint8_t Percent = 0;
-      string Line, Skip, IP1, IP2, Country;
+      uint8_t   Percent = 0;
+      string    Line, Skip, IP1, IP2, Country;
       CSVParser parser;
 
       // get length of file for the progress meter
@@ -830,7 +829,7 @@ void CAura::LoadIPToCountryData()
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
 
-        uint8_t NewPercent = (uint8_t)((float) in.tellg() / FileLength * 100);
+        uint8_t NewPercent = (uint8_t)((float)in.tellg() / FileLength * 100);
 
         if (NewPercent != Percent && NewPercent % 10 == 0)
         {
@@ -849,11 +848,11 @@ void CAura::LoadIPToCountryData()
   }
 }
 
-void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
+void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
 {
   if (!m_Enabled)
   {
-    for (auto & bnet : m_BNETs)
+    for (auto& bnet : m_BNETs)
     {
       if (bnet->GetServer() == creatorServer)
         bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
@@ -864,7 +863,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
 
   if (gameName.size() > 31)
   {
-    for (auto & bnet : m_BNETs)
+    for (auto& bnet : m_BNETs)
     {
       if (bnet->GetServer() == creatorServer)
         bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
@@ -875,7 +874,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
 
   if (!map->GetValid())
   {
-    for (auto & bnet : m_BNETs)
+    for (auto& bnet : m_BNETs)
     {
       if (bnet->GetServer() == creatorServer)
         bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
@@ -886,7 +885,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
 
   if (m_CurrentGame)
   {
-    for (auto & bnet : m_BNETs)
+    for (auto& bnet : m_BNETs)
     {
       if (bnet->GetServer() == creatorServer)
         bnet->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
@@ -897,7 +896,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
 
   if (m_Games.size() >= m_MaxGames)
   {
-    for (auto & bnet : m_BNETs)
+    for (auto& bnet : m_BNETs)
     {
       if (bnet->GetServer() == creatorServer)
         bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + to_string(m_MaxGames) + ") has been reached", creatorName, whisper, string());
@@ -910,7 +909,7 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
 
   m_CurrentGame = new CGame(this, map, m_HostPort, gameState, gameName, ownerName, creatorName, creatorServer);
 
-  for (auto & bnet : m_BNETs)
+  for (auto& bnet : m_BNETs)
   {
     if (whisper && bnet->GetServer() == creatorServer)
     {
@@ -937,7 +936,6 @@ void CAura::CreateGame(CMap *map, uint8_t gameState, string gameName, string own
 
     bnet->HoldFriends(m_CurrentGame);
     bnet->HoldClan(m_CurrentGame);
-
 
     // if we're creating a private game we don't need to send any game refresh messages so we can rejoin the chat immediately
     // unfortunately this doesn't work on PVPGN servers because they consider an enterchat message to be a gameuncreate message when in a game

@@ -31,53 +31,53 @@ using namespace std;
 // CBNCSUtilInterface
 //
 
-CBNCSUtilInterface::CBNCSUtilInterface(const string &userName, const string &userPassword)
+CBNCSUtilInterface::CBNCSUtilInterface(const string& userName, const string& userPassword)
 {
   m_NLS = new NLS(userName, userPassword);
 }
 
 CBNCSUtilInterface::~CBNCSUtilInterface()
 {
-  delete(NLS *) m_NLS;
+  delete (NLS*)m_NLS;
 }
 
-void CBNCSUtilInterface::Reset(const string &userName, const string &userPassword)
+void CBNCSUtilInterface::Reset(const string& userName, const string& userPassword)
 {
-  delete(NLS *) m_NLS;
+  delete (NLS*)m_NLS;
   m_NLS = new NLS(userName, userPassword);
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string &war3Path, const string &keyROC, const string &keyTFT, const string &valueStringFormula, const string &mpqFileName, const BYTEARRAY &clientToken, const BYTEARRAY &serverToken)
+bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const BYTEARRAY& clientToken, const BYTEARRAY& serverToken)
 {
   // set m_EXEVersion, m_EXEVersionHash, m_EXEInfo, m_InfoROC, m_InfoTFT
 
-  const string FileWar3EXE = war3Path + "war3.exe";
-  string FileStormDLL = war3Path + "Storm.dll";
+  const string FileWar3EXE  = war3Path + "war3.exe";
+  string       FileStormDLL = war3Path + "Storm.dll";
 
   if (!FileExists(FileStormDLL))
     FileStormDLL = war3Path + "storm.dll";
 
   const string FileGameDLL = war3Path + "game.dll";
 
-  const bool ExistsWar3EXE = FileExists(FileWar3EXE);
+  const bool ExistsWar3EXE  = FileExists(FileWar3EXE);
   const bool ExistsStormDLL = FileExists(FileStormDLL);
-  const bool ExistsGameDLL = FileExists(FileGameDLL);
+  const bool ExistsGameDLL  = FileExists(FileGameDLL);
 
   if (ExistsWar3EXE && ExistsStormDLL && ExistsGameDLL)
   {
     // TODO: check getExeInfo return value to ensure 1024 bytes was enough
 
-    char buf[1024];
+    char     buf[1024];
     uint32_t EXEVersion;
     uint32_t EXEVersionHash;
 
     getExeInfo(FileWar3EXE.c_str(), buf, 1024, &EXEVersion, BNCSUTIL_PLATFORM_X86);
-    checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long *) &EXEVersionHash);
-    m_EXEInfo = buf;
-    m_EXEVersion = CreateByteArray(EXEVersion, false);
+    checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);
+    m_EXEInfo        = buf;
+    m_EXEVersion     = CreateByteArray(EXEVersion, false);
     m_EXEVersionHash = CreateByteArray(EXEVersionHash, false);
-    m_KeyInfoROC = CreateKeyInfo(keyROC, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
-    m_KeyInfoTFT = CreateKeyInfo(keyTFT, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
+    m_KeyInfoROC     = CreateKeyInfo(keyROC, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
+    m_KeyInfoTFT     = CreateKeyInfo(keyTFT, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
 
     if (m_KeyInfoROC.size() == 36 && m_KeyInfoTFT.size() == 36)
       return true;
@@ -110,48 +110,48 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON()
   // set m_ClientKey
 
   char buf[32];
-  ((NLS *) m_NLS)->getPublicKey(buf);
-  m_ClientKey = CreateByteArray((uint8_t *) buf, 32);
+  ((NLS*)m_NLS)->getPublicKey(buf);
+  m_ClientKey = CreateByteArray((uint8_t*)buf, 32);
   return true;
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY &salt, const BYTEARRAY &serverKey)
+bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY& salt, const BYTEARRAY& serverKey)
 {
   // set m_M1
 
   char buf[20];
-  ((NLS *) m_NLS)->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
-  m_M1 = CreateByteArray((uint8_t *) buf, 20);
+  ((NLS*)m_NLS)->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
+  m_M1 = CreateByteArray((uint8_t*)buf, 20);
   return true;
 }
 
-bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string &userPassword)
+bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string& userPassword)
 {
   // set m_PvPGNPasswordHash
 
   char buf[20];
   hashPassword(userPassword.c_str(), buf);
-  m_PvPGNPasswordHash = CreateByteArray((uint8_t *) buf, 20);
+  m_PvPGNPasswordHash = CreateByteArray((uint8_t*)buf, 20);
   return true;
 }
 
-BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string &key, uint32_t clientToken, uint32_t serverToken)
+BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32_t clientToken, uint32_t serverToken)
 {
-  BYTEARRAY KeyInfo;
+  BYTEARRAY    KeyInfo;
   CDKeyDecoder Decoder(key.c_str(), key.size());
 
   if (Decoder.isKeyValid())
   {
-    const uint8_t Zeros[] = { 0, 0, 0, 0 };
-    AppendByteArray(KeyInfo, CreateByteArray((uint32_t) key.size(), false));
+    const uint8_t Zeros[] = {0, 0, 0, 0};
+    AppendByteArray(KeyInfo, CreateByteArray((uint32_t)key.size(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Zeros, 4));
     size_t Length = Decoder.calculateHash(clientToken, serverToken);
-    auto buf = new char[Length];
-    Length = Decoder.getHash(buf);
-    AppendByteArray(KeyInfo, CreateByteArray((uint8_t *) buf, Length));
-    delete [] buf;
+    auto   buf    = new char[Length];
+    Length        = Decoder.getHash(buf);
+    AppendByteArray(KeyInfo, CreateByteArray((uint8_t*)buf, Length));
+    delete[] buf;
   }
 
   return KeyInfo;
