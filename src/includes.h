@@ -42,11 +42,6 @@ inline int64_t GetTicks()
   return std::chrono::duration_cast<std::chrono::milliseconds>(time_now.time_since_epoch()).count();
 }
 
-// network
-
-#undef FD_SETSIZE
-#define FD_SETSIZE 512
-
 // output
 
 inline void Print(const std::string& message) // outputs to console

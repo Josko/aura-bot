@@ -53,6 +53,9 @@
 
 using namespace std;
 
+#undef FD_SETSIZE
+#define FD_SETSIZE 512
+
 static CAura* gAura    = nullptr;
 bool          gRestart = false;
 
