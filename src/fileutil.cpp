@@ -19,7 +19,10 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 */
 
 #include "fileutil.h"
+
 #include <sys/stat.h>
+#include <fstream>
+#include <algorithm>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN

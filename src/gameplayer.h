@@ -23,6 +23,8 @@
 
 #include "socket.h"
 
+#include <queue>
+
 class CTCPSocket;
 class CGameProtocol;
 class CGame;

@@ -23,6 +23,8 @@
 
 #include "includes.h"
 
+#include <sstream>
+
 inline std::string ToHexString(uint32_t i)
 {
   std::string       result;

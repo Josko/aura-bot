@@ -18,14 +18,15 @@
 
  */
 
-#include <utility>
-
 #include "irc.h"
 #include "aura.h"
 #include "socket.h"
 #include "util.h"
 #include "bnetprotocol.h"
 #include "bnet.h"
+
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 

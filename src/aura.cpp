@@ -38,6 +38,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <thread>
+#include <fstream>
 
 #define __STORMLIB_SELF__
 #include <StormLib.h>

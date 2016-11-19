@@ -21,6 +21,9 @@
 #ifndef AURA_CONFIG_H_
 #define AURA_CONFIG_H_
 
+#include <map>
+#include <string>
+
 //
 // CConfig
 //

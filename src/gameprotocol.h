@@ -23,6 +23,8 @@
 
 #include "includes.h"
 
+#include <queue>
+
 //
 // CGameProtocol
 //

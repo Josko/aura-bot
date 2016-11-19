@@ -23,6 +23,9 @@
 
 #include "gameslot.h"
 
+#include <set>
+#include <queue>
+
 //
 // CGame
 //

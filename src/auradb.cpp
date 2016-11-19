@@ -18,13 +18,14 @@
 
  */
 
-#include <utility>
-
 #include "auradb.h"
 #include "aura.h"
 #include "util.h"
 #include "config.h"
 #include "sqlite3.h"
+
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 

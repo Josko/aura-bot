@@ -22,6 +22,8 @@
 #include "config.h"
 
 #include <cstdlib>
+#include <fstream>
+#include <algorithm>
 
 using namespace std;
 

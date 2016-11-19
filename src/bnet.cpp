@@ -33,6 +33,8 @@
 #include "irc.h"
 #include "hash.h"
 
+#include <algorithm>
+
 using namespace std;
 
 //
