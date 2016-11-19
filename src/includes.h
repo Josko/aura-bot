@@ -36,8 +36,8 @@
 #include <cstdint>
 #include <chrono>
 
-typedef std::vector<uint8_t> BYTEARRAY;
-typedef std::pair<uint8_t, std::string> PIDPlayer;
+using BYTEARRAY = std::vector<uint8_t>;
+using PIDPlayer = std::pair<uint8_t, std::string>;
 
 // time
 

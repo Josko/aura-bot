@@ -145,13 +145,6 @@ void CSHA1::Transform(uint32_t state[5], uint8_t buffer[64])
   state[2] += c;
   state[3] += d;
   state[4] += e;
-
-  // Wipe variables
-  a = 0;
-  b = 0;
-  c = 0;
-  d = 0;
-  e = 0;
 }
 
 // Use this function to hash in binary data and strings
@@ -206,7 +199,6 @@ void CSHA1::Final()
   }
 
   // Wipe variables for security reasons
-  i = 0;
   memset(m_buffer, 0, 64);
   memset(m_state, 0, 20);
   memset(m_count, 0, 8);

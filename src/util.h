@@ -32,20 +32,20 @@ inline std::string ToHexString(uint32_t i)
   return result;
 }
 
-inline BYTEARRAY CreateByteArray(const uint8_t* a, int32_t size)
+inline BYTEARRAY CreateByteArray(const uint8_t* a,  const int32_t size)
 {
   if (size < 1)
     return BYTEARRAY();
 
-  return BYTEARRAY{a, a + size};
+  return BYTEARRAY(a, a + size - 1);
 }
 
-inline BYTEARRAY CreateByteArray(uint8_t c)
+inline BYTEARRAY CreateByteArray(const uint8_t c)
 {
   return BYTEARRAY{c};
 }
 
-inline BYTEARRAY CreateByteArray(uint16_t i, bool reverse)
+inline BYTEARRAY CreateByteArray(const uint16_t i, bool reverse)
 {
   if (!reverse)
     return BYTEARRAY{(uint8_t)i, (uint8_t)(i >> 8)};
@@ -53,7 +53,7 @@ inline BYTEARRAY CreateByteArray(uint16_t i, bool reverse)
     return BYTEARRAY{(uint8_t)(i >> 8), (uint8_t)i};
 }
 
-inline BYTEARRAY CreateByteArray(uint32_t i, bool reverse)
+inline BYTEARRAY CreateByteArray(const uint32_t i, bool reverse)
 {
   if (!reverse)
     return BYTEARRAY{(uint8_t)i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24)};
@@ -61,7 +61,7 @@ inline BYTEARRAY CreateByteArray(uint32_t i, bool reverse)
     return BYTEARRAY{(uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t)i};
 }
 
-inline BYTEARRAY CreateByteArray(int64_t i, bool reverse)
+inline BYTEARRAY CreateByteArray(const int64_t i, bool reverse)
 {
   if (!reverse)
     return BYTEARRAY{(uint8_t)i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24)};
@@ -69,7 +69,7 @@ inline BYTEARRAY CreateByteArray(int64_t i, bool reverse)
     return BYTEARRAY{(uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t)i};
 }
 
-inline uint16_t ByteArrayToUInt16(const BYTEARRAY& b, bool reverse, uint32_t start = 0)
+inline uint16_t ByteArrayToUInt16(const BYTEARRAY& b, bool reverse, const uint32_t start = 0)
 {
   if (b.size() < start + 2)
     return 0;
@@ -80,7 +80,7 @@ inline uint16_t ByteArrayToUInt16(const BYTEARRAY& b, bool reverse, uint32_t sta
     return (uint16_t)(b[start] << 8 | b[start + 1]);
 }
 
-inline uint32_t ByteArrayToUInt32(const BYTEARRAY& b, bool reverse, uint32_t start = 0)
+inline uint32_t ByteArrayToUInt32(const BYTEARRAY& b, bool reverse, const uint32_t start = 0)
 {
   if (b.size() < start + 4)
     return 0;
@@ -132,7 +132,7 @@ inline void AppendByteArrayFast(BYTEARRAY& b, const BYTEARRAY& append)
   b.insert(end(b), begin(append), end(append));
 }
 
-inline void AppendByteArray(BYTEARRAY& b, const uint8_t* a, int32_t size)
+inline void AppendByteArray(BYTEARRAY& b, const uint8_t* a, const int32_t size)
 {
   AppendByteArray(b, CreateByteArray(a, size));
 }
@@ -157,22 +157,22 @@ inline void AppendByteArrayFast(BYTEARRAY& b, const std::string& append, bool te
     b.push_back(0);
 }
 
-inline void AppendByteArray(BYTEARRAY& b, uint16_t i, bool reverse)
+inline void AppendByteArray(BYTEARRAY& b, const uint16_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline void AppendByteArray(BYTEARRAY& b, uint32_t i, bool reverse)
+inline void AppendByteArray(BYTEARRAY& b, const uint32_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline void AppendByteArray(BYTEARRAY& b, int64_t i, bool reverse)
+inline void AppendByteArray(BYTEARRAY& b, const int64_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline BYTEARRAY ExtractCString(const BYTEARRAY& b, uint32_t start)
+inline BYTEARRAY ExtractCString(const BYTEARRAY& b, const uint32_t start)
 {
   // start searching the byte array at position 'start' for the first null value
   // if found, return the subarray from 'start' to the null value but not including the null value
@@ -193,7 +193,7 @@ inline BYTEARRAY ExtractCString(const BYTEARRAY& b, uint32_t start)
   return BYTEARRAY();
 }
 
-inline uint8_t ExtractHex(const BYTEARRAY& b, uint32_t start, bool reverse)
+inline uint8_t ExtractHex(const BYTEARRAY& b, const uint32_t start, bool reverse)
 {
   // consider the byte array to contain a 2 character ASCII encoded hex value at b[start] and b[start + 1] e.g. "FF"
   // extract it as a single decoded byte
@@ -215,7 +215,7 @@ inline uint8_t ExtractHex(const BYTEARRAY& b, uint32_t start, bool reverse)
   return 0;
 }
 
-inline BYTEARRAY ExtractNumbers(const std::string& s, uint32_t count)
+inline BYTEARRAY ExtractNumbers(const std::string& s, const uint32_t count)
 {
   // consider the std::string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 

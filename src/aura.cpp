@@ -72,7 +72,7 @@ void Print2(const string& message)
 // main
 //
 
-int main(int, char* argv[])
+int main(const int, const char* argv[])
 {
   // seed the PRNG
 
