@@ -33,7 +33,7 @@ void CCRC32::Initialize()
       LUT[slice][i]     = (LUT[slice - 1][i] >> 8) ^ LUT[0][LUT[slice - 1][i] & 0xFF];
 }
 
-uint32_t CCRC32::Reflect(uint32_t reflect, const uint8_t val) const
+uint32_t CCRC32::Reflect(uint32_t reflect, const uint_fast8_t val) const
 {
   uint32_t value = 0;
 
@@ -48,14 +48,14 @@ uint32_t CCRC32::Reflect(uint32_t reflect, const uint8_t val) const
   return value;
 }
 
-uint32_t CCRC32::CalculateCRC(const uint8_t* data, std::size_t length, uint32_t previous_crc) const
+uint32_t CCRC32::CalculateCRC(const uint_fast8_t* data, std::size_t length, uint32_t previous_crc) const
 {
   uint32_t        crc     = ~previous_crc; // same as previousCrc32 ^ 0xFFFFFFFF
   const uint32_t* current = (const uint32_t*)data;
 
   // enabling optimization (at least -O2) automatically unrolls the inner for-loop
   constexpr size_t  Unroll      = 4;
-  constexpr uint8_t BytesAtOnce = 16 * Unroll;
+  constexpr uint_fast8_t BytesAtOnce = 16 * Unroll;
 
   while (length >= BytesAtOnce)
   {
@@ -109,7 +109,7 @@ uint32_t CCRC32::CalculateCRC(const uint8_t* data, std::size_t length, uint32_t 
     length -= BytesAtOnce;
   }
 
-  const uint8_t* currentChar = (const uint8_t*)current;
+  const uint_fast8_t* currentChar = (const uint_fast8_t*)current;
   // remaining 1 to 63 bytes (standard algorithm)
   while (length-- != 0)
     crc = (crc >> 8) ^ LUT[0][(crc & 0xFF) ^ *currentChar++];

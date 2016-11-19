@@ -63,7 +63,7 @@ protected:
   std::queue<CIncomingAction*>   m_Actions;                       // queue of actions to be sent
   std::vector<std::string>       m_Reserved;                      // std::vector of player names with reserved slots (from the !hold command)
   std::set<std::string>          m_IgnoredNames;                  // set of player names to NOT print ban messages for when joining because they've already been printed
-  std::vector<uint8_t>           m_FakePlayers;                   // the fake player's PIDs (if present)
+  std::vector<uint_fast8_t>           m_FakePlayers;                   // the fake player's PIDs (if present)
   CMap*                          m_Map;                           // map data
   std::string                    m_GameName;                      // game name
   std::string                    m_LastGameName;                  // last game name (the previous game name before it was rehosted)
@@ -101,9 +101,9 @@ protected:
   uint32_t                       m_CountDownCounter;              // the countdown is finished when this reaches zero
   uint32_t                       m_StartPlayers;                  // number of players when the game started
   uint16_t                       m_HostPort;                      // the port to host games on
-  uint8_t                        m_GameState;                     // game state, public or private
-  uint8_t                        m_VirtualHostPID;                // host's PID
-  uint8_t                        m_GProxyEmptyActions;            // empty actions used for gproxy protocol
+  uint_fast8_t                        m_GameState;                     // game state, public or private
+  uint_fast8_t                        m_VirtualHostPID;                // host's PID
+  uint_fast8_t                        m_GProxyEmptyActions;            // empty actions used for gproxy protocol
   bool                           m_Exiting;                       // set to true and this class will be deleted next update
   bool                           m_Saving;                        // if we're currently saving game data to the database
   bool                           m_SlotInfoChanged;               // if the slot info has changed and hasn't been sent to the players yet (optimization)
@@ -118,7 +118,7 @@ protected:
   bool                           m_Desynced;                      // if the game has desynced or not
 
 public:
-  CGame(CAura* nAura, CMap* nMap, uint16_t nHostPort, uint8_t nGameState, std::string& nGameName, std::string& nOwnerName, std::string& nCreatorName, std::string& nCreatorServer);
+  CGame(CAura* nAura, CMap* nMap, uint16_t nHostPort, uint_fast8_t nGameState, std::string& nGameName, std::string& nOwnerName, std::string& nCreatorName, std::string& nCreatorServer);
   ~CGame();
   CGame(CGame&) = delete;
 
@@ -126,8 +126,8 @@ public:
   inline CGameProtocol* GetProtocol() const { return m_Protocol; }
   inline uint32_t       GetEntryKey() const { return m_EntryKey; }
   inline uint16_t       GetHostPort() const { return m_HostPort; }
-  inline uint8_t        GetGameState() const { return m_GameState; }
-  inline uint8_t        GetGProxyEmptyActions() const { return m_GProxyEmptyActions; }
+  inline uint_fast8_t        GetGameState() const { return m_GameState; }
+  inline uint_fast8_t        GetGProxyEmptyActions() const { return m_GProxyEmptyActions; }
   inline std::string    GetGameName() const { return m_GameName; }
   inline std::string    GetLastGameName() const { return m_LastGameName; }
   inline std::string    GetVirtualHostName() const { return m_VirtualHostName; }
@@ -162,18 +162,18 @@ public:
 
   // generic functions to send packets to players
 
-  void Send(CGamePlayer* player, const std::vector<uint8_t>& data);
-  void Send(uint8_t PID, const std::vector<uint8_t>& data);
-  void Send(const std::vector<uint8_t>& PIDs, const std::vector<uint8_t>& data);
-  void SendAll(const std::vector<uint8_t>& data);
+  void Send(CGamePlayer* player, const std::vector<uint_fast8_t>& data);
+  void Send(uint_fast8_t PID, const std::vector<uint_fast8_t>& data);
+  void Send(const std::vector<uint_fast8_t>& PIDs, const std::vector<uint_fast8_t>& data);
+  void SendAll(const std::vector<uint_fast8_t>& data);
 
   // functions to send packets to players
 
-  void SendChat(uint8_t fromPID, CGamePlayer* player, const std::string& message);
-  void SendChat(uint8_t fromPID, uint8_t toPID, const std::string& message);
+  void SendChat(uint_fast8_t fromPID, CGamePlayer* player, const std::string& message);
+  void SendChat(uint_fast8_t fromPID, uint_fast8_t toPID, const std::string& message);
   void SendChat(CGamePlayer* player, const std::string& message);
-  void SendChat(uint8_t toPID, const std::string& message);
-  void SendAllChat(uint8_t fromPID, const std::string& message);
+  void SendChat(uint_fast8_t toPID, const std::string& message);
+  void SendAllChat(uint_fast8_t fromPID, const std::string& message);
   void SendAllChat(const std::string& message);
   void SendAllSlotInfo();
   void SendVirtualHostPlayerInfo(CGamePlayer* player);
@@ -195,10 +195,10 @@ public:
   void EventPlayerKeepAlive(CGamePlayer* player);
   void EventPlayerChatToHost(CGamePlayer* player, CIncomingChatPlayer* chatPlayer);
   bool EventPlayerBotCommand(CGamePlayer* player, std::string& command, std::string& payload);
-  void EventPlayerChangeTeam(CGamePlayer* player, uint8_t team);
-  void EventPlayerChangeColour(CGamePlayer* player, uint8_t colour);
-  void EventPlayerChangeRace(CGamePlayer* player, uint8_t race);
-  void EventPlayerChangeHandicap(CGamePlayer* player, uint8_t handicap);
+  void EventPlayerChangeTeam(CGamePlayer* player, uint_fast8_t team);
+  void EventPlayerChangeColour(CGamePlayer* player, uint_fast8_t colour);
+  void EventPlayerChangeRace(CGamePlayer* player, uint_fast8_t race);
+  void EventPlayerChangeHandicap(CGamePlayer* player, uint_fast8_t handicap);
   void EventPlayerDropRequest(CGamePlayer* player);
   void EventPlayerMapSize(CGamePlayer* player, CIncomingMapSize* mapSize);
   void EventPlayerPongToHost(CGamePlayer* player);
@@ -210,25 +210,25 @@ public:
 
   // other functions
 
-  uint8_t GetSIDFromPID(uint8_t PID) const;
-  CGamePlayer* GetPlayerFromPID(uint8_t PID) const;
-  CGamePlayer* GetPlayerFromSID(uint8_t SID) const;
+  uint_fast8_t GetSIDFromPID(uint_fast8_t PID) const;
+  CGamePlayer* GetPlayerFromPID(uint_fast8_t PID) const;
+  CGamePlayer* GetPlayerFromSID(uint_fast8_t SID) const;
   CGamePlayer* GetPlayerFromName(std::string name, bool sensitive) const;
   uint32_t GetPlayerFromNamePartial(std::string name, CGamePlayer** player) const;
-  std::string GetDBPlayerNameFromColour(uint8_t colour) const;
-  CGamePlayer* GetPlayerFromColour(uint8_t colour) const;
-  uint8_t              GetNewPID() const;
-  uint8_t              GetNewColour() const;
-  std::vector<uint8_t> GetPIDs() const;
-  std::vector<uint8_t> GetPIDs(uint8_t excludePID) const;
-  uint8_t GetHostPID() const;
-  uint8_t GetEmptySlot(bool reserved) const;
-  uint8_t GetEmptySlot(uint8_t team, uint8_t PID) const;
-  void SwapSlots(uint8_t SID1, uint8_t SID2);
-  void OpenSlot(uint8_t SID, bool kick);
-  void CloseSlot(uint8_t SID, bool kick);
-  void ComputerSlot(uint8_t SID, uint8_t skill, bool kick);
-  void ColourSlot(uint8_t SID, uint8_t colour);
+  std::string GetDBPlayerNameFromColour(uint_fast8_t colour) const;
+  CGamePlayer* GetPlayerFromColour(uint_fast8_t colour) const;
+  uint_fast8_t              GetNewPID() const;
+  uint_fast8_t              GetNewColour() const;
+  std::vector<uint_fast8_t> GetPIDs() const;
+  std::vector<uint_fast8_t> GetPIDs(uint_fast8_t excludePID) const;
+  uint_fast8_t GetHostPID() const;
+  uint_fast8_t GetEmptySlot(bool reserved) const;
+  uint_fast8_t GetEmptySlot(uint_fast8_t team, uint_fast8_t PID) const;
+  void SwapSlots(uint_fast8_t SID1, uint_fast8_t SID2);
+  void OpenSlot(uint_fast8_t SID, bool kick);
+  void CloseSlot(uint_fast8_t SID, bool kick);
+  void ComputerSlot(uint_fast8_t SID, uint_fast8_t skill, bool kick);
+  void ColourSlot(uint_fast8_t SID, uint_fast8_t colour);
   void OpenAllSlots();
   void CloseAllSlots();
   void ShuffleSlots();

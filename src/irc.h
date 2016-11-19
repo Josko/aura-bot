@@ -47,12 +47,12 @@ public:
   int64_t                  m_LastPacketTime;
   int64_t                  m_LastAntiIdleTime;
   uint16_t                 m_Port;
-  int8_t                   m_CommandTrigger;
+  int_fast8_t                   m_CommandTrigger;
   bool                     m_Exiting;
   bool                     m_WaitingToConnect;
   bool                     m_OriginalNick;
 
-  CIRC(CAura* nAura, std::string nServer, const std::string& nNickname, const std::string& nUsername, std::string nPassword, std::vector<std::string> nChannels, std::vector<std::string> nRootAdmins, uint16_t nPort, int8_t nCommandTrigger);
+  CIRC(CAura* nAura, std::string nServer, const std::string& nNickname, const std::string& nUsername, std::string nPassword, std::vector<std::string> nChannels, std::vector<std::string> nRootAdmins, uint16_t nPort, int_fast8_t nCommandTrigger);
   ~CIRC();
   CIRC(CIRC&) = delete;
 

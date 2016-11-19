@@ -587,7 +587,7 @@ CUDPSocket::~CUDPSocket()
     closesocket(m_Socket);
 }
 
-bool CUDPSocket::SendTo(struct sockaddr_in sin, const std::vector<uint8_t>& message)
+bool CUDPSocket::SendTo(struct sockaddr_in sin, const std::vector<uint_fast8_t>& message)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;
@@ -600,7 +600,7 @@ bool CUDPSocket::SendTo(struct sockaddr_in sin, const std::vector<uint8_t>& mess
   return true;
 }
 
-bool CUDPSocket::SendTo(const string& address, uint16_t port, const std::vector<uint8_t>& message)
+bool CUDPSocket::SendTo(const string& address, uint16_t port, const std::vector<uint_fast8_t>& message)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;
@@ -628,7 +628,7 @@ bool CUDPSocket::SendTo(const string& address, uint16_t port, const std::vector<
   return SendTo(sin, message);
 }
 
-bool CUDPSocket::Broadcast(uint16_t port, const std::vector<uint8_t>& message)
+bool CUDPSocket::Broadcast(uint16_t port, const std::vector<uint_fast8_t>& message)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;

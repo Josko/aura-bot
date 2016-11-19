@@ -43,7 +43,7 @@ class CStats
 protected:
   CGame*         m_Game;
   CDBDotAPlayer* m_Players[12];
-  uint8_t        m_Winner;
+  uint_fast8_t        m_Winner;
 
 public:
   explicit CStats(CGame* nGame);

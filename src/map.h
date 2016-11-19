@@ -101,12 +101,12 @@ public:
   CAura* m_Aura;
 
 private:
-  std::vector<uint8_t>   m_MapSHA1;   // config value: map sha1 (20 bytes)
-  std::vector<uint8_t>   m_MapSize;   // config value: map size (4 bytes)
-  std::vector<uint8_t>   m_MapInfo;   // config value: map info (4 bytes) -> this is the real CRC
-  std::vector<uint8_t>   m_MapCRC;    // config value: map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
-  std::vector<uint8_t>   m_MapWidth;  // config value: map width (2 bytes)
-  std::vector<uint8_t>   m_MapHeight; // config value: map height (2 bytes)
+  std::vector<uint_fast8_t>   m_MapSHA1;   // config value: map sha1 (20 bytes)
+  std::vector<uint_fast8_t>   m_MapSize;   // config value: map size (4 bytes)
+  std::vector<uint_fast8_t>   m_MapInfo;   // config value: map info (4 bytes) -> this is the real CRC
+  std::vector<uint_fast8_t>   m_MapCRC;    // config value: map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
+  std::vector<uint_fast8_t>   m_MapWidth;  // config value: map width (2 bytes)
+  std::vector<uint_fast8_t>   m_MapHeight; // config value: map height (2 bytes)
   std::vector<CGameSlot> m_Slots;
   std::string            m_CFGFile;
   std::string            m_MapPath;       // config value: map path
@@ -117,14 +117,14 @@ private:
   uint32_t               m_MapOptions;
   uint32_t               m_MapNumPlayers; // config value: max map number of players
   uint32_t               m_MapNumTeams;   // config value: max map number of teams
-  uint8_t                m_MapSpeed;
-  uint8_t                m_MapVisibility;
-  uint8_t                m_MapObservers;
-  uint8_t                m_MapFlags;
-  uint8_t                m_MapFilterMaker;
-  uint8_t                m_MapFilterType;
-  uint8_t                m_MapFilterSize;
-  uint8_t                m_MapFilterObs;
+  uint_fast8_t                m_MapSpeed;
+  uint_fast8_t                m_MapVisibility;
+  uint_fast8_t                m_MapObservers;
+  uint_fast8_t                m_MapFlags;
+  uint_fast8_t                m_MapFilterMaker;
+  uint_fast8_t                m_MapFilterType;
+  uint_fast8_t                m_MapFilterSize;
+  uint_fast8_t                m_MapFilterObs;
   bool                   m_Valid;
 
 public:
@@ -134,20 +134,20 @@ public:
   inline bool                   GetValid() const { return m_Valid; }
   inline std::string            GetCFGFile() const { return m_CFGFile; }
   inline std::string            GetMapPath() const { return m_MapPath; }
-  inline std::vector<uint8_t>   GetMapSize() const { return m_MapSize; }
-  inline std::vector<uint8_t>   GetMapInfo() const { return m_MapInfo; }
-  inline std::vector<uint8_t>   GetMapCRC() const { return m_MapCRC; }
-  inline std::vector<uint8_t>   GetMapSHA1() const { return m_MapSHA1; }
-  inline uint8_t                GetMapSpeed() const { return m_MapSpeed; }
-  inline uint8_t                GetMapVisibility() const { return m_MapVisibility; }
-  inline uint8_t                GetMapObservers() const { return m_MapObservers; }
-  inline uint8_t                GetMapFlags() const { return m_MapFlags; }
-  std::vector<uint8_t>          GetMapGameFlags() const;
+  inline std::vector<uint_fast8_t>   GetMapSize() const { return m_MapSize; }
+  inline std::vector<uint_fast8_t>   GetMapInfo() const { return m_MapInfo; }
+  inline std::vector<uint_fast8_t>   GetMapCRC() const { return m_MapCRC; }
+  inline std::vector<uint_fast8_t>   GetMapSHA1() const { return m_MapSHA1; }
+  inline uint_fast8_t                GetMapSpeed() const { return m_MapSpeed; }
+  inline uint_fast8_t                GetMapVisibility() const { return m_MapVisibility; }
+  inline uint_fast8_t                GetMapObservers() const { return m_MapObservers; }
+  inline uint_fast8_t                GetMapFlags() const { return m_MapFlags; }
+  std::vector<uint_fast8_t>          GetMapGameFlags() const;
   uint32_t                      GetMapGameType() const;
   inline uint32_t               GetMapOptions() const { return m_MapOptions; }
-  uint8_t                       GetMapLayoutStyle() const;
-  inline std::vector<uint8_t>   GetMapWidth() const { return m_MapWidth; }
-  inline std::vector<uint8_t>   GetMapHeight() const { return m_MapHeight; }
+  uint_fast8_t                       GetMapLayoutStyle() const;
+  inline std::vector<uint_fast8_t>   GetMapWidth() const { return m_MapWidth; }
+  inline std::vector<uint_fast8_t>   GetMapHeight() const { return m_MapHeight; }
   inline std::string            GetMapType() const { return m_MapType; }
   inline std::string            GetMapDefaultHCL() const { return m_MapDefaultHCL; }
   inline std::string            GetMapLocalPath() const { return m_MapLocalPath; }
@@ -158,7 +158,7 @@ public:
 
   void Load(CConfig* CFG, const std::string& nCFGFile);
   void     CheckValid();
-  uint32_t XORRotateLeft(uint8_t* data, uint32_t length);
+  uint32_t XORRotateLeft(uint_fast8_t* data, uint32_t length);
 };
 
 #endif // AURA_MAP_H_

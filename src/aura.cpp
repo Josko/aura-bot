@@ -303,9 +303,9 @@ CAura::CAura(CConfig* CFG)
     }
 
     string               BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
-    uint8_t              War3Version        = CFG->GetInt(Prefix + "custom_war3version", 27);
-    std::vector<uint8_t> EXEVersion         = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
-    std::vector<uint8_t> EXEVersionHash     = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
+    uint_fast8_t              War3Version        = CFG->GetInt(Prefix + "custom_war3version", 27);
+    std::vector<uint_fast8_t> EXEVersion         = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
+    std::vector<uint_fast8_t> EXEVersionHash     = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
     string               PasswordHashType   = CFG->GetString(Prefix + "custom_passwordhashtype", string());
 
     if (Server.empty())
@@ -535,7 +535,7 @@ bool CAura::Update()
 
     (*i)->DoRecv(&fd);
     string*                    RecvBuffer = (*i)->GetBytes();
-    const std::vector<uint8_t> Bytes      = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
+    const std::vector<uint_fast8_t> Bytes      = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes
 
@@ -723,13 +723,13 @@ void CAura::ExtractScripts()
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
-        auto  SubFileData = new int8_t[FileLength];
+        auto  SubFileData = new int_fast8_t[FileLength];
         DWORD BytesRead   = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print(R"([AURA] extracting Scripts\common.j from MPQ file to [)" + m_MapCFGPath + "common.j]");
-          FileWrite(m_MapCFGPath + "common.j", (uint8_t*)SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "common.j", (uint_fast8_t*)SubFileData, BytesRead);
         }
         else
           Print(R"([AURA] warning - unable to extract Scripts\common.j from MPQ file)");
@@ -750,13 +750,13 @@ void CAura::ExtractScripts()
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
-        auto  SubFileData = new int8_t[FileLength];
+        auto  SubFileData = new int_fast8_t[FileLength];
         DWORD BytesRead   = 0;
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print(R"([AURA] extracting Scripts\blizzard.j from MPQ file to [)" + m_MapCFGPath + "blizzard.j]");
-          FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t*)SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "blizzard.j", (uint_fast8_t*)SubFileData, BytesRead);
         }
         else
           Print(R"([AURA] warning - unable to extract Scripts\blizzard.j from MPQ file)");
@@ -799,7 +799,7 @@ void CAura::LoadIPToCountryData()
       Print("[AURA] warning - failed to begin database transaction, iptocountry data not loaded");
     else
     {
-      uint8_t   Percent = 0;
+      uint_fast8_t   Percent = 0;
       string    Line, Skip, IP1, IP2, Country;
       CSVParser parser;
 
@@ -827,7 +827,7 @@ void CAura::LoadIPToCountryData()
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
 
-        uint8_t NewPercent = (uint8_t)((float)in.tellg() / FileLength * 100);
+        uint_fast8_t NewPercent = (uint_fast8_t)((float)in.tellg() / FileLength * 100);
 
         if (NewPercent != Percent && NewPercent % 10 == 0)
         {
@@ -846,7 +846,7 @@ void CAura::LoadIPToCountryData()
   }
 }
 
-void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
+void CAura::CreateGame(CMap* map, uint_fast8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
 {
   if (!m_Enabled)
   {

@@ -152,8 +152,8 @@ public:
   ~CSocket();
 
   std::string                 GetErrorString() const;
-  inline std::vector<uint8_t> GetPort() const { return CreateByteArray(m_SIN.sin_port, false); }
-  inline std::vector<uint8_t> GetIP() const { return CreateByteArray((uint32_t)m_SIN.sin_addr.s_addr, false); }
+  inline std::vector<uint_fast8_t> GetPort() const { return CreateByteArray(m_SIN.sin_port, false); }
+  inline std::vector<uint_fast8_t> GetIP() const { return CreateByteArray((uint32_t)m_SIN.sin_addr.s_addr, false); }
   inline std::string          GetIPString() const { return inet_ntoa(m_SIN.sin_addr); }
   inline int32_t              GetError() const { return m_Error; }
   inline bool                 HasError() const { return m_HasError; }
@@ -185,7 +185,7 @@ public:
   inline bool         GetConnected() const { return m_Connected; }
 
   inline void PutBytes(const std::string& bytes) { m_SendBuffer += bytes; }
-  inline void PutBytes(const std::vector<uint8_t>& bytes) { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
+  inline void PutBytes(const std::vector<uint_fast8_t>& bytes) { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
 
   inline void ClearRecvBuffer() { m_RecvBuffer.clear(); }
   inline void SubstrRecvBuffer(uint32_t i) { m_RecvBuffer = m_RecvBuffer.substr(i); }
@@ -217,7 +217,7 @@ public:
 
   void        Reset();
   inline void PutBytes(const std::string& bytes) { m_SendBuffer += bytes; }
-  inline void PutBytes(const std::vector<uint8_t>& bytes) { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
+  inline void PutBytes(const std::vector<uint_fast8_t>& bytes) { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
 
   bool        CheckConnect();
   inline void ClearRecvBuffer() { m_RecvBuffer.clear(); }
@@ -256,9 +256,9 @@ public:
   CUDPSocket();
   ~CUDPSocket();
 
-  bool SendTo(struct sockaddr_in sin, const std::vector<uint8_t>& message);
-  bool SendTo(const std::string& address, uint16_t port, const std::vector<uint8_t>& message);
-  bool Broadcast(uint16_t port, const std::vector<uint8_t>& message);
+  bool SendTo(struct sockaddr_in sin, const std::vector<uint_fast8_t>& message);
+  bool SendTo(const std::string& address, uint16_t port, const std::vector<uint_fast8_t>& message);
+  bool Broadcast(uint16_t port, const std::vector<uint_fast8_t>& message);
 
   void Reset();
   void SetBroadcastTarget(const std::string& subnet);

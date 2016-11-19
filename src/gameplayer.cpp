@@ -64,7 +64,7 @@ bool CPotentialPlayer::Update(void* fd)
   // extract as many packets as possible from the socket's receive buffer and process them
 
   string*              RecvBuffer      = m_Socket->GetBytes();
-  std::vector<uint8_t> Bytes           = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
+  std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
   uint32_t             LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
@@ -76,7 +76,7 @@ bool CPotentialPlayer::Update(void* fd)
       // bytes 2 and 3 contain the length of the packet
 
       const uint16_t             Length = ByteArrayToUInt16(Bytes, false, 2);
-      const std::vector<uint8_t> Data   = std::vector<uint8_t>(begin(Bytes), begin(Bytes) + Length);
+      const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
       if (Bytes.size() >= Length)
       {
@@ -91,12 +91,12 @@ bool CPotentialPlayer::Update(void* fd)
           // this is the packet which int32_terests us for now, the remainder is left for CGamePlayer
 
           LengthProcessed += Length;
-          Bytes = std::vector<uint8_t>(begin(Bytes) + Length, end(Bytes));
+          Bytes = std::vector<uint_fast8_t>(begin(Bytes) + Length, end(Bytes));
           break;
         }
 
         LengthProcessed += Length;
-        Bytes = std::vector<uint8_t>(begin(Bytes) + Length, end(Bytes));
+        Bytes = std::vector<uint_fast8_t>(begin(Bytes) + Length, end(Bytes));
       }
       else
         break;
@@ -111,7 +111,7 @@ bool CPotentialPlayer::Update(void* fd)
   return m_DeleteMe || !m_Socket->GetConnected() || m_Socket->HasError();
 }
 
-void CPotentialPlayer::Send(const std::vector<uint8_t>& data) const
+void CPotentialPlayer::Send(const std::vector<uint_fast8_t>& data) const
 {
   if (m_Socket)
     m_Socket->PutBytes(data);
@@ -121,7 +121,7 @@ void CPotentialPlayer::Send(const std::vector<uint8_t>& data) const
 // CGamePlayer
 //
 
-CGamePlayer::CGamePlayer(CPotentialPlayer* potential, uint8_t nPID, string nJoinedRealm, string nName, std::vector<uint8_t> nInternalIP, bool nReserved)
+CGamePlayer::CGamePlayer(CPotentialPlayer* potential, uint_fast8_t nPID, string nJoinedRealm, string nName, std::vector<uint_fast8_t> nInternalIP, bool nReserved)
   : m_Protocol(potential->m_Protocol),
     m_Game(potential->m_Game),
     m_Socket(potential->GetSocket()),
@@ -229,7 +229,7 @@ bool CGamePlayer::Update(void* fd)
   // extract as many packets as possible from the socket's receive buffer and process them
 
   string*              RecvBuffer      = m_Socket->GetBytes();
-  std::vector<uint8_t> Bytes           = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
+  std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
   uint32_t             LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
@@ -244,7 +244,7 @@ bool CGamePlayer::Update(void* fd)
     // bytes 2 and 3 contain the length of the packet
 
     const uint16_t             Length = ByteArrayToUInt16(Bytes, false, 2);
-    const std::vector<uint8_t> Data   = std::vector<uint8_t>(begin(Bytes), begin(Bytes) + Length);
+    const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
     if (Bytes[0] == W3GS_HEADER_CONSTANT)
     {
@@ -346,7 +346,7 @@ bool CGamePlayer::Update(void* fd)
         }
 
         LengthProcessed += Length;
-        Bytes = std::vector<uint8_t>(begin(Bytes) + Length, end(Bytes));
+        Bytes = std::vector<uint_fast8_t>(begin(Bytes) + Length, end(Bytes));
       }
       else
         break;
@@ -385,7 +385,7 @@ bool CGamePlayer::Update(void* fd)
         }
 
         LengthProcessed += Length;
-        Bytes = std::vector<uint8_t>(begin(Bytes) + Length, end(Bytes));
+        Bytes = std::vector<uint_fast8_t>(begin(Bytes) + Length, end(Bytes));
       }
       else
         break;
@@ -423,7 +423,7 @@ bool CGamePlayer::Update(void* fd)
   return false;
 }
 
-void CGamePlayer::Send(const std::vector<uint8_t>& data)
+void CGamePlayer::Send(const std::vector<uint_fast8_t>& data)
 {
   // must start counting packet total from beginning of connection
   // but we can avoid buffering packets until we know the client is using GProxy++ since that'll be determined before the game starts
@@ -461,7 +461,7 @@ void CGamePlayer::EventGProxyReconnect(CTCPSocket* NewSocket, uint32_t LastPacke
 
   // send remaining packets from buffer, preserve buffer
 
-  queue<std::vector<uint8_t>> TempBuffer;
+  queue<std::vector<uint_fast8_t>> TempBuffer;
 
   while (!m_GProxyBuffer.empty())
   {

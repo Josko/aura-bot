@@ -173,7 +173,7 @@ string FileRead(const string& file)
     return string();
 }
 
-bool FileWrite(const string& file, uint8_t* data, uint32_t length)
+bool FileWrite(const string& file, uint_fast8_t* data, uint32_t length)
 {
   ofstream OS;
   OS.open(file.c_str(), ios::binary);
