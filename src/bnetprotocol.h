@@ -109,19 +109,19 @@ public:
   CBNETProtocol();
   ~CBNETProtocol();
 
-  inline std::vector<uint8_t>   GetClientToken() const { return m_ClientToken; }
-  inline std::vector<uint8_t>   GetLogonType() const { return m_LogonType; }
-  inline std::vector<uint8_t>   GetServerToken() const { return m_ServerToken; }
-  inline std::vector<uint8_t>   GetMPQFileTime() const { return m_MPQFileTime; }
-  inline std::vector<uint8_t>   GetIX86VerFileName() const { return m_IX86VerFileName; }
-  inline std::string GetIX86VerFileNameString() const { return std::string(begin(m_IX86VerFileName), end(m_IX86VerFileName)); }
-  inline std::vector<uint8_t>   GetValueStringFormula() const { return m_ValueStringFormula; }
-  inline std::string GetValueStringFormulaString() const { return std::string(begin(m_ValueStringFormula), end(m_ValueStringFormula)); }
-  inline std::vector<uint8_t>   GetKeyState() const { return m_KeyState; }
-  inline std::string GetKeyStateDescription() const { return std::string(begin(m_KeyStateDescription), end(m_KeyStateDescription)); }
-  inline std::vector<uint8_t>   GetSalt() const { return m_Salt; }
-  inline std::vector<uint8_t>   GetServerPublicKey() const { return m_ServerPublicKey; }
-  inline std::vector<uint8_t>   GetUniqueName() const { return m_UniqueName; }
+  inline std::vector<uint8_t> GetClientToken() const { return m_ClientToken; }
+  inline std::vector<uint8_t> GetLogonType() const { return m_LogonType; }
+  inline std::vector<uint8_t> GetServerToken() const { return m_ServerToken; }
+  inline std::vector<uint8_t> GetMPQFileTime() const { return m_MPQFileTime; }
+  inline std::vector<uint8_t> GetIX86VerFileName() const { return m_IX86VerFileName; }
+  inline std::string          GetIX86VerFileNameString() const { return std::string(begin(m_IX86VerFileName), end(m_IX86VerFileName)); }
+  inline std::vector<uint8_t> GetValueStringFormula() const { return m_ValueStringFormula; }
+  inline std::string          GetValueStringFormulaString() const { return std::string(begin(m_ValueStringFormula), end(m_ValueStringFormula)); }
+  inline std::vector<uint8_t> GetKeyState() const { return m_KeyState; }
+  inline std::string          GetKeyStateDescription() const { return std::string(begin(m_KeyStateDescription), end(m_KeyStateDescription)); }
+  inline std::vector<uint8_t> GetSalt() const { return m_Salt; }
+  inline std::vector<uint8_t> GetServerPublicKey() const { return m_ServerPublicKey; }
+  inline std::vector<uint8_t> GetUniqueName() const { return m_UniqueName; }
 
   // receive functions
 
@@ -174,20 +174,20 @@ private:
 class CIncomingGameHost
 {
 private:
-  std::string m_GameName;
-  std::vector<uint8_t>   m_IP;
-  std::vector<uint8_t>   m_HostCounter;
-  uint16_t    m_Port;
+  std::string          m_GameName;
+  std::vector<uint8_t> m_IP;
+  std::vector<uint8_t> m_HostCounter;
+  uint16_t             m_Port;
 
 public:
   CIncomingGameHost(std::vector<uint8_t> nIP, uint16_t nPort, std::string nGameName, std::vector<uint8_t> nHostCounter);
   ~CIncomingGameHost();
 
-  std::string        GetIPString() const;
-  inline std::vector<uint8_t>   GetIP() const { return m_IP; }
-  inline uint16_t    GetPort() const { return m_Port; }
-  inline std::string GetGameName() const { return m_GameName; }
-  inline std::vector<uint8_t>   GetHostCounter() const { return m_HostCounter; }
+  std::string                 GetIPString() const;
+  inline std::vector<uint8_t> GetIP() const { return m_IP; }
+  inline uint16_t             GetPort() const { return m_Port; }
+  inline std::string          GetGameName() const { return m_GameName; }
+  inline std::vector<uint8_t> GetHostCounter() const { return m_HostCounter; }
 };
 
 //

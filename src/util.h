@@ -35,7 +35,7 @@ inline std::string ToHexString(uint32_t i)
   return result;
 }
 
-inline std::vector<uint8_t> CreateByteArray(const uint8_t* a,  const int32_t size)
+inline std::vector<uint8_t> CreateByteArray(const uint8_t* a, const int32_t size)
 {
   if (size < 1)
     return std::vector<uint8_t>();
@@ -222,9 +222,9 @@ inline std::vector<uint8_t> ExtractNumbers(const std::string& s, const uint32_t 
 {
   // consider the std::string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
-  std::vector<uint8_t>         result;
-  uint32_t          c;
-  std::stringstream SS;
+  std::vector<uint8_t> result;
+  uint32_t             c;
+  std::stringstream    SS;
   SS << s;
 
   for (uint32_t i = 0; i < count; ++i)
@@ -246,9 +246,9 @@ inline std::vector<uint8_t> ExtractHexNumbers(std::string& s)
 {
   // consider the std::string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
-  std::vector<uint8_t>         result;
-  uint32_t          c;
-  std::stringstream SS;
+  std::vector<uint8_t> result;
+  uint32_t             c;
+  std::stringstream    SS;
   SS << s;
 
   while (!SS.eof())
@@ -293,7 +293,7 @@ inline std::string AddPathSeparator(const std::string& path)
 inline std::vector<uint8_t> EncodeStatString(std::vector<uint8_t>& data)
 {
   std::vector<uint8_t> Result;
-  uint8_t   Mask = 1;
+  uint8_t              Mask = 1;
 
   for (uint32_t i = 0; i < data.size(); ++i)
   {
@@ -317,7 +317,7 @@ inline std::vector<uint8_t> EncodeStatString(std::vector<uint8_t>& data)
 
 inline std::vector<uint8_t> DecodeStatString(const std::vector<uint8_t>& data)
 {
-  uint8_t   Mask = 1;
+  uint8_t              Mask = 1;
   std::vector<uint8_t> Result;
 
   for (uint32_t i = 0; i < data.size(); ++i)

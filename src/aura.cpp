@@ -300,11 +300,11 @@ CAura::CAura(CConfig* CFG)
       m_DB->RootAdminAdd(Server, User);
     }
 
-    string    BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
-    uint8_t   War3Version        = CFG->GetInt(Prefix + "custom_war3version", 27);
+    string               BNETCommandTrigger = CFG->GetString(Prefix + "commandtrigger", "!");
+    uint8_t              War3Version        = CFG->GetInt(Prefix + "custom_war3version", 27);
     std::vector<uint8_t> EXEVersion         = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversion", string()), 4);
     std::vector<uint8_t> EXEVersionHash     = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
-    string    PasswordHashType   = CFG->GetString(Prefix + "custom_passwordhashtype", string());
+    string               PasswordHashType   = CFG->GetString(Prefix + "custom_passwordhashtype", string());
 
     if (Server.empty())
       break;
@@ -532,7 +532,7 @@ bool CAura::Update()
     }
 
     (*i)->DoRecv(&fd);
-    string*         RecvBuffer = (*i)->GetBytes();
+    string*                    RecvBuffer = (*i)->GetBytes();
     const std::vector<uint8_t> Bytes      = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
 
     // a packet is at least 4 bytes

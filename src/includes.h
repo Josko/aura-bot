@@ -49,7 +49,7 @@ inline int64_t GetTicks()
 
 // output
 
-inline void Print(const std::string& message)  // outputs to console
+inline void Print(const std::string& message) // outputs to console
 {
   std::cout << message << std::endl;
 }

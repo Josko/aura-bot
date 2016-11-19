@@ -24,7 +24,6 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 #include "includes.h"
 #include <vector>
 
-
 #ifdef WIN32
 bool FileExists(std::string file);
 #else

@@ -53,7 +53,7 @@ CStats::~CStats()
 
 bool CStats::ProcessAction(CIncomingAction* Action)
 {
-  uint32_t         i          = 0;
+  uint32_t                    i          = 0;
   const std::vector<uint8_t>* ActionData = Action->GetAction();
   std::vector<uint8_t>        Data, Key, Value;
 

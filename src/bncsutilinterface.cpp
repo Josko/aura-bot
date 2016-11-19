@@ -137,8 +137,8 @@ bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string& userPassword)
 
 std::vector<uint8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32_t clientToken, uint32_t serverToken)
 {
-  std::vector<uint8_t>    KeyInfo;
-  CDKeyDecoder Decoder(key.c_str(), key.size());
+  std::vector<uint8_t> KeyInfo;
+  CDKeyDecoder         Decoder(key.c_str(), key.size());
 
   if (Decoder.isKeyValid())
   {

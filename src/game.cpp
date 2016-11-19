@@ -1527,7 +1527,7 @@ void CGame::EventPlayerChatToHost(CGamePlayer* player, CIncomingChatPlayer* chat
     {
       // relay the chat message to other players
 
-      bool            Relay      = !player->GetMuted();
+      bool                       Relay      = !player->GetMuted();
       const std::vector<uint8_t> ExtraFlags = chatPlayer->GetExtraFlags();
 
       // calculate timestamp
@@ -4679,7 +4679,7 @@ void CGame::CreateFakePlayer()
     if (GetNumPlayers() >= 11)
       DeleteVirtualHost();
 
-    const uint8_t   FakePlayerPID = GetNewPID();
+    const uint8_t              FakePlayerPID = GetNewPID();
     const std::vector<uint8_t> IP            = {0, 0, 0, 0};
 
     SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(FakePlayerPID, "Troll[" + to_string(FakePlayerPID) + "]", IP, IP));

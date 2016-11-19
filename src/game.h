@@ -217,8 +217,8 @@ public:
   uint32_t GetPlayerFromNamePartial(std::string name, CGamePlayer** player) const;
   std::string GetDBPlayerNameFromColour(uint8_t colour) const;
   CGamePlayer* GetPlayerFromColour(uint8_t colour) const;
-  uint8_t   GetNewPID() const;
-  uint8_t   GetNewColour() const;
+  uint8_t              GetNewPID() const;
+  uint8_t              GetNewColour() const;
   std::vector<uint8_t> GetPIDs() const;
   std::vector<uint8_t> GetPIDs(uint8_t excludePID) const;
   uint8_t GetHostPID() const;

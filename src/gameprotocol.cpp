@@ -64,8 +64,8 @@ CIncomingJoinPlayer* CGameProtocol::RECEIVE_W3GS_REQJOIN(const std::vector<uint8
 
   if (ValidateLength(data) && data.size() >= 20)
   {
-    const uint32_t  HostCounter = ByteArrayToUInt32(data, false, 4);
-    const uint32_t  EntryKey    = ByteArrayToUInt32(data, false, 8);
+    const uint32_t             HostCounter = ByteArrayToUInt32(data, false, 4);
+    const uint32_t             EntryKey    = ByteArrayToUInt32(data, false, 8);
     const std::vector<uint8_t> Name        = ExtractCString(data, 19);
 
     if (!Name.empty() && data.size() >= Name.size() + 30)
@@ -263,7 +263,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint8_t PID, const st
 
   if (port.size() == 2 && externalIP.size() == 4)
   {
-    const uint8_t   Zeros[]  = {0, 0, 0, 0};
+    const uint8_t              Zeros[]  = {0, 0, 0, 0};
     const std::vector<uint8_t> SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
     packet.push_back(W3GS_HEADER_CONSTANT);                    // W3GS header constant
     packet.push_back(W3GS_SLOTINFOJOIN);                       // W3GS_SLOTINFOJOIN
@@ -359,7 +359,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(uint8_t PID)
 std::vector<uint8_t> CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot>& slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots)
 {
   const std::vector<uint8_t> SlotInfo     = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
-  const uint16_t  SlotInfoSize = (uint16_t)SlotInfo.size();
+  const uint16_t             SlotInfoSize = (uint16_t)SlotInfo.size();
 
   std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_SLOTINFO, 0, 0};
   AppendByteArray(packet, SlotInfoSize, false); // SlotInfo length

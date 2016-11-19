@@ -62,15 +62,15 @@ public:
   CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const uint8_t nSlotStatus, const uint8_t nComputer, const uint8_t nTeam, const uint8_t nColour, const uint8_t nRace, const uint8_t nComputerType = 1, const uint8_t nHandicap = 100);
   ~CGameSlot();
 
-  inline uint8_t   GetPID() const { return m_PID; }
-  inline uint8_t   GetDownloadStatus() const { return m_DownloadStatus; }
-  inline uint8_t   GetSlotStatus() const { return m_SlotStatus; }
-  inline uint8_t   GetComputer() const { return m_Computer; }
-  inline uint8_t   GetTeam() const { return m_Team; }
-  inline uint8_t   GetColour() const { return m_Colour; }
-  inline uint8_t   GetRace() const { return m_Race; }
-  inline uint8_t   GetComputerType() const { return m_ComputerType; }
-  inline uint8_t   GetHandicap() const { return m_Handicap; }
+  inline uint8_t              GetPID() const { return m_PID; }
+  inline uint8_t              GetDownloadStatus() const { return m_DownloadStatus; }
+  inline uint8_t              GetSlotStatus() const { return m_SlotStatus; }
+  inline uint8_t              GetComputer() const { return m_Computer; }
+  inline uint8_t              GetTeam() const { return m_Team; }
+  inline uint8_t              GetColour() const { return m_Colour; }
+  inline uint8_t              GetRace() const { return m_Race; }
+  inline uint8_t              GetComputerType() const { return m_ComputerType; }
+  inline uint8_t              GetHandicap() const { return m_Handicap; }
   inline std::vector<uint8_t> GetByteArray() const { return std::vector<uint8_t>{m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap}; }
 
   inline void SetPID(uint8_t nPID) { m_PID = nPID; }

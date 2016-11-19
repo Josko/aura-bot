@@ -157,19 +157,19 @@ private:
 class CIncomingJoinPlayer
 {
 private:
-  std::string m_Name;
-  std::vector<uint8_t>   m_InternalIP;
-  uint32_t    m_HostCounter;
-  uint32_t    m_EntryKey;
+  std::string          m_Name;
+  std::vector<uint8_t> m_InternalIP;
+  uint32_t             m_HostCounter;
+  uint32_t             m_EntryKey;
 
 public:
   CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, std::string nName, std::vector<uint8_t> nInternalIP);
   ~CIncomingJoinPlayer();
 
-  inline uint32_t    GetHostCounter() const { return m_HostCounter; }
-  inline uint32_t    GetEntryKey() const { return m_EntryKey; }
-  inline std::string GetName() const { return m_Name; }
-  inline std::vector<uint8_t>   GetInternalIP() const { return m_InternalIP; }
+  inline uint32_t             GetHostCounter() const { return m_HostCounter; }
+  inline uint32_t             GetEntryKey() const { return m_EntryKey; }
+  inline std::string          GetName() const { return m_Name; }
+  inline std::vector<uint8_t> GetInternalIP() const { return m_InternalIP; }
 };
 
 //
@@ -181,16 +181,16 @@ class CIncomingAction
 private:
   std::vector<uint8_t> m_CRC;
   std::vector<uint8_t> m_Action;
-  uint8_t   m_PID;
+  uint8_t              m_PID;
 
 public:
   CIncomingAction(uint8_t nPID, std::vector<uint8_t> nCRC, std::vector<uint8_t> nAction);
   ~CIncomingAction();
 
-  inline uint8_t    GetPID() const { return m_PID; }
+  inline uint8_t               GetPID() const { return m_PID; }
   inline std::vector<uint8_t>  GetCRC() const { return m_CRC; }
   inline std::vector<uint8_t>* GetAction() { return &m_Action; }
-  inline uint32_t   GetLength() const { return m_Action.size() + 3; }
+  inline uint32_t              GetLength() const { return m_Action.size() + 3; }
 };
 
 //
@@ -211,13 +211,13 @@ public:
   };
 
 private:
-  std::string    m_Message;
-  std::vector<uint8_t>      m_ToPIDs;
-  std::vector<uint8_t>      m_ExtraFlags;
-  ChatToHostType m_Type;
-  uint8_t        m_FromPID;
-  uint8_t        m_Flag;
-  uint8_t        m_Byte;
+  std::string          m_Message;
+  std::vector<uint8_t> m_ToPIDs;
+  std::vector<uint8_t> m_ExtraFlags;
+  ChatToHostType       m_Type;
+  uint8_t              m_FromPID;
+  uint8_t              m_Flag;
+  uint8_t              m_Byte;
 
 public:
   CIncomingChatPlayer(uint8_t nFromPID, std::vector<uint8_t> nToPIDs, uint8_t nFlag, std::string nMessage);
@@ -225,13 +225,13 @@ public:
   CIncomingChatPlayer(uint8_t nFromPID, std::vector<uint8_t> nToPIDs, uint8_t nFlag, uint8_t nByte);
   ~CIncomingChatPlayer();
 
-  inline ChatToHostType GetType() const { return m_Type; }
-  inline uint8_t        GetFromPID() const { return m_FromPID; }
-  inline std::vector<uint8_t>      GetToPIDs() const { return m_ToPIDs; }
-  inline uint8_t        GetFlag() const { return m_Flag; }
-  inline std::string    GetMessage() const { return m_Message; }
-  inline uint8_t        GetByte() const { return m_Byte; }
-  inline std::vector<uint8_t>      GetExtraFlags() const { return m_ExtraFlags; }
+  inline ChatToHostType       GetType() const { return m_Type; }
+  inline uint8_t              GetFromPID() const { return m_FromPID; }
+  inline std::vector<uint8_t> GetToPIDs() const { return m_ToPIDs; }
+  inline uint8_t              GetFlag() const { return m_Flag; }
+  inline std::string          GetMessage() const { return m_Message; }
+  inline uint8_t              GetByte() const { return m_Byte; }
+  inline std::vector<uint8_t> GetExtraFlags() const { return m_ExtraFlags; }
 };
 
 class CIncomingMapSize
