@@ -37,7 +37,7 @@ using namespace std;
 #ifdef WIN32
 bool FileExists(string file)
 {
-  if (*(end(file) - 1) == '\\')
+  if (file.back() == '\\')
     file = file.substr(0, file.size() - 1);
 
   struct stat fileinfo;
