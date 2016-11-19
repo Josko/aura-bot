@@ -61,14 +61,14 @@ void CConfig::Read(const string& file)
       Line.erase(remove(begin(Line), end(Line), '\r'), end(Line));
       Line.erase(remove(begin(Line), end(Line), '\n'), end(Line));
 
-      string::size_type Split = Line.find("=");
+      string::size_type Split = Line.find('=');
 
       if (Split == string::npos)
         continue;
 
-      string::size_type KeyStart   = Line.find_first_not_of(" ");
-      string::size_type KeyEnd     = Line.find(" ", KeyStart);
-      string::size_type ValueStart = Line.find_first_not_of(" ", Split + 1);
+      string::size_type KeyStart   = Line.find_first_not_of(' ');
+      string::size_type KeyEnd     = Line.find(' ', KeyStart);
+      string::size_type ValueStart = Line.find_first_not_of(' ', Split + 1);
       string::size_type ValueEnd   = Line.size();
 
       if (ValueStart != string::npos)

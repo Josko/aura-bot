@@ -122,7 +122,7 @@ public:
   BYTEARRAY SEND_W3GS_PING_FROM_HOST();
   BYTEARRAY SEND_W3GS_SLOTINFOJOIN(uint8_t PID, const BYTEARRAY& port, const BYTEARRAY& externalIP, const std::vector<CGameSlot>& slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots);
   BYTEARRAY SEND_W3GS_REJECTJOIN(uint32_t reason);
-  BYTEARRAY SEND_W3GS_PLAYERINFO(uint8_t PID, const std::string& name, BYTEARRAY externalIP, BYTEARRAY internalIP);
+  BYTEARRAY SEND_W3GS_PLAYERINFO(uint8_t PID, const std::string& name, const BYTEARRAY& externalIP, const BYTEARRAY& internalIP);
   BYTEARRAY SEND_W3GS_PLAYERLEAVE_OTHERS(uint8_t PID, uint32_t leftCode);
   BYTEARRAY SEND_W3GS_GAMELOADED_OTHERS(uint8_t PID);
   BYTEARRAY SEND_W3GS_SLOTINFO(std::vector<CGameSlot>& slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots);

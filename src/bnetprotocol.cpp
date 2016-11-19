@@ -526,7 +526,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_PING(const BYTEARRAY& pingValue)
   return BYTEARRAY();
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_LOGONRESPONSE(BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, string accountName)
+BYTEARRAY CBNETProtocol::SEND_SID_LOGONRESPONSE(const BYTEARRAY& clientToken, const BYTEARRAY& serverToken, const BYTEARRAY& passwordHash, const string& accountName)
 {
   // TODO: check that the passed BYTEARRAY sizes are correct (don't know what they should be right now so I can't do this today)
 
@@ -557,7 +557,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_NETGAMEPORT(uint16_t serverPort)
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, string countryAbbrev, string country)
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, const string& countryAbbrev, const string& country)
 {
   const uint8_t ProtocolID[]    = {0, 0, 0, 0};
   const uint8_t PlatformID[]    = {54, 56, 88, 73}; // "IX86"
@@ -588,7 +588,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, stri
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_CHECK(BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, string exeInfo, string keyOwnerName)
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_CHECK(const BYTEARRAY& clientToken, const BYTEARRAY& exeVersion, const BYTEARRAY& exeVersionHash, const BYTEARRAY& keyInfoROC, const BYTEARRAY& keyInfoTFT, const string& exeInfo, const string& keyOwnerName)
 {
   BYTEARRAY packet;
 
@@ -617,7 +617,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_AUTH_CHECK(BYTEARRAY clientToken, BYTEARRAY ex
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGON(BYTEARRAY clientPublicKey, string accountName)
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY& clientPublicKey, const string& accountName)
 {
   BYTEARRAY packet;
 
@@ -637,7 +637,7 @@ BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGON(BYTEARRAY clientPublicKey, s
   return packet;
 }
 
-BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGONPROOF(BYTEARRAY clientPasswordProof)
+BYTEARRAY CBNETProtocol::SEND_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY& clientPasswordProof)
 {
   BYTEARRAY packet;
 

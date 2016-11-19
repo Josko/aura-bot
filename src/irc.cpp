@@ -298,7 +298,7 @@ void CIRC::ExtractPackets()
       // extract command and payload
 
       string                  Command, Payload;
-      const string::size_type PayloadStart = Message.find(" ");
+      const string::size_type PayloadStart = Message.find(' ');
 
       bool Root = false;
 

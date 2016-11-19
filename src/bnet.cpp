@@ -533,7 +533,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
   {
     // extract the irc channel
 
-    string::size_type MessageStart = Message.find(" ");
+    string::size_type MessageStart = Message.find(' ');
 
     m_IRC   = Message.substr(0, MessageStart);
     Message = Message.substr(MessageStart + 1);
@@ -556,7 +556,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
       // e.g. "!say hello world" -> command: "say", payload: "hello world"
 
       string            Command, Payload;
-      string::size_type PayloadStart = Message.find(" ");
+      string::size_type PayloadStart = Message.find(' ');
 
       if (PayloadStart != string::npos)
       {
@@ -774,7 +774,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             if (!SS.eof())
             {
               getline(SS, Reason);
-              string::size_type Start = Reason.find_first_not_of(" ");
+              string::size_type Start = Reason.find_first_not_of(' ');
 
               if (Start != string::npos)
                 Reason = Reason.substr(Start);
@@ -1298,7 +1298,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
 
             string            Owner, GameName;
-            string::size_type GameNameStart = Payload.find(" ");
+            string::size_type GameNameStart = Payload.find(' ');
 
             if (GameNameStart != string::npos)
             {
@@ -1323,7 +1323,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             // e.g. "Varlock dota 6.54b arem ~~~" -> owner: "Varlock", game name: "dota 6.54b arem ~~~"
 
             string            Owner, GameName;
-            string::size_type GameNameStart = Payload.find(" ");
+            string::size_type GameNameStart = Payload.find(' ');
 
             if (GameNameStart != string::npos)
             {
@@ -1396,7 +1396,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
                 else
                 {
                   getline(SS, Message);
-                  string::size_type Start = Message.find_first_not_of(" ");
+                  string::size_type Start = Message.find_first_not_of(' ');
 
                   if (Start != string::npos)
                     Message = Message.substr(Start);
@@ -1564,7 +1564,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             string            Name;
             string            Message;
-            string::size_type MessageStart = Payload.find(" ");
+            string::size_type MessageStart = Payload.find(' ');
 
             if (MessageStart != string::npos)
             {
@@ -1880,7 +1880,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
     if (m_Aura->m_CurrentGame)
     {
       string            UserName;
-      string::size_type Split = Message.find(" ");
+      string::size_type Split = Message.find(' ');
 
       if (Split != string::npos)
         UserName = Message.substr(0, Split);

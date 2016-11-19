@@ -293,7 +293,7 @@ BYTEARRAY CGameProtocol::SEND_W3GS_REJECTJOIN(uint32_t reason)
   return packet;
 }
 
-BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(uint8_t PID, const string& name, BYTEARRAY externalIP, BYTEARRAY internalIP)
+BYTEARRAY CGameProtocol::SEND_W3GS_PLAYERINFO(uint8_t PID, const string& name, const BYTEARRAY& externalIP, const BYTEARRAY& internalIP)
 {
   BYTEARRAY packet;
 

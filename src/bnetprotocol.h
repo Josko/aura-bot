@@ -151,12 +151,12 @@ public:
   BYTEARRAY SEND_SID_STARTADVEX3(uint8_t state, const BYTEARRAY& mapGameType, const BYTEARRAY& mapFlags, const BYTEARRAY& mapWidth, const BYTEARRAY& mapHeight, const std::string& gameName, const std::string& hostName, uint32_t upTime, const std::string& mapPath, const BYTEARRAY& mapCRC, const BYTEARRAY& mapSHA1, uint32_t hostCounter);
   BYTEARRAY SEND_SID_NOTIFYJOIN(const std::string& gameName);
   BYTEARRAY SEND_SID_PING(const BYTEARRAY& pingValue);
-  BYTEARRAY SEND_SID_LOGONRESPONSE(BYTEARRAY clientToken, BYTEARRAY serverToken, BYTEARRAY passwordHash, std::string accountName);
+  BYTEARRAY SEND_SID_LOGONRESPONSE(const BYTEARRAY& clientToken, const BYTEARRAY& serverToken, const BYTEARRAY& passwordHash, const std::string& accountName);
   BYTEARRAY SEND_SID_NETGAMEPORT(uint16_t serverPort);
-  BYTEARRAY SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, std::string countryAbbrev, std::string country);
-  BYTEARRAY SEND_SID_AUTH_CHECK(BYTEARRAY clientToken, BYTEARRAY exeVersion, BYTEARRAY exeVersionHash, BYTEARRAY keyInfoROC, BYTEARRAY keyInfoTFT, std::string exeInfo, std::string keyOwnerName);
-  BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGON(BYTEARRAY clientPublicKey, std::string accountName);
-  BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGONPROOF(BYTEARRAY clientPasswordProof);
+  BYTEARRAY SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, const std::string& countryAbbrev, const std::string& country);
+  BYTEARRAY SEND_SID_AUTH_CHECK(const BYTEARRAY& clientToken, const BYTEARRAY& exeVersion, const BYTEARRAY& exeVersionHash, const BYTEARRAY& keyInfoROC, const BYTEARRAY& keyInfoTFT, const std::string& exeInfo, const std::string& keyOwnerName);
+  BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGON(const BYTEARRAY& clientPublicKey, const std::string& accountName);
+  BYTEARRAY SEND_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY& clientPasswordProof);
   BYTEARRAY SEND_SID_FRIENDLIST();
   BYTEARRAY SEND_SID_CLANMEMBERLIST();
 

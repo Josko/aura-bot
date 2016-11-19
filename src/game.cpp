@@ -1178,7 +1178,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* 
 {
   // check the new player's name
 
-  if (joinPlayer->GetName().empty() || joinPlayer->GetName().size() > 15 || joinPlayer->GetName() == m_VirtualHostName || GetPlayerFromName(joinPlayer->GetName(), false) || joinPlayer->GetName().find(" ") != string::npos || joinPlayer->GetName().find("|") != string::npos)
+  if (joinPlayer->GetName().empty() || joinPlayer->GetName().size() > 15 || joinPlayer->GetName() == m_VirtualHostName || GetPlayerFromName(joinPlayer->GetName(), false) || joinPlayer->GetName().find(' ') != string::npos || joinPlayer->GetName().find('|') != string::npos)
   {
     Print("[GAME: " + m_GameName + "] player [" + joinPlayer->GetName() + "|" + potential->GetExternalIPString() + "] invalid name (taken, invalid char, spoofer, too long)");
     potential->Send(m_Protocol->SEND_W3GS_REJECTJOIN(REJECTJOIN_FULL));
@@ -1575,7 +1575,7 @@ void CGame::EventPlayerChatToHost(CGamePlayer* player, CIncomingChatPlayer* chat
         // e.g. "!say hello world" -> command: "say", payload: "hello world"
 
         string            Command, Payload;
-        string::size_type PayloadStart = Message.find(" ");
+        string::size_type PayloadStart = Message.find(' ');
 
         if (PayloadStart != string::npos)
         {
@@ -2475,7 +2475,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           if (!SS.eof())
           {
             getline(SS, Reason);
-            string::size_type Start = Reason.find_first_not_of(" ");
+            string::size_type Start = Reason.find_first_not_of(' ');
 
             if (Start != string::npos)
               Reason = Reason.substr(Start);
@@ -3052,7 +3052,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // e.g. "Varlock hello there!" -> name: "Varlock", message: "hello there!"
 
           string            Name, Message;
-          string::size_type MessageStart = Payload.find(" ");
+          string::size_type MessageStart = Payload.find(' ');
 
           if (MessageStart != string::npos)
           {
@@ -3108,7 +3108,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
             else
             {
               getline(SS, Race);
-              string::size_type Start = Race.find_first_not_of(" ");
+              string::size_type Start = Race.find_first_not_of(' ');
 
               if (Start != string::npos)
                 Race = Race.substr(Start);
