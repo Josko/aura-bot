@@ -55,14 +55,9 @@ using namespace std;
 static CAura* gAura    = nullptr;
 bool          gRestart = false;
 
-void Print(const string& message)
-{
-  cout << message << endl;
-}
-
 void Print2(const string& message)
 {
-  cout << message << endl;
+  Print(message);
 
   if (gAura->m_IRC)
     gAura->m_IRC->SendMessageIRC(message, string());

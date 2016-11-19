@@ -60,7 +60,11 @@ inline int64_t GetTicks()
 
 // output
 
-void Print(const std::string& message);  // outputs to console
+inline void Print(const std::string& message)  // outputs to console
+{
+  std::cout << message << std::endl;
+}
+
 void Print2(const std::string& message); // outputs to console and irc
 
 #endif // AURA_INCLUDES_H_
