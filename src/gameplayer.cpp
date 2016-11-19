@@ -63,9 +63,9 @@ bool CPotentialPlayer::Update(void* fd)
 
   // extract as many packets as possible from the socket's receive buffer and process them
 
-  string*              RecvBuffer      = m_Socket->GetBytes();
+  string*                   RecvBuffer      = m_Socket->GetBytes();
   std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
-  uint32_t             LengthProcessed = 0;
+  uint32_t                  LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -75,7 +75,7 @@ bool CPotentialPlayer::Update(void* fd)
     {
       // bytes 2 and 3 contain the length of the packet
 
-      const uint16_t             Length = ByteArrayToUInt16(Bytes, false, 2);
+      const uint16_t                  Length = ByteArrayToUInt16(Bytes, false, 2);
       const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
       if (Bytes.size() >= Length)
@@ -228,9 +228,9 @@ bool CGamePlayer::Update(void* fd)
 
   // extract as many packets as possible from the socket's receive buffer and process them
 
-  string*              RecvBuffer      = m_Socket->GetBytes();
+  string*                   RecvBuffer      = m_Socket->GetBytes();
   std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
-  uint32_t             LengthProcessed = 0;
+  uint32_t                  LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -243,7 +243,7 @@ bool CGamePlayer::Update(void* fd)
   {
     // bytes 2 and 3 contain the length of the packet
 
-    const uint16_t             Length = ByteArrayToUInt16(Bytes, false, 2);
+    const uint16_t                  Length = ByteArrayToUInt16(Bytes, false, 2);
     const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
     if (Bytes[0] == W3GS_HEADER_CONSTANT)

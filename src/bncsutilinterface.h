@@ -32,7 +32,7 @@
 class CBNCSUtilInterface
 {
 private:
-  void*                m_NLS;
+  void*                     m_NLS;
   std::vector<uint_fast8_t> m_EXEVersion;        // set in HELP_SID_AUTH_CHECK
   std::vector<uint_fast8_t> m_EXEVersionHash;    // set in HELP_SID_AUTH_CHECK
   std::vector<uint_fast8_t> m_KeyInfoROC;        // set in HELP_SID_AUTH_CHECK
@@ -40,7 +40,7 @@ private:
   std::vector<uint_fast8_t> m_ClientKey;         // set in HELP_SID_AUTH_ACCOUNTLOGON
   std::vector<uint_fast8_t> m_M1;                // set in HELP_SID_AUTH_ACCOUNTLOGONPROOF
   std::vector<uint_fast8_t> m_PvPGNPasswordHash; // set in HELP_PvPGNPasswordHash
-  std::string          m_EXEInfo;           // set in HELP_SID_AUTH_CHECK
+  std::string               m_EXEInfo;           // set in HELP_SID_AUTH_CHECK
 
 public:
   CBNCSUtilInterface(const std::string& userName, const std::string& userPassword);
@@ -49,7 +49,7 @@ public:
 
   inline std::vector<uint_fast8_t> GetEXEVersion() const { return m_EXEVersion; }
   inline std::vector<uint_fast8_t> GetEXEVersionHash() const { return m_EXEVersionHash; }
-  inline std::string          GetEXEInfo() const { return m_EXEInfo; }
+  inline std::string               GetEXEInfo() const { return m_EXEInfo; }
   inline std::vector<uint_fast8_t> GetKeyInfoROC() const { return m_KeyInfoROC; }
   inline std::vector<uint_fast8_t> GetKeyInfoTFT() const { return m_KeyInfoTFT; }
   inline std::vector<uint_fast8_t> GetClientKey() const { return m_ClientKey; }

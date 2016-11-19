@@ -68,8 +68,8 @@ public:
   }
 
   typedef union {
-    uint_fast8_t  c[64];
-    uint32_t l[16];
+    uint_fast8_t c[64];
+    uint32_t     l[16];
   } SHA1_WORKSPACE_BLOCK;
 
   // Two different formats for ReportHash(...)
@@ -84,10 +84,10 @@ public:
   CSHA1();
   virtual ~CSHA1();
 
-  uint32_t m_state[5];
-  uint32_t m_count[2];
-  uint_fast8_t  m_buffer[64];
-  uint_fast8_t  m_digest[20];
+  uint32_t     m_state[5];
+  uint32_t     m_count[2];
+  uint_fast8_t m_buffer[64];
+  uint_fast8_t m_digest[20];
 
   void Reset();
 

@@ -151,12 +151,12 @@ protected:
 public:
   ~CSocket();
 
-  std::string                 GetErrorString() const;
+  std::string                      GetErrorString() const;
   inline std::vector<uint_fast8_t> GetPort() const { return CreateByteArray(m_SIN.sin_port, false); }
   inline std::vector<uint_fast8_t> GetIP() const { return CreateByteArray((uint32_t)m_SIN.sin_addr.s_addr, false); }
-  inline std::string          GetIPString() const { return inet_ntoa(m_SIN.sin_addr); }
-  inline int32_t              GetError() const { return m_Error; }
-  inline bool                 HasError() const { return m_HasError; }
+  inline std::string               GetIPString() const { return inet_ntoa(m_SIN.sin_addr); }
+  inline int32_t                   GetError() const { return m_Error; }
+  inline bool                      HasError() const { return m_HasError; }
 
   void SetFD(fd_set* fd, fd_set* send_fd, int32_t* nfds);
   void Reset();

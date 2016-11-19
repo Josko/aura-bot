@@ -159,9 +159,9 @@ bool CBNET::Update(void* fd, void* send_fd)
 
     // extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
 
-    string*              RecvBuffer      = m_Socket->GetBytes();
+    string*                   RecvBuffer      = m_Socket->GetBytes();
     std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
-    uint32_t             LengthProcessed = 0;
+    uint32_t                  LengthProcessed = 0;
 
     CIncomingGameHost*  GameHost;
     CIncomingChatEvent* ChatEvent;
@@ -176,7 +176,7 @@ bool CBNET::Update(void* fd, void* send_fd)
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint16_t             Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t                  Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
         const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
         if (Bytes.size() >= Length)

@@ -63,7 +63,7 @@ protected:
   std::queue<CIncomingAction*>   m_Actions;                       // queue of actions to be sent
   std::vector<std::string>       m_Reserved;                      // std::vector of player names with reserved slots (from the !hold command)
   std::set<std::string>          m_IgnoredNames;                  // set of player names to NOT print ban messages for when joining because they've already been printed
-  std::vector<uint_fast8_t>           m_FakePlayers;                   // the fake player's PIDs (if present)
+  std::vector<uint_fast8_t>      m_FakePlayers;                   // the fake player's PIDs (if present)
   CMap*                          m_Map;                           // map data
   std::string                    m_GameName;                      // game name
   std::string                    m_LastGameName;                  // last game name (the previous game name before it was rehosted)
@@ -101,9 +101,9 @@ protected:
   uint32_t                       m_CountDownCounter;              // the countdown is finished when this reaches zero
   uint32_t                       m_StartPlayers;                  // number of players when the game started
   uint16_t                       m_HostPort;                      // the port to host games on
-  uint_fast8_t                        m_GameState;                     // game state, public or private
-  uint_fast8_t                        m_VirtualHostPID;                // host's PID
-  uint_fast8_t                        m_GProxyEmptyActions;            // empty actions used for gproxy protocol
+  uint_fast8_t                   m_GameState;                     // game state, public or private
+  uint_fast8_t                   m_VirtualHostPID;                // host's PID
+  uint_fast8_t                   m_GProxyEmptyActions;            // empty actions used for gproxy protocol
   bool                           m_Exiting;                       // set to true and this class will be deleted next update
   bool                           m_Saving;                        // if we're currently saving game data to the database
   bool                           m_SlotInfoChanged;               // if the slot info has changed and hasn't been sent to the players yet (optimization)
@@ -126,8 +126,8 @@ public:
   inline CGameProtocol* GetProtocol() const { return m_Protocol; }
   inline uint32_t       GetEntryKey() const { return m_EntryKey; }
   inline uint16_t       GetHostPort() const { return m_HostPort; }
-  inline uint_fast8_t        GetGameState() const { return m_GameState; }
-  inline uint_fast8_t        GetGProxyEmptyActions() const { return m_GProxyEmptyActions; }
+  inline uint_fast8_t   GetGameState() const { return m_GameState; }
+  inline uint_fast8_t   GetGProxyEmptyActions() const { return m_GProxyEmptyActions; }
   inline std::string    GetGameName() const { return m_GameName; }
   inline std::string    GetLastGameName() const { return m_LastGameName; }
   inline std::string    GetVirtualHostName() const { return m_VirtualHostName; }

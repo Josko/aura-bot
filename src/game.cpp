@@ -1527,7 +1527,7 @@ void CGame::EventPlayerChatToHost(CGamePlayer* player, CIncomingChatPlayer* chat
     {
       // relay the chat message to other players
 
-      bool                       Relay      = !player->GetMuted();
+      bool                            Relay      = !player->GetMuted();
       const std::vector<uint_fast8_t> ExtraFlags = chatPlayer->GetExtraFlags();
 
       // calculate timestamp
@@ -4309,7 +4309,7 @@ void CGame::ColourSlot(uint_fast8_t SID, uint_fast8_t colour)
   {
     // make sure the requested colour isn't already taken
 
-    bool    Taken    = false;
+    bool         Taken    = false;
     uint_fast8_t TakenSID = 0;
 
     for (uint_fast8_t i = 0; i < m_Slots.size(); ++i)

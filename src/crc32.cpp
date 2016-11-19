@@ -54,7 +54,7 @@ uint32_t CCRC32::CalculateCRC(const uint_fast8_t* data, std::size_t length, uint
   const uint32_t* current = (const uint32_t*)data;
 
   // enabling optimization (at least -O2) automatically unrolls the inner for-loop
-  constexpr size_t  Unroll      = 4;
+  constexpr size_t       Unroll      = 4;
   constexpr uint_fast8_t BytesAtOnce = 16 * Unroll;
 
   while (length >= BytesAtOnce)

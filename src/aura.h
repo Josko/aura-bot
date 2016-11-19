@@ -78,7 +78,7 @@ public:
   uint32_t                 m_VoteKickPercentage; // config value: percentage of players required to vote yes for a votekick to pass
   uint16_t                 m_HostPort;           // config value: the port to host games on
   uint16_t                 m_ReconnectPort;      // config value: the port to listen for GProxy++ reliable reconnects on
-  uint_fast8_t                  m_LANWar3Version;     // config value: LAN warcraft 3 version
+  uint_fast8_t             m_LANWar3Version;     // config value: LAN warcraft 3 version
   int32_t                  m_CommandTrigger;     // config value: the command trigger inside games
   bool                     m_Exiting;            // set to true to force aura to shutdown next update (used by SignalCatcher)
   bool                     m_Enabled;            // set to false to prevent new games from being created

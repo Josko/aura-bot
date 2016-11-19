@@ -302,8 +302,8 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDLIST(const std::vector<uint_fast
 
   if (ValidateLength(data) && data.size() >= 5)
   {
-    uint32_t i     = 5;
-    uint_fast8_t  Total = data[4];
+    uint32_t     i     = 5;
+    uint_fast8_t Total = data[4];
 
     while (Total > 0)
     {
@@ -347,8 +347,8 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST(const std::vector<uint_
 
   if (ValidateLength(data) && data.size() >= 9)
   {
-    uint32_t i     = 9;
-    uint_fast8_t  Total = data[8];
+    uint32_t     i     = 9;
+    uint_fast8_t Total = data[8];
 
     while (Total > 0)
     {

@@ -101,60 +101,60 @@ public:
   CAura* m_Aura;
 
 private:
-  std::vector<uint_fast8_t>   m_MapSHA1;   // config value: map sha1 (20 bytes)
-  std::vector<uint_fast8_t>   m_MapSize;   // config value: map size (4 bytes)
-  std::vector<uint_fast8_t>   m_MapInfo;   // config value: map info (4 bytes) -> this is the real CRC
-  std::vector<uint_fast8_t>   m_MapCRC;    // config value: map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
-  std::vector<uint_fast8_t>   m_MapWidth;  // config value: map width (2 bytes)
-  std::vector<uint_fast8_t>   m_MapHeight; // config value: map height (2 bytes)
-  std::vector<CGameSlot> m_Slots;
-  std::string            m_CFGFile;
-  std::string            m_MapPath;       // config value: map path
-  std::string            m_MapType;       // config value: map type (for stats class)
-  std::string            m_MapDefaultHCL; // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
-  std::string            m_MapLocalPath;  // config value: map local path
-  std::string            m_MapData;       // the map data itself, for sending the map to players
-  uint32_t               m_MapOptions;
-  uint32_t               m_MapNumPlayers; // config value: max map number of players
-  uint32_t               m_MapNumTeams;   // config value: max map number of teams
-  uint_fast8_t                m_MapSpeed;
-  uint_fast8_t                m_MapVisibility;
-  uint_fast8_t                m_MapObservers;
-  uint_fast8_t                m_MapFlags;
-  uint_fast8_t                m_MapFilterMaker;
-  uint_fast8_t                m_MapFilterType;
-  uint_fast8_t                m_MapFilterSize;
-  uint_fast8_t                m_MapFilterObs;
-  bool                   m_Valid;
+  std::vector<uint_fast8_t> m_MapSHA1;   // config value: map sha1 (20 bytes)
+  std::vector<uint_fast8_t> m_MapSize;   // config value: map size (4 bytes)
+  std::vector<uint_fast8_t> m_MapInfo;   // config value: map info (4 bytes) -> this is the real CRC
+  std::vector<uint_fast8_t> m_MapCRC;    // config value: map crc (4 bytes) -> this is not the real CRC, it's the "xoro" value
+  std::vector<uint_fast8_t> m_MapWidth;  // config value: map width (2 bytes)
+  std::vector<uint_fast8_t> m_MapHeight; // config value: map height (2 bytes)
+  std::vector<CGameSlot>    m_Slots;
+  std::string               m_CFGFile;
+  std::string               m_MapPath;       // config value: map path
+  std::string               m_MapType;       // config value: map type (for stats class)
+  std::string               m_MapDefaultHCL; // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
+  std::string               m_MapLocalPath;  // config value: map local path
+  std::string               m_MapData;       // the map data itself, for sending the map to players
+  uint32_t                  m_MapOptions;
+  uint32_t                  m_MapNumPlayers; // config value: max map number of players
+  uint32_t                  m_MapNumTeams;   // config value: max map number of teams
+  uint_fast8_t              m_MapSpeed;
+  uint_fast8_t              m_MapVisibility;
+  uint_fast8_t              m_MapObservers;
+  uint_fast8_t              m_MapFlags;
+  uint_fast8_t              m_MapFilterMaker;
+  uint_fast8_t              m_MapFilterType;
+  uint_fast8_t              m_MapFilterSize;
+  uint_fast8_t              m_MapFilterObs;
+  bool                      m_Valid;
 
 public:
   CMap(CAura* nAura, CConfig* CFG, const std::string& nCFGFile);
   ~CMap();
 
-  inline bool                   GetValid() const { return m_Valid; }
-  inline std::string            GetCFGFile() const { return m_CFGFile; }
-  inline std::string            GetMapPath() const { return m_MapPath; }
-  inline std::vector<uint_fast8_t>   GetMapSize() const { return m_MapSize; }
-  inline std::vector<uint_fast8_t>   GetMapInfo() const { return m_MapInfo; }
-  inline std::vector<uint_fast8_t>   GetMapCRC() const { return m_MapCRC; }
-  inline std::vector<uint_fast8_t>   GetMapSHA1() const { return m_MapSHA1; }
-  inline uint_fast8_t                GetMapSpeed() const { return m_MapSpeed; }
-  inline uint_fast8_t                GetMapVisibility() const { return m_MapVisibility; }
-  inline uint_fast8_t                GetMapObservers() const { return m_MapObservers; }
-  inline uint_fast8_t                GetMapFlags() const { return m_MapFlags; }
-  std::vector<uint_fast8_t>          GetMapGameFlags() const;
-  uint32_t                      GetMapGameType() const;
-  inline uint32_t               GetMapOptions() const { return m_MapOptions; }
-  uint_fast8_t                       GetMapLayoutStyle() const;
-  inline std::vector<uint_fast8_t>   GetMapWidth() const { return m_MapWidth; }
-  inline std::vector<uint_fast8_t>   GetMapHeight() const { return m_MapHeight; }
-  inline std::string            GetMapType() const { return m_MapType; }
-  inline std::string            GetMapDefaultHCL() const { return m_MapDefaultHCL; }
-  inline std::string            GetMapLocalPath() const { return m_MapLocalPath; }
-  inline std::string*           GetMapData() { return &m_MapData; }
-  inline uint32_t               GetMapNumPlayers() const { return m_MapNumPlayers; }
-  inline uint32_t               GetMapNumTeams() const { return m_MapNumTeams; }
-  inline std::vector<CGameSlot> GetSlots() const { return m_Slots; }
+  inline bool                      GetValid() const { return m_Valid; }
+  inline std::string               GetCFGFile() const { return m_CFGFile; }
+  inline std::string               GetMapPath() const { return m_MapPath; }
+  inline std::vector<uint_fast8_t> GetMapSize() const { return m_MapSize; }
+  inline std::vector<uint_fast8_t> GetMapInfo() const { return m_MapInfo; }
+  inline std::vector<uint_fast8_t> GetMapCRC() const { return m_MapCRC; }
+  inline std::vector<uint_fast8_t> GetMapSHA1() const { return m_MapSHA1; }
+  inline uint_fast8_t              GetMapSpeed() const { return m_MapSpeed; }
+  inline uint_fast8_t              GetMapVisibility() const { return m_MapVisibility; }
+  inline uint_fast8_t              GetMapObservers() const { return m_MapObservers; }
+  inline uint_fast8_t              GetMapFlags() const { return m_MapFlags; }
+  std::vector<uint_fast8_t>        GetMapGameFlags() const;
+  uint32_t                         GetMapGameType() const;
+  inline uint32_t                  GetMapOptions() const { return m_MapOptions; }
+  uint_fast8_t                     GetMapLayoutStyle() const;
+  inline std::vector<uint_fast8_t> GetMapWidth() const { return m_MapWidth; }
+  inline std::vector<uint_fast8_t> GetMapHeight() const { return m_MapHeight; }
+  inline std::string               GetMapType() const { return m_MapType; }
+  inline std::string               GetMapDefaultHCL() const { return m_MapDefaultHCL; }
+  inline std::string               GetMapLocalPath() const { return m_MapLocalPath; }
+  inline std::string*              GetMapData() { return &m_MapData; }
+  inline uint32_t                  GetMapNumPlayers() const { return m_MapNumPlayers; }
+  inline uint32_t                  GetMapNumTeams() const { return m_MapNumTeams; }
+  inline std::vector<CGameSlot>    GetSlots() const { return m_Slots; }
 
   void Load(CConfig* CFG, const std::string& nCFGFile);
   void     CheckValid();

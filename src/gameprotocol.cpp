@@ -64,8 +64,8 @@ CIncomingJoinPlayer* CGameProtocol::RECEIVE_W3GS_REQJOIN(const std::vector<uint_
 
   if (ValidateLength(data) && data.size() >= 20)
   {
-    const uint32_t             HostCounter = ByteArrayToUInt32(data, false, 4);
-    const uint32_t             EntryKey    = ByteArrayToUInt32(data, false, 8);
+    const uint32_t                  HostCounter = ByteArrayToUInt32(data, false, 4);
+    const uint32_t                  EntryKey    = ByteArrayToUInt32(data, false, 8);
     const std::vector<uint_fast8_t> Name        = ExtractCString(data, 19);
 
     if (!Name.empty() && data.size() >= Name.size() + 30)
@@ -171,7 +171,7 @@ CIncomingChatPlayer* CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const std::vector<
 
   if (ValidateLength(data))
   {
-    uint32_t      i     = 5;
+    uint32_t           i     = 5;
     const uint_fast8_t Total = data[4];
 
     if (Total > 0 && data.size() >= i + Total)
@@ -359,7 +359,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(uint_fast8_
 std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
 {
   const std::vector<uint_fast8_t> SlotInfo     = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
-  const uint16_t             SlotInfoSize = (uint16_t)SlotInfo.size();
+  const uint16_t                  SlotInfoSize = (uint16_t)SlotInfo.size();
 
   std::vector<uint_fast8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_SLOTINFO, 0, 0};
   AppendByteArray(packet, SlotInfoSize, false); // SlotInfo length

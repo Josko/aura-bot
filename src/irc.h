@@ -47,7 +47,7 @@ public:
   int64_t                  m_LastPacketTime;
   int64_t                  m_LastAntiIdleTime;
   uint16_t                 m_Port;
-  int_fast8_t                   m_CommandTrigger;
+  int_fast8_t              m_CommandTrigger;
   bool                     m_Exiting;
   bool                     m_WaitingToConnect;
   bool                     m_OriginalNick;

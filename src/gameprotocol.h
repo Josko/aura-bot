@@ -157,18 +157,18 @@ private:
 class CIncomingJoinPlayer
 {
 private:
-  std::string          m_Name;
+  std::string               m_Name;
   std::vector<uint_fast8_t> m_InternalIP;
-  uint32_t             m_HostCounter;
-  uint32_t             m_EntryKey;
+  uint32_t                  m_HostCounter;
+  uint32_t                  m_EntryKey;
 
 public:
   CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, std::string nName, std::vector<uint_fast8_t> nInternalIP);
   ~CIncomingJoinPlayer();
 
-  inline uint32_t             GetHostCounter() const { return m_HostCounter; }
-  inline uint32_t             GetEntryKey() const { return m_EntryKey; }
-  inline std::string          GetName() const { return m_Name; }
+  inline uint32_t                  GetHostCounter() const { return m_HostCounter; }
+  inline uint32_t                  GetEntryKey() const { return m_EntryKey; }
+  inline std::string               GetName() const { return m_Name; }
   inline std::vector<uint_fast8_t> GetInternalIP() const { return m_InternalIP; }
 };
 
@@ -190,7 +190,7 @@ public:
   inline uint_fast8_t               GetPID() const { return m_PID; }
   inline std::vector<uint_fast8_t>  GetCRC() const { return m_CRC; }
   inline std::vector<uint_fast8_t>* GetAction() { return &m_Action; }
-  inline uint32_t              GetLength() const { return m_Action.size() + 3; }
+  inline uint32_t                   GetLength() const { return m_Action.size() + 3; }
 };
 
 //
@@ -211,10 +211,10 @@ public:
   };
 
 private:
-  std::string          m_Message;
+  std::string               m_Message;
   std::vector<uint_fast8_t> m_ToPIDs;
   std::vector<uint_fast8_t> m_ExtraFlags;
-  ChatToHostType       m_Type;
+  ChatToHostType            m_Type;
   uint_fast8_t              m_FromPID;
   uint_fast8_t              m_Flag;
   uint_fast8_t              m_Byte;
@@ -225,11 +225,11 @@ public:
   CIncomingChatPlayer(uint_fast8_t nFromPID, std::vector<uint_fast8_t> nToPIDs, uint_fast8_t nFlag, uint_fast8_t nByte);
   ~CIncomingChatPlayer();
 
-  inline ChatToHostType       GetType() const { return m_Type; }
+  inline ChatToHostType            GetType() const { return m_Type; }
   inline uint_fast8_t              GetFromPID() const { return m_FromPID; }
   inline std::vector<uint_fast8_t> GetToPIDs() const { return m_ToPIDs; }
   inline uint_fast8_t              GetFlag() const { return m_Flag; }
-  inline std::string          GetMessage() const { return m_Message; }
+  inline std::string               GetMessage() const { return m_Message; }
   inline uint_fast8_t              GetByte() const { return m_Byte; }
   inline std::vector<uint_fast8_t> GetExtraFlags() const { return m_ExtraFlags; }
 };
@@ -237,15 +237,15 @@ public:
 class CIncomingMapSize
 {
 private:
-  uint32_t m_MapSize;
-  uint_fast8_t  m_SizeFlag;
+  uint32_t     m_MapSize;
+  uint_fast8_t m_SizeFlag;
 
 public:
   CIncomingMapSize(uint_fast8_t nSizeFlag, uint32_t nMapSize);
   ~CIncomingMapSize();
 
-  inline uint_fast8_t  GetSizeFlag() const { return m_SizeFlag; }
-  inline uint32_t GetMapSize() const { return m_MapSize; }
+  inline uint_fast8_t GetSizeFlag() const { return m_SizeFlag; }
+  inline uint32_t     GetMapSize() const { return m_MapSize; }
 };
 
 #endif // AURA_GAMEPROTOCOL_H_

@@ -223,8 +223,8 @@ inline std::vector<uint_fast8_t> ExtractNumbers(const std::string& s, const uint
   // consider the std::string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
   std::vector<uint_fast8_t> result;
-  uint32_t             c;
-  std::stringstream    SS;
+  uint32_t                  c;
+  std::stringstream         SS;
   SS << s;
 
   for (uint32_t i = 0; i < count; ++i)
@@ -247,8 +247,8 @@ inline std::vector<uint_fast8_t> ExtractHexNumbers(std::string& s)
   // consider the std::string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
   std::vector<uint_fast8_t> result;
-  uint32_t             c;
-  std::stringstream    SS;
+  uint32_t                  c;
+  std::stringstream         SS;
   SS << s;
 
   while (!SS.eof())
