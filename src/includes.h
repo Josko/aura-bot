@@ -28,8 +28,6 @@
 #include <cstdint>
 #include <chrono>
 
-using PIDPlayer = std::pair<uint8_t, std::string>;
-
 // time
 
 inline int64_t GetTime()
