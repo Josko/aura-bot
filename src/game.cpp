@@ -777,24 +777,24 @@ void CGame::UpdatePost(void* send_fd)
   }
 }
 
-void CGame::Send(CGamePlayer* player, const BYTEARRAY& data)
+void CGame::Send(CGamePlayer* player, const std::vector<uint8_t>& data)
 {
   if (player)
     player->Send(data);
 }
 
-void CGame::Send(uint8_t PID, const BYTEARRAY& data)
+void CGame::Send(uint8_t PID, const std::vector<uint8_t>& data)
 {
   Send(GetPlayerFromPID(PID), data);
 }
 
-void CGame::Send(const BYTEARRAY& PIDs, const BYTEARRAY& data)
+void CGame::Send(const std::vector<uint8_t>& PIDs, const std::vector<uint8_t>& data)
 {
   for (auto& PID : PIDs)
     Send(PID, data);
 }
 
-void CGame::SendAll(const BYTEARRAY& data)
+void CGame::SendAll(const std::vector<uint8_t>& data)
 {
   for (auto& player : m_Players)
     player->Send(data);
@@ -809,9 +809,9 @@ void CGame::SendChat(uint8_t fromPID, CGamePlayer* player, const string& message
     if (!m_GameLoading && !m_GameLoaded)
     {
       if (message.size() > 254)
-        Send(player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, CreateByteArray(player->GetPID()), 16, BYTEARRAY(), message.substr(0, 254)));
+        Send(player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, CreateByteArray(player->GetPID()), 16, std::vector<uint8_t>(), message.substr(0, 254)));
       else
-        Send(player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, CreateByteArray(player->GetPID()), 16, BYTEARRAY(), message));
+        Send(player, m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, CreateByteArray(player->GetPID()), 16, std::vector<uint8_t>(), message));
     }
     else
     {
@@ -858,9 +858,9 @@ void CGame::SendAllChat(uint8_t fromPID, const string& message)
     if (!m_GameLoading && !m_GameLoaded)
     {
       if (message.size() > 254)
-        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 16, BYTEARRAY(), message.substr(0, 254)));
+        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 16, std::vector<uint8_t>(), message.substr(0, 254)));
       else
-        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 16, BYTEARRAY(), message));
+        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 16, std::vector<uint8_t>(), message));
     }
     else
     {
@@ -891,7 +891,7 @@ void CGame::SendVirtualHostPlayerInfo(CGamePlayer* player)
   if (m_VirtualHostPID == 255)
     return;
 
-  const BYTEARRAY IP = {0, 0, 0, 0};
+  const std::vector<uint8_t> IP = {0, 0, 0, 0};
 
   Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(m_VirtualHostPID, m_VirtualHostName, IP, IP));
 }
@@ -901,7 +901,7 @@ void CGame::SendFakePlayerInfo(CGamePlayer* player)
   if (m_FakePlayers.empty())
     return;
 
-  const BYTEARRAY IP = {0, 0, 0, 0};
+  const std::vector<uint8_t> IP = {0, 0, 0, 0};
 
   for (auto& fakeplayer : m_FakePlayers)
     Send(player, m_Protocol->SEND_W3GS_PLAYERINFO(fakeplayer, "Troll[" + to_string(fakeplayer) + "]", IP, IP));
@@ -1528,7 +1528,7 @@ void CGame::EventPlayerChatToHost(CGamePlayer* player, CIncomingChatPlayer* chat
       // relay the chat message to other players
 
       bool            Relay      = !player->GetMuted();
-      const BYTEARRAY ExtraFlags = chatPlayer->GetExtraFlags();
+      const std::vector<uint8_t> ExtraFlags = chatPlayer->GetExtraFlags();
 
       // calculate timestamp
 
@@ -2912,7 +2912,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           if (m_FakePlayers.empty() || !m_GameLoaded)
             break;
 
-          BYTEARRAY CRC, Action;
+          std::vector<uint8_t> CRC, Action;
           Action.push_back(1);
           m_Actions.push(new CIncomingAction(m_FakePlayers[rand() % m_FakePlayers.size()], CRC, Action));
           break;
@@ -2928,7 +2928,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           if (m_FakePlayers.empty() || !m_GameLoaded)
             break;
 
-          BYTEARRAY CRC, Action;
+          std::vector<uint8_t> CRC, Action;
           Action.push_back(2);
           m_Actions.push(new CIncomingAction(m_FakePlayers[0], CRC, Action));
           break;
@@ -4049,9 +4049,9 @@ uint8_t CGame::GetNewColour() const
   return 12;
 }
 
-BYTEARRAY CGame::GetPIDs() const
+std::vector<uint8_t> CGame::GetPIDs() const
 {
-  BYTEARRAY result;
+  std::vector<uint8_t> result;
 
   for (auto& player : m_Players)
   {
@@ -4062,9 +4062,9 @@ BYTEARRAY CGame::GetPIDs() const
   return result;
 }
 
-BYTEARRAY CGame::GetPIDs(uint8_t excludePID) const
+std::vector<uint8_t> CGame::GetPIDs(uint8_t excludePID) const
 {
-  BYTEARRAY result;
+  std::vector<uint8_t> result;
 
   for (auto& player : m_Players)
   {
@@ -4653,7 +4653,7 @@ void CGame::CreateVirtualHost()
 
   m_VirtualHostPID = GetNewPID();
 
-  const BYTEARRAY IP = {0, 0, 0, 0};
+  const std::vector<uint8_t> IP = {0, 0, 0, 0};
 
   SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(m_VirtualHostPID, m_VirtualHostName, IP, IP));
 }
@@ -4680,7 +4680,7 @@ void CGame::CreateFakePlayer()
       DeleteVirtualHost();
 
     const uint8_t   FakePlayerPID = GetNewPID();
-    const BYTEARRAY IP            = {0, 0, 0, 0};
+    const std::vector<uint8_t> IP            = {0, 0, 0, 0};
 
     SendAll(m_Protocol->SEND_W3GS_PLAYERINFO(FakePlayerPID, "Troll[" + to_string(FakePlayerPID) + "]", IP, IP));
     m_Slots[SID] = CGameSlot(FakePlayerPID, 100, SLOTSTATUS_OCCUPIED, 0, m_Slots[SID].GetTeam(), m_Slots[SID].GetColour(), m_Slots[SID].GetRace());

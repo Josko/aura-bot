@@ -27,7 +27,7 @@ using namespace std;
 // CGameSlot
 //
 
-CGameSlot::CGameSlot(const BYTEARRAY& n)
+CGameSlot::CGameSlot(const std::vector<uint8_t>& n)
   : m_PID(0),
     m_DownloadStatus(255),
     m_SlotStatus(SLOTSTATUS_OPEN),

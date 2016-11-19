@@ -21,7 +21,9 @@
 #ifndef AURA_GAMESLOT_H_
 #define AURA_GAMESLOT_H_
 
-#include "includes.h"
+#include <string>
+#include <cstdint>
+#include <vector>
 
 #define SLOTSTATUS_OPEN 0
 #define SLOTSTATUS_CLOSED 1
@@ -56,7 +58,7 @@ private:
   uint8_t m_Handicap;       // handicap
 
 public:
-  explicit CGameSlot(const BYTEARRAY& n);
+  explicit CGameSlot(const std::vector<uint8_t>& n);
   CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const uint8_t nSlotStatus, const uint8_t nComputer, const uint8_t nTeam, const uint8_t nColour, const uint8_t nRace, const uint8_t nComputerType = 1, const uint8_t nHandicap = 100);
   ~CGameSlot();
 
@@ -69,7 +71,7 @@ public:
   inline uint8_t   GetRace() const { return m_Race; }
   inline uint8_t   GetComputerType() const { return m_ComputerType; }
   inline uint8_t   GetHandicap() const { return m_Handicap; }
-  inline BYTEARRAY GetByteArray() const { return BYTEARRAY{m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap}; }
+  inline std::vector<uint8_t> GetByteArray() const { return std::vector<uint8_t>{m_PID, m_DownloadStatus, m_SlotStatus, m_Computer, m_Team, m_Colour, m_Race, m_ComputerType, m_Handicap}; }
 
   inline void SetPID(uint8_t nPID) { m_PID = nPID; }
   inline void SetDownloadStatus(uint8_t nDownloadStatus) { m_DownloadStatus = nDownloadStatus; }

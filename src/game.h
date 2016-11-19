@@ -162,10 +162,10 @@ public:
 
   // generic functions to send packets to players
 
-  void Send(CGamePlayer* player, const BYTEARRAY& data);
-  void Send(uint8_t PID, const BYTEARRAY& data);
-  void Send(const BYTEARRAY& PIDs, const BYTEARRAY& data);
-  void SendAll(const BYTEARRAY& data);
+  void Send(CGamePlayer* player, const std::vector<uint8_t>& data);
+  void Send(uint8_t PID, const std::vector<uint8_t>& data);
+  void Send(const std::vector<uint8_t>& PIDs, const std::vector<uint8_t>& data);
+  void SendAll(const std::vector<uint8_t>& data);
 
   // functions to send packets to players
 
@@ -219,8 +219,8 @@ public:
   CGamePlayer* GetPlayerFromColour(uint8_t colour) const;
   uint8_t   GetNewPID() const;
   uint8_t   GetNewColour() const;
-  BYTEARRAY GetPIDs() const;
-  BYTEARRAY GetPIDs(uint8_t excludePID) const;
+  std::vector<uint8_t> GetPIDs() const;
+  std::vector<uint8_t> GetPIDs(uint8_t excludePID) const;
   uint8_t GetHostPID() const;
   uint8_t GetEmptySlot(bool reserved) const;
   uint8_t GetEmptySlot(uint8_t team, uint8_t PID) const;

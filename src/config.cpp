@@ -20,6 +20,7 @@
 
 #include "aura.h"
 #include "config.h"
+#include "includes.h"
 
 #include <cstdlib>
 #include <fstream>

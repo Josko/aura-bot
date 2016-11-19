@@ -24,12 +24,10 @@
 // STL
 
 #include <iostream>
-#include <vector>
 #include <string>
 #include <cstdint>
 #include <chrono>
 
-using BYTEARRAY = std::vector<uint8_t>;
 using PIDPlayer = std::pair<uint8_t, std::string>;
 
 // time

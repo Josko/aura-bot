@@ -31,6 +31,7 @@
 #include "gameprotocol.h"
 #include "game.h"
 #include "irc.h"
+#include "includes.h"
 #include "hash.h"
 
 #include <algorithm>
@@ -41,7 +42,7 @@ using namespace std;
 // CBNET
 //
 
-CBNET::CBNET(CAura* nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
+CBNET::CBNET(CAura* nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, std::vector<uint8_t> nEXEVersion, std::vector<uint8_t> nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
   : m_Aura(nAura),
     m_Socket(new CTCPClient()),
     m_Protocol(new CBNETProtocol()),
@@ -159,7 +160,7 @@ bool CBNET::Update(void* fd, void* send_fd)
     // extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
 
     string*   RecvBuffer      = m_Socket->GetBytes();
-    BYTEARRAY Bytes           = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
+    std::vector<uint8_t> Bytes           = CreateByteArray((uint8_t*)RecvBuffer->c_str(), RecvBuffer->size());
     uint32_t  LengthProcessed = 0;
 
     CIncomingGameHost*  GameHost;
@@ -176,7 +177,7 @@ bool CBNET::Update(void* fd, void* send_fd)
         // bytes 2 and 3 contain the length of the packet
 
         const uint16_t  Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
-        const BYTEARRAY Data   = BYTEARRAY(begin(Bytes), begin(Bytes) + Length);
+        const std::vector<uint8_t> Data   = std::vector<uint8_t>(begin(Bytes), begin(Bytes) + Length);
 
         if (Bytes.size() >= Length)
         {
@@ -385,7 +386,7 @@ bool CBNET::Update(void* fd, void* send_fd)
           }
 
           LengthProcessed += Length;
-          Bytes = BYTEARRAY(begin(Bytes) + Length, end(Bytes));
+          Bytes = std::vector<uint8_t>(begin(Bytes) + Length, end(Bytes));
         }
         else
           break;
@@ -2013,10 +2014,10 @@ void CBNET::QueueGameRefresh(uint8_t state, const string& gameName, CMap* map, u
 
     // use an invalid map width/height to indicate reconnectable games
 
-    BYTEARRAY MapWidth;
+    std::vector<uint8_t> MapWidth;
     MapWidth.push_back(192);
     MapWidth.push_back(7);
-    BYTEARRAY MapHeight;
+    std::vector<uint8_t> MapHeight;
     MapHeight.push_back(192);
     MapHeight.push_back(7);
 
@@ -2032,13 +2033,13 @@ void CBNET::QueueGameUncreate()
 
 void CBNET::UnqueueGameRefreshes()
 {
-  queue<BYTEARRAY> Packets;
+  queue<std::vector<uint8_t>> Packets;
 
   while (!m_OutPackets.empty())
   {
     // TODO: it's very inefficient to have to copy all these packets while searching the queue
 
-    BYTEARRAY Packet = m_OutPackets.front();
+    std::vector<uint8_t> Packet = m_OutPackets.front();
     m_OutPackets.pop();
 
     if (Packet.size() >= 2 && Packet[1] != CBNETProtocol::SID_STARTADVEX3)

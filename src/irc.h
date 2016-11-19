@@ -21,7 +21,9 @@
 #ifndef AURA_IRC_H_
 #define AURA_IRC_H_
 
-#include "includes.h"
+#include <vector>
+#include <string>
+#include <cstdint>
 
 #define LF ('\x0A')
 

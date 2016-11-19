@@ -47,7 +47,7 @@ void CBNCSUtilInterface::Reset(const string& userName, const string& userPasswor
   m_NLS = new NLS(userName, userPassword);
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const BYTEARRAY& clientToken, const BYTEARRAY& serverToken)
+bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken)
 {
   // set m_EXEVersion, m_EXEVersionHash, m_EXEInfo, m_InfoROC, m_InfoTFT
 
@@ -115,7 +115,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON()
   return true;
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const BYTEARRAY& salt, const BYTEARRAY& serverKey)
+bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint8_t>& salt, const std::vector<uint8_t>& serverKey)
 {
   // set m_M1
 
@@ -135,9 +135,9 @@ bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string& userPassword)
   return true;
 }
 
-BYTEARRAY CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32_t clientToken, uint32_t serverToken)
+std::vector<uint8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32_t clientToken, uint32_t serverToken)
 {
-  BYTEARRAY    KeyInfo;
+  std::vector<uint8_t>    KeyInfo;
   CDKeyDecoder Decoder(key.c_str(), key.size());
 
   if (Decoder.isKeyValid())

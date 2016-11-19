@@ -47,7 +47,7 @@ CMap::CMap(CAura* nAura, CConfig* CFG, const string& nCFGFile)
 
 CMap::~CMap() = default;
 
-BYTEARRAY CMap::GetMapGameFlags() const
+std::vector<uint8_t> CMap::GetMapGameFlags() const
 {
   uint32_t GameFlags = 0;
 
@@ -232,7 +232,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   // try to calculate map_size, map_info, map_crc, map_sha1
 
-  BYTEARRAY MapSize, MapInfo, MapCRC, MapSHA1;
+  std::vector<uint8_t> MapSize, MapInfo, MapCRC, MapSHA1;
 
   if (!m_MapData.empty())
   {
@@ -419,8 +419,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   // try to calculate map_width, map_height, map_slot<x>, map_numplayers, map_numteams, map_filtertype
 
-  BYTEARRAY         MapWidth;
-  BYTEARRAY         MapHeight;
+  std::vector<uint8_t>         MapWidth;
+  std::vector<uint8_t>         MapHeight;
   uint32_t          MapOptions    = 0;
   uint32_t          MapNumPlayers = 0;
   uint32_t          MapFilterType = MAPFILTER_TYPE_SCENARIO;
@@ -786,7 +786,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
       if (SlotString.empty())
         break;
 
-      BYTEARRAY SlotData = ExtractNumbers(SlotString, 9);
+      std::vector<uint8_t> SlotData = ExtractNumbers(SlotString, 9);
       Slots.emplace_back(SlotData);
     }
   }
@@ -802,7 +802,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
       if (SlotString.empty())
         break;
 
-      BYTEARRAY SlotData = ExtractNumbers(SlotString, 9);
+      std::vector<uint8_t> SlotData = ExtractNumbers(SlotString, 9);
       Slots.emplace_back(SlotData);
     }
   }

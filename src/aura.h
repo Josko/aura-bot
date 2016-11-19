@@ -21,7 +21,9 @@
 #ifndef AURA_AURA_H_
 #define AURA_AURA_H_
 
-#include "includes.h"
+#include <cstdint>
+#include <vector>
+#include <string>
 
 //
 // CAura

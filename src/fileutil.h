@@ -22,6 +22,8 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 #define AURA_FILEUTIL_H_
 
 #include "includes.h"
+#include <vector>
+
 
 #ifdef WIN32
 bool FileExists(std::string file);

@@ -49,11 +49,11 @@ private:
   CTCPClient*              m_Socket;                    // the connection to battle.net
   CBNETProtocol*           m_Protocol;                  // battle.net protocol
   CBNCSUtilInterface*      m_BNCSUtil;                  // the interface to the bncsutil library (used for logging into battle.net)
-  std::queue<BYTEARRAY>    m_OutPackets;                // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
+  std::queue<std::vector<uint8_t>>    m_OutPackets;                // queue of outgoing packets to be sent (to prevent getting kicked for flooding)
   std::vector<std::string> m_Friends;                   // std::vector of friends
   std::vector<std::string> m_Clan;                      // std::vector of clan members
-  BYTEARRAY                m_EXEVersion;                // custom exe version for PvPGN users
-  BYTEARRAY                m_EXEVersionHash;            // custom exe version hash for PvPGN users
+  std::vector<uint8_t>                m_EXEVersion;                // custom exe version for PvPGN users
+  std::vector<uint8_t>                m_EXEVersionHash;            // custom exe version hash for PvPGN users
   std::string              m_Server;                    // battle.net server to connect to
   std::string              m_ServerIP;                  // battle.net server to connect to (the IP address so we don't have to resolve it every time we connect)
   std::string              m_ServerAlias;               // battle.net server alias (short name, e.g. "USEast")
@@ -87,7 +87,7 @@ private:
   bool                     m_PvPGN;                     // if this BNET connection is actually a PvPGN
 
 public:
-  CBNET(CAura* nAura, std::string nServer, std::string nServerAlias, std::string nCDKeyROC, std::string nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, std::string nUserName, std::string nUserPassword, std::string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, BYTEARRAY nEXEVersion, BYTEARRAY nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
+  CBNET(CAura* nAura, std::string nServer, std::string nServerAlias, std::string nCDKeyROC, std::string nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, std::string nUserName, std::string nUserPassword, std::string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, std::vector<uint8_t> nEXEVersion, std::vector<uint8_t> nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
   ~CBNET();
   CBNET(CBNET&) = delete;
 
@@ -101,8 +101,8 @@ public:
   inline std::string GetFirstChannel() const { return m_FirstChannel; }
   inline std::string GetCurrentChannel() const { return m_CurrentChannel; }
   inline char        GetCommandTrigger() const { return m_CommandTrigger; }
-  inline BYTEARRAY   GetEXEVersion() const { return m_EXEVersion; }
-  inline BYTEARRAY   GetEXEVersionHash() const { return m_EXEVersionHash; }
+  inline std::vector<uint8_t>   GetEXEVersion() const { return m_EXEVersion; }
+  inline std::vector<uint8_t>   GetEXEVersionHash() const { return m_EXEVersionHash; }
   inline std::string GetPasswordHashType() const { return m_PasswordHashType; }
   inline uint32_t    GetHostCounterID() const { return m_HostCounterID; }
   inline bool        GetLoggedIn() const { return m_LoggedIn; }
