@@ -110,8 +110,7 @@ int main(const int, const char* argv[])
 
   // print timer resolution
 
-  const std::chrono::duration<double, std::nano> resolution = std::chrono::steady_clock::duration(1);
-  Print("[AURA] using monotonic timer with resolution " + to_string(resolution.count()) + " nanoseconds");
+  Print("[AURA] using monotonic timer with resolution " + std::to_string(static_cast<double>(std::chrono::steady_clock::period::num) / std::chrono::steady_clock::period::den * 1e9) + " nanoseconds");
 
 #ifdef WIN32
   // initialize winsock
