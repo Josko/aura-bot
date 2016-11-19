@@ -26,7 +26,7 @@ CODE PORTED FROM THE ORIGINAL GHOST PROJECT: http://ghost.pwner.org/
 #include <windows.h>
 #else
 #include <dirent.h>
-#include <string.h>
+#include <cstring>
 #endif
 
 using namespace std;
@@ -91,12 +91,12 @@ vector<string> FilesMatch(const string& path, const string& pattern)
 
     if (Name == pattern)
     {
-      Files.push_back(string(dp->d_name));
+      Files.emplace_back(dp->d_name);
       break;
     }
 
     if (Name.find(pattern) != string::npos && Name != "." && Name != "..")
-      Files.push_back(string(dp->d_name));
+      Files.emplace_back(dp->d_name);
   }
 
   closedir(dir);

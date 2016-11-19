@@ -4412,7 +4412,7 @@ void CGame::ShuffleSlots()
     // as usual don't modify the team/colour/race
 
     for (uint8_t i = 0; i < SIDs.size(); ++i)
-      Slots.push_back(CGameSlot(PlayerSlots[SIDs[i]].GetPID(), PlayerSlots[SIDs[i]].GetDownloadStatus(), PlayerSlots[SIDs[i]].GetSlotStatus(), PlayerSlots[SIDs[i]].GetComputer(), PlayerSlots[i].GetTeam(), PlayerSlots[i].GetColour(), PlayerSlots[i].GetRace()));
+      Slots.emplace_back(PlayerSlots[SIDs[i]].GetPID(), PlayerSlots[SIDs[i]].GetDownloadStatus(), PlayerSlots[SIDs[i]].GetSlotStatus(), PlayerSlots[SIDs[i]].GetComputer(), PlayerSlots[i].GetTeam(), PlayerSlots[i].GetColour(), PlayerSlots[i].GetRace());
 
     PlayerSlots = Slots;
   }

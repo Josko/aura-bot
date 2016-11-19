@@ -18,6 +18,8 @@
 
  */
 
+#include <utility>
+
 #include "bnetprotocol.h"
 #include "util.h"
 
@@ -28,9 +30,7 @@ CBNETProtocol::CBNETProtocol()
 {
 }
 
-CBNETProtocol::~CBNETProtocol()
-{
-}
+CBNETProtocol::~CBNETProtocol() = default;
 
 ///////////////////////
 // RECEIVE FUNCTIONS //
@@ -320,7 +320,7 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDLIST(const BYTEARRAY& data)
       i += 6;
       i += ExtractCString(data, i).size() + 1;
 
-      Friends.push_back(string(begin(Account), end(Account)));
+      Friends.emplace_back(begin(Account), end(Account));
     }
   }
 
@@ -367,7 +367,7 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST(const BYTEARRAY& data)
       // in the original VB source the location string is read but discarded, so that's what I do here
 
       i += ExtractCString(data, i).size() + 1;
-      ClanList.push_back(string(begin(Name), end(Name)));
+      ClanList.emplace_back(begin(Name), end(Name));
     }
   }
 
@@ -681,17 +681,15 @@ bool CBNETProtocol::ValidateLength(const BYTEARRAY& content)
 // CIncomingGameHost
 //
 
-CIncomingGameHost::CIncomingGameHost(const BYTEARRAY& nIP, uint16_t nPort, const string& nGameName, const BYTEARRAY& nHostCounter)
-  : m_GameName(nGameName),
-    m_IP(nIP),
-    m_HostCounter(nHostCounter),
+CIncomingGameHost::CIncomingGameHost(BYTEARRAY nIP, uint16_t nPort, string nGameName, BYTEARRAY nHostCounter)
+  : m_GameName(std::move(nGameName)),
+    m_IP(std::move(nIP)),
+    m_HostCounter(std::move(nHostCounter)),
     m_Port(nPort)
 {
 }
 
-CIncomingGameHost::~CIncomingGameHost()
-{
-}
+CIncomingGameHost::~CIncomingGameHost() = default;
 
 string CIncomingGameHost::GetIPString() const
 {
@@ -715,13 +713,11 @@ string CIncomingGameHost::GetIPString() const
 // CIncomingChatEvent
 //
 
-CIncomingChatEvent::CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const string& nUser, const string& nMessage)
-  : m_User(nUser),
-    m_Message(nMessage),
+CIncomingChatEvent::CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, string nUser, string nMessage)
+  : m_User(std::move(nUser)),
+    m_Message(std::move(nMessage)),
     m_ChatEvent(nChatEvent)
 {
 }
 
-CIncomingChatEvent::~CIncomingChatEvent()
-{
-}
+CIncomingChatEvent::~CIncomingChatEvent() = default;

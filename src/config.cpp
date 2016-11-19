@@ -33,9 +33,7 @@ CConfig::CConfig()
 {
 }
 
-CConfig::~CConfig()
-{
-}
+CConfig::~CConfig() = default;
 
 void CConfig::Read(const string& file)
 {

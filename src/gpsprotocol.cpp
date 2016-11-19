@@ -24,13 +24,9 @@
 // CGPSProtocol
 //
 
-CGPSProtocol::CGPSProtocol()
-{
-}
+CGPSProtocol::CGPSProtocol() = default;
 
-CGPSProtocol::~CGPSProtocol()
-{
-}
+CGPSProtocol::~CGPSProtocol() = default;
 
 ///////////////////////
 // RECEIVE FUNCTIONS //

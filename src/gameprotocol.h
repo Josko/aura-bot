@@ -161,7 +161,7 @@ private:
   uint32_t    m_EntryKey;
 
 public:
-  CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, const std::string& nName, const BYTEARRAY& nInternalIP);
+  CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, std::string nName, BYTEARRAY nInternalIP);
   ~CIncomingJoinPlayer();
 
   inline uint32_t    GetHostCounter() const { return m_HostCounter; }
@@ -182,7 +182,7 @@ private:
   uint8_t   m_PID;
 
 public:
-  CIncomingAction(uint8_t nPID, const BYTEARRAY& nCRC, const BYTEARRAY& nAction);
+  CIncomingAction(uint8_t nPID, BYTEARRAY nCRC, BYTEARRAY nAction);
   ~CIncomingAction();
 
   inline uint8_t    GetPID() const { return m_PID; }
@@ -218,9 +218,9 @@ private:
   uint8_t        m_Byte;
 
 public:
-  CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToPIDs, uint8_t nFlag, const std::string& nMessage);
-  CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToPIDs, uint8_t nFlag, const std::string& nMessage, const BYTEARRAY& nExtraFlags);
-  CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToPIDs, uint8_t nFlag, uint8_t nByte);
+  CIncomingChatPlayer(uint8_t nFromPID, BYTEARRAY nToPIDs, uint8_t nFlag, std::string nMessage);
+  CIncomingChatPlayer(uint8_t nFromPID, BYTEARRAY nToPIDs, uint8_t nFlag, std::string nMessage, BYTEARRAY nExtraFlags);
+  CIncomingChatPlayer(uint8_t nFromPID, BYTEARRAY nToPIDs, uint8_t nFlag, uint8_t nByte);
   ~CIncomingChatPlayer();
 
   inline ChatToHostType GetType() const { return m_Type; }

@@ -45,9 +45,7 @@ CMap::CMap(CAura* nAura, CConfig* CFG, const string& nCFGFile)
   Load(CFG, nCFGFile);
 }
 
-CMap::~CMap()
-{
-}
+CMap::~CMap() = default;
 
 BYTEARRAY CMap::GetMapGameFlags() const
 {
@@ -279,7 +277,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
           // override common.j
 
-          if (SFileOpenFileEx(MapMPQ, "Scripts\\common.j", 0, &SubFile))
+          if (SFileOpenFileEx(MapMPQ, R"(Scripts\common.j)", 0, &SubFile))
           {
             uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
@@ -315,7 +313,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
           // override blizzard.j
 
-          if (SFileOpenFileEx(MapMPQ, "Scripts\\blizzard.j", 0, &SubFile))
+          if (SFileOpenFileEx(MapMPQ, R"(Scripts\blizzard.j)", 0, &SubFile))
           {
             uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
@@ -352,23 +350,23 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
         if (MapMPQReady)
         {
           vector<string> FileList;
-          FileList.push_back("war3map.j");
-          FileList.push_back("scripts\\war3map.j");
-          FileList.push_back("war3map.w3e");
-          FileList.push_back("war3map.wpm");
-          FileList.push_back("war3map.doo");
-          FileList.push_back("war3map.w3u");
-          FileList.push_back("war3map.w3b");
-          FileList.push_back("war3map.w3d");
-          FileList.push_back("war3map.w3a");
-          FileList.push_back("war3map.w3q");
+          FileList.emplace_back("war3map.j");
+          FileList.emplace_back(R"(scripts\war3map.j)");
+          FileList.emplace_back("war3map.w3e");
+          FileList.emplace_back("war3map.wpm");
+          FileList.emplace_back("war3map.doo");
+          FileList.emplace_back("war3map.w3u");
+          FileList.emplace_back("war3map.w3b");
+          FileList.emplace_back("war3map.w3d");
+          FileList.emplace_back("war3map.w3a");
+          FileList.emplace_back("war3map.w3q");
           bool FoundScript = false;
 
           for (auto& fileName : FileList)
           {
             // don't use scripts\war3map.j if we've already used war3map.j (yes, some maps have both but only war3map.j is used)
 
-            if (FoundScript && fileName == "scripts\\war3map.j")
+            if (FoundScript && fileName == R"(scripts\war3map.j)")
               continue;
 
             HANDLE SubFile;
@@ -384,7 +382,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
                 if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
                 {
-                  if (fileName == "war3map.j" || fileName == "scripts\\war3map.j")
+                  if (fileName == "war3map.j" || fileName == R"(scripts\war3map.j)")
                     FoundScript = true;
 
                   Val = ROTL(Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead), 3);
@@ -399,7 +397,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
           }
 
           if (!FoundScript)
-            Print("[MAP] couldn't find war3map.j or scripts\\war3map.j in MPQ file, calculated map_crc/sha1 is probably wrong");
+            Print(R"([MAP] couldn't find war3map.j or scripts\war3map.j in MPQ file, calculated map_crc/sha1 is probably wrong)");
 
           MapCRC = CreateByteArray(Val, false);
           Print("[MAP] calculated map_crc = " + ByteArrayToDecString(MapCRC));
@@ -789,7 +787,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
         break;
 
       BYTEARRAY SlotData = ExtractNumbers(SlotString, 9);
-      Slots.push_back(CGameSlot(SlotData));
+      Slots.emplace_back(SlotData);
     }
   }
   else if (CFG->Exists("map_slot1"))
@@ -805,7 +803,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
         break;
 
       BYTEARRAY SlotData = ExtractNumbers(SlotString, 9);
-      Slots.push_back(CGameSlot(SlotData));
+      Slots.emplace_back(SlotData);
     }
   }
 
@@ -833,7 +831,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
     Print("[MAP] adding " + to_string(12 - m_Slots.size()) + " observer slots");
 
     while (m_Slots.size() < 12)
-      m_Slots.push_back(CGameSlot(0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM));
+      m_Slots.emplace_back(0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM);
   }
 
   CheckValid();
@@ -850,7 +848,7 @@ void CMap::CheckValid()
   }
 
   if (m_MapPath.find('/') != string::npos)
-    Print("[MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\\'");
+    Print(R"([MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\')");
 
   if (m_MapSize.size() != 4)
   {

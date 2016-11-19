@@ -50,7 +50,7 @@ public:
   bool                     m_WaitingToConnect;
   bool                     m_OriginalNick;
 
-  CIRC(CAura* nAura, const std::string& nServer, const std::string& nNickname, const std::string& nUsername, const std::string& nPassword, const std::vector<std::string>& nChannels, const std::vector<std::string>& nRootAdmins, uint16_t nPort, int8_t nCommandTrigger);
+  CIRC(CAura* nAura, std::string nServer, const std::string& nNickname, const std::string& nUsername, std::string nPassword, std::vector<std::string> nChannels, std::vector<std::string> nRootAdmins, uint16_t nPort, int8_t nCommandTrigger);
   ~CIRC();
   CIRC(CIRC&) = delete;
 

@@ -18,6 +18,8 @@
 
  */
 
+#include <utility>
+
 #include "gameplayer.h"
 #include "aura.h"
 #include "bnet.h"
@@ -119,13 +121,13 @@ void CPotentialPlayer::Send(const BYTEARRAY& data) const
 // CGamePlayer
 //
 
-CGamePlayer::CGamePlayer(CPotentialPlayer* potential, uint8_t nPID, const string& nJoinedRealm, const string& nName, const BYTEARRAY& nInternalIP, bool nReserved)
+CGamePlayer::CGamePlayer(CPotentialPlayer* potential, uint8_t nPID, string nJoinedRealm, string nName, BYTEARRAY nInternalIP, bool nReserved)
   : m_Protocol(potential->m_Protocol),
     m_Game(potential->m_Game),
     m_Socket(potential->GetSocket()),
-    m_InternalIP(nInternalIP),
-    m_JoinedRealm(nJoinedRealm),
-    m_Name(nName),
+    m_InternalIP(std::move(nInternalIP)),
+    m_JoinedRealm(std::move(nJoinedRealm)),
+    m_Name(std::move(nName)),
     m_TotalPacketsSent(0),
     m_TotalPacketsReceived(1),
     m_LeftCode(PLAYERLEAVE_LOBBY),
@@ -199,7 +201,7 @@ bool CGamePlayer::Update(void* fd)
         if (m_Game->GetGameState() == GAME_PUBLIC || bnet->GetPvPGN())
           bnet->QueueChatCommand("/whois " + m_Name);
         else if (m_Game->GetGameState() == GAME_PRIVATE)
-          bnet->QueueChatCommand("Spoof check by replying to this message with \"sc\" [ /r sc ]", m_Name, true, string());
+          bnet->QueueChatCommand(R"(Spoof check by replying to this message with "sc" [ /r sc ])", m_Name, true, string());
       }
     }
 

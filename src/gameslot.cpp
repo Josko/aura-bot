@@ -73,6 +73,4 @@ CGameSlot::CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const ui
 {
 }
 
-CGameSlot::~CGameSlot()
-{
-}
+CGameSlot::~CGameSlot() = default;

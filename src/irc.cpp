@@ -18,6 +18,8 @@
 
  */
 
+#include <utility>
+
 #include "irc.h"
 #include "aura.h"
 #include "socket.h"
@@ -31,15 +33,15 @@ using namespace std;
 //// CIRC ////
 //////////////
 
-CIRC::CIRC(CAura* nAura, const string& nServer, const string& nNickname, const string& nUsername, const string& nPassword, const vector<string>& nChannels, const vector<string>& nRootAdmins, uint16_t nPort, int8_t nCommandTrigger)
+CIRC::CIRC(CAura* nAura, string nServer, const string& nNickname, const string& nUsername, string nPassword, vector<string> nChannels, vector<string> nRootAdmins, uint16_t nPort, int8_t nCommandTrigger)
   : m_Aura(nAura),
     m_Socket(new CTCPClient),
-    m_Channels(nChannels),
-    m_RootAdmins(nRootAdmins),
-    m_Server(nServer),
+    m_Channels(std::move(nChannels)),
+    m_RootAdmins(std::move(nRootAdmins)),
+    m_Server(std::move(nServer)),
     m_Nickname(nNickname),
     m_NicknameCpy(nNickname),
-    m_Password(nPassword),
+    m_Password(std::move(nPassword)),
     m_LastConnectionAttemptTime(0),
     m_LastPacketTime(GetTime()),
     m_LastAntiIdleTime(GetTime()),

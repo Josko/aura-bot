@@ -18,6 +18,8 @@
 
  */
 
+#include <utility>
+
 #include "auradb.h"
 #include "aura.h"
 #include "util.h"
@@ -75,7 +77,7 @@ CAuraDB::CAuraDB(CConfig* CFG)
 
   string        SchemaNumber;
   sqlite3_stmt* Statement;
-  m_DB->Prepare("SELECT value FROM config WHERE name=\"schema_number\"", (void**)&Statement);
+  m_DB->Prepare(R"(SELECT value FROM config WHERE name="schema_number")", (void**)&Statement);
 
   if (Statement)
   {
@@ -107,7 +109,7 @@ CAuraDB::CAuraDB(CConfig* CFG)
 
     Print("[SQLITE3] assuming database is empty");
 
-    if (m_DB->Exec("CREATE TABLE admins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )") != SQLITE_OK)
+    if (m_DB->Exec(R"(CREATE TABLE admins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT "" ))") != SQLITE_OK)
       Print("[SQLITE3] error creating admins table - " + m_DB->GetError());
 
     if (m_DB->Exec("CREATE TABLE bans ( id INTEGER PRIMARY KEY, server TEXT NOT NULL, name TEXT NOT NULL, date TEXT NOT NULL, admin TEXT NOT NULL, reason TEXT )") != SQLITE_OK)
@@ -119,7 +121,7 @@ CAuraDB::CAuraDB(CConfig* CFG)
     if (m_DB->Exec("CREATE TABLE config ( name TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )") != SQLITE_OK)
       Print("[SQLITE3] error creating config table - " + m_DB->GetError());
 
-    m_DB->Prepare("INSERT INTO config VALUES ( \"schema_number\", ? )", (void**)&Statement);
+    m_DB->Prepare(R"(INSERT INTO config VALUES ( "schema_number", ? ))", (void**)&Statement);
 
     if (Statement)
     {
@@ -141,7 +143,7 @@ CAuraDB::CAuraDB(CConfig* CFG)
   if (m_DB->Exec("CREATE TEMPORARY TABLE iptocountry ( ip1 INTEGER NOT NULL, ip2 INTEGER NOT NULL, country TEXT NOT NULL, PRIMARY KEY ( ip1, ip2 ) )") != SQLITE_OK)
     Print("[SQLITE3] error creating temporary iptocountry table - " + m_DB->GetError());
 
-  if (m_DB->Exec("CREATE TEMPORARY TABLE rootadmins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT \"\" )") != SQLITE_OK)
+  if (m_DB->Exec(R"(CREATE TEMPORARY TABLE rootadmins ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, server TEXT NOT NULL DEFAULT "" ))") != SQLITE_OK)
     Print("[SQLITE3] error creating temporary rootadmins table - " + m_DB->GetError());
 }
 
@@ -864,34 +866,30 @@ bool CAuraDB::FromAdd(uint32_t ip1, uint32_t ip2, const string& country)
 // CDBBan
 //
 
-CDBBan::CDBBan(const string& nServer, const string& nName, const string& nDate, const string& nAdmin, const string& nReason)
-  : m_Server(nServer),
-    m_Name(nName),
-    m_Date(nDate),
-    m_Admin(nAdmin),
-    m_Reason(nReason)
+CDBBan::CDBBan(string nServer, string nName, string nDate, string nAdmin, string nReason)
+  : m_Server(std::move(nServer)),
+    m_Name(std::move(nName)),
+    m_Date(std::move(nDate)),
+    m_Admin(std::move(nAdmin)),
+    m_Reason(std::move(nReason))
 {
 }
 
-CDBBan::~CDBBan()
-{
-}
+CDBBan::~CDBBan() = default;
 
 //
 // CDBGamePlayer
 //
 
-CDBGamePlayer::CDBGamePlayer(const string& nName, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour)
-  : m_Name(nName),
+CDBGamePlayer::CDBGamePlayer(string nName, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour)
+  : m_Name(std::move(nName)),
     m_LoadingTime(nLoadingTime),
     m_Left(nLeft),
     m_Colour(nColour)
 {
 }
 
-CDBGamePlayer::~CDBGamePlayer()
-{
-}
+CDBGamePlayer::~CDBGamePlayer() = default;
 
 //
 // CDBGamePlayerSummary
@@ -904,9 +902,7 @@ CDBGamePlayerSummary::CDBGamePlayerSummary(uint32_t nTotalGames, float nAvgLoadi
 {
 }
 
-CDBGamePlayerSummary::~CDBGamePlayerSummary()
-{
-}
+CDBGamePlayerSummary::~CDBGamePlayerSummary() = default;
 
 //
 // CDBDotAPlayer
@@ -940,9 +936,7 @@ CDBDotAPlayer::CDBDotAPlayer(uint32_t nKills, uint32_t nDeaths, uint32_t nCreepK
 {
 }
 
-CDBDotAPlayer::~CDBDotAPlayer()
-{
-}
+CDBDotAPlayer::~CDBDotAPlayer() = default;
 
 //
 // CDBDotAPlayerSummary
@@ -964,6 +958,4 @@ CDBDotAPlayerSummary::CDBDotAPlayerSummary(uint32_t nTotalGames, uint32_t nTotal
 {
 }
 
-CDBDotAPlayerSummary::~CDBDotAPlayerSummary()
-{
-}
+CDBDotAPlayerSummary::~CDBDotAPlayerSummary() = default;

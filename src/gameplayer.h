@@ -125,7 +125,7 @@ protected:
   bool m_DeleteMe;
 
 public:
-  CGamePlayer(CPotentialPlayer* potential, uint8_t nPID, const std::string& nJoinedRealm, const std::string& nName, const BYTEARRAY& nInternalIP, bool nReserved);
+  CGamePlayer(CPotentialPlayer* potential, uint8_t nPID, std::string nJoinedRealm, std::string nName, BYTEARRAY nInternalIP, bool nReserved);
   ~CGamePlayer();
 
   uint32_t GetPing(bool LCPing) const;

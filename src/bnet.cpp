@@ -364,9 +364,9 @@ bool CBNET::Update(void* fd, void* send_fd)
                 transform(begin(Server), end(Server), begin(Server), ::tolower);
 
                 if (m_PvPGN && (Server == "useast.battle.net" || Server == "uswest.battle.net" || Server == "asia.battle.net" || Server == "europe.battle.net"))
-                  Print("[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's \"battle.net custom data\" section");
+                  Print("[BNET: " + m_ServerAlias + R"(] it looks like you're trying to connect to a battle.net server using a pvpgn logon type, check your config file's "battle.net custom data" section)");
                 else if (!m_PvPGN && (Server != "useast.battle.net" && Server != "uswest.battle.net" && Server != "asia.battle.net" && Server != "europe.battle.net"))
-                  Print("[BNET: " + m_ServerAlias + "] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's \"battle.net custom data\" section");
+                  Print("[BNET: " + m_ServerAlias + R"(] it looks like you're trying to connect to a pvpgn server using a battle.net logon type, check your config file's "battle.net custom data" section)");
 
                 m_Socket->Disconnect();
               }
@@ -609,7 +609,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
                   // hackhack: create a config file in memory with the required information to load the map
 
                   CConfig MapCFG;
-                  MapCFG.Set("map_path", "Maps\\Download\\" + File);
+                  MapCFG.Set("map_path", R"(Maps\Download\)" + File);
                   MapCFG.Set("map_localpath", File);
 
                   if (File.find("DotA") != string::npos)

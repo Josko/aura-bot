@@ -179,7 +179,7 @@ private:
   uint16_t    m_Port;
 
 public:
-  CIncomingGameHost(const BYTEARRAY& nIP, uint16_t nPort, const std::string& nGameName, const BYTEARRAY& nHostCounter);
+  CIncomingGameHost(BYTEARRAY nIP, uint16_t nPort, std::string nGameName, BYTEARRAY nHostCounter);
   ~CIncomingGameHost();
 
   std::string        GetIPString() const;
@@ -201,7 +201,7 @@ private:
   CBNETProtocol::IncomingChatEvent m_ChatEvent;
 
 public:
-  CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, const std::string& nUser, const std::string& nMessage);
+  CIncomingChatEvent(CBNETProtocol::IncomingChatEvent nChatEvent, std::string nUser, std::string nMessage);
   ~CIncomingChatEvent();
 
   inline CBNETProtocol::IncomingChatEvent GetChatEvent() const { return m_ChatEvent; }

@@ -21,7 +21,7 @@
 #include "util.h"
 #include "socket.h"
 
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 

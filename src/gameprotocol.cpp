@@ -18,6 +18,8 @@
 
  */
 
+#include <utility>
+
 #include "gameprotocol.h"
 #include "aura.h"
 #include "util.h"
@@ -37,9 +39,7 @@ CGameProtocol::CGameProtocol(CAura* nAura)
 {
 }
 
-CGameProtocol::~CGameProtocol()
-{
-}
+CGameProtocol::~CGameProtocol() = default;
 
 ///////////////////////
 // RECEIVE FUNCTIONS //
@@ -646,40 +646,36 @@ BYTEARRAY CGameProtocol::EncodeSlotInfo(const vector<CGameSlot>& slots, uint32_t
 // CIncomingJoinPlayer
 //
 
-CIncomingJoinPlayer::CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, const string& nName, const BYTEARRAY& nInternalIP)
-  : m_Name(nName),
-    m_InternalIP(nInternalIP),
+CIncomingJoinPlayer::CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, string nName, BYTEARRAY nInternalIP)
+  : m_Name(std::move(nName)),
+    m_InternalIP(std::move(nInternalIP)),
     m_HostCounter(nHostCounter),
     m_EntryKey(nEntryKey)
 {
 }
 
-CIncomingJoinPlayer::~CIncomingJoinPlayer()
-{
-}
+CIncomingJoinPlayer::~CIncomingJoinPlayer() = default;
 
 //
 // CIncomingAction
 //
 
-CIncomingAction::CIncomingAction(uint8_t nPID, const BYTEARRAY& nCRC, const BYTEARRAY& nAction)
-  : m_CRC(nCRC),
-    m_Action(nAction),
+CIncomingAction::CIncomingAction(uint8_t nPID, BYTEARRAY nCRC, BYTEARRAY nAction)
+  : m_CRC(std::move(nCRC)),
+    m_Action(std::move(nAction)),
     m_PID(nPID)
 {
 }
 
-CIncomingAction::~CIncomingAction()
-{
-}
+CIncomingAction::~CIncomingAction() = default;
 
 //
 // CIncomingChatPlayer
 //
 
-CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToPIDs, uint8_t nFlag, const string& nMessage)
-  : m_Message(nMessage),
-    m_ToPIDs(nToPIDs),
+CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, BYTEARRAY nToPIDs, uint8_t nFlag, string nMessage)
+  : m_Message(std::move(nMessage)),
+    m_ToPIDs(std::move(nToPIDs)),
     m_Type(CTH_MESSAGE),
     m_FromPID(nFromPID),
     m_Flag(nFlag),
@@ -687,10 +683,10 @@ CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToP
 {
 }
 
-CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToPIDs, uint8_t nFlag, const string& nMessage, const BYTEARRAY& nExtraFlags)
-  : m_Message(nMessage),
-    m_ToPIDs(nToPIDs),
-    m_ExtraFlags(nExtraFlags),
+CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, BYTEARRAY nToPIDs, uint8_t nFlag, string nMessage, BYTEARRAY nExtraFlags)
+  : m_Message(std::move(nMessage)),
+    m_ToPIDs(std::move(nToPIDs)),
+    m_ExtraFlags(std::move(nExtraFlags)),
     m_Type(CTH_MESSAGE),
     m_FromPID(nFromPID),
     m_Flag(nFlag),
@@ -698,8 +694,8 @@ CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToP
 {
 }
 
-CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToPIDs, uint8_t nFlag, uint8_t nByte)
-  : m_ToPIDs(nToPIDs),
+CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, BYTEARRAY nToPIDs, uint8_t nFlag, uint8_t nByte)
+  : m_ToPIDs(std::move(nToPIDs)),
     m_FromPID(nFromPID),
     m_Flag(nFlag),
     m_Byte(nByte)
@@ -714,9 +710,7 @@ CIncomingChatPlayer::CIncomingChatPlayer(uint8_t nFromPID, const BYTEARRAY& nToP
     m_Type = CTH_HANDICAPCHANGE;
 }
 
-CIncomingChatPlayer::~CIncomingChatPlayer()
-{
-}
+CIncomingChatPlayer::~CIncomingChatPlayer() = default;
 
 //
 // CIncomingMapSize
@@ -728,6 +722,4 @@ CIncomingMapSize::CIncomingMapSize(uint8_t nSizeFlag, uint32_t nMapSize)
 {
 }
 
-CIncomingMapSize::~CIncomingMapSize()
-{
-}
+CIncomingMapSize::~CIncomingMapSize() = default;

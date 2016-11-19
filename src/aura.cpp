@@ -669,7 +669,7 @@ void CAura::SetConfigs(CConfig* CFG)
   // this doesn't set EVERY config value since that would potentially require reconfiguring the battle.net connections
   // it just set the easily reloadable values
 
-  m_Warcraft3Path          = AddPathSeparator(CFG->GetString("bot_war3path", "C:\\Program Files\\Warcraft III\\"));
+  m_Warcraft3Path          = AddPathSeparator(CFG->GetString("bot_war3path", R"(C:\Program Files\Warcraft III\)"));
   m_BindAddress            = CFG->GetString("bot_bindaddress", string());
   m_ReconnectWaitTime      = CFG->GetInt("bot_reconnectwaittime", 3);
   m_MaxGames               = CFG->GetInt("bot_maxgames", 20);
@@ -719,7 +719,7 @@ void CAura::ExtractScripts()
 
     // common.j
 
-    if (SFileOpenFileEx(PatchMPQ, "Scripts\\common.j", 0, &SubFile))
+    if (SFileOpenFileEx(PatchMPQ, R"(Scripts\common.j)", 0, &SubFile))
     {
       const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
@@ -730,11 +730,11 @@ void CAura::ExtractScripts()
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
-          Print("[AURA] extracting Scripts\\common.j from MPQ file to [" + m_MapCFGPath + "common.j]");
+          Print(R"([AURA] extracting Scripts\common.j from MPQ file to [)" + m_MapCFGPath + "common.j]");
           FileWrite(m_MapCFGPath + "common.j", (uint8_t*)SubFileData, BytesRead);
         }
         else
-          Print("[AURA] warning - unable to extract Scripts\\common.j from MPQ file");
+          Print(R"([AURA] warning - unable to extract Scripts\common.j from MPQ file)");
 
         delete[] SubFileData;
       }
@@ -742,11 +742,11 @@ void CAura::ExtractScripts()
       SFileCloseFile(SubFile);
     }
     else
-      Print("[AURA] couldn't find Scripts\\common.j in MPQ file");
+      Print(R"([AURA] couldn't find Scripts\common.j in MPQ file)");
 
     // blizzard.j
 
-    if (SFileOpenFileEx(PatchMPQ, "Scripts\\blizzard.j", 0, &SubFile))
+    if (SFileOpenFileEx(PatchMPQ, R"(Scripts\blizzard.j)", 0, &SubFile))
     {
       const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
@@ -757,11 +757,11 @@ void CAura::ExtractScripts()
 
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
-          Print("[AURA] extracting Scripts\\blizzard.j from MPQ file to [" + m_MapCFGPath + "blizzard.j]");
+          Print(R"([AURA] extracting Scripts\blizzard.j from MPQ file to [)" + m_MapCFGPath + "blizzard.j]");
           FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t*)SubFileData, BytesRead);
         }
         else
-          Print("[AURA] warning - unable to extract Scripts\\blizzard.j from MPQ file");
+          Print(R"([AURA] warning - unable to extract Scripts\blizzard.j from MPQ file)");
 
         delete[] SubFileData;
       }
@@ -769,7 +769,7 @@ void CAura::ExtractScripts()
       SFileCloseFile(SubFile);
     }
     else
-      Print("[AURA] couldn't find Scripts\\blizzard.j in MPQ file");
+      Print(R"([AURA] couldn't find Scripts\blizzard.j in MPQ file)");
 
     SFileCloseArchive(PatchMPQ);
   }

@@ -189,7 +189,7 @@ private:
   std::string m_Reason;
 
 public:
-  CDBBan(const std::string& nServer, const std::string& nName, const std::string& nDate, const std::string& nAdmin, const std::string& nReason);
+  CDBBan(std::string nServer, std::string nName, std::string nDate, std::string nAdmin, std::string nReason);
   ~CDBBan();
 
   inline std::string GetServer() const { return m_Server; }
@@ -212,7 +212,7 @@ private:
   uint32_t    m_Colour;
 
 public:
-  CDBGamePlayer(const std::string& name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
+  CDBGamePlayer(std::string name, uint64_t nLoadingTime, uint64_t nLeft, uint32_t nColour);
   ~CDBGamePlayer();
 
   inline std::string GetName() const { return m_Name; }
