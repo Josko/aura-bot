@@ -21,7 +21,7 @@ Removed features from GHost++:
 * No boost required
 
 Other changes:
-* Uses C++11
+* Uses C++14
 * Single-threaded
 * Has a Windows 64-bit build
 * Uses SQLite and a different database organization.
@@ -80,9 +80,9 @@ Then proceed to build Aura:
 
 Now you can run Aura by executing `./aura++` or install it to your path using `sudo make install`.
 
-**Note**: gcc version needs to be 4.8 or higher along with a compatible libc.
+**Note**: gcc version needs to be 5 or higher along with a compatible libc.
 
-**Note**: clang needs to be 3.5 or higher along with ld gold linker (ie. package binutils-gold for ubuntu)
+**Note**: clang needs to be 3.6 or higher along with ld gold linker (ie. package binutils-gold for ubuntu)
 
 **Note**: StormLib installs itself in `/usr/local/lib` which isn't in PATH by default
 on some distros such as Arch or CentOS.
