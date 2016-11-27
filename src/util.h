@@ -25,8 +25,9 @@
 #include <cstdint>
 #include <vector>
 #include <sstream>
+#include <type_traits>
 
-inline std::string ToHexString(uint32_t i)
+inline std::string ToHexString(uint_fast32_t i)
 {
   std::string       result;
   std::stringstream SS;
@@ -35,7 +36,7 @@ inline std::string ToHexString(uint32_t i)
   return result;
 }
 
-inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast8_t* a, const int32_t size)
+inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast8_t* a, const int_fast32_t size)
 {
   if (size < 1)
     return std::vector<uint_fast8_t>();
@@ -48,31 +49,24 @@ inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast8_t c)
   return std::vector<uint_fast8_t>{c};
 }
 
-inline std::vector<uint_fast8_t> CreateByteArray(const uint16_t i, bool reverse)
+template <typename = typename std::enable_if<!std::is_same<uint_fast16_t, uint_fast32_t>::value>>
+inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast16_t i, bool reverse)
 {
   if (!reverse)
-    return std::vector<uint_fast8_t>{(uint_fast8_t)i, (uint_fast8_t)(i >> 8)};
+    return std::vector<uint_fast8_t>{(uint8_t)i, (uint8_t)(i >> 8)};
   else
-    return std::vector<uint_fast8_t>{(uint_fast8_t)(i >> 8), (uint_fast8_t)i};
+    return std::vector<uint_fast8_t>{(uint8_t)(i >> 8), (uint8_t)i};
 }
 
-inline std::vector<uint_fast8_t> CreateByteArray(const uint32_t i, bool reverse)
+inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast32_t i, bool reverse)
 {
   if (!reverse)
-    return std::vector<uint_fast8_t>{(uint_fast8_t)i, (uint_fast8_t)(i >> 8), (uint_fast8_t)(i >> 16), (uint_fast8_t)(i >> 24)};
+    return std::vector<uint_fast8_t>{(uint8_t)i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24)};
   else
-    return std::vector<uint_fast8_t>{(uint_fast8_t)(i >> 24), (uint_fast8_t)(i >> 16), (uint_fast8_t)(i >> 8), (uint_fast8_t)i};
+    return std::vector<uint_fast8_t>{(uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t)i};
 }
 
-inline std::vector<uint_fast8_t> CreateByteArray(const int64_t i, bool reverse)
-{
-  if (!reverse)
-    return std::vector<uint_fast8_t>{(uint_fast8_t)i, (uint_fast8_t)(i >> 8), (uint_fast8_t)(i >> 16), (uint_fast8_t)(i >> 24)};
-  else
-    return std::vector<uint_fast8_t>{(uint_fast8_t)(i >> 24), (uint_fast8_t)(i >> 16), (uint_fast8_t)(i >> 8), (uint_fast8_t)i};
-}
-
-inline uint16_t ByteArrayToUInt16(const std::vector<uint_fast8_t>& b, bool reverse, const uint32_t start = 0)
+inline uint_fast16_t ByteArrayToUInt16(const std::vector<uint_fast8_t>& b, bool reverse, const uint_fast32_t start = 0)
 {
   if (b.size() < start + 2)
     return 0;
@@ -83,15 +77,15 @@ inline uint16_t ByteArrayToUInt16(const std::vector<uint_fast8_t>& b, bool rever
     return (uint16_t)(b[start] << 8 | b[start + 1]);
 }
 
-inline uint32_t ByteArrayToUInt32(const std::vector<uint_fast8_t>& b, bool reverse, const uint32_t start = 0)
+inline uint_fast32_t ByteArrayToUInt32(const std::vector<uint_fast8_t>& b, bool reverse, const uint_fast32_t start = 0)
 {
   if (b.size() < start + 4)
     return 0;
 
   if (!reverse)
-    return (uint32_t)(b[start + 3] << 24 | b[start + 2] << 16 | b[start + 1] << 8 | b[start]);
+    return (uint_fast32_t)(b[start + 3] << 24 | b[start + 2] << 16 | b[start + 1] << 8 | b[start]);
   else
-    return (uint32_t)(b[start] << 24 | b[start + 1] << 16 | b[start + 2] << 8 | b[start + 3]);
+    return (uint_fast32_t)(b[start] << 24 | b[start + 1] << 16 | b[start + 2] << 8 | b[start + 3]);
 }
 
 inline std::string ByteArrayToDecString(const std::vector<uint_fast8_t>& b)
@@ -135,7 +129,7 @@ inline void AppendByteArrayFast(std::vector<uint_fast8_t>& b, const std::vector<
   b.insert(end(b), begin(append), end(append));
 }
 
-inline void AppendByteArray(std::vector<uint_fast8_t>& b, const uint_fast8_t* a, const int32_t size)
+inline void AppendByteArray(std::vector<uint_fast8_t>& b, const uint_fast8_t* a, const int_fast32_t size)
 {
   AppendByteArray(b, CreateByteArray(a, size));
 }
@@ -160,29 +154,30 @@ inline void AppendByteArrayFast(std::vector<uint_fast8_t>& b, const std::string&
     b.push_back(0);
 }
 
-inline void AppendByteArray(std::vector<uint_fast8_t>& b, const uint16_t i, bool reverse)
+template <typename = typename std::enable_if<!std::is_same<uint_fast16_t, uint_fast32_t>::value>>
+inline void AppendByteArray(std::vector<uint_fast8_t>& b, const uint_fast16_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline void AppendByteArray(std::vector<uint_fast8_t>& b, const uint32_t i, bool reverse)
+inline void AppendByteArray(std::vector<uint_fast8_t>& b, const uint_fast32_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline void AppendByteArray(std::vector<uint_fast8_t>& b, const int64_t i, bool reverse)
+inline void AppendByteArray(std::vector<uint_fast8_t>& b, const int_fast64_t i, bool reverse)
 {
   AppendByteArray(b, CreateByteArray(i, reverse));
 }
 
-inline std::vector<uint_fast8_t> ExtractCString(const std::vector<uint_fast8_t>& b, const uint32_t start)
+inline std::vector<uint_fast8_t> ExtractCString(const std::vector<uint_fast8_t>& b, const uint_fast32_t start)
 {
   // start searching the byte array at position 'start' for the first null value
   // if found, return the subarray from 'start' to the null value but not including the null value
 
   if (start < b.size())
   {
-    for (uint32_t i = start; i < b.size(); ++i)
+    for (uint_fast32_t i = start; i < b.size(); ++i)
     {
       if (b[i] == 0)
         return std::vector<uint_fast8_t>(begin(b) + start, begin(b) + i);
@@ -196,15 +191,15 @@ inline std::vector<uint_fast8_t> ExtractCString(const std::vector<uint_fast8_t>&
   return std::vector<uint_fast8_t>();
 }
 
-inline uint_fast8_t ExtractHex(const std::vector<uint_fast8_t>& b, const uint32_t start, bool reverse)
+inline uint_fast8_t ExtractHex(const std::vector<uint_fast8_t>& b, const uint_fast32_t start, bool reverse)
 {
   // consider the byte array to contain a 2 character ASCII encoded hex value at b[start] and b[start + 1] e.g. "FF"
   // extract it as a single decoded byte
 
   if (start + 1 < b.size())
   {
-    uint32_t    c;
-    std::string temp = std::string(begin(b) + start, begin(b) + start + 2);
+    uint_fast32_t c;
+    std::string   temp = std::string(begin(b) + start, begin(b) + start + 2);
 
     if (reverse)
       temp = std::string(temp.rend(), temp.rbegin());
@@ -218,16 +213,16 @@ inline uint_fast8_t ExtractHex(const std::vector<uint_fast8_t>& b, const uint32_
   return 0;
 }
 
-inline std::vector<uint_fast8_t> ExtractNumbers(const std::string& s, const uint32_t count)
+inline std::vector<uint_fast8_t> ExtractNumbers(const std::string& s, const uint_fast32_t count)
 {
   // consider the std::string to contain a bytearray in dec-text form, e.g. "52 99 128 1"
 
   std::vector<uint_fast8_t> result;
-  uint32_t                  c;
+  uint_fast32_t             c;
   std::stringstream         SS;
   SS << s;
 
-  for (uint32_t i = 0; i < count; ++i)
+  for (uint_fast32_t i = 0; i < count; ++i)
   {
     if (SS.eof())
       break;
@@ -247,7 +242,7 @@ inline std::vector<uint_fast8_t> ExtractHexNumbers(std::string& s)
   // consider the std::string to contain a bytearray in hex-text form, e.g. "4e 17 b7 e6"
 
   std::vector<uint_fast8_t> result;
-  uint32_t                  c;
+  uint_fast32_t             c;
   std::stringstream         SS;
   SS << s;
 
@@ -267,7 +262,7 @@ inline void AssignLength(std::vector<uint_fast8_t>& content)
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-  const uint16_t Size = (uint16_t)content.size();
+  const uint_fast16_t Size = (uint_fast16_t)content.size();
 
   content[2] = (uint_fast8_t)Size;
   content[3] = (uint_fast8_t)(Size >> 8);
@@ -295,7 +290,7 @@ inline std::vector<uint_fast8_t> EncodeStatString(std::vector<uint_fast8_t>& dat
   std::vector<uint_fast8_t> Result;
   uint_fast8_t              Mask = 1;
 
-  for (uint32_t i = 0; i < data.size(); ++i)
+  for (uint_fast32_t i = 0; i < data.size(); ++i)
   {
     if ((data[i] % 2) == 0)
       Result.push_back(data[i] + 1);
@@ -320,7 +315,7 @@ inline std::vector<uint_fast8_t> DecodeStatString(const std::vector<uint_fast8_t
   uint_fast8_t              Mask = 1;
   std::vector<uint_fast8_t> Result;
 
-  for (uint32_t i = 0; i < data.size(); ++i)
+  for (uint_fast32_t i = 0; i < data.size(); ++i)
   {
     if ((i % 8) == 0)
       Mask = data[i];

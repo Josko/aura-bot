@@ -67,7 +67,7 @@ public:
   bool HELP_PvPGNPasswordHash(const std::string& userPassword);
 
 private:
-  std::vector<uint_fast8_t> CreateKeyInfo(const std::string& key, uint32_t clientToken, uint32_t serverToken);
+  std::vector<uint_fast8_t> CreateKeyInfo(const std::string& key, uint_fast32_t clientToken, uint_fast32_t serverToken);
 };
 
 #endif // AURA_BNCSUTILINTERFACE_H_

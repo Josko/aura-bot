@@ -18,26 +18,26 @@ constexpr std::size_t Polynomial = 0x04C11DB7;
 
 void CCRC32::Initialize()
 {
-  for (uint32_t i = 0; i <= 0xFF; ++i)
+  for (uint_fast32_t i = 0; i <= 0xFF; ++i)
   {
     LUT[0][i] = Reflect(i, 8) << 24;
 
-    for (uint32_t iPos = 0; iPos < 8; ++iPos)
-      LUT[0][i]        = (LUT[0][i] << 1) ^ (LUT[0][i] & (1 << 31) ? Polynomial : 0);
+    for (uint_fast32_t iPos = 0; iPos < 8; ++iPos)
+      LUT[0][i]             = (LUT[0][i] << 1) ^ (LUT[0][i] & (1 << 31) ? Polynomial : 0);
 
     LUT[0][i] = Reflect(LUT[0][i], 32);
   }
 
-  for (uint32_t i = 0; i <= 0xFF; ++i)
-    for (uint32_t slice = 1; slice < MaxSlices; ++slice)
-      LUT[slice][i]     = (LUT[slice - 1][i] >> 8) ^ LUT[0][LUT[slice - 1][i] & 0xFF];
+  for (uint_fast32_t i = 0; i <= 0xFF; ++i)
+    for (uint_fast32_t slice = 1; slice < MaxSlices; ++slice)
+      LUT[slice][i]          = (LUT[slice - 1][i] >> 8) ^ LUT[0][LUT[slice - 1][i] & 0xFF];
 }
 
-uint32_t CCRC32::Reflect(uint32_t reflect, const uint_fast8_t val) const
+uint_fast32_t CCRC32::Reflect(uint_fast32_t reflect, const uint_fast8_t val) const
 {
-  uint32_t value = 0;
+  uint_fast32_t value = 0;
 
-  for (int32_t i = 1; i < (val + 1); ++i)
+  for (int_fast32_t i = 1; i < (val + 1); ++i)
   {
     if (reflect & 1)
       value |= 1 << (val - i);
@@ -48,10 +48,10 @@ uint32_t CCRC32::Reflect(uint32_t reflect, const uint_fast8_t val) const
   return value;
 }
 
-uint32_t CCRC32::CalculateCRC(const uint_fast8_t* data, std::size_t length, uint32_t previous_crc) const
+uint_fast32_t CCRC32::CalculateCRC(const uint_fast8_t* data, std::size_t length, uint_fast32_t previous_crc) const
 {
-  uint32_t        crc     = ~previous_crc; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint32_t* current = (const uint32_t*)data;
+  uint_fast32_t        crc     = ~previous_crc; // same as previousCrc32 ^ 0xFFFFFFFF
+  const uint_fast32_t* current = (const uint_fast32_t*)data;
 
   // enabling optimization (at least -O2) automatically unrolls the inner for-loop
   constexpr size_t       Unroll      = 4;
@@ -62,11 +62,11 @@ uint32_t CCRC32::CalculateCRC(const uint_fast8_t* data, std::size_t length, uint
     for (size_t unrolling = 0; unrolling < Unroll; ++unrolling)
     {
 #if __BYTE_ORDER == __BIG_ENDIAN
-      const uint32_t one   = *current++ ^ swap(crc);
-      const uint32_t two   = *current++;
-      const uint32_t three = *current++;
-      const uint32_t four  = *current++;
-      crc                  = LUT[0][four & 0xFF] ^
+      const uint_fast32_t one   = *current++ ^ swap(crc);
+      const uint_fast32_t two   = *current++;
+      const uint_fast32_t three = *current++;
+      const uint_fast32_t four  = *current++;
+      crc                       = LUT[0][four & 0xFF] ^
             LUT[1][(four >> 8) & 0xFF] ^
             LUT[2][(four >> 16) & 0xFF] ^
             LUT[3][(four >> 24) & 0xFF] ^
@@ -83,11 +83,11 @@ uint32_t CCRC32::CalculateCRC(const uint_fast8_t* data, std::size_t length, uint
             LUT[14][(one >> 16) & 0xFF] ^
             LUT[15][(one >> 24) & 0xFF];
 #else
-      const uint32_t one   = *current++ ^ crc;
-      const uint32_t two   = *current++;
-      const uint32_t three = *current++;
-      const uint32_t four  = *current++;
-      crc                  = LUT[0][(four >> 24) & 0xFF] ^
+      const uint_fast32_t one   = *current++ ^ crc;
+      const uint_fast32_t two   = *current++;
+      const uint_fast32_t three = *current++;
+      const uint_fast32_t four  = *current++;
+      crc                       = LUT[0][(four >> 24) & 0xFF] ^
             LUT[1][(four >> 16) & 0xFF] ^
             LUT[2][(four >> 8) & 0xFF] ^
             LUT[3][four & 0xFF] ^

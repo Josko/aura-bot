@@ -27,7 +27,7 @@
 using namespace std;
 
 #ifndef WIN32
-int32_t GetLastError()
+int GetLastError()
 {
   return errno;
 }
@@ -195,7 +195,7 @@ CTCPSocket::CTCPSocket()
 // make socket non blocking
 
 #ifdef WIN32
-  int32_t iMode = 1;
+  int_fast32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR*)&iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -203,8 +203,8 @@ CTCPSocket::CTCPSocket()
 
   // disable Nagle's algorithm
 
-  int32_t OptVal = 1;
-  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char*)&OptVal, sizeof(int32_t));
+  int_fast32_t OptVal = 1;
+  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char*)&OptVal, sizeof(int_fast32_t));
 }
 
 CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN)
@@ -215,7 +215,7 @@ CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN)
 // make socket non blocking
 
 #ifdef WIN32
-  int32_t iMode = 1;
+  int_fast32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR*)&iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -241,7 +241,7 @@ void CTCPSocket::Reset()
 // make socket non blocking
 
 #ifdef WIN32
-  int32_t iMode = 1;
+  int_fast32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR*)&iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -257,8 +257,8 @@ void CTCPSocket::DoRecv(fd_set* fd)
   {
     // data is waiting, receive it
 
-    char    buffer[1024];
-    int32_t c = recv(m_Socket, buffer, 1024, 0);
+    char         buffer[1024];
+    int_fast32_t c = recv(m_Socket, buffer, 1024, 0);
 
     if (c > 0)
     {
@@ -295,7 +295,7 @@ void CTCPSocket::DoSend(fd_set* send_fd)
   {
     // socket is ready, send it
 
-    int32_t s = send(m_Socket, m_SendBuffer.c_str(), (int32_t)m_SendBuffer.size(), MSG_NOSIGNAL);
+    int_fast32_t s = send(m_Socket, m_SendBuffer.c_str(), (int_fast32_t)m_SendBuffer.size(), MSG_NOSIGNAL);
 
     if (s > 0)
     {
@@ -354,7 +354,7 @@ void CTCPClient::Disconnect()
   m_Connecting = false;
 }
 
-void CTCPClient::Connect(const string& localaddress, const string& address, uint16_t port)
+void CTCPClient::Connect(const string& localaddress, const string& address, uint_fast16_t port)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError || m_Connecting || m_Connected)
     return;
@@ -382,7 +382,7 @@ void CTCPClient::Connect(const string& localaddress, const string& address, uint
   // get IP address
 
   struct hostent* HostInfo;
-  uint32_t        HostAddress;
+  uint_fast32_t   HostAddress;
   HostInfo = gethostbyname(address.c_str());
 
   if (!HostInfo)
@@ -473,7 +473,7 @@ CTCPServer::CTCPServer()
 // make socket non blocking
 
 #ifdef WIN32
-  int32_t iMode = 1;
+  int_fast32_t iMode = 1;
   ioctlsocket(m_Socket, FIONBIO, (u_long FAR*)&iMode);
 #else
   fcntl(m_Socket, F_SETFL, fcntl(m_Socket, F_GETFL) | O_NONBLOCK);
@@ -481,12 +481,12 @@ CTCPServer::CTCPServer()
 
   // set the socket to reuse the address in case it hasn't been released yet
 
-  int32_t optval = 1;
+  int_fast32_t optval = 1;
 
 #ifdef WIN32
-  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(int_fast32_t));
 #else
-  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const void*)&optval, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_REUSEADDR, (const void*)&optval, sizeof(int_fast32_t));
 #endif
 }
 
@@ -496,7 +496,7 @@ CTCPServer::~CTCPServer()
     closesocket(m_Socket);
 }
 
-bool CTCPServer::Listen(const string& address, uint16_t port)
+bool CTCPServer::Listen(const string& address, uint_fast16_t port)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;
@@ -544,7 +544,7 @@ CTCPSocket* CTCPServer::Accept(fd_set* fd)
     // a connection is waiting, accept it
 
     struct sockaddr_in Addr;
-    int32_t            AddrLen = sizeof(Addr);
+    int_fast32_t       AddrLen = sizeof(Addr);
     SOCKET             NewSocket;
 
 #ifdef WIN32
@@ -573,8 +573,8 @@ CUDPSocket::CUDPSocket()
 
   // enable broadcast support
 
-  int32_t OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char*)&OptVal, sizeof(int32_t));
+  int_fast32_t OptVal = 1;
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char*)&OptVal, sizeof(int_fast32_t));
 
   // set default broadcast target
 
@@ -600,7 +600,7 @@ bool CUDPSocket::SendTo(struct sockaddr_in sin, const std::vector<uint_fast8_t>&
   return true;
 }
 
-bool CUDPSocket::SendTo(const string& address, uint16_t port, const std::vector<uint_fast8_t>& message)
+bool CUDPSocket::SendTo(const string& address, uint_fast16_t port, const std::vector<uint_fast8_t>& message)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;
@@ -608,7 +608,7 @@ bool CUDPSocket::SendTo(const string& address, uint16_t port, const std::vector<
   // get IP address
 
   struct hostent* HostInfo;
-  uint32_t        HostAddress;
+  uint_fast32_t   HostAddress;
   HostInfo = gethostbyname(address.c_str());
 
   if (!HostInfo)
@@ -628,7 +628,7 @@ bool CUDPSocket::SendTo(const string& address, uint16_t port, const std::vector<
   return SendTo(sin, message);
 }
 
-bool CUDPSocket::Broadcast(uint16_t port, const std::vector<uint_fast8_t>& message)
+bool CUDPSocket::Broadcast(uint_fast16_t port, const std::vector<uint_fast8_t>& message)
 {
   if (m_Socket == INVALID_SOCKET || m_HasError)
     return false;
@@ -676,7 +676,7 @@ void CUDPSocket::SetBroadcastTarget(const string& subnet)
 
 void CUDPSocket::SetDontRoute(bool dontRoute)
 {
-  int32_t OptVal = 0;
+  int_fast32_t OptVal = 0;
 
   if (dontRoute)
     OptVal = 1;
@@ -684,7 +684,7 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
   // don't route packets; make them ignore routes set by routing table and send them to the interface
   // belonging to the target address directly
 
-  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char*)&OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char*)&OptVal, sizeof(int_fast32_t));
 }
 
 void CUDPSocket::Reset()
@@ -694,8 +694,8 @@ void CUDPSocket::Reset()
 
   // enable broadcast support
 
-  int32_t OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char*)&OptVal, sizeof(int32_t));
+  int_fast32_t OptVal = 1;
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char*)&OptVal, sizeof(int_fast32_t));
 
   // set default broadcast target
 

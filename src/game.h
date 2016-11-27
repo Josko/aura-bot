@@ -74,33 +74,33 @@ protected:
   std::string                    m_KickVotePlayer;                // the player to be kicked with the currently running kick vote
   std::string                    m_HCLCommandString;              // the "HostBot Command Library" command std::string, used to pass a limited amount of data to specially designed maps
   std::string                    m_MapPath;                       // store the map path to save in the database on game end
-  int64_t                        m_GameTicks;                     // ingame ticks
-  int64_t                        m_CreationTime;                  // GetTime when the game was created
-  int64_t                        m_LastPingTime;                  // GetTime when the last ping was sent
-  int64_t                        m_LastRefreshTime;               // GetTime when the last game refresh was sent
-  int64_t                        m_LastDownloadTicks;             // GetTicks when the last map download cycle was performed
-  int64_t                        m_LastDownloadCounterResetTicks; // GetTicks when the download counter was last reset
-  int64_t                        m_LastCountDownTicks;            // GetTicks when the last countdown message was sent
-  int64_t                        m_StartedLoadingTicks;           // GetTicks when the game started loading
-  int64_t                        m_LastActionSentTicks;           // GetTicks when the last action packet was sent
-  int64_t                        m_LastActionLateBy;              // the number of ticks we were late sending the last action packet by
-  int64_t                        m_StartedLaggingTime;            // GetTime when the last lag screen started
-  int64_t                        m_LastLagScreenTime;             // GetTime when the last lag screen was active (continuously updated)
-  int64_t                        m_LastReservedSeen;              // GetTime when the last reserved player was seen in the lobby
-  int64_t                        m_StartedKickVoteTime;           // GetTime when the kick vote was started
-  int64_t                        m_GameOverTime;                  // GetTime when the game was over
-  int64_t                        m_LastPlayerLeaveTicks;          // GetTicks when the most recent player left the game
-  int64_t                        m_LastLagScreenResetTime;        // GetTime when the "lag" screen was last reset
-  int64_t                        m_RandomSeed;                    // the random seed sent to the Warcraft III clients
-  uint32_t                       m_HostCounter;                   // a unique game number
-  uint32_t                       m_EntryKey;                      // random entry key for LAN, used to prove that a player is actually joining from LAN
-  uint32_t                       m_Latency;                       // the number of ms to wait between sending action packets (we queue any received during this time)
-  uint32_t                       m_SyncLimit;                     // the maximum number of packets a player can fall out of sync before starting the lag screen
-  uint32_t                       m_SyncCounter;                   // the number of actions sent so far (for determining if anyone is lagging)
-  uint32_t                       m_DownloadCounter;               // # of map bytes downloaded in the last second
-  uint32_t                       m_CountDownCounter;              // the countdown is finished when this reaches zero
-  uint32_t                       m_StartPlayers;                  // number of players when the game started
-  uint16_t                       m_HostPort;                      // the port to host games on
+  int_fast64_t                   m_GameTicks;                     // ingame ticks
+  int_fast64_t                   m_CreationTime;                  // GetTime when the game was created
+  int_fast64_t                   m_LastPingTime;                  // GetTime when the last ping was sent
+  int_fast64_t                   m_LastRefreshTime;               // GetTime when the last game refresh was sent
+  int_fast64_t                   m_LastDownloadTicks;             // GetTicks when the last map download cycle was performed
+  int_fast64_t                   m_LastDownloadCounterResetTicks; // GetTicks when the download counter was last reset
+  int_fast64_t                   m_LastCountDownTicks;            // GetTicks when the last countdown message was sent
+  int_fast64_t                   m_StartedLoadingTicks;           // GetTicks when the game started loading
+  int_fast64_t                   m_LastActionSentTicks;           // GetTicks when the last action packet was sent
+  int_fast64_t                   m_LastActionLateBy;              // the number of ticks we were late sending the last action packet by
+  int_fast64_t                   m_StartedLaggingTime;            // GetTime when the last lag screen started
+  int_fast64_t                   m_LastLagScreenTime;             // GetTime when the last lag screen was active (continuously updated)
+  int_fast64_t                   m_LastReservedSeen;              // GetTime when the last reserved player was seen in the lobby
+  int_fast64_t                   m_StartedKickVoteTime;           // GetTime when the kick vote was started
+  int_fast64_t                   m_GameOverTime;                  // GetTime when the game was over
+  int_fast64_t                   m_LastPlayerLeaveTicks;          // GetTicks when the most recent player left the game
+  int_fast64_t                   m_LastLagScreenResetTime;        // GetTime when the "lag" screen was last reset
+  int_fast64_t                   m_RandomSeed;                    // the random seed sent to the Warcraft III clients
+  uint_fast32_t                  m_HostCounter;                   // a unique game number
+  uint_fast32_t                  m_EntryKey;                      // random entry key for LAN, used to prove that a player is actually joining from LAN
+  uint_fast32_t                  m_Latency;                       // the number of ms to wait between sending action packets (we queue any received during this time)
+  uint_fast32_t                  m_SyncLimit;                     // the maximum number of packets a player can fall out of sync before starting the lag screen
+  uint_fast32_t                  m_SyncCounter;                   // the number of actions sent so far (for determining if anyone is lagging)
+  uint_fast32_t                  m_DownloadCounter;               // # of map bytes downloaded in the last second
+  uint_fast32_t                  m_CountDownCounter;              // the countdown is finished when this reaches zero
+  uint_fast32_t                  m_StartPlayers;                  // number of players when the game started
+  uint_fast16_t                  m_HostPort;                      // the port to host games on
   uint_fast8_t                   m_GameState;                     // game state, public or private
   uint_fast8_t                   m_VirtualHostPID;                // host's PID
   uint_fast8_t                   m_GProxyEmptyActions;            // empty actions used for gproxy protocol
@@ -118,14 +118,14 @@ protected:
   bool                           m_Desynced;                      // if the game has desynced or not
 
 public:
-  CGame(CAura* nAura, CMap* nMap, uint16_t nHostPort, uint_fast8_t nGameState, std::string& nGameName, std::string& nOwnerName, std::string& nCreatorName, std::string& nCreatorServer);
+  CGame(CAura* nAura, CMap* nMap, uint_fast16_t nHostPort, uint_fast8_t nGameState, std::string& nGameName, std::string& nOwnerName, std::string& nCreatorName, std::string& nCreatorServer);
   ~CGame();
   CGame(CGame&) = delete;
 
   inline CMap*          GetMap() const { return m_Map; }
   inline CGameProtocol* GetProtocol() const { return m_Protocol; }
-  inline uint32_t       GetEntryKey() const { return m_EntryKey; }
-  inline uint16_t       GetHostPort() const { return m_HostPort; }
+  inline uint_fast32_t  GetEntryKey() const { return m_EntryKey; }
+  inline uint_fast16_t  GetHostPort() const { return m_HostPort; }
   inline uint_fast8_t   GetGameState() const { return m_GameState; }
   inline uint_fast8_t   GetGProxyEmptyActions() const { return m_GProxyEmptyActions; }
   inline std::string    GetGameName() const { return m_GameName; }
@@ -134,29 +134,29 @@ public:
   inline std::string    GetOwnerName() const { return m_OwnerName; }
   inline std::string    GetCreatorName() const { return m_CreatorName; }
   inline std::string    GetCreatorServer() const { return m_CreatorServer; }
-  inline uint32_t       GetHostCounter() const { return m_HostCounter; }
-  inline int64_t        GetLastLagScreenTime() const { return m_LastLagScreenTime; }
+  inline uint_fast32_t  GetHostCounter() const { return m_HostCounter; }
+  inline int_fast64_t   GetLastLagScreenTime() const { return m_LastLagScreenTime; }
   inline bool           GetLocked() const { return m_Locked; }
   inline bool           GetCountDownStarted() const { return m_CountDownStarted; }
   inline bool           GetGameLoading() const { return m_GameLoading; }
   inline bool           GetGameLoaded() const { return m_GameLoaded; }
   inline bool           GetLagging() const { return m_Lagging; }
 
-  int64_t     GetNextTimedActionTicks() const;
-  uint32_t    GetSlotsOccupied() const;
-  uint32_t    GetSlotsOpen() const;
-  uint32_t    GetNumPlayers() const;
-  uint32_t    GetNumHumanPlayers() const;
-  std::string GetDescription() const;
-  std::string GetPlayers() const;
-  std::string GetObservers() const;
+  int_fast64_t  GetNextTimedActionTicks() const;
+  uint_fast32_t GetSlotsOccupied() const;
+  uint_fast32_t GetSlotsOpen() const;
+  uint_fast32_t GetNumPlayers() const;
+  uint_fast32_t GetNumHumanPlayers() const;
+  std::string   GetDescription() const;
+  std::string   GetPlayers() const;
+  std::string   GetObservers() const;
 
   inline void SetExiting(bool nExiting) { m_Exiting = nExiting; }
   inline void SetRefreshError(bool nRefreshError) { m_RefreshError = nRefreshError; }
 
   // processing functions
 
-  uint32_t SetFD(void* fd, void* send_fd, int32_t* nfds);
+  uint_fast8_t SetFD(void* fd, void* send_fd, int* nfds);
   bool Update(void* fd, void* send_fd);
   void UpdatePost(void* send_fd);
 
@@ -189,7 +189,7 @@ public:
   void EventPlayerDisconnectSocketError(CGamePlayer* player);
   void EventPlayerDisconnectConnectionClosed(CGamePlayer* player);
   void EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* joinPlayer);
-  void EventPlayerLeft(CGamePlayer* player, uint32_t reason);
+  void EventPlayerLeft(CGamePlayer* player, uint_fast32_t reason);
   void EventPlayerLoaded(CGamePlayer* player);
   void EventPlayerAction(CGamePlayer* player, CIncomingAction* action);
   void EventPlayerKeepAlive(CGamePlayer* player);
@@ -214,7 +214,7 @@ public:
   CGamePlayer* GetPlayerFromPID(uint_fast8_t PID) const;
   CGamePlayer* GetPlayerFromSID(uint_fast8_t SID) const;
   CGamePlayer* GetPlayerFromName(std::string name, bool sensitive) const;
-  uint32_t GetPlayerFromNamePartial(std::string name, CGamePlayer** player) const;
+  uint_fast32_t GetPlayerFromNamePartial(std::string name, CGamePlayer** player) const;
   std::string GetDBPlayerNameFromColour(uint_fast8_t colour) const;
   CGamePlayer* GetPlayerFromColour(uint_fast8_t colour) const;
   uint_fast8_t              GetNewPID() const;

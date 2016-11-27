@@ -36,14 +36,14 @@ CGPSProtocol::~CGPSProtocol() = default;
 // SEND FUNCTIONS //
 ////////////////////
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_INIT(uint32_t version)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_INIT(uint_fast32_t version)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_INIT, 8, 0};
   AppendByteArray(packet, version, false);
   return packet;
 }
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_RECONNECT(uint_fast8_t PID, uint32_t reconnectKey, uint32_t lastPacket)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_RECONNECT(uint_fast8_t PID, uint_fast32_t reconnectKey, uint_fast32_t lastPacket)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 13, 0, PID};
   AppendByteArray(packet, reconnectKey, false);
@@ -51,14 +51,14 @@ std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_RECONNECT(uint_fast8_t PID, ui
   return packet;
 }
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_ACK(uint32_t lastPacket)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSC_ACK(uint_fast32_t lastPacket)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_ACK, 8, 0};
   AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_INIT(uint16_t reconnectPort, uint_fast8_t PID, uint32_t reconnectKey, uint_fast8_t numEmptyActions)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_INIT(uint_fast16_t reconnectPort, uint_fast8_t PID, uint_fast32_t reconnectKey, uint_fast8_t numEmptyActions)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_INIT, 12, 0};
   AppendByteArray(packet, reconnectPort, false);
@@ -68,21 +68,21 @@ std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_INIT(uint16_t reconnectPort, u
   return packet;
 }
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_RECONNECT(uint32_t lastPacket)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_RECONNECT(uint_fast32_t lastPacket)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_RECONNECT, 8, 0};
   AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_ACK(uint32_t lastPacket)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_ACK(uint_fast32_t lastPacket)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_ACK, 8, 0};
   AppendByteArray(packet, lastPacket, false);
   return packet;
 }
 
-std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_REJECT(uint32_t reason)
+std::vector<uint_fast8_t> CGPSProtocol::SEND_GPSS_REJECT(uint_fast32_t reason)
 {
   std::vector<uint_fast8_t> packet = {GPS_HEADER_CONSTANT, GPS_REJECT, 8, 0};
   AppendByteArray(packet, reason, false);

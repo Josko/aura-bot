@@ -65,7 +65,7 @@ bool CPotentialPlayer::Update(void* fd)
 
   string*                   RecvBuffer      = m_Socket->GetBytes();
   std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
-  uint32_t                  LengthProcessed = 0;
+  uint_fast32_t             LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
@@ -75,7 +75,7 @@ bool CPotentialPlayer::Update(void* fd)
     {
       // bytes 2 and 3 contain the length of the packet
 
-      const uint16_t                  Length = ByteArrayToUInt16(Bytes, false, 2);
+      const uint_fast16_t             Length = ByteArrayToUInt16(Bytes, false, 2);
       const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
       if (Bytes.size() >= Length)
@@ -165,14 +165,14 @@ CGamePlayer::~CGamePlayer()
   delete m_Socket;
 }
 
-uint32_t CGamePlayer::GetPing(bool LCPing) const
+uint_fast32_t CGamePlayer::GetPing(bool LCPing) const
 {
   // just average all the pings in the vector, nothing fancy
 
   if (m_Pings.empty())
     return 0;
 
-  uint32_t AvgPing = 0;
+  uint_fast32_t AvgPing = 0;
 
   for (const auto& ping : m_Pings)
     AvgPing += ping;
@@ -187,7 +187,7 @@ uint32_t CGamePlayer::GetPing(bool LCPing) const
 
 bool CGamePlayer::Update(void* fd)
 {
-  const int64_t Time = GetTime();
+  const int_fast64_t Time = GetTime();
 
   // wait 4 seconds after joining before sending the /whois or /w
   // if we send the /whois too early battle.net may not have caught up with where the player is and return erroneous results
@@ -230,20 +230,20 @@ bool CGamePlayer::Update(void* fd)
 
   string*                   RecvBuffer      = m_Socket->GetBytes();
   std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
-  uint32_t                  LengthProcessed = 0;
+  uint_fast32_t             LengthProcessed = 0;
 
   // a packet is at least 4 bytes so loop as long as the buffer contains 4 bytes
 
   CIncomingAction*     Action;
   CIncomingChatPlayer* ChatPlayer;
   CIncomingMapSize*    MapSize;
-  uint32_t             Pong;
+  uint_fast32_t        Pong;
 
   while (Bytes.size() >= 4)
   {
     // bytes 2 and 3 contain the length of the packet
 
-    const uint16_t                  Length = ByteArrayToUInt16(Bytes, false, 2);
+    const uint_fast16_t             Length = ByteArrayToUInt16(Bytes, false, 2);
     const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
     if (Bytes[0] == W3GS_HEADER_CONSTANT)
@@ -359,12 +359,12 @@ bool CGamePlayer::Update(void* fd)
         {
           if (Bytes[1] == CGPSProtocol::GPS_ACK && Data.size() == 8)
           {
-            const uint32_t LastPacket             = ByteArrayToUInt32(Data, false, 4);
-            const uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size();
+            const uint_fast32_t LastPacket             = ByteArrayToUInt32(Data, false, 4);
+            const uint_fast32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size();
 
             if (LastPacket > PacketsAlreadyUnqueued)
             {
-              uint32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
+              uint_fast32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
 
               if (PacketsToUnqueue > m_GProxyBuffer.size())
                 PacketsToUnqueue = m_GProxyBuffer.size();
@@ -437,17 +437,17 @@ void CGamePlayer::Send(const std::vector<uint_fast8_t>& data)
   m_Socket->PutBytes(data);
 }
 
-void CGamePlayer::EventGProxyReconnect(CTCPSocket* NewSocket, uint32_t LastPacket)
+void CGamePlayer::EventGProxyReconnect(CTCPSocket* NewSocket, uint_fast32_t LastPacket)
 {
   delete m_Socket;
   m_Socket = NewSocket;
   m_Socket->PutBytes(m_Game->m_Aura->m_GPSProtocol->SEND_GPSS_RECONNECT(m_TotalPacketsReceived));
 
-  const uint32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size();
+  const uint_fast32_t PacketsAlreadyUnqueued = m_TotalPacketsSent - m_GProxyBuffer.size();
 
   if (LastPacket > PacketsAlreadyUnqueued)
   {
-    uint32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
+    uint_fast32_t PacketsToUnqueue = LastPacket - PacketsAlreadyUnqueued;
 
     if (PacketsToUnqueue > m_GProxyBuffer.size())
       PacketsToUnqueue = m_GProxyBuffer.size();

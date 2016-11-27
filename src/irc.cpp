@@ -34,7 +34,7 @@ using namespace std;
 //// CIRC ////
 //////////////
 
-CIRC::CIRC(CAura* nAura, string nServer, const string& nNickname, const string& nUsername, string nPassword, vector<string> nChannels, vector<string> nRootAdmins, uint16_t nPort, int_fast8_t nCommandTrigger)
+CIRC::CIRC(CAura* nAura, string nServer, const string& nNickname, const string& nUsername, string nPassword, vector<string> nChannels, vector<string> nRootAdmins, uint_fast16_t nPort, int_fast8_t nCommandTrigger)
   : m_Aura(nAura),
     m_Socket(new CTCPClient),
     m_Channels(std::move(nChannels)),
@@ -65,7 +65,7 @@ CIRC::~CIRC()
   delete m_Socket;
 }
 
-uint32_t CIRC::SetFD(void* fd, void* send_fd, int32_t* nfds)
+uint_fast8_t CIRC::SetFD(void* fd, void* send_fd, int* nfds)
 {
   // irc socket
 
@@ -80,7 +80,7 @@ uint32_t CIRC::SetFD(void* fd, void* send_fd, int32_t* nfds)
 
 bool CIRC::Update(void* fd, void* send_fd)
 {
-  const int64_t Time = GetTime();
+  const int_fast64_t Time = GetTime();
 
   if (m_Socket->HasError())
   {
@@ -193,8 +193,8 @@ bool CIRC::Update(void* fd, void* send_fd)
 
 void CIRC::ExtractPackets()
 {
-  const int64_t Time = GetTime();
-  string*       Recv = m_Socket->GetBytes();
+  const int_fast64_t Time = GetTime();
+  string*            Recv = m_Socket->GetBytes();
 
   // separate packets using the CRLF delimiter
 
@@ -256,7 +256,7 @@ void CIRC::ExtractPackets()
 
       // get the nickname
 
-      uint32_t i = 1;
+      uint_fast32_t i = 1;
 
       for (; Tokens[0][i] != '!'; ++i)
         Nickname += Tokens[0][i];

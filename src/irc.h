@@ -43,20 +43,20 @@ public:
   std::string              m_NicknameCpy;
   std::string              m_Username;
   std::string              m_Password;
-  int64_t                  m_LastConnectionAttemptTime;
-  int64_t                  m_LastPacketTime;
-  int64_t                  m_LastAntiIdleTime;
-  uint16_t                 m_Port;
+  int_fast64_t             m_LastConnectionAttemptTime;
+  int_fast64_t             m_LastPacketTime;
+  int_fast64_t             m_LastAntiIdleTime;
+  uint_fast16_t            m_Port;
   int_fast8_t              m_CommandTrigger;
   bool                     m_Exiting;
   bool                     m_WaitingToConnect;
   bool                     m_OriginalNick;
 
-  CIRC(CAura* nAura, std::string nServer, const std::string& nNickname, const std::string& nUsername, std::string nPassword, std::vector<std::string> nChannels, std::vector<std::string> nRootAdmins, uint16_t nPort, int_fast8_t nCommandTrigger);
+  CIRC(CAura* nAura, std::string nServer, const std::string& nNickname, const std::string& nUsername, std::string nPassword, std::vector<std::string> nChannels, std::vector<std::string> nRootAdmins, uint_fast16_t nPort, int_fast8_t nCommandTrigger);
   ~CIRC();
   CIRC(CIRC&) = delete;
 
-  uint32_t SetFD(void* fd, void* send_fd, int32_t* nfds);
+  uint_fast8_t SetFD(void* fd, void* send_fd, int* nfds);
   bool Update(void* fd, void* send_fd);
   void ExtractPackets();
   void SendIRC(const std::string& message);

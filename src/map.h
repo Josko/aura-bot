@@ -114,9 +114,9 @@ private:
   std::string               m_MapDefaultHCL; // config value: map default HCL to use (this should really be specified elsewhere and not part of the map config)
   std::string               m_MapLocalPath;  // config value: map local path
   std::string               m_MapData;       // the map data itself, for sending the map to players
-  uint32_t                  m_MapOptions;
-  uint32_t                  m_MapNumPlayers; // config value: max map number of players
-  uint32_t                  m_MapNumTeams;   // config value: max map number of teams
+  uint_fast32_t             m_MapOptions;
+  uint_fast32_t             m_MapNumPlayers; // config value: max map number of players
+  uint_fast32_t             m_MapNumTeams;   // config value: max map number of teams
   uint_fast8_t              m_MapSpeed;
   uint_fast8_t              m_MapVisibility;
   uint_fast8_t              m_MapObservers;
@@ -143,8 +143,8 @@ public:
   inline uint_fast8_t              GetMapObservers() const { return m_MapObservers; }
   inline uint_fast8_t              GetMapFlags() const { return m_MapFlags; }
   std::vector<uint_fast8_t>        GetMapGameFlags() const;
-  uint32_t                         GetMapGameType() const;
-  inline uint32_t                  GetMapOptions() const { return m_MapOptions; }
+  uint_fast32_t                    GetMapGameType() const;
+  inline uint_fast32_t             GetMapOptions() const { return m_MapOptions; }
   uint_fast8_t                     GetMapLayoutStyle() const;
   inline std::vector<uint_fast8_t> GetMapWidth() const { return m_MapWidth; }
   inline std::vector<uint_fast8_t> GetMapHeight() const { return m_MapHeight; }
@@ -152,13 +152,13 @@ public:
   inline std::string               GetMapDefaultHCL() const { return m_MapDefaultHCL; }
   inline std::string               GetMapLocalPath() const { return m_MapLocalPath; }
   inline std::string*              GetMapData() { return &m_MapData; }
-  inline uint32_t                  GetMapNumPlayers() const { return m_MapNumPlayers; }
-  inline uint32_t                  GetMapNumTeams() const { return m_MapNumTeams; }
+  inline uint_fast32_t             GetMapNumPlayers() const { return m_MapNumPlayers; }
+  inline uint_fast32_t             GetMapNumTeams() const { return m_MapNumTeams; }
   inline std::vector<CGameSlot>    GetSlots() const { return m_Slots; }
 
   void Load(CConfig* CFG, const std::string& nCFGFile);
-  void     CheckValid();
-  uint32_t XORRotateLeft(uint_fast8_t* data, uint32_t length);
+  void          CheckValid();
+  uint_fast32_t XORRotateLeft(uint_fast8_t* data, uint_fast32_t length);
 };
 
 #endif // AURA_MAP_H_

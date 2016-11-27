@@ -108,7 +108,7 @@ vector<string> FilesMatch(const string& path, const string& pattern)
   return Files;
 }
 
-string FileRead(const string& file, uint32_t start, uint32_t length)
+string FileRead(const string& file, uint_fast32_t start, uint_fast32_t length)
 {
   ifstream IS;
   IS.open(file.c_str(), ios::binary);
@@ -122,7 +122,7 @@ string FileRead(const string& file, uint32_t start, uint32_t length)
   // get length of file
 
   IS.seekg(0, ios::end);
-  uint32_t FileLength = IS.tellg();
+  uint_fast32_t FileLength = IS.tellg();
 
   if (start > FileLength)
   {
@@ -156,7 +156,7 @@ string FileRead(const string& file)
   // get length of file
 
   IS.seekg(0, ios::end);
-  uint32_t FileLength = IS.tellg();
+  uint_fast32_t FileLength = IS.tellg();
   IS.seekg(0, ios::beg);
 
   // read data
@@ -173,7 +173,7 @@ string FileRead(const string& file)
     return string();
 }
 
-bool FileWrite(const string& file, uint_fast8_t* data, uint32_t length)
+bool FileWrite(const string& file, uint_fast8_t* data, uint_fast32_t length)
 {
   ofstream OS;
   OS.open(file.c_str(), ios::binary);
