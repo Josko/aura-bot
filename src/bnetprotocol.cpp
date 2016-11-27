@@ -595,8 +595,6 @@ std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(const std::vector<u
 
   if (clientToken.size() == 4 && exeVersion.size() == 4 && exeVersionHash.size() == 4)
   {
-    uint_fast32_t NumKeys = 2;
-
     packet.push_back(BNET_HEADER_CONSTANT);           // BNET header constant
     packet.push_back(SID_AUTH_CHECK);                 // SID_AUTH_CHECK
     packet.push_back(0);                              // packet length will be assigned later
@@ -604,7 +602,7 @@ std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(const std::vector<u
     AppendByteArrayFast(packet, clientToken);         // Client Token
     AppendByteArrayFast(packet, exeVersion);          // EXE Version
     AppendByteArrayFast(packet, exeVersionHash);      // EXE Version Hash
-    AppendByteArray(packet, NumKeys, false);          // number of keys in this packet
+    AppendByteArray(packet, static_cast<uint_fast32_t>(2), false);          // number of keys in this packet
     AppendByteArray(packet, (uint_fast32_t)0, false); // boolean Using Spawn (32 bit)
     AppendByteArrayFast(packet, keyInfoROC);          // ROC Key Info
     AppendByteArrayFast(packet, keyInfoTFT);          // TFT Key Info
