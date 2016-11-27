@@ -232,15 +232,15 @@ class CDBGamePlayerSummary
 {
 private:
   uint_fast32_t m_TotalGames;     // total number of games played
-  float         m_AvgLoadingTime; // average loading time in milliseconds (this could be skewed because different maps have different load times)
+  double        m_AvgLoadingTime; // average loading time in milliseconds (this could be skewed because different maps have different load times)
   uint_fast32_t m_AvgLeftPercent; // average time at which the player left the game expressed as a percentage of the game duration (0-100)
 
 public:
-  CDBGamePlayerSummary(uint_fast32_t nTotalGames, float nAvgLoadingTime, uint_fast32_t nAvgLeftPercent);
+  CDBGamePlayerSummary(uint_fast32_t nTotalGames, double nAvgLoadingTime, uint_fast32_t nAvgLeftPercent);
   ~CDBGamePlayerSummary();
 
   inline uint_fast32_t GetTotalGames() const { return m_TotalGames; }
-  inline float         GetAvgLoadingTime() const { return m_AvgLoadingTime; }
+  inline double        GetAvgLoadingTime() const { return m_AvgLoadingTime; }
   inline uint_fast32_t GetAvgLeftPercent() const { return m_AvgLeftPercent; }
 };
 
@@ -330,15 +330,15 @@ public:
   inline uint_fast32_t GetTotalTowerKills() const { return m_TotalTowerKills; }
   inline uint_fast32_t GetTotalRaxKills() const { return m_TotalRaxKills; }
   inline uint_fast32_t GetTotalCourierKills() const { return m_TotalCourierKills; }
-  inline float         GetAvgKills() const { return m_TotalGames > 0 ? (float)m_TotalKills / m_TotalGames : 0.f; }
-  inline float         GetAvgDeaths() const { return m_TotalGames > 0 ? (float)m_TotalDeaths / m_TotalGames : 0.f; }
-  inline float         GetAvgCreepKills() const { return m_TotalGames > 0 ? (float)m_TotalCreepKills / m_TotalGames : 0.f; }
-  inline float         GetAvgCreepDenies() const { return m_TotalGames > 0 ? (float)m_TotalCreepDenies / m_TotalGames : 0.f; }
-  inline float         GetAvgAssists() const { return m_TotalGames > 0 ? (float)m_TotalAssists / m_TotalGames : 0.f; }
-  inline float         GetAvgNeutralKills() const { return m_TotalGames > 0 ? (float)m_TotalNeutralKills / m_TotalGames : 0.f; }
-  inline float         GetAvgTowerKills() const { return m_TotalGames > 0 ? (float)m_TotalTowerKills / m_TotalGames : 0.f; }
-  inline float         GetAvgRaxKills() const { return m_TotalGames > 0 ? (float)m_TotalRaxKills / m_TotalGames : 0.f; }
-  inline float         GetAvgCourierKills() const { return m_TotalGames > 0 ? (float)m_TotalCourierKills / m_TotalGames : 0.f; }
+  inline double        GetAvgKills() const { return m_TotalGames > 0 ? (double)m_TotalKills / m_TotalGames : 0.0; }
+  inline double        GetAvgDeaths() const { return m_TotalGames > 0 ? (double)m_TotalDeaths / m_TotalGames : 0.0; }
+  inline double        GetAvgCreepKills() const { return m_TotalGames > 0 ? (double)m_TotalCreepKills / m_TotalGames : 0.0; }
+  inline double        GetAvgCreepDenies() const { return m_TotalGames > 0 ? (double)m_TotalCreepDenies / m_TotalGames : 0.0; }
+  inline double        GetAvgAssists() const { return m_TotalGames > 0 ? (double)m_TotalAssists / m_TotalGames : 0.0; }
+  inline double        GetAvgNeutralKills() const { return m_TotalGames > 0 ? (double)m_TotalNeutralKills / m_TotalGames : 0.0; }
+  inline double        GetAvgTowerKills() const { return m_TotalGames > 0 ? (double)m_TotalTowerKills / m_TotalGames : 0.0; }
+  inline double        GetAvgRaxKills() const { return m_TotalGames > 0 ? (double)m_TotalRaxKills / m_TotalGames : 0.0; }
+  inline double        GetAvgCourierKills() const { return m_TotalGames > 0 ? (double)m_TotalCourierKills / m_TotalGames : 0.0; }
 };
 
 #endif // AURA_AURADB_H_

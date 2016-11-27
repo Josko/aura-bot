@@ -644,7 +644,7 @@ CDBGamePlayerSummary* CAuraDB::GamePlayerSummaryCheck(string name)
         const uint_fast64_t Left        = sqlite3_column_int64(Statement, 2);
         const uint_fast64_t Duration    = sqlite3_column_int64(Statement, 3);
 
-        GamePlayerSummary = new CDBGamePlayerSummary(TotalGames, (float)LoadingTime / TotalGames / 1000, (float)Duration / Left * 100);
+        GamePlayerSummary = new CDBGamePlayerSummary(TotalGames, (double)LoadingTime / TotalGames / 1000, (double)Duration / Left * 100);
       }
       else
         Print("[SQLITE3] error checking gameplayersummary [" + name + "] - row doesn't have 4 columns");
@@ -896,7 +896,7 @@ CDBGamePlayer::~CDBGamePlayer() = default;
 // CDBGamePlayerSummary
 //
 
-CDBGamePlayerSummary::CDBGamePlayerSummary(uint_fast32_t nTotalGames, float nAvgLoadingTime, uint_fast32_t nAvgLeftPercent)
+CDBGamePlayerSummary::CDBGamePlayerSummary(uint_fast32_t nTotalGames, double nAvgLoadingTime, uint_fast32_t nAvgLeftPercent)
   : m_TotalGames(nTotalGames),
     m_AvgLoadingTime(nAvgLoadingTime),
     m_AvgLeftPercent(nAvgLeftPercent)

@@ -1468,7 +1468,7 @@ void CGame::EventPlayerLeft(CGamePlayer* player, uint_fast32_t reason)
 
 void CGame::EventPlayerLoaded(CGamePlayer* player)
 {
-  Print("[GAME: " + m_GameName + "] player [" + player->GetName() + "] finished loading in " + to_string((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+  Print("[GAME: " + m_GameName + "] player [" + player->GetName() + "] finished loading in " + to_string((double)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 
   SendAll(m_Protocol->SEND_W3GS_GAMELOADED_OTHERS(player->GetPID()));
 }
@@ -3370,7 +3370,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
             player->SetKickVote(true);
             Print("[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]");
-            SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string((uint_fast32_t)ceil((GetNumHumanPlayers() - 1) * (float)m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
+            SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string((uint_fast32_t)ceil((GetNumHumanPlayers() - 1) * (double)m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
             SendAllChat("Type " + string(1, m_Aura->m_CommandTrigger) + "yes to vote");
           }
         }
@@ -3391,7 +3391,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
         break;
 
       player->SetKickVote(true);
-      uint_fast32_t Votes = 0, VotesNeeded = (uint_fast32_t)ceil((GetNumHumanPlayers() - 1) * (float)m_Aura->m_VoteKickPercentage / 100);
+      uint_fast32_t Votes = 0, VotesNeeded = (uint_fast32_t)ceil((GetNumHumanPlayers() - 1) * (double)m_Aura->m_VoteKickPercentage / 100);
 
       for (auto& player : m_Players)
       {
@@ -3581,7 +3581,7 @@ void CGame::EventPlayerDropRequest(CGamePlayer* player)
         ++Votes;
     }
 
-    if ((float)Votes / m_Players.size() > 0.50f)
+    if ((double)Votes / m_Players.size() > 0.50f)
       StopLaggers("lagged out (dropped by vote)");
   }
 }
@@ -3640,15 +3640,15 @@ void CGame::EventPlayerMapSize(CGamePlayer* player, CIncomingMapSize* mapSize)
   {
     // calculate download rate
 
-    const float Seconds = (float)(GetTicks() - player->GetStartedDownloadingTicks()) / 1000.f;
-    const float Rate    = (float)MapSize / 1024.f / Seconds;
+    const double Seconds = (double)(GetTicks() - player->GetStartedDownloadingTicks()) / 1000.f;
+    const double Rate    = (double)MapSize / 1024.f / Seconds;
     Print("[GAME: " + m_GameName + "] map download finished for player [" + player->GetName() + "] in " + to_string(Seconds) + " seconds");
     SendAllChat("Player [" + player->GetName() + "] downloaded the map in " + to_string(Seconds) + " seconds (" + to_string(Rate) + " KB/sec)");
     player->SetDownloadFinished(true);
     player->SetFinishedDownloadingTime(GetTime());
   }
 
-  uint_fast8_t       NewDownloadStatus = (uint_fast8_t)((float)mapSize->GetMapSize() / MapSize * 100.f);
+  uint_fast8_t       NewDownloadStatus = (uint_fast8_t)((double)mapSize->GetMapSize() / MapSize * 100.f);
   const uint_fast8_t SID               = GetSIDFromPID(player->GetPID());
 
   if (NewDownloadStatus > 100)
@@ -3855,12 +3855,12 @@ void CGame::EventGameLoaded()
 
   if (Shortest && Longest)
   {
-    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + to_string((float)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
-    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + to_string((float)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + to_string((double)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + to_string((double)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
   }
 
   for (auto& player : m_Players)
-    SendChat(player, "Your load time was " + to_string((float)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendChat(player, "Your load time was " + to_string((double)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 }
 
 uint_fast8_t CGame::GetSIDFromPID(uint_fast8_t PID) const
