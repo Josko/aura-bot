@@ -95,7 +95,7 @@ inline std::string ByteArrayToDecString(const std::vector<uint_fast8_t>& b)
 
   std::string result = std::to_string(b[0]);
 
-  for (auto i = begin(b) + 1; i != end(b); ++i)
+  for (auto i = cbegin(b) + 1; i != cend(b); ++i)
     result += " " + std::to_string(*i);
 
   return result;
@@ -108,7 +108,7 @@ inline std::string ByteArrayToHexString(const std::vector<uint_fast8_t>& b)
 
   std::string result = ToHexString(b[0]);
 
-  for (auto i = begin(b) + 1; i != end(b); ++i)
+  for (auto i = cbegin(b) + 1; i != cend(b); ++i)
   {
     if (*i < 16)
       result += " 0" + ToHexString(*i);
