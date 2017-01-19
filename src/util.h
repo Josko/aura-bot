@@ -41,7 +41,7 @@ inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast8_t* a, const in
   if (size < 1)
     return std::vector<uint_fast8_t>();
 
-  return std::vector<uint_fast8_t>(a, a + size - 1);
+  return std::vector<uint_fast8_t>(a, a + size);
 }
 
 inline std::vector<uint_fast8_t> CreateByteArray(const uint_fast8_t c)
