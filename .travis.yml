@@ -6,7 +6,7 @@ addons:
             - llvm-toolchain-precise
             - ubuntu-toolchain-r-test
         packages:
-            - clang-3.6
+            - clang-3.7
             - g++-5
             - gcc-5
 
@@ -16,7 +16,7 @@ matrix:
       compiler: gcc-5
 
     - os: linux
-      compiler: clang-3.6
+      compiler: clang-3.7
 
 branches:
   only:
