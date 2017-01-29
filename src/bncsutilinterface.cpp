@@ -135,7 +135,7 @@ bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string& userPassword)
   return true;
 }
 
-std::vector<uint_fast8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, uint_fast32_t clientToken, uint_fast32_t serverToken)
+std::vector<uint_fast8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32_t clientToken, uint32_t serverToken)
 {
   std::vector<uint_fast8_t> KeyInfo;
   CDKeyDecoder              Decoder(key.c_str(), key.size());
@@ -143,7 +143,7 @@ std::vector<uint_fast8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, u
   if (Decoder.isKeyValid())
   {
     const uint_fast8_t Zeros[] = {0, 0, 0, 0};
-    AppendByteArray(KeyInfo, CreateByteArray((uint_fast32_t)key.size(), false));
+    AppendByteArray(KeyInfo, CreateByteArray((uint32_t)key.size(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Zeros, 4));

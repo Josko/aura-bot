@@ -53,7 +53,7 @@ CStats::~CStats()
 
 bool CStats::ProcessAction(CIncomingAction* Action)
 {
-  uint_fast32_t                    i          = 0;
+  uint32_t                         i          = 0;
   const std::vector<uint_fast8_t>* ActionData = Action->GetAction();
   std::vector<uint_fast8_t>        Data, Key, Value;
 
@@ -86,10 +86,10 @@ bool CStats::ProcessAction(CIncomingAction* Action)
           {
             // the 4 byte int32_teger should be the value
 
-            Value                          = std::vector<uint_fast8_t>(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
-            const string        DataString = string(begin(Data), end(Data));
-            const string        KeyString  = string(begin(Key), end(Key));
-            const uint_fast32_t ValueInt   = ByteArrayToUInt32(Value, false);
+            Value                     = std::vector<uint_fast8_t>(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
+            const string   DataString = string(begin(Data), end(Data));
+            const string   KeyString  = string(begin(Key), end(Key));
+            const uint32_t ValueInt   = ByteArrayToUInt32(Value, false);
 
             //Print( "[STATS] " + DataString + ", " + KeyString + ", " + to_string( ValueInt ) );
 
@@ -103,11 +103,11 @@ bool CStats::ProcessAction(CIncomingAction* Action)
               {
                 // a hero died
 
-                const string        VictimName   = KeyString.substr(4);
-                const uint_fast32_t KillerColour = ValueInt;
-                const uint_fast32_t VictimColour = stoul(VictimName);
-                CGamePlayer*        Killer       = m_Game->GetPlayerFromColour(ValueInt);
-                CGamePlayer*        Victim       = m_Game->GetPlayerFromColour(VictimColour);
+                const string   VictimName   = KeyString.substr(4);
+                const uint32_t KillerColour = ValueInt;
+                const uint32_t VictimColour = stoul(VictimName);
+                CGamePlayer*   Killer       = m_Game->GetPlayerFromColour(ValueInt);
+                CGamePlayer*   Victim       = m_Game->GetPlayerFromColour(VictimColour);
 
                 if (!m_Players[ValueInt])
                   m_Players[ValueInt] = new CDBDotAPlayer();
@@ -143,8 +143,8 @@ bool CStats::ProcessAction(CIncomingAction* Action)
 
                 if (m_Game->GetPlayerFromColour(ValueInt))
                 {
-                  string              AssisterName   = KeyString.substr(6);
-                  const uint_fast32_t AssisterColour = stoul(AssisterName);
+                  string         AssisterName   = KeyString.substr(6);
+                  const uint32_t AssisterColour = stoul(AssisterName);
 
                   if (!m_Players[AssisterColour])
                     m_Players[AssisterColour] = new CDBDotAPlayer();
@@ -212,7 +212,7 @@ bool CStats::ProcessAction(CIncomingAction* Action)
             {
               // these are only received at the end of the game
 
-              const uint_fast32_t ID = stoul(DataString);
+              const uint32_t ID = stoul(DataString);
 
               if ((ID >= 1 && ID <= 5) || (ID >= 7 && ID <= 11))
               {
@@ -288,16 +288,16 @@ void CStats::Save(CAura* Aura, CAuraDB* DB)
     // the dotagame stats are always saved (with winner = 0 if the game didn't properly finish)
     // the dotaplayer stats are only saved if the game is properly finished
 
-    uint_fast32_t Players = 0;
+    uint32_t Players = 0;
 
     // check for invalid colours and duplicates
     // this can only happen if DotA sends us garbage in the "id" value but we should check anyway
 
-    for (uint_fast32_t i = 0; i < 12; ++i)
+    for (uint32_t i = 0; i < 12; ++i)
     {
       if (m_Players[i])
       {
-        const uint_fast32_t Colour = m_Players[i]->GetNewColour();
+        const uint32_t Colour = m_Players[i]->GetNewColour();
 
         if (!((Colour >= 1 && Colour <= 5) || (Colour >= 7 && Colour <= 11)))
         {
@@ -307,7 +307,7 @@ void CStats::Save(CAura* Aura, CAuraDB* DB)
           continue;
         }
 
-        for (uint_fast32_t j = i + 1; j < 12; ++j)
+        for (uint32_t j = i + 1; j < 12; ++j)
         {
           if (m_Players[j] && Colour == m_Players[j]->GetNewColour())
           {
@@ -323,8 +323,8 @@ void CStats::Save(CAura* Aura, CAuraDB* DB)
     {
       if (player)
       {
-        const uint_fast32_t Colour = player->GetNewColour();
-        const string        Name   = m_Game->GetDBPlayerNameFromColour(Colour);
+        const uint32_t Colour = player->GetNewColour();
+        const string   Name   = m_Game->GetDBPlayerNameFromColour(Colour);
 
         if (Name.empty())
           continue;

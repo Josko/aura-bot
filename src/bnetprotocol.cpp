@@ -274,7 +274,7 @@ bool CBNETProtocol::RECEIVE_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint_fa
 
   if (ValidateLength(data) && data.size() >= 8)
   {
-    uint_fast32_t Status = ByteArrayToUInt32(std::vector<uint_fast8_t>(begin(data) + 4, begin(data) + 8), false);
+    uint32_t Status = ByteArrayToUInt32(std::vector<uint_fast8_t>(begin(data) + 4, begin(data) + 8), false);
 
     if (Status == 0 || Status == 0xE)
       return true;
@@ -302,8 +302,8 @@ vector<string> CBNETProtocol::RECEIVE_SID_FRIENDLIST(const std::vector<uint_fast
 
   if (ValidateLength(data) && data.size() >= 5)
   {
-    uint_fast32_t i     = 5;
-    uint_fast8_t  Total = data[4];
+    uint32_t     i     = 5;
+    uint_fast8_t Total = data[4];
 
     while (Total > 0)
     {
@@ -347,8 +347,8 @@ vector<string> CBNETProtocol::RECEIVE_SID_CLANMEMBERLIST(const std::vector<uint_
 
   if (ValidateLength(data) && data.size() >= 9)
   {
-    uint_fast32_t i     = 9;
-    uint_fast8_t  Total = data[8];
+    uint32_t     i     = 9;
+    uint_fast8_t Total = data[8];
 
     while (Total > 0)
     {
@@ -443,7 +443,7 @@ std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_CHECKAD()
   return std::vector<uint_fast8_t>{BNET_HEADER_CONSTANT, SID_CHECKAD, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 }
 
-std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_STARTADVEX3(uint_fast8_t state, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const string& gameName, const string& hostName, uint_fast32_t upTime, const string& mapPath, const std::vector<uint_fast8_t>& mapCRC, const std::vector<uint_fast8_t>& mapSHA1, uint_fast32_t hostCounter)
+std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_STARTADVEX3(uint_fast8_t state, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const string& gameName, const string& hostName, uint32_t upTime, const string& mapPath, const std::vector<uint_fast8_t>& mapCRC, const std::vector<uint_fast8_t>& mapSHA1, uint32_t hostCounter)
 {
   // TODO: sort out how GameType works, the documentation is horrendous
 
@@ -545,7 +545,7 @@ std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_LOGONRESPONSE(const std::vecto
   return packet;
 }
 
-std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_NETGAMEPORT(uint_fast16_t serverPort)
+std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_NETGAMEPORT(uint16_t serverPort)
 {
   std::vector<uint_fast8_t> packet;
   packet.push_back(BNET_HEADER_CONSTANT);     // BNET header constant
@@ -558,7 +558,7 @@ std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_NETGAMEPORT(uint_fast16_t serv
   return packet;
 }
 
-std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint_fast8_t ver, uint_fast32_t localeID, const string& countryAbbrev, const string& country)
+std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint_fast8_t ver, uint32_t localeID, const string& countryAbbrev, const string& country)
 {
   const uint_fast8_t ProtocolID[]    = {0, 0, 0, 0};
   const uint_fast8_t PlatformID[]    = {54, 56, 88, 73}; // "IX86"
@@ -595,19 +595,21 @@ std::vector<uint_fast8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(const std::vector<u
 
   if (clientToken.size() == 4 && exeVersion.size() == 4 && exeVersionHash.size() == 4)
   {
-    packet.push_back(BNET_HEADER_CONSTANT);           // BNET header constant
-    packet.push_back(SID_AUTH_CHECK);                 // SID_AUTH_CHECK
-    packet.push_back(0);                              // packet length will be assigned later
-    packet.push_back(0);                              // packet length will be assigned later
-    AppendByteArrayFast(packet, clientToken);         // Client Token
-    AppendByteArrayFast(packet, exeVersion);          // EXE Version
-    AppendByteArrayFast(packet, exeVersionHash);      // EXE Version Hash
-    AppendByteArray(packet, static_cast<uint_fast32_t>(2), false);          // number of keys in this packet
-    AppendByteArray(packet, (uint_fast32_t)0, false); // boolean Using Spawn (32 bit)
-    AppendByteArrayFast(packet, keyInfoROC);          // ROC Key Info
-    AppendByteArrayFast(packet, keyInfoTFT);          // TFT Key Info
-    AppendByteArrayFast(packet, exeInfo);             // EXE Info
-    AppendByteArrayFast(packet, keyOwnerName);        // CD Key Owner Name
+    uint32_t NumKeys = 2;
+
+    packet.push_back(BNET_HEADER_CONSTANT);      // BNET header constant
+    packet.push_back(SID_AUTH_CHECK);            // SID_AUTH_CHECK
+    packet.push_back(0);                         // packet length will be assigned later
+    packet.push_back(0);                         // packet length will be assigned later
+    AppendByteArrayFast(packet, clientToken);    // Client Token
+    AppendByteArrayFast(packet, exeVersion);     // EXE Version
+    AppendByteArrayFast(packet, exeVersionHash); // EXE Version Hash
+    AppendByteArray(packet, NumKeys, false);     // number of keys in this packet
+    AppendByteArray(packet, (uint32_t)0, false); // boolean Using Spawn (32 bit)
+    AppendByteArrayFast(packet, keyInfoROC);     // ROC Key Info
+    AppendByteArrayFast(packet, keyInfoTFT);     // TFT Key Info
+    AppendByteArrayFast(packet, exeInfo);        // EXE Info
+    AppendByteArrayFast(packet, keyOwnerName);   // CD Key Owner Name
     AssignLength(packet);
   }
   else
@@ -680,7 +682,7 @@ bool CBNETProtocol::ValidateLength(const std::vector<uint_fast8_t>& content)
 // CIncomingGameHost
 //
 
-CIncomingGameHost::CIncomingGameHost(std::vector<uint_fast8_t> nIP, uint_fast16_t nPort, string nGameName, std::vector<uint_fast8_t> nHostCounter)
+CIncomingGameHost::CIncomingGameHost(std::vector<uint_fast8_t> nIP, uint16_t nPort, string nGameName, std::vector<uint_fast8_t> nHostCounter)
   : m_GameName(std::move(nGameName)),
     m_IP(std::move(nIP)),
     m_HostCounter(std::move(nHostCounter)),
@@ -696,9 +698,9 @@ string CIncomingGameHost::GetIPString() const
 
   if (m_IP.size() >= 4)
   {
-    for (uint_fast32_t i = 0; i < 4; ++i)
+    for (uint32_t i = 0; i < 4; ++i)
     {
-      Result += to_string((uint_fast32_t)m_IP[i]);
+      Result += to_string((uint32_t)m_IP[i]);
 
       if (i < 3)
         Result += ".";

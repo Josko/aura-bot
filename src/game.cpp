@@ -42,7 +42,7 @@ using namespace std;
 // CGame
 //
 
-CGame::CGame(CAura* nAura, CMap* nMap, uint_fast16_t nHostPort, uint_fast8_t nGameState, string& nGameName, string& nOwnerName, string& nCreatorName, string& nCreatorServer)
+CGame::CGame(CAura* nAura, CMap* nMap, uint16_t nHostPort, uint_fast8_t nGameState, string& nGameName, string& nOwnerName, string& nCreatorName, string& nCreatorServer)
   : m_Aura(nAura),
     m_Socket(new CTCPServer()),
     m_DBBanLast(nullptr),
@@ -163,7 +163,7 @@ CGame::~CGame()
   delete m_Stats;
 }
 
-int_fast64_t CGame::GetNextTimedActionTicks() const
+int64_t CGame::GetNextTimedActionTicks() const
 {
   // return the number of ticks (ms) until the next "timed action", which for our purposes is the next game update
   // the main Aura++ loop will make sure the next loop update happens at or before this value
@@ -173,7 +173,7 @@ int_fast64_t CGame::GetNextTimedActionTicks() const
   if (!m_GameLoaded || m_Lagging)
     return 50;
 
-  const int_fast64_t TicksSinceLastUpdate = GetTicks() - m_LastActionSentTicks;
+  const int64_t TicksSinceLastUpdate = GetTicks() - m_LastActionSentTicks;
 
   if (TicksSinceLastUpdate > m_Latency - m_LastActionLateBy)
     return 0;
@@ -181,9 +181,9 @@ int_fast64_t CGame::GetNextTimedActionTicks() const
     return m_Latency - m_LastActionLateBy - TicksSinceLastUpdate;
 }
 
-uint_fast32_t CGame::GetSlotsOccupied() const
+uint32_t CGame::GetSlotsOccupied() const
 {
-  uint_fast32_t NumSlotsOccupied = 0;
+  uint32_t NumSlotsOccupied = 0;
 
   for (const auto& slot : m_Slots)
   {
@@ -194,9 +194,9 @@ uint_fast32_t CGame::GetSlotsOccupied() const
   return NumSlotsOccupied;
 }
 
-uint_fast32_t CGame::GetSlotsOpen() const
+uint32_t CGame::GetSlotsOpen() const
 {
-  uint_fast32_t NumSlotsOpen = 0;
+  uint32_t NumSlotsOpen = 0;
 
   for (const auto& slot : m_Slots)
   {
@@ -207,14 +207,14 @@ uint_fast32_t CGame::GetSlotsOpen() const
   return NumSlotsOpen;
 }
 
-uint_fast32_t CGame::GetNumPlayers() const
+uint32_t CGame::GetNumPlayers() const
 {
   return GetNumHumanPlayers() + m_FakePlayers.size();
 }
 
-uint_fast32_t CGame::GetNumHumanPlayers() const
+uint32_t CGame::GetNumHumanPlayers() const
 {
-  uint_fast32_t NumHumanPlayers = 0;
+  uint32_t NumHumanPlayers = 0;
 
   for (const auto& player : m_Players)
   {
@@ -277,9 +277,9 @@ string CGame::GetObservers() const
   return Observers;
 }
 
-uint_fast8_t CGame::SetFD(void* fd, void* send_fd, int* nfds)
+uint32_t CGame::SetFD(void* fd, void* send_fd, int32_t* nfds)
 {
-  uint_fast8_t NumFDs = 0;
+  uint32_t NumFDs = 0;
 
   if (m_Socket)
   {
@@ -307,7 +307,7 @@ uint_fast8_t CGame::SetFD(void* fd, void* send_fd, int* nfds)
 
 bool CGame::Update(void* fd, void* send_fd)
 {
-  const int_fast64_t Time = GetTime(), Ticks = GetTicks();
+  const int64_t Time = GetTime(), Ticks = GetTicks();
 
   // ping every 5 seconds
   // changed this to ping during game loading as well to hopefully fix some problems with people disconnecting during loading
@@ -345,7 +345,7 @@ bool CGame::Update(void* fd, void* send_fd)
       // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
       // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-      m_Aura->m_UDPSocket->Broadcast(6112, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint_fast32_t)MAPGAMETYPE_UNKNOWN0, false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
+      m_Aura->m_UDPSocket->Broadcast(6112, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t)MAPGAMETYPE_UNKNOWN0, false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
     }
 
     m_LastPingTime = Time;
@@ -438,7 +438,7 @@ bool CGame::Update(void* fd, void* send_fd)
         }
       }
 
-      int_fast64_t WaitTime = 60;
+      int64_t WaitTime = 60;
 
       if (UsingGProxy)
         WaitTime = (m_GProxyEmptyActions + 1) * 60;
@@ -637,7 +637,7 @@ bool CGame::Update(void* fd, void* send_fd)
 
   if (!m_GameLoading && Ticks - m_LastDownloadTicks >= 100)
   {
-    uint_fast32_t Downloaders = 0;
+    uint32_t Downloaders = 0;
 
     for (auto& player : m_Players)
     {
@@ -662,7 +662,7 @@ bool CGame::Update(void* fd, void* send_fd)
         // in addition to this, the throughput is limited by the configuration value bot_maxdownloadspeed
         // in summary: the actual throughput is MIN( 140 * 1000 / ping, 1400, bot_maxdownloadspeed ) in KB/sec assuming only one player is downloading the map
 
-        const uint_fast32_t MapSize = ByteArrayToUInt32(m_Map->GetMapSize(), false);
+        const uint32_t MapSize = ByteArrayToUInt32(m_Map->GetMapSize(), false);
 
         while (player->GetLastMapPartSent() < player->GetLastMapPartAcked() + 1442 * 100 && player->GetLastMapPartSent() < MapSize)
         {
@@ -865,9 +865,9 @@ void CGame::SendAllChat(uint_fast8_t fromPID, const string& message)
     else
     {
       if (message.size() > 127)
-        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray((uint_fast32_t)0, false), message.substr(0, 127)));
+        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray((uint32_t)0, false), message.substr(0, 127)));
       else
-        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray((uint_fast32_t)0, false), message));
+        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray((uint32_t)0, false), message));
     }
   }
 }
@@ -951,7 +951,7 @@ void CGame::SendAllActions()
     CIncomingAction*        Action = m_Actions.front();
     m_Actions.pop();
     SubActions.push(Action);
-    uint_fast32_t SubActionsLength = Action->GetLength();
+    uint32_t SubActionsLength = Action->GetLength();
 
     while (!m_Actions.empty())
     {
@@ -992,10 +992,10 @@ void CGame::SendAllActions()
   else
     SendAll(m_Protocol->SEND_W3GS_INCOMING_ACTION(m_Actions, m_Latency));
 
-  const int_fast64_t Ticks                = GetTicks();
-  const int_fast64_t ActualSendInterval   = Ticks - m_LastActionSentTicks;
-  const int_fast64_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
-  m_LastActionLateBy                      = ActualSendInterval - ExpectedSendInterval;
+  const int64_t Ticks                = GetTicks();
+  const int64_t ActualSendInterval   = Ticks - m_LastActionSentTicks;
+  const int64_t ExpectedSendInterval = m_Latency - m_LastActionLateBy;
+  m_LastActionLateBy                 = ActualSendInterval - ExpectedSendInterval;
 
   if (m_LastActionLateBy > m_Latency)
   {
@@ -1084,9 +1084,9 @@ void CGame::EventPlayerDisconnectTimedOut(CGamePlayer* player)
 
     if (GetTime() - player->GetLastGProxyWaitNoticeSentTime() >= 20)
     {
-      int_fast64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
+      int64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((int_fast64_t)m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > ((int64_t)m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1123,9 +1123,9 @@ void CGame::EventPlayerDisconnectSocketError(CGamePlayer* player)
 
     if (GetTime() - player->GetLastGProxyWaitNoticeSentTime() >= 20)
     {
-      int_fast64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
+      int64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((int_fast64_t)m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > ((int64_t)m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1155,9 +1155,9 @@ void CGame::EventPlayerDisconnectConnectionClosed(CGamePlayer* player)
 
     if (GetTime() - player->GetLastGProxyWaitNoticeSentTime() >= 20)
     {
-      int_fast64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
+      int64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((int_fast64_t)m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > ((int64_t)m_GProxyEmptyActions + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1192,8 +1192,8 @@ void CGame::EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* 
   // the client sends the host counter when it joins so we can extract the ID value here
   // note: this is not a replacement for spoof checking since it doesn't verify the player's name and it can be spoofed anyway
 
-  string              JoinedRealm;
-  const uint_fast32_t HostCounterID = joinPlayer->GetHostCounter() >> 28;
+  string         JoinedRealm;
+  const uint32_t HostCounterID = joinPlayer->GetHostCounter() >> 28;
 
   // we use an ID value of 0 to denote joining via LAN, we don't have to set their joined realm.
 
@@ -1449,7 +1449,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* 
   }
 }
 
-void CGame::EventPlayerLeft(CGamePlayer* player, uint_fast32_t reason)
+void CGame::EventPlayerLeft(CGamePlayer* player, uint32_t reason)
 {
   // this function is only called when a player leave packet is received, not when there's a socket error, kick, etc...
 
@@ -1498,7 +1498,7 @@ void CGame::EventPlayerKeepAlive(CGamePlayer* player)
 {
   // check for desyncs
 
-  const uint_fast32_t FirstCheckSum = player->GetCheckSums()->front();
+  const uint32_t FirstCheckSum = player->GetCheckSums()->front();
 
   for (auto& player : m_Players)
   {
@@ -1643,7 +1643,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
     }
   }
 
-  const uint_fast64_t CommandHash = HashCode(Command);
+  const uint64_t CommandHash = HashCode(Command);
 
   if (player->GetSpoofed() && (AdminCheck || RootAdminCheck || IsOwner(User)))
   {
@@ -1667,7 +1667,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // kick players with ping higher than payload if payload isn't empty
           // we only do this if the game hasn't started since we don't want to kick players from a game in progress
 
-          uint_fast32_t Kicked = 0, KickPing = 0;
+          uint32_t Kicked = 0, KickPing = 0;
 
           if (!m_GameLoading && !m_GameLoaded && !Payload.empty())
           {
@@ -1801,7 +1801,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
           while (!SS.eof())
           {
-            uint_fast32_t SID;
+            uint32_t SID;
             SS >> SID;
 
             if (SS.fail())
@@ -1939,8 +1939,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           if (Payload.empty())
             break;
 
-          CGamePlayer*  LastMatch = nullptr;
-          uint_fast32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
+          CGamePlayer* LastMatch = nullptr;
+          uint32_t     Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
 
           if (Matches == 0)
             SendChat(player, "Unable to kick player [" + Payload + "]. No matches found");
@@ -2017,7 +2017,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
           while (!SS.eof())
           {
-            uint_fast32_t SID;
+            uint32_t SID;
             SS >> SID;
 
             // subtract one due to index starting at 0
@@ -2183,8 +2183,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           if (Payload.empty() || m_GameLoading || m_GameLoaded)
             break;
 
-          uint_fast32_t SID1, SID2;
-          stringstream  SS;
+          uint32_t     SID1, SID2;
+          stringstream SS;
           SS << Payload;
           SS >> SID1;
 
@@ -2272,8 +2272,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the slot and the handicap
           // e.g. "1 50" -> slot: "1", handicap: "50"
 
-          uint_fast32_t Slot, Handicap;
-          stringstream  SS;
+          uint32_t     Slot, Handicap;
+          stringstream SS;
           SS << Payload;
           SS >> Slot;
 
@@ -2319,8 +2319,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           if (Payload.empty() || m_GameLoading || m_GameLoaded)
             break;
 
-          CGamePlayer*        LastMatch = nullptr;
-          const uint_fast32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
+          CGamePlayer*   LastMatch = nullptr;
+          const uint32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
 
           if (Matches == 0)
             SendChat(player, "Unable to start download for player [" + Payload + "]. No matches found");
@@ -2360,7 +2360,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
           try
           {
-            const uint_fast32_t Downloads = stoul(Payload);
+            const uint32_t Downloads = stoul(Payload);
 
             if (Downloads == 0)
             {
@@ -2406,8 +2406,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
         case HashCode("mute"):
         {
-          CGamePlayer*        LastMatch = nullptr;
-          const uint_fast32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
+          CGamePlayer*   LastMatch = nullptr;
+          const uint32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
 
           if (Matches == 0)
             SendChat(player, "Unable to mute/unmute player [" + Payload + "]. No matches found");
@@ -2486,8 +2486,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           {
             string VictimLower = Victim;
             transform(begin(VictimLower), end(VictimLower), begin(VictimLower), ::tolower);
-            uint_fast32_t Matches   = 0;
-            CDBBan*       LastMatch = nullptr;
+            uint32_t Matches   = 0;
+            CDBBan*  LastMatch = nullptr;
 
             // try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
             // we use the m_DBBans vector for this in case the player already left and thus isn't in the m_Players vector anymore
@@ -2524,8 +2524,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           }
           else
           {
-            CGamePlayer*  LastMatch = nullptr;
-            uint_fast32_t Matches   = GetPlayerFromNamePartial(Victim, &LastMatch);
+            CGamePlayer* LastMatch = nullptr;
+            uint32_t     Matches   = GetPlayerFromNamePartial(Victim, &LastMatch);
 
             if (Matches == 0)
               SendChat(player, "Unable to ban player [" + Victim + "]. No matches found");
@@ -2549,8 +2549,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
         {
           if (!Payload.empty())
           {
-            CGamePlayer*  LastMatch = nullptr;
-            uint_fast32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
+            CGamePlayer* LastMatch = nullptr;
+            uint32_t     Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
 
             if (Matches == 0)
               SendChat(player, "Unable to check player [" + Payload + "]. No matches found");
@@ -2655,9 +2655,9 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the ip and the port
           // e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
 
-          string        IP;
-          uint_fast32_t Port = 6112;
-          stringstream  SS;
+          string       IP;
+          uint32_t     Port = 6112;
+          stringstream SS;
           SS << Payload;
           SS >> IP;
 
@@ -2687,7 +2687,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
             // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
             // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-            m_Aura->m_UDPSocket->SendTo(IP, Port, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint_fast32_t)MAPGAMETYPE_UNKNOWN0, false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
+            m_Aura->m_UDPSocket->SendTo(IP, Port, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t)MAPGAMETYPE_UNKNOWN0, false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
           }
 
           break;
@@ -2758,8 +2758,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the slot and the skill
           // e.g. "1 2" -> slot: "1", skill: "2"
 
-          uint_fast32_t Slot;
-          stringstream  SS;
+          uint32_t     Slot;
+          stringstream SS;
           SS << Payload;
           SS >> Slot;
 
@@ -2767,7 +2767,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
             Print("[GAME: " + m_GameName + "] bad input #1 to comp command");
           else
           {
-            uint_fast32_t Skill;
+            uint32_t Skill;
 
             if (!SS.eof())
               SS >> Skill;
@@ -2793,8 +2793,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the slot and the colour
           // e.g. "1 2" -> slot: "1", colour: "2"
 
-          uint_fast32_t Slot, Colour;
-          stringstream  SS;
+          uint32_t     Slot, Colour;
+          stringstream SS;
           SS << Payload;
           SS >> Slot;
 
@@ -2838,8 +2838,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the slot and the handicap
           // e.g. "1 50" -> slot: "1", handicap: "50"
 
-          uint_fast32_t Slot, Handicap;
-          stringstream  SS;
+          uint32_t     Slot, Handicap;
+          stringstream SS;
           SS << Payload;
           SS >> Slot;
 
@@ -2995,8 +2995,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
         case HashCode("unmute"):
         {
-          CGamePlayer*  LastMatch = nullptr;
-          uint_fast32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
+          CGamePlayer* LastMatch = nullptr;
+          uint32_t     Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
 
           if (Matches == 0)
             SendChat(player, "Unable to mute/unmute player [" + Payload + "]. No matches found");
@@ -3094,9 +3094,9 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the slot and the race
           // e.g. "1 human" -> slot: "1", race: "human"
 
-          uint_fast32_t Slot;
-          string        Race;
-          stringstream  SS;
+          uint32_t     Slot;
+          string       Race;
+          stringstream SS;
           SS << Payload;
           SS >> Slot;
 
@@ -3168,8 +3168,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
           // extract the slot and the team
           // e.g. "1 2" -> slot: "1", team: "2"
 
-          uint_fast32_t Slot, Team;
-          stringstream  SS;
+          uint32_t     Slot, Team;
+          stringstream SS;
           SS << Payload;
           SS >> Slot;
 
@@ -3351,8 +3351,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
         SendChat(player, "Unable to start votekick. There aren't enough players in the game for a votekick");
       else
       {
-        CGamePlayer*  LastMatch = nullptr;
-        uint_fast32_t Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
+        CGamePlayer* LastMatch = nullptr;
+        uint32_t     Matches   = GetPlayerFromNamePartial(Payload, &LastMatch);
 
         if (Matches == 0)
           SendChat(player, "Unable to votekick player [" + Payload + "]. No matches found");
@@ -3370,7 +3370,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
             player->SetKickVote(true);
             Print("[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]");
-            SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string((uint_fast32_t)ceil((GetNumHumanPlayers() - 1) * (double)m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
+            SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string((uint32_t)ceil((GetNumHumanPlayers() - 1) * (float)m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
             SendAllChat("Type " + string(1, m_Aura->m_CommandTrigger) + "yes to vote");
           }
         }
@@ -3391,7 +3391,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
         break;
 
       player->SetKickVote(true);
-      uint_fast32_t Votes = 0, VotesNeeded = (uint_fast32_t)ceil((GetNumHumanPlayers() - 1) * (double)m_Aura->m_VoteKickPercentage / 100);
+      uint32_t Votes = 0, VotesNeeded = (uint32_t)ceil((GetNumHumanPlayers() - 1) * (float)m_Aura->m_VoteKickPercentage / 100);
 
       for (auto& player : m_Players)
       {
@@ -3573,7 +3573,7 @@ void CGame::EventPlayerDropRequest(CGamePlayer* player)
 
     // check if at least half the players voted to drop
 
-    int_fast32_t Votes = 0;
+    int32_t Votes = 0;
 
     for (auto& player : m_Players)
     {
@@ -3591,7 +3591,7 @@ void CGame::EventPlayerMapSize(CGamePlayer* player, CIncomingMapSize* mapSize)
   if (m_GameLoading || m_GameLoaded)
     return;
 
-  uint_fast32_t MapSize = ByteArrayToUInt32(m_Map->GetMapSize(), false);
+  uint32_t MapSize = ByteArrayToUInt32(m_Map->GetMapSize(), false);
 
   bool Admin = m_Aura->m_DB->AdminCheck(player->GetName()) || m_Aura->m_DB->RootAdminCheck(player->GetName());
 
@@ -3926,11 +3926,11 @@ CGamePlayer* CGame::GetPlayerFromName(string name, bool sensitive) const
   return nullptr;
 }
 
-uint_fast32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer** player) const
+uint32_t CGame::GetPlayerFromNamePartial(string name, CGamePlayer** player) const
 {
   transform(begin(name), end(name), begin(name), ::tolower);
-  uint_fast32_t Matches = 0;
-  *player               = nullptr;
+  uint32_t Matches = 0;
+  *player          = nullptr;
 
   // try to match each player with the passed string (e.g. "Varlock" would be matched with "lock")
 

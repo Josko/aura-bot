@@ -42,7 +42,7 @@ using namespace std;
 // CBNET
 //
 
-CBNET::CBNET(CAura* nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint_fast32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint_fast8_t nWar3Version, std::vector<uint_fast8_t> nEXEVersion, std::vector<uint_fast8_t> nEXEVersionHash, string nPasswordHashType, uint_fast32_t nHostCounterID)
+CBNET::CBNET(CAura* nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint_fast8_t nWar3Version, std::vector<uint_fast8_t> nEXEVersion, std::vector<uint_fast8_t> nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
   : m_Aura(nAura),
     m_Socket(new CTCPClient()),
     m_Protocol(new CBNETProtocol()),
@@ -117,7 +117,7 @@ CBNET::~CBNET()
   delete m_BNCSUtil;
 }
 
-uint_fast8_t CBNET::SetFD(void* fd, void* send_fd, int* nfds)
+uint32_t CBNET::SetFD(void* fd, void* send_fd, int32_t* nfds)
 {
   if (!m_Socket->HasError() && m_Socket->GetConnected())
   {
@@ -130,7 +130,7 @@ uint_fast8_t CBNET::SetFD(void* fd, void* send_fd, int* nfds)
 
 bool CBNET::Update(void* fd, void* send_fd)
 {
-  const int_fast64_t Ticks = GetTicks(), Time = GetTime();
+  const int64_t Ticks = GetTicks(), Time = GetTime();
 
   // we return at the end of each if statement so we don't have to deal with errors related to the order of the if statements
   // that means it might take a few ms longer to complete a task involving multiple steps (in this case, reconnecting) due to blocking or sleeping
@@ -161,7 +161,7 @@ bool CBNET::Update(void* fd, void* send_fd)
 
     string*                   RecvBuffer      = m_Socket->GetBytes();
     std::vector<uint_fast8_t> Bytes           = CreateByteArray((uint_fast8_t*)RecvBuffer->c_str(), RecvBuffer->size());
-    uint_fast32_t             LengthProcessed = 0;
+    uint32_t                  LengthProcessed = 0;
 
     CIncomingGameHost*  GameHost;
     CIncomingChatEvent* ChatEvent;
@@ -176,7 +176,7 @@ bool CBNET::Update(void* fd, void* send_fd)
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint_fast16_t             Length = (uint_fast16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t                  Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
         const std::vector<uint_fast8_t> Data   = std::vector<uint_fast8_t>(begin(Bytes), begin(Bytes) + Length);
 
         if (Bytes.size() >= Length)
@@ -398,7 +398,7 @@ bool CBNET::Update(void* fd, void* send_fd)
     // check if at least one packet is waiting to be sent and if we've waited long enough to prevent flooding
     // this formula has changed many times but currently we wait 1 second if the last packet was "small", 3.5 seconds if it was "medium", and 4 seconds if it was "big"
 
-    int_fast64_t WaitTicks;
+    int64_t WaitTicks;
 
     if (m_LastOutPacketSize < 10)
       WaitTicks = 1300;
@@ -571,7 +571,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
       transform(begin(Command), end(Command), begin(Command), ::tolower);
 
-      const uint_fast64_t CommandHash = HashCode(Command);
+      const uint64_t CommandHash = HashCode(Command);
 
       if (IsAdmin(User) || IsRootAdmin(User))
       {
@@ -872,7 +872,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
               while (!SS.eof())
               {
-                uint_fast32_t SID;
+                uint32_t SID;
                 SS >> SID;
 
                 if (SS.fail())
@@ -915,7 +915,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
           {
             if (IsRootAdmin(User))
             {
-              uint_fast32_t Count = m_Aura->m_DB->AdminCount(m_Server);
+              uint32_t Count = m_Aura->m_DB->AdminCount(m_Server);
 
               if (Count == 0)
                 QueueChatCommand("There are no admins on server [" + m_Server + "]", User, Whisper, m_IRC);
@@ -936,7 +936,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
           case HashCode("countbans"):
           {
-            uint_fast32_t Count = m_Aura->m_DB->BanCount(m_Server);
+            uint32_t Count = m_Aura->m_DB->BanCount(m_Server);
 
             if (Count == 0)
               QueueChatCommand("There are no banned users on server [" + m_Server + "]", User, Whisper, m_IRC);
@@ -1013,7 +1013,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             try
             {
-              const uint_fast32_t Downloads = stoul(Payload);
+              const uint32_t Downloads = stoul(Payload);
 
               if (Downloads == 0)
               {
@@ -1052,7 +1052,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             try
             {
-              const uint_fast32_t GameNumber = stoul(Payload) - 1;
+              const uint32_t GameNumber = stoul(Payload) - 1;
 
               if (GameNumber < m_Aura->m_Games.size())
               {
@@ -1124,9 +1124,9 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             // extract the ip and the port
             // e.g. "1.2.3.4 6112" -> ip: "1.2.3.4", port: "6112"
 
-            string        IP;
-            uint_fast32_t Port = 6112;
-            stringstream  SS;
+            string       IP;
+            uint32_t     Port = 6112;
+            stringstream SS;
             SS << Payload;
             SS >> IP;
 
@@ -1156,7 +1156,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
               // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
               // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint_fast32_t)MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
+              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t)MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
             }
 
             break;
@@ -1253,7 +1253,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
               while (!SS.eof())
               {
-                uint_fast32_t SID;
+                uint32_t SID;
                 SS >> SID;
 
                 if (SS.fail())
@@ -1384,9 +1384,9 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
               // extract the game number and the message
               // e.g. "3 hello everyone" -> game number: "3", message: "hello everyone"
 
-              uint_fast32_t GameNumber;
-              string        Message;
-              stringstream  SS;
+              uint32_t     GameNumber;
+              string       Message;
+              stringstream SS;
               SS << Payload;
               SS >> GameNumber;
 
@@ -1504,8 +1504,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             if (!m_Aura->m_CurrentGame->GetLocked())
             {
-              uint_fast32_t SID1, SID2;
-              stringstream  SS;
+              uint32_t     SID1, SID2;
+              stringstream SS;
               SS << Payload;
               SS >> SID1;
 
@@ -1725,7 +1725,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             try
             {
-              const uint_fast32_t GameNumber = stoul(Payload) - 1;
+              const uint32_t GameNumber = stoul(Payload) - 1;
 
               if (GameNumber < m_Aura->m_Games.size())
                 QueueChatCommand("Game number " + Payload + " is [" + m_Aura->m_Games[GameNumber]->GetDescription() + "]", User, Whisper, m_IRC);
@@ -1766,9 +1766,9 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             if (Payload.empty())
               break;
 
-            const int_fast32_t GameNumber = stoi(Payload) - 1;
+            const int32_t GameNumber = stoi(Payload) - 1;
 
-            if (-1 < GameNumber && GameNumber < (int_fast32_t)m_Aura->m_Games.size())
+            if (-1 < GameNumber && GameNumber < (int32_t)m_Aura->m_Games.size())
               QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
             else if (GameNumber == -1 && m_Aura->m_CurrentGame)
               QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
@@ -1789,9 +1789,9 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             if (Payload.empty())
               break;
 
-            const int_fast32_t GameNumber = stoi(Payload) - 1;
+            const int32_t GameNumber = stoi(Payload) - 1;
 
-            if (-1 < GameNumber && GameNumber < (int_fast32_t)m_Aura->m_Games.size())
+            if (-1 < GameNumber && GameNumber < (int32_t)m_Aura->m_Games.size())
               QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);
             else if (GameNumber == -1 && m_Aura->m_CurrentGame)
               QueueChatCommand("Observers in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetObservers(), User, Whisper, m_IRC);
@@ -1982,7 +1982,7 @@ void CBNET::QueueChatCommand(const string& chatCommand, const string& user, bool
     QueueChatCommand(chatCommand);
 }
 
-void CBNET::QueueGameCreate(uint_fast8_t state, const string& gameName, CMap* map, uint_fast32_t hostCounter)
+void CBNET::QueueGameCreate(uint_fast8_t state, const string& gameName, CMap* map, uint32_t hostCounter)
 {
   if (m_LoggedIn && map)
   {
@@ -1995,7 +1995,7 @@ void CBNET::QueueGameCreate(uint_fast8_t state, const string& gameName, CMap* ma
   }
 }
 
-void CBNET::QueueGameRefresh(uint_fast8_t state, const string& gameName, CMap* map, uint_fast32_t hostCounter)
+void CBNET::QueueGameRefresh(uint_fast8_t state, const string& gameName, CMap* map, uint32_t hostCounter)
 {
   if (m_LoggedIn && map)
   {
@@ -2006,7 +2006,7 @@ void CBNET::QueueGameRefresh(uint_fast8_t state, const string& gameName, CMap* m
     // when a player joins a game we can obtain the ID from the received host counter
     // note: LAN broadcasts use an ID of 0, battle.net refreshes use an ID of 1-10, the rest are unused
 
-    uint_fast32_t MapGameType = map->GetMapGameType();
+    uint32_t MapGameType = map->GetMapGameType();
     MapGameType |= MAPGAMETYPE_UNKNOWN0;
 
     if (state == GAME_PRIVATE)

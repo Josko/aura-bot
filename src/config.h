@@ -21,7 +21,7 @@
 #ifndef AURA_CONFIG_H_
 #define AURA_CONFIG_H_
 
-#include <unordered_map>
+#include <map>
 #include <string>
 
 //
@@ -31,7 +31,7 @@
 class CConfig
 {
 private:
-  std::unordered_map<std::string, std::string> m_CFG;
+  std::map<std::string, std::string> m_CFG;
 
 public:
   CConfig();
@@ -39,7 +39,7 @@ public:
 
   void Read(const std::string& file);
   bool Exists(const std::string& key);
-  int_fast32_t GetInt(const std::string& key, int_fast32_t x);
+  int32_t GetInt(const std::string& key, int32_t x);
   std::string GetString(const std::string& key, const std::string& x);
   void Set(const std::string& key, const std::string& x);
 };

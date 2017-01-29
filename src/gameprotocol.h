@@ -111,43 +111,43 @@ public:
   // receive functions
 
   CIncomingJoinPlayer* RECEIVE_W3GS_REQJOIN(const std::vector<uint_fast8_t>& data);
-  uint_fast32_t RECEIVE_W3GS_LEAVEGAME(const std::vector<uint_fast8_t>& data);
+  uint32_t RECEIVE_W3GS_LEAVEGAME(const std::vector<uint_fast8_t>& data);
   bool RECEIVE_W3GS_GAMELOADED_SELF(const std::vector<uint_fast8_t>& data);
   CIncomingAction* RECEIVE_W3GS_OUTGOING_ACTION(const std::vector<uint_fast8_t>& data, uint_fast8_t PID);
-  uint_fast32_t RECEIVE_W3GS_OUTGOING_KEEPALIVE(const std::vector<uint_fast8_t>& data);
+  uint32_t RECEIVE_W3GS_OUTGOING_KEEPALIVE(const std::vector<uint_fast8_t>& data);
   CIncomingChatPlayer* RECEIVE_W3GS_CHAT_TO_HOST(const std::vector<uint_fast8_t>& data);
   CIncomingMapSize* RECEIVE_W3GS_MAPSIZE(const std::vector<uint_fast8_t>& data);
-  uint_fast32_t RECEIVE_W3GS_PONG_TO_HOST(const std::vector<uint_fast8_t>& data);
+  uint32_t RECEIVE_W3GS_PONG_TO_HOST(const std::vector<uint_fast8_t>& data);
 
   // send functions
 
   std::vector<uint_fast8_t> SEND_W3GS_PING_FROM_HOST();
-  std::vector<uint_fast8_t> SEND_W3GS_SLOTINFOJOIN(uint_fast8_t PID, const std::vector<uint_fast8_t>& port, const std::vector<uint_fast8_t>& externalIP, const std::vector<CGameSlot>& slots, uint_fast32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots);
-  std::vector<uint_fast8_t> SEND_W3GS_REJECTJOIN(uint_fast32_t reason);
+  std::vector<uint_fast8_t> SEND_W3GS_SLOTINFOJOIN(uint_fast8_t PID, const std::vector<uint_fast8_t>& port, const std::vector<uint_fast8_t>& externalIP, const std::vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots);
+  std::vector<uint_fast8_t> SEND_W3GS_REJECTJOIN(uint32_t reason);
   std::vector<uint_fast8_t> SEND_W3GS_PLAYERINFO(uint_fast8_t PID, const std::string& name, const std::vector<uint_fast8_t>& externalIP, const std::vector<uint_fast8_t>& internalIP);
-  std::vector<uint_fast8_t> SEND_W3GS_PLAYERLEAVE_OTHERS(uint_fast8_t PID, uint_fast32_t leftCode);
+  std::vector<uint_fast8_t> SEND_W3GS_PLAYERLEAVE_OTHERS(uint_fast8_t PID, uint32_t leftCode);
   std::vector<uint_fast8_t> SEND_W3GS_GAMELOADED_OTHERS(uint_fast8_t PID);
-  std::vector<uint_fast8_t> SEND_W3GS_SLOTINFO(std::vector<CGameSlot>& slots, uint_fast32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots);
+  std::vector<uint_fast8_t> SEND_W3GS_SLOTINFO(std::vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots);
   std::vector<uint_fast8_t> SEND_W3GS_COUNTDOWN_START();
   std::vector<uint_fast8_t> SEND_W3GS_COUNTDOWN_END();
-  std::vector<uint_fast8_t> SEND_W3GS_INCOMING_ACTION(std::queue<CIncomingAction*> actions, uint_fast16_t sendInterval);
+  std::vector<uint_fast8_t> SEND_W3GS_INCOMING_ACTION(std::queue<CIncomingAction*> actions, uint16_t sendInterval);
   std::vector<uint_fast8_t> SEND_W3GS_INCOMING_ACTION2(std::queue<CIncomingAction*> actions);
   std::vector<uint_fast8_t> SEND_W3GS_CHAT_FROM_HOST(uint_fast8_t fromPID, const std::vector<uint_fast8_t>& toPIDs, uint_fast8_t flag, const std::vector<uint_fast8_t>& flagExtra, const std::string& message);
   std::vector<uint_fast8_t> SEND_W3GS_START_LAG(std::vector<CGamePlayer*> players);
   std::vector<uint_fast8_t> SEND_W3GS_STOP_LAG(CGamePlayer* player);
-  std::vector<uint_fast8_t> SEND_W3GS_GAMEINFO(uint_fast8_t war3Version, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const std::string& gameName, const std::string& hostName, uint_fast32_t upTime, const std::string& mapPath, const std::vector<uint_fast8_t>& mapCRC, uint_fast32_t slotsTotal, uint_fast32_t slotsOpen, uint_fast16_t port, uint_fast32_t hostCounter, uint_fast32_t entryKey);
+  std::vector<uint_fast8_t> SEND_W3GS_GAMEINFO(uint_fast8_t war3Version, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const std::string& gameName, const std::string& hostName, uint32_t upTime, const std::string& mapPath, const std::vector<uint_fast8_t>& mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey);
   std::vector<uint_fast8_t> SEND_W3GS_CREATEGAME(uint_fast8_t war3Version);
-  std::vector<uint_fast8_t> SEND_W3GS_REFRESHGAME(uint_fast32_t players, uint_fast32_t playerSlots);
+  std::vector<uint_fast8_t> SEND_W3GS_REFRESHGAME(uint32_t players, uint32_t playerSlots);
   std::vector<uint_fast8_t> SEND_W3GS_DECREATEGAME();
   std::vector<uint_fast8_t> SEND_W3GS_MAPCHECK(const std::string& mapPath, const std::vector<uint_fast8_t>& mapSize, const std::vector<uint_fast8_t>& mapInfo, const std::vector<uint_fast8_t>& mapCRC, const std::vector<uint_fast8_t>& mapSHA1);
   std::vector<uint_fast8_t> SEND_W3GS_STARTDOWNLOAD(uint_fast8_t fromPID);
-  std::vector<uint_fast8_t> SEND_W3GS_MAPPART(uint_fast8_t fromPID, uint_fast8_t toPID, uint_fast32_t start, const std::string* mapData);
+  std::vector<uint_fast8_t> SEND_W3GS_MAPPART(uint_fast8_t fromPID, uint_fast8_t toPID, uint32_t start, const std::string* mapData);
 
   // other functions
 
 private:
   bool ValidateLength(const std::vector<uint_fast8_t>& content);
-  std::vector<uint_fast8_t> EncodeSlotInfo(const std::vector<CGameSlot>& slots, uint_fast32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots);
+  std::vector<uint_fast8_t> EncodeSlotInfo(const std::vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots);
 };
 
 //
@@ -159,15 +159,15 @@ class CIncomingJoinPlayer
 private:
   std::string               m_Name;
   std::vector<uint_fast8_t> m_InternalIP;
-  uint_fast32_t             m_HostCounter;
-  uint_fast32_t             m_EntryKey;
+  uint32_t                  m_HostCounter;
+  uint32_t                  m_EntryKey;
 
 public:
-  CIncomingJoinPlayer(uint_fast32_t nHostCounter, uint_fast32_t nEntryKey, std::string nName, std::vector<uint_fast8_t> nInternalIP);
+  CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, std::string nName, std::vector<uint_fast8_t> nInternalIP);
   ~CIncomingJoinPlayer();
 
-  inline uint_fast32_t             GetHostCounter() const { return m_HostCounter; }
-  inline uint_fast32_t             GetEntryKey() const { return m_EntryKey; }
+  inline uint32_t                  GetHostCounter() const { return m_HostCounter; }
+  inline uint32_t                  GetEntryKey() const { return m_EntryKey; }
   inline std::string               GetName() const { return m_Name; }
   inline std::vector<uint_fast8_t> GetInternalIP() const { return m_InternalIP; }
 };
@@ -190,7 +190,7 @@ public:
   inline uint_fast8_t               GetPID() const { return m_PID; }
   inline std::vector<uint_fast8_t>  GetCRC() const { return m_CRC; }
   inline std::vector<uint_fast8_t>* GetAction() { return &m_Action; }
-  inline uint_fast32_t              GetLength() const { return m_Action.size() + 3; }
+  inline uint32_t                   GetLength() const { return m_Action.size() + 3; }
 };
 
 //
@@ -237,15 +237,15 @@ public:
 class CIncomingMapSize
 {
 private:
-  uint_fast32_t m_MapSize;
-  uint_fast8_t  m_SizeFlag;
+  uint32_t     m_MapSize;
+  uint_fast8_t m_SizeFlag;
 
 public:
-  CIncomingMapSize(uint_fast8_t nSizeFlag, uint_fast32_t nMapSize);
+  CIncomingMapSize(uint_fast8_t nSizeFlag, uint32_t nMapSize);
   ~CIncomingMapSize();
 
-  inline uint_fast8_t  GetSizeFlag() const { return m_SizeFlag; }
-  inline uint_fast32_t GetMapSize() const { return m_MapSize; }
+  inline uint_fast8_t GetSizeFlag() const { return m_SizeFlag; }
+  inline uint32_t     GetMapSize() const { return m_MapSize; }
 };
 
 #endif // AURA_GAMEPROTOCOL_H_

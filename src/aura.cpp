@@ -75,7 +75,7 @@ int main(const int, const char* argv[])
 {
   // seed the PRNG
 
-  srand((uint_fast32_t)time(nullptr));
+  srand((uint32_t)time(nullptr));
 
   // disable sync since we don't use cstdio anyway
 
@@ -88,7 +88,7 @@ int main(const int, const char* argv[])
 
   Print("[AURA] starting up");
 
-  signal(SIGINT, [](int) -> void {
+  signal(SIGINT, [](int32_t) -> void {
     Print("[!!!] caught signal SIGINT, exiting NOW");
 
     if (gAura)
@@ -221,18 +221,18 @@ CAura::CAura(CConfig* CFG)
 
   // get the irc configuration
 
-  string        IRC_Server         = CFG->GetString("irc_server", string());
-  string        IRC_NickName       = CFG->GetString("irc_nickname", string());
-  string        IRC_UserName       = CFG->GetString("irc_username", string());
-  string        IRC_Password       = CFG->GetString("irc_password", string());
-  string        IRC_CommandTrigger = CFG->GetString("irc_commandtrigger", "!");
-  uint_fast32_t IRC_Port           = CFG->GetInt("irc_port", 6667);
+  string   IRC_Server         = CFG->GetString("irc_server", string());
+  string   IRC_NickName       = CFG->GetString("irc_nickname", string());
+  string   IRC_UserName       = CFG->GetString("irc_username", string());
+  string   IRC_Password       = CFG->GetString("irc_password", string());
+  string   IRC_CommandTrigger = CFG->GetString("irc_commandtrigger", "!");
+  uint32_t IRC_Port           = CFG->GetInt("irc_port", 6667);
 
   // get the irc channels and root admins
 
   vector<string> IRC_Channels, IRC_RootAdmins;
 
-  for (uint_fast32_t i = 1; i <= 10; ++i)
+  for (uint32_t i = 1; i <= 10; ++i)
   {
     string Channel, RootAdmin;
 
@@ -262,7 +262,7 @@ CAura::CAura(CConfig* CFG)
   // load the battle.net connections
   // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
 
-  for (uint_fast32_t i = 1; i < 10; ++i)
+  for (uint32_t i = 1; i < 10; ++i)
   {
     string Prefix;
 
@@ -271,14 +271,14 @@ CAura::CAura(CConfig* CFG)
     else
       Prefix = "bnet" + to_string(i) + "_";
 
-    string        Server        = CFG->GetString(Prefix + "server", string());
-    string        ServerAlias   = CFG->GetString(Prefix + "serveralias", string());
-    string        CDKeyROC      = CFG->GetString(Prefix + "cdkeyroc", string());
-    string        CDKeyTFT      = CFG->GetString(Prefix + "cdkeytft", string());
-    string        CountryAbbrev = CFG->GetString(Prefix + "countryabbrev", "DEU");
-    string        Country       = CFG->GetString(Prefix + "country", "Germany");
-    string        Locale        = CFG->GetString(Prefix + "locale", "system");
-    uint_fast32_t LocaleID;
+    string   Server        = CFG->GetString(Prefix + "server", string());
+    string   ServerAlias   = CFG->GetString(Prefix + "serveralias", string());
+    string   CDKeyROC      = CFG->GetString(Prefix + "cdkeyroc", string());
+    string   CDKeyTFT      = CFG->GetString(Prefix + "cdkeytft", string());
+    string   CountryAbbrev = CFG->GetString(Prefix + "countryabbrev", "DEU");
+    string   Country       = CFG->GetString(Prefix + "country", "Germany");
+    string   Locale        = CFG->GetString(Prefix + "locale", "system");
+    uint32_t LocaleID;
 
     if (Locale == "system")
       LocaleID = 1031;
@@ -379,12 +379,12 @@ CAura::~CAura()
 
 bool CAura::Update()
 {
-  uint_fast32_t NumFDs = 0;
+  uint32_t NumFDs = 0;
 
   // take every socket we own and throw it in one giant select statement so we can block on all sockets
 
-  int    nfds = 0;
-  fd_set fd, send_fd;
+  int32_t nfds = 0;
+  fd_set  fd, send_fd;
   FD_ZERO(&fd);
   FD_ZERO(&send_fd);
 
@@ -432,7 +432,7 @@ bool CAura::Update()
   // before we call select we need to determine how long to block for
   // 50 ms is the hard maximum
 
-  int_fast64_t usecBlock = 50000;
+  int64_t usecBlock = 50000;
 
   for (auto& game : m_Games)
   {
@@ -545,14 +545,14 @@ bool CAura::Update()
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint_fast16_t Length = (uint_fast16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
 
         if (Bytes.size() >= Length)
         {
           if (Bytes[1] == CGPSProtocol::GPS_RECONNECT && Length == 13)
           {
-            const uint_fast32_t ReconnectKey = ByteArrayToUInt32(Bytes, false, 5);
-            const uint_fast32_t LastPacket   = ByteArrayToUInt32(Bytes, false, 9);
+            const uint32_t ReconnectKey = ByteArrayToUInt32(Bytes, false, 5);
+            const uint32_t LastPacket   = ByteArrayToUInt32(Bytes, false, 9);
 
             // look for a matching player in a running game
 
@@ -719,7 +719,7 @@ void CAura::ExtractScripts()
 
     if (SFileOpenFileEx(PatchMPQ, R"(Scripts\common.j)", 0, &SubFile))
     {
-      const uint_fast32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+      const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
@@ -746,7 +746,7 @@ void CAura::ExtractScripts()
 
     if (SFileOpenFileEx(PatchMPQ, R"(Scripts\blizzard.j)", 0, &SubFile))
     {
-      const uint_fast32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+      const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
       if (FileLength > 0 && FileLength != 0xFFFFFFFF)
       {
@@ -774,9 +774,9 @@ void CAura::ExtractScripts()
   else
   {
 #ifdef WIN32
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((uint_fast32_t)GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((uint32_t)GetLastError()));
 #else
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((int_fast32_t)GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((int32_t)GetLastError()));
 #endif
   }
 }
@@ -806,7 +806,7 @@ void CAura::LoadIPToCountryData()
       // get length of file for the progress meter
 
       in.seekg(0, ios::end);
-      const uint_fast32_t FileLength = in.tellg();
+      const uint32_t FileLength = in.tellg();
       in.seekg(0, ios::beg);
 
       while (!in.eof())

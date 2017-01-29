@@ -64,8 +64,8 @@ CIncomingJoinPlayer* CGameProtocol::RECEIVE_W3GS_REQJOIN(const std::vector<uint_
 
   if (ValidateLength(data) && data.size() >= 20)
   {
-    const uint_fast32_t             HostCounter = ByteArrayToUInt32(data, false, 4);
-    const uint_fast32_t             EntryKey    = ByteArrayToUInt32(data, false, 8);
+    const uint32_t                  HostCounter = ByteArrayToUInt32(data, false, 4);
+    const uint32_t                  EntryKey    = ByteArrayToUInt32(data, false, 8);
     const std::vector<uint_fast8_t> Name        = ExtractCString(data, 19);
 
     if (!Name.empty() && data.size() >= Name.size() + 30)
@@ -78,7 +78,7 @@ CIncomingJoinPlayer* CGameProtocol::RECEIVE_W3GS_REQJOIN(const std::vector<uint_
   return nullptr;
 }
 
-uint_fast32_t CGameProtocol::RECEIVE_W3GS_LEAVEGAME(const std::vector<uint_fast8_t>& data)
+uint32_t CGameProtocol::RECEIVE_W3GS_LEAVEGAME(const std::vector<uint_fast8_t>& data)
 {
   // DEBUG_Print( "RECEIVED W3GS_LEAVEGAME" );
   // DEBUG_Print( data );
@@ -127,7 +127,7 @@ CIncomingAction* CGameProtocol::RECEIVE_W3GS_OUTGOING_ACTION(const std::vector<u
   return nullptr;
 }
 
-uint_fast32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE(const std::vector<uint_fast8_t>& data)
+uint32_t CGameProtocol::RECEIVE_W3GS_OUTGOING_KEEPALIVE(const std::vector<uint_fast8_t>& data)
 {
   // DEBUG_Print( "RECEIVED W3GS_OUTGOING_KEEPALIVE" );
   // DEBUG_Print( data );
@@ -171,7 +171,7 @@ CIncomingChatPlayer* CGameProtocol::RECEIVE_W3GS_CHAT_TO_HOST(const std::vector<
 
   if (ValidateLength(data))
   {
-    uint_fast32_t      i     = 5;
+    uint32_t           i     = 5;
     const uint_fast8_t Total = data[4];
 
     if (Total > 0 && data.size() >= i + Total)
@@ -227,7 +227,7 @@ CIncomingMapSize* CGameProtocol::RECEIVE_W3GS_MAPSIZE(const std::vector<uint_fas
   return nullptr;
 }
 
-uint_fast32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST(const std::vector<uint_fast8_t>& data)
+uint32_t CGameProtocol::RECEIVE_W3GS_PONG_TO_HOST(const std::vector<uint_fast8_t>& data)
 {
   // DEBUG_Print( "RECEIVED W3GS_PONG_TO_HOST" );
   // DEBUG_Print( data );
@@ -257,7 +257,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_PING_FROM_HOST()
   return packet;
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint_fast8_t PID, const std::vector<uint_fast8_t>& port, const std::vector<uint_fast8_t>& externalIP, const vector<CGameSlot>& slots, uint_fast32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint_fast8_t PID, const std::vector<uint_fast8_t>& port, const std::vector<uint_fast8_t>& externalIP, const vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
 {
   std::vector<uint_fast8_t> packet;
 
@@ -265,19 +265,19 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint_fast8_t PID
   {
     const uint_fast8_t              Zeros[]  = {0, 0, 0, 0};
     const std::vector<uint_fast8_t> SlotInfo = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
-    packet.push_back(W3GS_HEADER_CONSTANT);                         // W3GS header constant
-    packet.push_back(W3GS_SLOTINFOJOIN);                            // W3GS_SLOTINFOJOIN
-    packet.push_back(0);                                            // packet length will be assigned later
-    packet.push_back(0);                                            // packet length will be assigned later
-    AppendByteArray(packet, (uint_fast16_t)SlotInfo.size(), false); // SlotInfo length
-    AppendByteArrayFast(packet, SlotInfo);                          // SlotInfo
-    packet.push_back(PID);                                          // PID
-    packet.push_back(2);                                            // AF_INET
-    packet.push_back(0);                                            // AF_INET continued...
-    AppendByteArray(packet, port);                                  // port
-    AppendByteArrayFast(packet, externalIP);                        // external IP
-    AppendByteArray(packet, Zeros, 4);                              // ???
-    AppendByteArray(packet, Zeros, 4);                              // ???
+    packet.push_back(W3GS_HEADER_CONSTANT);                    // W3GS header constant
+    packet.push_back(W3GS_SLOTINFOJOIN);                       // W3GS_SLOTINFOJOIN
+    packet.push_back(0);                                       // packet length will be assigned later
+    packet.push_back(0);                                       // packet length will be assigned later
+    AppendByteArray(packet, (uint16_t)SlotInfo.size(), false); // SlotInfo length
+    AppendByteArrayFast(packet, SlotInfo);                     // SlotInfo
+    packet.push_back(PID);                                     // PID
+    packet.push_back(2);                                       // AF_INET
+    packet.push_back(0);                                       // AF_INET continued...
+    AppendByteArray(packet, port);                             // port
+    AppendByteArrayFast(packet, externalIP);                   // external IP
+    AppendByteArray(packet, Zeros, 4);                         // ???
+    AppendByteArray(packet, Zeros, 4);                         // ???
     AssignLength(packet);
   }
   else
@@ -286,7 +286,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint_fast8_t PID
   return packet;
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_REJECTJOIN(uint_fast32_t reason)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_REJECTJOIN(uint32_t reason)
 {
   std::vector<uint_fast8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_REJECTJOIN, 8, 0};
   AppendByteArray(packet, reason, false); // reason
@@ -333,7 +333,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_PLAYERINFO(uint_fast8_t PID, 
   return packet;
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS(uint_fast8_t PID, uint_fast32_t leftCode)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_PLAYERLEAVE_OTHERS(uint_fast8_t PID, uint32_t leftCode)
 {
   if (PID != 255)
   {
@@ -356,10 +356,10 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(uint_fast8_
   return std::vector<uint_fast8_t>();
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot>& slots, uint_fast32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
 {
   const std::vector<uint_fast8_t> SlotInfo     = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
-  const uint_fast16_t             SlotInfoSize = (uint_fast16_t)SlotInfo.size();
+  const uint16_t                  SlotInfoSize = (uint16_t)SlotInfo.size();
 
   std::vector<uint_fast8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_SLOTINFO, 0, 0};
   AppendByteArray(packet, SlotInfoSize, false); // SlotInfo length
@@ -378,7 +378,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_COUNTDOWN_END()
   return std::vector<uint_fast8_t>{W3GS_HEADER_CONSTANT, W3GS_COUNTDOWN_END, 4, 0};
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction*> actions, uint_fast16_t sendInterval)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAction*> actions, uint16_t sendInterval)
 {
   std::vector<uint_fast8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_INCOMING_ACTION, 0, 0};
   AppendByteArray(packet, sendInterval, false); // send int32_terval
@@ -394,7 +394,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomi
       CIncomingAction* Action = actions.front();
       actions.pop();
       subpacket.push_back(Action->GetPID());
-      AppendByteArray(subpacket, (uint_fast16_t)Action->GetAction()->size(), false);
+      AppendByteArray(subpacket, (uint16_t)Action->GetAction()->size(), false);
       AppendByteArrayFast(subpacket, *Action->GetAction());
     } while (!actions.empty());
 
@@ -469,7 +469,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_STOP_LAG(CGamePlayer* player)
   return packet;
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_GAMEINFO(uint_fast8_t war3Version, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const string& gameName, const string& hostName, uint_fast32_t upTime, const string& mapPath, const std::vector<uint_fast8_t>& mapCRC, uint_fast32_t slotsTotal, uint_fast32_t slotsOpen, uint_fast16_t port, uint_fast32_t hostCounter, uint_fast32_t entryKey)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_GAMEINFO(uint_fast8_t war3Version, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const string& gameName, const string& hostName, uint32_t upTime, const string& mapPath, const std::vector<uint_fast8_t>& mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
 {
   if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4)
   {
@@ -516,7 +516,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_CREATEGAME(uint_fast8_t war3V
   return std::vector<uint_fast8_t>{W3GS_HEADER_CONSTANT, W3GS_CREATEGAME, 16, 0, 80, 88, 51, 87, war3Version, 0, 0, 0, 1, 0, 0, 0};
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_REFRESHGAME(uint_fast32_t players, uint_fast32_t playerSlots)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_REFRESHGAME(uint32_t players, uint32_t playerSlots)
 {
   std::vector<uint_fast8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_REFRESHGAME, 16, 0, 1, 0, 0, 0};
   AppendByteArray(packet, players, false);     // Players
@@ -552,7 +552,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_STARTDOWNLOAD(uint_fast8_t fr
   return std::vector<uint_fast8_t>{W3GS_HEADER_CONSTANT, W3GS_STARTDOWNLOAD, 9, 0, 1, 0, 0, 0, fromPID};
 }
 
-std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_MAPPART(uint_fast8_t fromPID, uint_fast8_t toPID, uint_fast32_t start, const string* mapData)
+std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_MAPPART(uint_fast8_t fromPID, uint_fast8_t toPID, uint32_t start, const string* mapData)
 {
   if (start < mapData->size())
   {
@@ -561,7 +561,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_MAPPART(uint_fast8_t fromPID,
 
     // calculate end position (don't send more than 1442 map bytes in one packet)
 
-    uint_fast32_t End = start + 1442;
+    uint32_t End = start + 1442;
 
     if (End > mapData->size())
       End = mapData->size();
@@ -598,7 +598,7 @@ std::vector<uint_fast8_t> CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncom
       CIncomingAction* Action = actions.front();
       actions.pop();
       subpacket.push_back(Action->GetPID());
-      AppendByteArray(subpacket, (uint_fast16_t)Action->GetAction()->size(), false);
+      AppendByteArray(subpacket, (uint16_t)Action->GetAction()->size(), false);
       AppendByteArrayFast(subpacket, *Action->GetAction());
     }
 
@@ -628,7 +628,7 @@ bool CGameProtocol::ValidateLength(const std::vector<uint_fast8_t>& content)
   return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
 }
 
-std::vector<uint_fast8_t> CGameProtocol::EncodeSlotInfo(const vector<CGameSlot>& slots, uint_fast32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
+std::vector<uint_fast8_t> CGameProtocol::EncodeSlotInfo(const vector<CGameSlot>& slots, uint32_t randomSeed, uint_fast8_t layoutStyle, uint_fast8_t playerSlots)
 {
   std::vector<uint_fast8_t> SlotInfo;
   SlotInfo.push_back((uint_fast8_t)slots.size()); // number of slots
@@ -646,7 +646,7 @@ std::vector<uint_fast8_t> CGameProtocol::EncodeSlotInfo(const vector<CGameSlot>&
 // CIncomingJoinPlayer
 //
 
-CIncomingJoinPlayer::CIncomingJoinPlayer(uint_fast32_t nHostCounter, uint_fast32_t nEntryKey, string nName, std::vector<uint_fast8_t> nInternalIP)
+CIncomingJoinPlayer::CIncomingJoinPlayer(uint32_t nHostCounter, uint32_t nEntryKey, string nName, std::vector<uint_fast8_t> nInternalIP)
   : m_Name(std::move(nName)),
     m_InternalIP(std::move(nInternalIP)),
     m_HostCounter(nHostCounter),
@@ -716,7 +716,7 @@ CIncomingChatPlayer::~CIncomingChatPlayer() = default;
 // CIncomingMapSize
 //
 
-CIncomingMapSize::CIncomingMapSize(uint_fast8_t nSizeFlag, uint_fast32_t nMapSize)
+CIncomingMapSize::CIncomingMapSize(uint_fast8_t nSizeFlag, uint32_t nMapSize)
   : m_MapSize(nMapSize),
     m_SizeFlag(nSizeFlag)
 {

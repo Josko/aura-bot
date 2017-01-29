@@ -68,8 +68,8 @@ public:
   }
 
   typedef union {
-    uint_fast8_t  c[64];
-    uint_fast32_t l[16];
+    uint_fast8_t c[64];
+    uint32_t     l[16];
   } SHA1_WORKSPACE_BLOCK;
 
   // Two different formats for ReportHash(...)
@@ -84,15 +84,15 @@ public:
   CSHA1();
   virtual ~CSHA1();
 
-  uint_fast32_t m_state[5];
-  uint_fast32_t m_count[2];
-  uint_fast8_t  m_buffer[64];
-  uint_fast8_t  m_digest[20];
+  uint32_t     m_state[5];
+  uint32_t     m_count[2];
+  uint_fast8_t m_buffer[64];
+  uint_fast8_t m_digest[20];
 
   void Reset();
 
   // Update the hash value
-  void Update(uint_fast8_t* data, uint_fast32_t len);
+  void Update(uint_fast8_t* data, uint32_t len);
 
   // Finalize hash and report
   void Final();
@@ -100,7 +100,7 @@ public:
 
 private:
   // Private SHA-1 transformation
-  void Transform(uint_fast32_t state[5], uint_fast8_t buffer[64]);
+  void Transform(uint32_t state[5], uint_fast8_t buffer[64]);
 };
 
 #endif // AURA_SHA1_H_

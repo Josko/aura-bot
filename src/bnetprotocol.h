@@ -149,12 +149,12 @@ public:
   std::vector<uint_fast8_t> SEND_SID_JOINCHANNEL(const std::string& channel);
   std::vector<uint_fast8_t> SEND_SID_CHATCOMMAND(const std::string& command);
   std::vector<uint_fast8_t> SEND_SID_CHECKAD();
-  std::vector<uint_fast8_t> SEND_SID_STARTADVEX3(uint_fast8_t state, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const std::string& gameName, const std::string& hostName, uint_fast32_t upTime, const std::string& mapPath, const std::vector<uint_fast8_t>& mapCRC, const std::vector<uint_fast8_t>& mapSHA1, uint_fast32_t hostCounter);
+  std::vector<uint_fast8_t> SEND_SID_STARTADVEX3(uint_fast8_t state, const std::vector<uint_fast8_t>& mapGameType, const std::vector<uint_fast8_t>& mapFlags, const std::vector<uint_fast8_t>& mapWidth, const std::vector<uint_fast8_t>& mapHeight, const std::string& gameName, const std::string& hostName, uint32_t upTime, const std::string& mapPath, const std::vector<uint_fast8_t>& mapCRC, const std::vector<uint_fast8_t>& mapSHA1, uint32_t hostCounter);
   std::vector<uint_fast8_t> SEND_SID_NOTIFYJOIN(const std::string& gameName);
   std::vector<uint_fast8_t> SEND_SID_PING(const std::vector<uint_fast8_t>& pingValue);
   std::vector<uint_fast8_t> SEND_SID_LOGONRESPONSE(const std::vector<uint_fast8_t>& clientToken, const std::vector<uint_fast8_t>& serverToken, const std::vector<uint_fast8_t>& passwordHash, const std::string& accountName);
-  std::vector<uint_fast8_t> SEND_SID_NETGAMEPORT(uint_fast16_t serverPort);
-  std::vector<uint_fast8_t> SEND_SID_AUTH_INFO(uint_fast8_t ver, uint_fast32_t localeID, const std::string& countryAbbrev, const std::string& country);
+  std::vector<uint_fast8_t> SEND_SID_NETGAMEPORT(uint16_t serverPort);
+  std::vector<uint_fast8_t> SEND_SID_AUTH_INFO(uint_fast8_t ver, uint32_t localeID, const std::string& countryAbbrev, const std::string& country);
   std::vector<uint_fast8_t> SEND_SID_AUTH_CHECK(const std::vector<uint_fast8_t>& clientToken, const std::vector<uint_fast8_t>& exeVersion, const std::vector<uint_fast8_t>& exeVersionHash, const std::vector<uint_fast8_t>& keyInfoROC, const std::vector<uint_fast8_t>& keyInfoTFT, const std::string& exeInfo, const std::string& keyOwnerName);
   std::vector<uint_fast8_t> SEND_SID_AUTH_ACCOUNTLOGON(const std::vector<uint_fast8_t>& clientPublicKey, const std::string& accountName);
   std::vector<uint_fast8_t> SEND_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint_fast8_t>& clientPasswordProof);
@@ -177,15 +177,15 @@ private:
   std::string               m_GameName;
   std::vector<uint_fast8_t> m_IP;
   std::vector<uint_fast8_t> m_HostCounter;
-  uint_fast16_t             m_Port;
+  uint16_t                  m_Port;
 
 public:
-  CIncomingGameHost(std::vector<uint_fast8_t> nIP, uint_fast16_t nPort, std::string nGameName, std::vector<uint_fast8_t> nHostCounter);
+  CIncomingGameHost(std::vector<uint_fast8_t> nIP, uint16_t nPort, std::string nGameName, std::vector<uint_fast8_t> nHostCounter);
   ~CIncomingGameHost();
 
   std::string                      GetIPString() const;
   inline std::vector<uint_fast8_t> GetIP() const { return m_IP; }
-  inline uint_fast16_t             GetPort() const { return m_Port; }
+  inline uint16_t                  GetPort() const { return m_Port; }
   inline std::string               GetGameName() const { return m_GameName; }
   inline std::vector<uint_fast8_t> GetHostCounter() const { return m_HostCounter; }
 };

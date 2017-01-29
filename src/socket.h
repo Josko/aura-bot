@@ -111,14 +111,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-typedef int_fast32_t SOCKET;
+typedef int32_t SOCKET;
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
 
 #define closesocket close
 
-//extern int_fast32_t GetLastError();
+//extern int32_t GetLastError();
 #endif
 
 #ifndef INADDR_NONE
@@ -153,12 +153,12 @@ public:
 
   std::string                      GetErrorString() const;
   inline std::vector<uint_fast8_t> GetPort() const { return CreateByteArray(m_SIN.sin_port, false); }
-  inline std::vector<uint_fast8_t> GetIP() const { return CreateByteArray((uint_fast32_t)m_SIN.sin_addr.s_addr, false); }
+  inline std::vector<uint_fast8_t> GetIP() const { return CreateByteArray((uint32_t)m_SIN.sin_addr.s_addr, false); }
   inline std::string               GetIPString() const { return inet_ntoa(m_SIN.sin_addr); }
-  inline int_fast32_t              GetError() const { return m_Error; }
+  inline int32_t                   GetError() const { return m_Error; }
   inline bool                      HasError() const { return m_HasError; }
 
-  void SetFD(fd_set* fd, fd_set* send_fd, int* nfds);
+  void SetFD(fd_set* fd, fd_set* send_fd, int32_t* nfds);
   void Reset();
   void Allocate(int type);
 };
@@ -170,26 +170,26 @@ public:
 class CTCPSocket : public CSocket
 {
 protected:
-  std::string   m_RecvBuffer;
-  std::string   m_SendBuffer;
-  uint_fast32_t m_LastRecv;
-  bool          m_Connected;
+  std::string m_RecvBuffer;
+  std::string m_SendBuffer;
+  uint32_t    m_LastRecv;
+  bool        m_Connected;
 
 public:
   CTCPSocket();
   CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN);
   ~CTCPSocket();
 
-  inline std::string*  GetBytes() { return &m_RecvBuffer; }
-  inline uint_fast32_t GetLastRecv() const { return m_LastRecv; }
-  inline bool          GetConnected() const { return m_Connected; }
+  inline std::string* GetBytes() { return &m_RecvBuffer; }
+  inline uint32_t     GetLastRecv() const { return m_LastRecv; }
+  inline bool         GetConnected() const { return m_Connected; }
 
   inline void PutBytes(const std::string& bytes) { m_SendBuffer += bytes; }
   inline void PutBytes(const std::vector<uint_fast8_t>& bytes) { m_SendBuffer += std::string(begin(bytes), end(bytes)); }
 
   inline void ClearRecvBuffer() { m_RecvBuffer.clear(); }
-  inline void SubstrRecvBuffer(uint_fast32_t i) { m_RecvBuffer = m_RecvBuffer.substr(i); }
-  inline void                                ClearSendBuffer() { m_SendBuffer.clear(); }
+  inline void SubstrRecvBuffer(uint32_t i) { m_RecvBuffer = m_RecvBuffer.substr(i); }
+  inline void                           ClearSendBuffer() { m_SendBuffer.clear(); }
 
   void DoRecv(fd_set* fd);
   void DoSend(fd_set* send_fd);
@@ -221,12 +221,12 @@ public:
 
   bool        CheckConnect();
   inline void ClearRecvBuffer() { m_RecvBuffer.clear(); }
-  inline void SubstrRecvBuffer(uint_fast32_t i) { m_RecvBuffer = m_RecvBuffer.substr(i); }
-  inline void                                ClearSendBuffer() { m_SendBuffer.clear(); }
+  inline void SubstrRecvBuffer(uint32_t i) { m_RecvBuffer = m_RecvBuffer.substr(i); }
+  inline void                           ClearSendBuffer() { m_SendBuffer.clear(); }
   void DoRecv(fd_set* fd);
   void DoSend(fd_set* send_fd);
   void Disconnect();
-  void Connect(const std::string& localaddress, const std::string& address, uint_fast16_t port);
+  void Connect(const std::string& localaddress, const std::string& address, uint16_t port);
 };
 
 //
@@ -239,7 +239,7 @@ public:
   CTCPServer();
   ~CTCPServer();
 
-  bool Listen(const std::string& address, uint_fast16_t port);
+  bool Listen(const std::string& address, uint16_t port);
   CTCPSocket* Accept(fd_set* fd);
 };
 
@@ -257,8 +257,8 @@ public:
   ~CUDPSocket();
 
   bool SendTo(struct sockaddr_in sin, const std::vector<uint_fast8_t>& message);
-  bool SendTo(const std::string& address, uint_fast16_t port, const std::vector<uint_fast8_t>& message);
-  bool Broadcast(uint_fast16_t port, const std::vector<uint_fast8_t>& message);
+  bool SendTo(const std::string& address, uint16_t port, const std::vector<uint_fast8_t>& message);
+  bool Broadcast(uint16_t port, const std::vector<uint_fast8_t>& message);
 
   void Reset();
   void SetBroadcastTarget(const std::string& subnet);

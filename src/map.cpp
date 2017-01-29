@@ -49,7 +49,7 @@ CMap::~CMap() = default;
 
 std::vector<uint_fast8_t> CMap::GetMapGameFlags() const
 {
-  uint_fast32_t GameFlags = 0;
+  uint32_t GameFlags = 0;
 
   // speed
 
@@ -100,7 +100,7 @@ std::vector<uint_fast8_t> CMap::GetMapGameFlags() const
   return CreateByteArray(GameFlags, false);
 }
 
-uint_fast32_t CMap::GetMapGameType() const
+uint32_t CMap::GetMapGameType() const
 {
   /* spec stolen from Strilanc as follows:
 
@@ -138,7 +138,7 @@ uint_fast32_t CMap::GetMapGameType() const
   // note: we allow "conflicting" flags to be set at the same time (who knows if this is a good idea)
   // we also don't set any flags this class is unaware of such as Unknown0, SavedGame, and PrivateGame
 
-  uint_fast32_t GameType = 0;
+  uint32_t GameType = 0;
 
   // maker
 
@@ -240,12 +240,12 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
     // calculate map_size
 
-    MapSize = CreateByteArray((uint_fast32_t)m_MapData.size(), false);
+    MapSize = CreateByteArray((uint32_t)m_MapData.size(), false);
     Print("[MAP] calculated map_size = " + ByteArrayToDecString(MapSize));
 
     // calculate map_info (this is actually the CRC)
 
-    MapInfo = CreateByteArray((uint_fast32_t)m_Aura->m_CRC->CalculateCRC((uint_fast8_t*)m_MapData.c_str(), m_MapData.size()), false);
+    MapInfo = CreateByteArray((uint32_t)m_Aura->m_CRC->CalculateCRC((uint_fast8_t*)m_MapData.c_str(), m_MapData.size()), false);
     Print("[MAP] calculated map_info = " + ByteArrayToDecString(MapInfo));
 
     // calculate map_crc (this is not the CRC) and map_sha1
@@ -263,7 +263,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
         Print("[MAP] unable to calculate map_crc/sha1 - unable to read file [" + m_Aura->m_MapCFGPath + "blizzard.j]");
       else
       {
-        uint_fast32_t Val = 0;
+        uint32_t Val = 0;
 
         // update: it's possible for maps to include their own copies of common.j and/or blizzard.j
         // this code now overrides the default copies if required
@@ -279,7 +279,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
           if (SFileOpenFileEx(MapMPQ, R"(Scripts\common.j)", 0, &SubFile))
           {
-            uint_fast32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+            uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
             if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
@@ -315,7 +315,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
           if (SFileOpenFileEx(MapMPQ, R"(Scripts\blizzard.j)", 0, &SubFile))
           {
-            uint_fast32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+            uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
             if (FileLength > 0 && FileLength != 0xFFFFFFFF)
             {
@@ -373,7 +373,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
             if (SFileOpenFileEx(MapMPQ, fileName.c_str(), 0, &SubFile))
             {
-              uint_fast32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+              uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
               if (FileLength > 0 && FileLength != 0xFFFFFFFF)
               {
@@ -421,10 +421,10 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   std::vector<uint_fast8_t> MapWidth;
   std::vector<uint_fast8_t> MapHeight;
-  uint_fast32_t             MapOptions    = 0;
-  uint_fast32_t             MapNumPlayers = 0;
-  uint_fast32_t             MapFilterType = MAPFILTER_TYPE_SCENARIO;
-  uint_fast32_t             MapNumTeams   = 0;
+  uint32_t                  MapOptions    = 0;
+  uint32_t                  MapNumPlayers = 0;
+  uint32_t                  MapFilterType = MAPFILTER_TYPE_SCENARIO;
+  uint32_t                  MapNumTeams   = 0;
   vector<CGameSlot>         Slots;
 
   if (!m_MapData.empty())
@@ -435,7 +435,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
       if (SFileOpenFileEx(MapMPQ, "war3map.w3i", 0, &SubFile))
       {
-        uint_fast32_t FileLength = SFileGetFileSize(SubFile, nullptr);
+        uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
         if (FileLength > 0 && FileLength != 0xFFFFFFFF)
         {
@@ -448,13 +448,13 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
             // war3map.w3i format found at http://www.wc3campaigns.net/tools/specs/index.html by Zepir/PitzerMike
 
-            string        GarbageString;
-            uint_fast32_t FileFormat;
-            uint_fast32_t RawMapWidth;
-            uint_fast32_t RawMapHeight;
-            uint_fast32_t RawMapFlags;
-            uint_fast32_t RawMapNumPlayers;
-            uint_fast32_t RawMapNumTeams;
+            string   GarbageString;
+            uint32_t FileFormat;
+            uint32_t RawMapWidth;
+            uint32_t RawMapHeight;
+            uint32_t RawMapFlags;
+            uint32_t RawMapNumPlayers;
+            uint32_t RawMapNumTeams;
 
             ISS.read((char*)&FileFormat, 4); // file format (18 = ROC, 25 = TFT)
 
@@ -517,14 +517,14 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
               }
 
               ISS.read((char*)&RawMapNumPlayers, 4); // number of players
-              uint_fast32_t ClosedSlots = 0;
+              uint32_t ClosedSlots = 0;
 
-              for (uint_fast32_t i = 0; i < RawMapNumPlayers; ++i)
+              for (uint32_t i = 0; i < RawMapNumPlayers; ++i)
               {
-                CGameSlot     Slot(0, 255, SLOTSTATUS_OPEN, 0, 0, 1, SLOTRACE_RANDOM);
-                uint_fast32_t Colour;
-                uint_fast32_t Status;
-                uint_fast32_t Race;
+                CGameSlot Slot(0, 255, SLOTSTATUS_OPEN, 0, 0, 1, SLOTRACE_RANDOM);
+                uint32_t  Colour;
+                uint32_t  Status;
+                uint32_t  Race;
 
                 ISS.read((char*)&Colour, 4); // colour
                 Slot.SetColour(Colour);
@@ -570,10 +570,10 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
               ISS.read((char*)&RawMapNumTeams, 4); // number of teams
 
-              for (uint_fast32_t i = 0; i < RawMapNumTeams; ++i)
+              for (uint32_t i = 0; i < RawMapNumTeams; ++i)
               {
-                uint_fast32_t Flags;
-                uint_fast32_t PlayerMask;
+                uint32_t Flags;
+                uint32_t PlayerMask;
 
                 ISS.read((char*)&Flags, 4);      // flags
                 ISS.read((char*)&PlayerMask, 4); // player mask
@@ -600,16 +600,16 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
               MapOptions = RawMapFlags & (MAPOPT_MELEE | MAPOPT_FIXEDPLAYERSETTINGS | MAPOPT_CUSTOMFORCES);
               Print("[MAP] calculated map_options = " + to_string(MapOptions));
-              MapWidth = CreateByteArray((uint_fast16_t)RawMapWidth, false);
+              MapWidth = CreateByteArray((uint16_t)RawMapWidth, false);
               Print("[MAP] calculated map_width = " + ByteArrayToDecString(MapWidth));
-              MapHeight = CreateByteArray((uint_fast16_t)RawMapHeight, false);
+              MapHeight = CreateByteArray((uint16_t)RawMapHeight, false);
               Print("[MAP] calculated map_height = " + ByteArrayToDecString(MapHeight));
               MapNumPlayers = RawMapNumPlayers - ClosedSlots;
               Print("[MAP] calculated map_numplayers = " + to_string(MapNumPlayers));
               MapNumTeams = RawMapNumTeams;
               Print("[MAP] calculated map_numteams = " + to_string(MapNumTeams));
 
-              uint_fast32_t SlotNum = 1;
+              uint32_t SlotNum = 1;
 
               for (auto& Slot : Slots)
               {
@@ -779,7 +779,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   if (Slots.empty())
   {
-    for (uint_fast32_t Slot = 1; Slot <= 12; ++Slot)
+    for (uint32_t Slot = 1; Slot <= 12; ++Slot)
     {
       string SlotString = CFG->GetString("map_slot" + to_string(Slot), string());
 
@@ -795,7 +795,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
     Print("[MAP] overriding slots");
     Slots.clear();
 
-    for (uint_fast32_t Slot = 1; Slot <= 12; ++Slot)
+    for (uint32_t Slot = 1; Slot <= 12; ++Slot)
     {
       string SlotString = CFG->GetString("map_slot" + to_string(Slot), string());
 
@@ -928,18 +928,18 @@ void CMap::CheckValid()
   }
 }
 
-uint_fast32_t CMap::XORRotateLeft(uint_fast8_t* data, uint_fast32_t length)
+uint32_t CMap::XORRotateLeft(uint_fast8_t* data, uint32_t length)
 {
   // a big thank you to Strilanc for figuring this out
 
-  uint_fast32_t i   = 0;
-  uint_fast32_t Val = 0;
+  uint32_t i   = 0;
+  uint32_t Val = 0;
 
   if (length > 3)
   {
     while (i < length - 3)
     {
-      Val = ROTL(Val ^ ((uint_fast32_t)data[i] + (uint_fast32_t)(data[i + 1] << 8) + (uint_fast32_t)(data[i + 2] << 16) + (uint_fast32_t)(data[i + 3] << 24)), 3);
+      Val = ROTL(Val ^ ((uint32_t)data[i] + (uint32_t)(data[i + 1] << 8) + (uint32_t)(data[i + 2] << 16) + (uint32_t)(data[i + 3] << 24)), 3);
       i += 4;
     }
   }
