@@ -46,13 +46,13 @@ public:
 
   // send functions
 
-  std::vector<uint_fast8_t> SEND_GPSC_INIT(uint32_t version);
-  std::vector<uint_fast8_t> SEND_GPSC_RECONNECT(uint_fast8_t PID, uint32_t reconnectKey, uint32_t lastPacket);
-  std::vector<uint_fast8_t> SEND_GPSC_ACK(uint32_t lastPacket);
-  std::vector<uint_fast8_t> SEND_GPSS_INIT(uint16_t reconnectPort, uint_fast8_t PID, uint32_t reconnectKey, uint_fast8_t numEmptyActions);
-  std::vector<uint_fast8_t> SEND_GPSS_RECONNECT(uint32_t lastPacket);
-  std::vector<uint_fast8_t> SEND_GPSS_ACK(uint32_t lastPacket);
-  std::vector<uint_fast8_t> SEND_GPSS_REJECT(uint32_t reason);
+  std::vector<uint8_t> SEND_GPSC_INIT(uint32_t version);
+  std::vector<uint8_t> SEND_GPSC_RECONNECT(uint8_t PID, uint32_t reconnectKey, uint32_t lastPacket);
+  std::vector<uint8_t> SEND_GPSC_ACK(uint32_t lastPacket);
+  std::vector<uint8_t> SEND_GPSS_INIT(uint16_t reconnectPort, uint8_t PID, uint32_t reconnectKey, uint8_t numEmptyActions);
+  std::vector<uint8_t> SEND_GPSS_RECONNECT(uint32_t lastPacket);
+  std::vector<uint8_t> SEND_GPSS_ACK(uint32_t lastPacket);
+  std::vector<uint8_t> SEND_GPSS_REJECT(uint32_t reason);
 };
 
 #endif // AURA_GPSPROTOCOL_H_

@@ -27,7 +27,7 @@ using namespace std;
 // CGameSlot
 //
 
-CGameSlot::CGameSlot(const std::vector<uint_fast8_t>& n)
+CGameSlot::CGameSlot(const std::vector<uint8_t>& n)
   : m_PID(0),
     m_DownloadStatus(255),
     m_SlotStatus(SLOTSTATUS_OPEN),
@@ -60,7 +60,7 @@ CGameSlot::CGameSlot(const std::vector<uint_fast8_t>& n)
   }
 }
 
-CGameSlot::CGameSlot(const uint_fast8_t nPID, const uint_fast8_t nDownloadStatus, const uint_fast8_t nSlotStatus, const uint_fast8_t nComputer, const uint_fast8_t nTeam, const uint_fast8_t nColour, const uint_fast8_t nRace, const uint_fast8_t nComputerType, const uint_fast8_t nHandicap)
+CGameSlot::CGameSlot(const uint8_t nPID, const uint8_t nDownloadStatus, const uint8_t nSlotStatus, const uint8_t nComputer, const uint8_t nTeam, const uint8_t nColour, const uint8_t nRace, const uint8_t nComputerType, const uint8_t nHandicap)
   : m_PID(nPID),
     m_DownloadStatus(nDownloadStatus),
     m_SlotStatus(nSlotStatus),

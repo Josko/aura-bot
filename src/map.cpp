@@ -47,7 +47,7 @@ CMap::CMap(CAura* nAura, CConfig* CFG, const string& nCFGFile)
 
 CMap::~CMap() = default;
 
-std::vector<uint_fast8_t> CMap::GetMapGameFlags() const
+std::vector<uint8_t> CMap::GetMapGameFlags() const
 {
   uint32_t GameFlags = 0;
 
@@ -181,7 +181,7 @@ uint32_t CMap::GetMapGameType() const
   return GameType;
 }
 
-uint_fast8_t CMap::GetMapLayoutStyle() const
+uint8_t CMap::GetMapLayoutStyle() const
 {
   // 0 = melee
   // 1 = custom forces
@@ -232,7 +232,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   // try to calculate map_size, map_info, map_crc, map_sha1
 
-  std::vector<uint_fast8_t> MapSize, MapInfo, MapCRC, MapSHA1;
+  std::vector<uint8_t> MapSize, MapInfo, MapCRC, MapSHA1;
 
   if (!m_MapData.empty())
   {
@@ -245,7 +245,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
     // calculate map_info (this is actually the CRC)
 
-    MapInfo = CreateByteArray((uint32_t)m_Aura->m_CRC->CalculateCRC((uint_fast8_t*)m_MapData.c_str(), m_MapData.size()), false);
+    MapInfo = CreateByteArray((uint32_t)m_Aura->m_CRC->CalculateCRC((uint8_t*)m_MapData.c_str(), m_MapData.size()), false);
     Print("[MAP] calculated map_info = " + ByteArrayToDecString(MapInfo));
 
     // calculate map_crc (this is not the CRC) and map_sha1
@@ -290,8 +290,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
               {
                 Print("[MAP] overriding default common.j with map copy while calculating map_crc/sha1");
                 OverrodeCommonJ = true;
-                Val             = Val ^ XORRotateLeft((uint_fast8_t*)SubFileData, BytesRead);
-                m_Aura->m_SHA->Update((uint_fast8_t*)SubFileData, BytesRead);
+                Val             = Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead);
+                m_Aura->m_SHA->Update((uint8_t*)SubFileData, BytesRead);
               }
 
               delete[] SubFileData;
@@ -303,8 +303,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
         if (!OverrodeCommonJ)
         {
-          Val = Val ^ XORRotateLeft((uint_fast8_t*)CommonJ.c_str(), CommonJ.size());
-          m_Aura->m_SHA->Update((uint_fast8_t*)CommonJ.c_str(), CommonJ.size());
+          Val = Val ^ XORRotateLeft((uint8_t*)CommonJ.c_str(), CommonJ.size());
+          m_Aura->m_SHA->Update((uint8_t*)CommonJ.c_str(), CommonJ.size());
         }
 
         if (MapMPQReady)
@@ -326,8 +326,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
               {
                 Print("[MAP] overriding default blizzard.j with map copy while calculating map_crc/sha1");
                 OverrodeBlizzardJ = true;
-                Val               = Val ^ XORRotateLeft((uint_fast8_t*)SubFileData, BytesRead);
-                m_Aura->m_SHA->Update((uint_fast8_t*)SubFileData, BytesRead);
+                Val               = Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead);
+                m_Aura->m_SHA->Update((uint8_t*)SubFileData, BytesRead);
               }
 
               delete[] SubFileData;
@@ -339,13 +339,13 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
         if (!OverrodeBlizzardJ)
         {
-          Val = Val ^ XORRotateLeft((uint_fast8_t*)BlizzardJ.c_str(), BlizzardJ.size());
-          m_Aura->m_SHA->Update((uint_fast8_t*)BlizzardJ.c_str(), BlizzardJ.size());
+          Val = Val ^ XORRotateLeft((uint8_t*)BlizzardJ.c_str(), BlizzardJ.size());
+          m_Aura->m_SHA->Update((uint8_t*)BlizzardJ.c_str(), BlizzardJ.size());
         }
 
         Val = ROTL(Val, 3);
         Val = ROTL(Val ^ 0x03F1379E, 3);
-        m_Aura->m_SHA->Update((uint_fast8_t*)"\x9E\x37\xF1\x03", 4);
+        m_Aura->m_SHA->Update((uint8_t*)"\x9E\x37\xF1\x03", 4);
 
         if (MapMPQReady)
         {
@@ -385,8 +385,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                   if (fileName == "war3map.j" || fileName == R"(scripts\war3map.j)")
                     FoundScript = true;
 
-                  Val = ROTL(Val ^ XORRotateLeft((uint_fast8_t*)SubFileData, BytesRead), 3);
-                  m_Aura->m_SHA->Update((uint_fast8_t*)SubFileData, BytesRead);
+                  Val = ROTL(Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead), 3);
+                  m_Aura->m_SHA->Update((uint8_t*)SubFileData, BytesRead);
                 }
 
                 delete[] SubFileData;
@@ -403,8 +403,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
           Print("[MAP] calculated map_crc = " + ByteArrayToDecString(MapCRC));
 
           m_Aura->m_SHA->Final();
-          uint_fast8_t SHA1[20];
-          memset(SHA1, 0, sizeof(uint_fast8_t) * 20);
+          uint8_t SHA1[20];
+          memset(SHA1, 0, sizeof(uint8_t) * 20);
           m_Aura->m_SHA->GetHash(SHA1);
           MapSHA1 = CreateByteArray(SHA1, 20);
           Print("[MAP] calculated map_sha1 = " + ByteArrayToDecString(MapSHA1));
@@ -419,13 +419,13 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   // try to calculate map_width, map_height, map_slot<x>, map_numplayers, map_numteams, map_filtertype
 
-  std::vector<uint_fast8_t> MapWidth;
-  std::vector<uint_fast8_t> MapHeight;
-  uint32_t                  MapOptions    = 0;
-  uint32_t                  MapNumPlayers = 0;
-  uint32_t                  MapFilterType = MAPFILTER_TYPE_SCENARIO;
-  uint32_t                  MapNumTeams   = 0;
-  vector<CGameSlot>         Slots;
+  std::vector<uint8_t> MapWidth;
+  std::vector<uint8_t> MapHeight;
+  uint32_t             MapOptions    = 0;
+  uint32_t             MapNumPlayers = 0;
+  uint32_t             MapFilterType = MAPFILTER_TYPE_SCENARIO;
+  uint32_t             MapNumTeams   = 0;
+  vector<CGameSlot>    Slots;
 
   if (!m_MapData.empty())
   {
@@ -578,7 +578,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                 ISS.read((char*)&Flags, 4);      // flags
                 ISS.read((char*)&PlayerMask, 4); // player mask
 
-                for (uint_fast8_t j = 0; j < 12; ++j)
+                for (uint8_t j = 0; j < 12; ++j)
                 {
                   if (PlayerMask & 1)
                   {
@@ -623,7 +623,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
                 // give each slot a different team and set the race to random
 
-                uint_fast8_t Team = 0;
+                uint8_t Team = 0;
 
                 for (auto& Slot : Slots)
                 {
@@ -786,7 +786,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
       if (SlotString.empty())
         break;
 
-      std::vector<uint_fast8_t> SlotData = ExtractNumbers(SlotString, 9);
+      std::vector<uint8_t> SlotData = ExtractNumbers(SlotString, 9);
       Slots.emplace_back(SlotData);
     }
   }
@@ -802,7 +802,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
       if (SlotString.empty())
         break;
 
-      std::vector<uint_fast8_t> SlotData = ExtractNumbers(SlotString, 9);
+      std::vector<uint8_t> SlotData = ExtractNumbers(SlotString, 9);
       Slots.emplace_back(SlotData);
     }
   }
@@ -928,7 +928,7 @@ void CMap::CheckValid()
   }
 }
 
-uint32_t CMap::XORRotateLeft(uint_fast8_t* data, uint32_t length)
+uint32_t CMap::XORRotateLeft(uint8_t* data, uint32_t length)
 {
   // a big thank you to Strilanc for figuring this out
 

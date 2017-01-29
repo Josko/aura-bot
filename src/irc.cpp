@@ -34,7 +34,7 @@ using namespace std;
 //// CIRC ////
 //////////////
 
-CIRC::CIRC(CAura* nAura, string nServer, const string& nNickname, const string& nUsername, string nPassword, vector<string> nChannels, vector<string> nRootAdmins, uint16_t nPort, int_fast8_t nCommandTrigger)
+CIRC::CIRC(CAura* nAura, string nServer, const string& nNickname, const string& nUsername, string nPassword, vector<string> nChannels, vector<string> nRootAdmins, uint16_t nPort, int8_t nCommandTrigger)
   : m_Aura(nAura),
     m_Socket(new CTCPClient),
     m_Channels(std::move(nChannels)),

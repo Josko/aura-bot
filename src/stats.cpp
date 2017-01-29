@@ -53,9 +53,9 @@ CStats::~CStats()
 
 bool CStats::ProcessAction(CIncomingAction* Action)
 {
-  uint32_t                         i          = 0;
-  const std::vector<uint_fast8_t>* ActionData = Action->GetAction();
-  std::vector<uint_fast8_t>        Data, Key, Value;
+  uint32_t                    i          = 0;
+  const std::vector<uint8_t>* ActionData = Action->GetAction();
+  std::vector<uint8_t>        Data, Key, Value;
 
   // dota actions with real time replay data start with 0x6b then the nullptr terminated string "dr.x"
   // unfortunately more than one action can be sent in a single packet and the length of each action isn't explicitly represented in the packet
@@ -86,7 +86,7 @@ bool CStats::ProcessAction(CIncomingAction* Action)
           {
             // the 4 byte int32_teger should be the value
 
-            Value                     = std::vector<uint_fast8_t>(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
+            Value                     = std::vector<uint8_t>(ActionData->begin() + i + 8 + Data.size() + Key.size(), ActionData->begin() + i + 12 + Data.size() + Key.size());
             const string   DataString = string(begin(Data), end(Data));
             const string   KeyString  = string(begin(Key), end(Key));
             const uint32_t ValueInt   = ByteArrayToUInt32(Value, false);
@@ -329,7 +329,7 @@ void CStats::Save(CAura* Aura, CAuraDB* DB)
         if (Name.empty())
           continue;
 
-        uint_fast8_t Win = 0;
+        uint8_t Win = 0;
 
         if ((m_Winner == 1 && Colour >= 1 && Colour <= 5) || (m_Winner == 2 && Colour >= 7 && Colour <= 11))
           Win = 1;
