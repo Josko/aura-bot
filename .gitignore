@@ -29,3 +29,14 @@ Thumbs.db
 # SVN Directories #
 ###################
 .svn/
+
+# VS Directories #
+##################
+*.ipch
+/.vs
+*.log
+*.opendb
+*.suo
+*.db
+*.db-wal
+*.db-shm
