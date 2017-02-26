@@ -403,7 +403,23 @@ MEXP(int) cm_pe_unload_resources(cm_pe_resdir_t* root)
 MEXP(int) cm_pe_fixed_version(cm_pe_t pe, cm_pe_res_t* res,
 							  cm_pe_version_t* ver)
 {
-	cm_pe_section_t* sect = (pe->sections + 3);
+  // find ".rsrc" section
+  cm_pe_section_t* sect = pe->sections;
+  {
+    char RsrcFound = 0;
+    for(int i = 0; i < pe->header.section_count; ++i)
+    {
+      if (strcmp(sect->name,".rsrc") == 0)
+      {
+        RsrcFound = 1;
+        break;
+      }
+      ++sect;
+    }
+
+    if (RsrcFound == 0) // no resources ???
+      return 0;
+  }
 #if BIGENDIAN
 	uint32_t check = 0xBD04EFFE;
 #else
