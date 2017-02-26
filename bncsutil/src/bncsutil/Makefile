@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 CXX = g++
-CXXFLAGS = -O3 -I ../ -Wno-multichar -fPIC
+CXXFLAGS = -O3 -I ../ -Wno-multichar -fPIC -flto
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
 CC = gcc
 CCFLAGS = -O3 -I ../ -Wno-multichar -fPIC
@@ -20,7 +20,8 @@ TARGET = libbncsutil.so
 endif
 
 $(TARGET): $(CXXOBJ) $(CCOBJ) 
-	$(CXX)  $(CXXFLAGS) $(LDFLAGS) $(CXXOBJ) $(CCOBJ) -o $(TARGET)
+	$(CXX)  $(CXXFLAGS) $(LDFLAGS) $(CXXOBJ) $(CCOBJ) -flto -o $(TARGET)
+	@strip $(TARGET)
 
 $(CXXOBJ): %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -30,6 +31,7 @@ $(CCOBJ): %.o: %.c
 
 clean:
 	rm -f $(CCOBJ) $(CXXOBJ) $(TARGET) *~
+
 all:
 	make $(TARGET)
 
