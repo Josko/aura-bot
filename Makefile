@@ -12,9 +12,9 @@ endif
 
 CCFLAGS = -fno-builtin
 CXXFLAGS = -std=c++14 -pipe -Wall -Wextra -fno-builtin -fno-rtti
-DFLAGS = 
+DFLAGS =
 OFLAGS = -O3 -flto
-LFLAGS = -L. -L/usr/local/lib/ -L../bncsutil/src/bncsutil/ -lstorm -lbncsutil -lgmp
+LFLAGS = -L. -L/usr/local/lib/ -Lbncsutil/src/bncsutil/ -lstorm -lbncsutil -lgmp
 
 ifeq ($(ARCH),x86_64)
 	CCFLAGS += -m64
@@ -41,7 +41,7 @@ ifeq ($(SYSTEM),SunOS)
 endif
 
 CCFLAGS += $(OFLAGS) -DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION -I.
-CXXFLAGS += $(OFLAGS) $(DFLAGS) -I. -I../bncsutil/src/ -I../StormLib/src/
+CXXFLAGS += $(OFLAGS) $(DFLAGS) -I. -Ibncsutil/src/ -IStormLib/src/
 
 OBJS = src/bncsutilinterface.o \
 			 src/bnet.o \
