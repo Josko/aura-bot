@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 CXX = g++
-CXXFLAGS = -O3 -I ../ -Wno-multichar -fPIC -flto
+CXXFLAGS = -std=c++11 -O3 -I ../ -Wno-multichar -fPIC -flto
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
 CC = gcc
 CCFLAGS = -O3 -I ../ -Wno-multichar -fPIC
