@@ -19,9 +19,13 @@ LDFLAGS = -shared -lgmp
 TARGET = libbncsutil.so
 endif
 
-$(TARGET): $(CXXOBJ) $(CCOBJ) 
+$(TARGET): $(CXXOBJ) $(CCOBJ)
 	$(CXX)  $(CXXFLAGS) $(LDFLAGS) $(CXXOBJ) $(CCOBJ) -flto -o $(TARGET)
+ifeq ($(SYSTEM),Darwin)
+	@strip -x $(TARGET)
+else
 	@strip $(TARGET)
+endif
 
 $(CXXOBJ): %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

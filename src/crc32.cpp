@@ -9,6 +9,11 @@
 #define __LITTLE_ENDIAN 1234
 #define __BIG_ENDIAN 4321
 #define __BYTE_ORDER __LITTLE_ENDIAN
+#elif defined(__APPLE__)
+#include <machine/endian.h>
+#define __LITTLE_ENDIAN __DARWIN_LITTLE_ENDIAN
+#define __BIG_ENDIAN __DARWIN_BIG_ENDIAN
+#define __BYTE_ORDER __DARWIN_BYTE_ORDER
 #else
 // defines __BYTE_ORDER as __LITTLE_ENDIAN or __BIG_ENDIAN
 #include <sys/param.h>
@@ -61,7 +66,7 @@ uint32_t CCRC32::CalculateCRC(const uint8_t* data, std::size_t length, uint32_t 
   {
     for (size_t unrolling = 0; unrolling < Unroll; ++unrolling)
     {
-#if __BYTE_ORDER == __BIG_ENDIAN
+#if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN
       const uint32_t one   = *current++ ^ swap(crc);
       const uint32_t two   = *current++;
       const uint32_t three = *current++;
