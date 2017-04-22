@@ -9,6 +9,11 @@
 #define __LITTLE_ENDIAN 1234
 #define __BIG_ENDIAN 4321
 #define __BYTE_ORDER __LITTLE_ENDIAN
+#elif defined(__APPLE__)
+#include <machine/endian.h>
+#define __LITTLE_ENDIAN __DARWIN_LITTLE_ENDIAN
+#define __BIG_ENDIAN __DARWIN_BIG_ENDIAN
+#define __BYTE_ORDER __DARWIN_BYTE_ORDER
 #else
 // defines __BYTE_ORDER as __LITTLE_ENDIAN or __BIG_ENDIAN
 #include <sys/param.h>
