@@ -4,7 +4,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -O3 -I ../ -Wno-multichar -fPIC -flto
 CXXOBJ = bsha1.o cdkeydecoder.o checkrevision.o decodekey.o file.o libinfo.o oldauth.o
 CC = gcc
-CCFLAGS = -O3 -I ../ -Wno-multichar -fPIC
+CCFLAGS = -std=c99 -O3 -I ../ -Wno-multichar -fPIC
 CCOBJ = nls.o pe.o sha1.o stack.o
 
 ifeq ($(SYSTEM),Darwin)
