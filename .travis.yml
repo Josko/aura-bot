@@ -26,6 +26,7 @@ matrix:
             - g++-5
             - clang-3.6
             - llvm-3.6-dev # for LLVMGold.so
+            - binutils-gold
 
     - os: osx
       osx_image: xcode6.4
