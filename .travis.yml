@@ -37,8 +37,8 @@ branches:
 
 before_install:
   - export SYSTEM=$(uname)
-  - if [ "$SYSTEM" != "Darwin" ] then sudo apt-get update -qq; fi
-  - if [ "$SYSTEM" != "Darwin" ] then sudo apt-get install build-essential m4 libgmp3-dev cmake; fi
+  - if [ "$SYSTEM" != "Darwin" ]; then sudo apt-get update -qq; fi
+  - if [ "$SYSTEM" != "Darwin" ]; then sudo apt-get install build-essential m4 libgmp3-dev cmake; fi
 
 install:
   - if [ "$COMPILER" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
