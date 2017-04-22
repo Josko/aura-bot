@@ -20,6 +20,7 @@ matrix:
       addons:
         apt:
           sources:
+            - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty
           packages:
             - clang-3.6
