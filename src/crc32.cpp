@@ -23,7 +23,7 @@ constexpr std::size_t Polynomial = 0x04C11DB7;
 
 constexpr static inline uint32_t swap(const uint32_t i)
 {
-#if defined(__GNUC__) || defined(__clang__)
+#if !defined(__APPLE__) && (defined(__GNUC__) || defined(__clang__))
   return __builtin_bswap32(i);
 #else
   return (i >> 24) |
