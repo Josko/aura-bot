@@ -63,7 +63,7 @@ For building StormLib execute the following commands (line by line):
 	cd aura-bot/StormLib
 	mkdir build
 	cd build
-	cmake ..
+	cmake -DCMAKE_BUILD_TYPE=Release ..
 	make
 	sudo make install
 
