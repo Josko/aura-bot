@@ -43,6 +43,4 @@ install: $(TARGET)
 	mkdir -p /usr/include/bncsutil
 	cp *.h /usr/include/bncsutil
 	cp $(TARGET) /usr/lib
-ifneq ($(SYSTEM),Darwin)
 	ldconfig
-endif

@@ -55,7 +55,7 @@ install:
   - cd ../..
   - cd bncsutil/src/bncsutil
   - make
-  - sudo make install
+  - if [ "$SYSTEM" != "Darwin" ]; then sudo make install; fi
   - cd ../../..
 
 script:
