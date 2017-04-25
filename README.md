@@ -104,7 +104,7 @@ You can use [Homebrew](http://brew.sh/) to get `libgmp`. When you are at it, you
 	brew install gmp
 	brew install stormlib   # optional
 
-Now proceed by following the [steps for Linux users](#Steps) and omit StormLib in case you installed it using `brew`.
+Now proceed by following the [steps for Linux users](#steps) and omit StormLib in case you installed it using `brew`.
 
 
 Configuring
