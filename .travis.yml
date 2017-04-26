@@ -60,7 +60,7 @@ install:
 
 script:
   - make
-  - sudo make install
+  - if [ "$SYSTEM" != "Darwin" ]; then sudo make install; fi
 
 notifications-policy: &notifications-policy
   on_success: change
@@ -72,4 +72,3 @@ notifications:
     channels:
       - "irc.quakenet.org#clan007"
     <<: *notifications-policy
-
