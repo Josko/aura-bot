@@ -80,7 +80,8 @@ clean:
 	@echo "Binary and object files cleaned."
 
 install:
-	@install -D $(PROG) "$(DESTDIR)/usr/bin/$(PROG)"
+	@install -d "$(DESTDIR)/usr/bin"
+	@install $(PROG) "$(DESTDIR)/usr/bin/$(PROG)"
 	@echo "Binary $(PROG) installed to $(DESTDIR)/usr/bin"
 
 $(OBJS): %.o: %.cpp

@@ -58,8 +58,10 @@ Linux users will probably need some packages for it to build:
 * Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev cmake`
 * Arch Linux -- `pacman -S base-devel cmake`
 
-For building StormLib execute the following commands (line by line):	
-	
+#### Steps
+
+For building StormLib execute the following commands (line by line):
+
 	cd aura-bot/StormLib
 	mkdir build
 	cd build
@@ -72,8 +74,8 @@ Continue building bncsutil:
 	cd ../..
 	cd bncsutil/src/bncsutil
 	make
-	sudo make install	
-	
+	sudo make install
+
 Then proceed to build Aura:
 
 	cd ../../..
@@ -90,42 +92,20 @@ on some distros such as Arch or CentOS.
 
 ### OS X
 
-Building `aura++` is verified to work with Xcode 5 (on 10.9) but it should
-be possible with Xcode 4 as well 
-(as long as your OSX version is not below 10.7). 
+#### Requirements
 
-To build `aura++` you need at least 
-[Xcode](https://developer.apple.com/xcode/), downloadable from the Mac App 
-Store. In case you don't want to use the Xcode projects to compile `aura++` you 
-also have to download the Command Line Tools, available in Apple's Developer 
-Area (a free membership is sufficient). 
+* OSX ≥10.9, possibly even higher for necessary C++14 support. It is verified to work and tested on OSX 10.11.
+* Latest available Xcode for your platform and/or the Xcode Command Line Tools.
+One of these might suffice, if not just get both.
+* A recent `libgmp`.
 
-As a further prerequisite you need a more recent version of `libgmp`.
-The easiest way to get one is by using a package manager like 
-[Homebrew](http://brew.sh/).
-After a successful install open (or reopen) `Terminal.app` located in 
-`/Applications/Utilities` and execute 
-
+You can use [Homebrew](http://brew.sh/) to get `libgmp`. When you are at it, you can also use it to install StormLib instead of compiling it on your own:
 
 	brew install gmp
-   
-No matter how you acquire `libgmp`, the makefiles as well as
-Xcode projects expect it in `/usr/lib` or `/usr/local/lib`.
-You might want to adjust these files in case you choose a different path.
+	brew install stormlib   # optional
 
-You can now build `aura++` (and the dependencies StormLib & bncsutil)
-by either using the respective makefiles (see the Linux instructions above) or
-by opening `aura++.xcodeproj` in Xcode. Press 'Build' to compile StormLib, 
-bncsutil and `aura++` in one go. 
-Now you can run aura by executing `./aura++` in Terminal.
+Now proceed by following the [steps for Linux users](#steps) and omit StormLib in case you installed it using `brew`.
 
-**Note**: StormLib and bncsutil are linked dynamically, thus you should
-refrain from deleting their build results.
-
-**Note**: the Xcode project file in `StormLib/` is *not* the one produced by
-`cmake`. 
-Please keep this in mind in case you generate a new StormLib Xcode project with 
-`cmake` — it might break `aura++.xcodeproj`.
 
 Configuring
 -----------
