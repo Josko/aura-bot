@@ -55,12 +55,12 @@ install:
   - cd ../..
   - cd bncsutil/src/bncsutil
   - make
-  - if [ "$SYSTEM" != "Darwin" ]; then sudo make install; fi
+  - sudo make install
   - cd ../../..
 
 script:
   - make
-  - if [ "$SYSTEM" != "Darwin" ]; then sudo make install; fi
+  - sudo make install
 
 notifications-policy: &notifications-policy
   on_success: change
