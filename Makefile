@@ -1,6 +1,7 @@
 SHELL = /bin/sh
 SYSTEM = $(shell uname)
 ARCH = $(shell uname -m)
+INSTALL_DIR = /usr
 
 ifndef CC
   CC = gcc
@@ -22,6 +23,7 @@ ifeq ($(ARCH),x86_64)
 endif
 
 ifeq ($(SYSTEM),Darwin)
+	INSTALL_DIR = /usr/local
 	CXXFLAGS += -stdlib=libc++
 	CC = clang
 	CXX = clang++
@@ -80,9 +82,9 @@ clean:
 	@echo "Binary and object files cleaned."
 
 install:
-	@install -d "$(DESTDIR)/usr/bin"
-	@install $(PROG) "$(DESTDIR)/usr/bin/$(PROG)"
-	@echo "Binary $(PROG) installed to $(DESTDIR)/usr/bin"
+	@install -d "$(DESTDIR)$(INSTALL_DIR)/bin"
+	@install $(PROG) "$(DESTDIR)$(INSTALL_DIR)/bin/$(PROG)"
+	@echo "Binary $(PROG) installed to $(DESTDIR)$(INSTALL_DIR)/bin"
 
 $(OBJS): %.o: %.cpp
 	@$(CXX) -o $@ $(CXXFLAGS) -c $<
