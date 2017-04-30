@@ -50,8 +50,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./src/libtomcrypt/src/headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;__STORMLIB_TEST__"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;__STORMLIB_TEST__;__STORMLIB_DUMP_DATA__"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -130,7 +129,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./src/libtomcrypt/src/headers"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;__STORMLIB_TEST__"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -208,7 +206,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./src/libtomcrypt/src/headers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;__STORMLIB_TEST__"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -286,7 +283,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./src/libtomcrypt/src/headers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;__STORMLIB_TEST__"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -1031,7 +1027,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\test\Test.cpp"
+				RelativePath=".\test\StormTest.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1308,6 +1304,62 @@
 							>
 						</File>
 						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_bit_string.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_boolean.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_ia5_string.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_integer.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_object_identifier.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_octet_string.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_printable_string.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_sequence_ex.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_sequence_multi.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_set.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_setof.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_short_integer.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_utctime.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_encode_utf8_string.c"
+							>
+						</File>
+						<File
 							RelativePath=".\src\libtomcrypt\src\pk\asn1\der_length_bit_string.c"
 							>
 						</File>
@@ -1400,7 +1452,15 @@
 							>
 						</File>
 						<File
+							RelativePath=".\src\libtomcrypt\src\pk\pkcs1\pkcs_1_pss_encode.c"
+							>
+						</File>
+						<File
 							RelativePath=".\src\libtomcrypt\src\pk\pkcs1\pkcs_1_v1_5_decode.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\pkcs1\pkcs_1_v1_5_encode.c"
 							>
 						</File>
 					</Filter>
@@ -1421,6 +1481,10 @@
 						</File>
 						<File
 							RelativePath=".\src\libtomcrypt\src\pk\rsa\rsa_make_key.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\libtomcrypt\src\pk\rsa\rsa_sign_hash.c"
 							>
 						</File>
 						<File
@@ -1970,7 +2034,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\zlib\compress.c"
+					RelativePath=".\src\zlib\compress_zlib.c"
 					>
 				</File>
 				<File

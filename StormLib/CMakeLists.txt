@@ -1,6 +1,8 @@
 project(StormLib)
 cmake_minimum_required(VERSION 2.6)
 
+set(LIBRARY_NAME storm)
+
 set(SRC_FILES
            src/adpcm/adpcm.cpp
            src/huffman/huff.cpp
@@ -67,6 +69,20 @@ set(TOMCRYPT_FILES
            src/libtomcrypt/src/pk/asn1/der_decode_short_integer.c
            src/libtomcrypt/src/pk/asn1/der_decode_utctime.c
            src/libtomcrypt/src/pk/asn1/der_decode_utf8_string.c
+           src/libtomcrypt/src/pk/asn1/der_encode_bit_string.c
+           src/libtomcrypt/src/pk/asn1/der_encode_boolean.c
+           src/libtomcrypt/src/pk/asn1/der_encode_ia5_string.c
+           src/libtomcrypt/src/pk/asn1/der_encode_integer.c
+           src/libtomcrypt/src/pk/asn1/der_encode_object_identifier.c
+           src/libtomcrypt/src/pk/asn1/der_encode_octet_string.c
+           src/libtomcrypt/src/pk/asn1/der_encode_printable_string.c
+           src/libtomcrypt/src/pk/asn1/der_encode_sequence_ex.c
+           src/libtomcrypt/src/pk/asn1/der_encode_sequence_multi.c
+           src/libtomcrypt/src/pk/asn1/der_encode_set.c
+           src/libtomcrypt/src/pk/asn1/der_encode_setof.c
+           src/libtomcrypt/src/pk/asn1/der_encode_short_integer.c
+           src/libtomcrypt/src/pk/asn1/der_encode_utctime.c
+           src/libtomcrypt/src/pk/asn1/der_encode_utf8_string.c
            src/libtomcrypt/src/pk/asn1/der_length_bit_string.c
            src/libtomcrypt/src/pk/asn1/der_length_boolean.c
            src/libtomcrypt/src/pk/asn1/der_length_ia5_string.c
@@ -88,11 +104,14 @@ set(TOMCRYPT_FILES
            src/libtomcrypt/src/pk/pkcs1/pkcs_1_mgf1.c
            src/libtomcrypt/src/pk/pkcs1/pkcs_1_oaep_decode.c
            src/libtomcrypt/src/pk/pkcs1/pkcs_1_pss_decode.c
+           src/libtomcrypt/src/pk/pkcs1/pkcs_1_pss_encode.c
            src/libtomcrypt/src/pk/pkcs1/pkcs_1_v1_5_decode.c
+           src/libtomcrypt/src/pk/pkcs1/pkcs_1_v1_5_encode.c
            src/libtomcrypt/src/pk/rsa/rsa_exptmod.c
            src/libtomcrypt/src/pk/rsa/rsa_free.c
            src/libtomcrypt/src/pk/rsa/rsa_import.c
            src/libtomcrypt/src/pk/rsa/rsa_make_key.c
+           src/libtomcrypt/src/pk/rsa/rsa_sign_hash.c
            src/libtomcrypt/src/pk/rsa/rsa_verify_hash.c
 )
 
@@ -237,66 +256,138 @@ set(ZLIB_BZIP2_FILES
 )
 
 set(TEST_SRC_FILES
-           test/Test.cpp
+           test/StormTest.cpp
 )
 
 add_definitions(-D_7ZIP_ST -DBZ_STRICT_ANSI)
 
 if(WIN32)
     if(MSVC)
+        option(UNICODE "Enable UNICODE mode" OFF)
+        if (UNICODE)
+            message(STATUS "Using UNICODE")
+        else()
+            message(STATUS "Using ASCII")
+        endif()
         message(STATUS "Using MSVC")
-        add_definitions(-D_7ZIP_ST -DWIN32)
+        add_definitions(-DWIN32)
     else()
         message(STATUS "Using mingw")
     endif()
     set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
     set(LINK_LIBS wininet)
-endif()
-
-if(APPLE)
-    set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
-endif()
-
-if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+else()
+    find_package(ZLIB REQUIRED)
+    find_package(BZip2 REQUIRED)
+    include_directories(${ZLIB_INCLUDE_DIR} ${BZIP2_INCLUDE_DIR})
+    set(LINK_LIBS ${ZLIB_LIBRARY} ${BZIP2_LIBRARIES})
     option(WITH_LIBTOMCRYPT "Use system LibTomCrypt library" OFF)
     if(WITH_LIBTOMCRYPT)
-        set(LIB_LIBS tomcrypt)
-        set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES})
+        set(LINK_LIBS ${LINK_LIBS} tomcrypt)
     else()
-        set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
+        set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES} ${TOMMATH_FILES})
     endif()
 endif()
 
-add_library(storm SHARED ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
-target_link_libraries(storm ${LINK_LIBS})
+if(${CMAKE_SYSTEM_NAME} STREQUAL FreeBSD)
+    message(STATUS "Using FreeBSD port")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DO_LARGEFILE=0 -Dstat64=stat -Dlstat64=lstat -Dlseek64=lseek -Doff64_t=off_t -Dfstat64=fstat -Dftruncate64=ftruncate")
+endif()
+
+option(BUILD_SHARED_LIBS "Link against dependent libraries dynamically" ON)
+option(BUILD_DYNAMIC_MODULE "Output dynamically loadable module" OFF)
+
+if (BUILD_DYNAMIC_MODULE)
+    set(LIB_TYPE SHARED)
+    message(STATUS "Building dynamic module")
+else()
+    set(LIB_TYPE STATIC)
+    message(STATUS "Building static module")
+endif()
+
+add_library(${LIBRARY_NAME} ${LIB_TYPE} ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
+
+target_link_libraries(${LIBRARY_NAME} ${LINK_LIBS})
+target_compile_definitions(${LIBRARY_NAME} PUBLIC) #CMake should take care of the linking
+target_include_directories(${LIBRARY_NAME} PUBLIC src/)
+set_target_properties(${LIBRARY_NAME} PROPERTIES PUBLIC_HEADER "src/StormLib.h;src/StormPort.h")
+if(BUILD_SHARED_LIBS)
+    message(STATUS "Linking against dependent libraries dynamically")
+
+    if(APPLE)
+        set_target_properties(${LIBRARY_NAME} PROPERTIES FRAMEWORK true)
+        set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-framework Carbon")
+    endif()
+    if(UNIX)
+        SET(VERSION_MAJOR "9")
+        SET(VERSION_MINOR "21")
+        SET(VERSION_PATCH "0")
+        SET(VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+        set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION "${VERSION_STRING}")
+        set_target_properties(${LIBRARY_NAME} PROPERTIES SOVERSION "${VERSION_MAJOR}")
+    endif()
+else()
+    message(STATUS "Linking against dependent libraries statically")
+endif()
+
+if(WIN32)
+    if (UNICODE)
+        if (BUILD_SHARED_LIBS)
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_DEBUG StormLibDUD)
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_RELEASE StormLibRUD)
+        else()
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_DEBUG StormLibDUS)
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_RELEASE StormLibRUS)
+        endif()
+    else()
+        if (BUILD_SHARED_LIBS)
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_DEBUG StormLibDAD)
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_RELEASE StormLibRAD)
+        else()
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_DEBUG StormLibDAS)
+            set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_RELEASE StormLibRAS)
+        endif()
+    endif()
+endif()
+
+install(TARGETS ${LIBRARY_NAME} 
+	RUNTIME DESTINATION bin 
+	LIBRARY DESTINATION lib 
+	ARCHIVE DESTINATION lib 
+	FRAMEWORK DESTINATION /Library/Frameworks
+	PUBLIC_HEADER DESTINATION include
+	INCLUDES DESTINATION include)
+
+    #CPack configurtion
+    SET(CPACK_GENERATOR "DEB" "RPM")
+    SET(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+    SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MPQ manipulation library")
+    SET(CPACK_PACKAGE_VENDOR "Ladislav Zezula")
+    SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+    SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    SET(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
+    SET(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+    SET(CPACK_PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
+
+    #DEB configuration
+    SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+    SET(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://www.zezula.net/en/mpq/stormlib.html")
+    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "imbacen@gmail.com")
+    SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    SET(CPACK_DEBIAN_PACKAGE_DEPENDS "zlib1g,bzip2")
+
+    #RPM configuration
+    SET(CPACK_RPM_PACKAGE_RELEASE 1)
+    SET(CPACK_RPM_PACKAGE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    SET(CPACK_RPM_PACKAGE_GROUP "${PROJECT_NAME}")
+    SET(CPACK_RPM_PACKAGE_URL "http://www.zezula.net/en/mpq/stormlib.html")
+    SET(CPACK_RPM_PACKAGE_REQUIRES "zlib,bzip2")
+
+    INCLUDE(CPack)
 
 option(WITH_TEST "Compile Test application" OFF)
 if(WITH_TEST)
     add_executable(storm_test ${TEST_SRC_FILES})
-    target_link_libraries(storm_test storm)
+    target_link_libraries(storm_test ${LIBRARY_NAME})
+    install(TARGETS storm_test DESTINATION bin)
 endif()
-
-option(WITH_STATIC "Compile static linked library" OFF)
-if(WITH_STATIC)
-    add_library(storm_static STATIC ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
-    target_link_libraries(storm_static ${LINK_LIBS})
-    set_target_properties(storm_static PROPERTIES OUTPUT_NAME storm)
-    install(TARGETS storm_static RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib FRAMEWORK DESTINATION /Library/Frameworks)
-endif()
-
-if(APPLE)
-    set_target_properties(storm PROPERTIES PUBLIC_HEADER "src/StormLib.h src/StormPort.h")
-endif()
-
-if(UNIX)
-    set_target_properties(storm PROPERTIES VERSION 9.0.0)
-    set_target_properties(storm PROPERTIES SOVERSION 9)
-endif()
-
-# On Win32, build StormLib.dll since we don't want to clash with Storm.dll
-if(WIN32)
-    set_target_properties(storm PROPERTIES OUTPUT_NAME StormLib)
-endif()
-
-install(TARGETS storm RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib FRAMEWORK DESTINATION /Library/Frameworks)
-install(FILES src/StormLib.h src/StormPort.h DESTINATION include)

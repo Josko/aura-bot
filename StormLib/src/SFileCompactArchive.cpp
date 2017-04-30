@@ -18,9 +18,37 @@
 /* Local functions                                                           */
 /*****************************************************************************/
 
-static int CheckIfAllFilesKnown(TMPQArchive * ha, const char * szListFile, LPDWORD pFileKeys)
+static int CheckIfAllFilesKnown(TMPQArchive * ha)
 {
-    TFileEntry * pFileTableEnd;
+    TFileEntry * pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
+    TFileEntry * pFileEntry;
+    DWORD dwBlockIndex = 0;
+    int nError = ERROR_SUCCESS;
+
+    // Verify the file table
+    if(nError == ERROR_SUCCESS)
+    {
+        for(pFileEntry = ha->pFileTable; pFileEntry < pFileTableEnd; pFileEntry++, dwBlockIndex++)
+        {
+            // If there is an existing entry in the file table, check its name
+            if(pFileEntry->dwFlags & MPQ_FILE_EXISTS)
+            {
+                // The name must be valid and must not be a pseudo-name
+                if(pFileEntry->szFileName == NULL || IsPseudoFileName(pFileEntry->szFileName, NULL))
+                {
+                    nError = ERROR_UNKNOWN_FILE_NAMES;
+                    break;
+                }
+            }
+        }
+    }
+
+    return nError;
+}
+
+static int CheckIfAllKeysKnown(TMPQArchive * ha, const char * szListFile, LPDWORD pFileKeys)
+{
+    TFileEntry * pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
     TFileEntry * pFileEntry;
     DWORD dwBlockIndex = 0;
     int nError = ERROR_SUCCESS;
@@ -38,33 +66,26 @@ static int CheckIfAllFilesKnown(TMPQArchive * ha, const char * szListFile, LPDWO
     // Verify the file table
     if(nError == ERROR_SUCCESS)
     {
-        pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
         for(pFileEntry = ha->pFileTable; pFileEntry < pFileTableEnd; pFileEntry++, dwBlockIndex++)
         {
+            // If the file exists and it's encrypted
             if(pFileEntry->dwFlags & MPQ_FILE_EXISTS)
             {
+                // If we know the name, we decrypt the file key from the file name
                 if(pFileEntry->szFileName != NULL && !IsPseudoFileName(pFileEntry->szFileName, NULL))
                 {
-                    DWORD dwFileKey = 0;
-
-                    // Resolve the file key. Use plain file name for it
-                    if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
-                    {
-                        dwFileKey = DecryptFileKey(pFileEntry->szFileName,
-                                                   pFileEntry->ByteOffset,
-                                                   pFileEntry->dwFileSize,
-                                                   pFileEntry->dwFlags);
-                    }
-
                     // Give the key to the caller
-                    if(pFileKeys != NULL)
-                        pFileKeys[dwBlockIndex] = dwFileKey;
+                    pFileKeys[dwBlockIndex] = DecryptFileKey(pFileEntry->szFileName,
+                                                             pFileEntry->ByteOffset,
+                                                             pFileEntry->dwFileSize,
+                                                             pFileEntry->dwFlags);
+                    continue;
                 }
-                else
-                {
-                    nError = ERROR_CAN_NOT_COMPLETE;
-                    break;
-                }
+
+                // We don't know the encryption key of this file,
+                // thus we cannot compact the file
+                nError = ERROR_UNKNOWN_FILE_NAMES;
+                break;
             }
         }
     }
@@ -125,21 +146,17 @@ static int CopyNonMpqData(
 static int CopyMpqFileSectors(
     TMPQArchive * ha,
     TMPQFile * hf,
-    TFileStream * pNewStream)
+    TFileStream * pNewStream,
+    ULONGLONG MpqFilePos)               // MPQ file position in the new archive
 {
     TFileEntry * pFileEntry = hf->pFileEntry;
     ULONGLONG RawFilePos;               // Used for calculating sector offset in the old MPQ archive
-    ULONGLONG MpqFilePos;               // MPQ file position in the new archive
     DWORD dwBytesToCopy = pFileEntry->dwCmpSize;
     DWORD dwPatchSize = 0;              // Size of patch header
     DWORD dwFileKey1 = 0;               // File key used for decryption
     DWORD dwFileKey2 = 0;               // File key used for encryption
     DWORD dwCmpSize = 0;                // Compressed file size, including patch header
     int nError = ERROR_SUCCESS;
-
-    // Remember the position in the destination file
-    FileStream_GetPos(pNewStream, &MpqFilePos);
-    MpqFilePos -= ha->MpqPos;
 
     // Resolve decryption keys. Note that the file key given 
     // in the TMPQFile structure also includes the key adjustment
@@ -222,7 +239,7 @@ static int CopyMpqFileSectors(
                 dwRawDataInSector = dwBytesToCopy;
 
             // Calculate the raw file offset of the file sector
-            CalculateRawSectorOffset(RawFilePos, hf, dwRawByteOffset);
+            RawFilePos = CalculateRawSectorOffset(hf, dwRawByteOffset);
             
             // Read the file sector
             if(!FileStream_Read(ha->pStream, &RawFilePos, hf->pbFileSector, dwRawDataInSector))
@@ -326,7 +343,7 @@ static int CopyMpqFileSectors(
                                  ha->pHeader->dwRawChunkSize);
     }
 
-    // Update file position in the block table
+    // Verify the number of bytes written
     if(nError == ERROR_SUCCESS)
     {
         // At this point, number of bytes written should be exactly
@@ -343,12 +360,7 @@ static int CopyMpqFileSectors(
         // into compressed size
         //
 
-        if(dwCmpSize <= pFileEntry->dwCmpSize && pFileEntry->dwCmpSize <= dwCmpSize + dwPatchSize)
-        {
-            // Note: DO NOT update the compressed size in the file entry, no matter how bad it is.
-            pFileEntry->ByteOffset = MpqFilePos;
-        }
-        else
+        if(!(dwCmpSize <= pFileEntry->dwCmpSize && pFileEntry->dwCmpSize <= dwCmpSize + dwPatchSize))
         {
             nError = ERROR_FILE_CORRUPT;
             assert(false);
@@ -363,6 +375,7 @@ static int CopyMpqFiles(TMPQArchive * ha, LPDWORD pFileKeys, TFileStream * pNewS
     TFileEntry * pFileTableEnd = ha->pFileTable + ha->dwFileTableSize;
     TFileEntry * pFileEntry;
     TMPQFile * hf = NULL;
+    ULONGLONG MpqFilePos;
     int nError = ERROR_SUCCESS;
 
     // Walk through all files and write them to the destination MPQ archive
@@ -370,70 +383,130 @@ static int CopyMpqFiles(TMPQArchive * ha, LPDWORD pFileKeys, TFileStream * pNewS
     {
         // Copy all the file sectors
         // Only do that when the file has nonzero size
-        if((pFileEntry->dwFlags & MPQ_FILE_EXISTS) && pFileEntry->dwFileSize != 0)
+        if((pFileEntry->dwFlags & MPQ_FILE_EXISTS))
         {
-            // Allocate structure for the MPQ file
-            hf = CreateMpqFile(ha);
-            if(hf == NULL)
-                return ERROR_NOT_ENOUGH_MEMORY;
+            // Query the position where the destination file will be
+            FileStream_GetPos(pNewStream, &MpqFilePos);
+            MpqFilePos = MpqFilePos - ha->MpqPos;
 
-            // Store file entry
-            hf->pFileEntry = pFileEntry;
-
-            // Set the raw file position
-            hf->MpqFilePos = pFileEntry->ByteOffset;
-            hf->RawFilePos = ha->MpqPos + hf->MpqFilePos;
-
-            // Set the file decryption key
-            hf->dwFileKey = pFileKeys[pFileEntry - ha->pFileTable];
-            hf->dwDataSize = pFileEntry->dwFileSize;
-
-            // If the file is a patch file, load the patch header
-            if(pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
+            // Perform file copy ONLY if the file has nonzero size
+            if(pFileEntry->dwFileSize != 0)
             {
-                nError = AllocatePatchInfo(hf, true);
+                // Allocate structure for the MPQ file
+                hf = CreateFileHandle(ha, pFileEntry);
+                if(hf == NULL)
+                    return ERROR_NOT_ENOUGH_MEMORY;
+
+                // Set the file decryption key
+                hf->dwFileKey = pFileKeys[pFileEntry - ha->pFileTable];
+
+                // If the file is a patch file, load the patch header
+                if(pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
+                {
+                    nError = AllocatePatchInfo(hf, true);
+                    if(nError != ERROR_SUCCESS)
+                        break;
+                }
+
+                // Allocate buffers for file sector and sector offset table
+                nError = AllocateSectorBuffer(hf);
                 if(nError != ERROR_SUCCESS)
                     break;
-            }
 
-            // Allocate buffers for file sector and sector offset table
-            nError = AllocateSectorBuffer(hf);
-            if(nError != ERROR_SUCCESS)
-                break;
-
-            // Also allocate sector offset table and sector checksum table
-            nError = AllocateSectorOffsets(hf, true);
-            if(nError != ERROR_SUCCESS)
-                break;
-
-            // Also load sector checksums, if any
-            if(pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
-            {
-                nError = AllocateSectorChecksums(hf, false);
+                // Also allocate sector offset table and sector checksum table
+                nError = AllocateSectorOffsets(hf, true);
                 if(nError != ERROR_SUCCESS)
                     break;
+
+                // Also load sector checksums, if any
+                if(pFileEntry->dwFlags & MPQ_FILE_SECTOR_CRC)
+                {
+                    nError = AllocateSectorChecksums(hf, false);
+                    if(nError != ERROR_SUCCESS)
+                        break;
+                }
+
+                // Copy all file sectors
+                nError = CopyMpqFileSectors(ha, hf, pNewStream, MpqFilePos);
+                if(nError != ERROR_SUCCESS)
+                    break;
+
+                // Free buffers. This also sets "hf" to NULL.
+                FreeFileHandle(hf);
             }
 
-            // Copy all file sectors
-            nError = CopyMpqFileSectors(ha, hf, pNewStream);
-            if(nError != ERROR_SUCCESS)
-                break;
-
-            // Free buffers. This also sets "hf" to NULL.
-            FreeMPQFile(hf);
+            // Note: DO NOT update the compressed size in the file entry, no matter how bad it is.
+            pFileEntry->ByteOffset = MpqFilePos;
         }
     }
 
     // Cleanup and exit
     if(hf != NULL)
-        FreeMPQFile(hf);
+        FreeFileHandle(hf);
     return nError;
 }
-
 
 /*****************************************************************************/
 /* Public functions                                                          */
 /*****************************************************************************/
+
+//-----------------------------------------------------------------------------
+// Changing hash table size
+
+DWORD WINAPI SFileGetMaxFileCount(HANDLE hMpq)
+{
+    TMPQArchive * ha = (TMPQArchive *)hMpq;
+
+    return ha->dwMaxFileCount;
+}
+
+bool WINAPI SFileSetMaxFileCount(HANDLE hMpq, DWORD dwMaxFileCount)
+{
+    TMPQArchive * ha = (TMPQArchive *)hMpq;
+    DWORD dwNewHashTableSize = 0;
+    int nError = ERROR_SUCCESS;
+
+    // Test the valid parameters
+    if(!IsValidMpqHandle(hMpq))
+        nError = ERROR_INVALID_HANDLE;
+    if(ha->dwFlags & MPQ_FLAG_READ_ONLY)
+        nError = ERROR_ACCESS_DENIED;
+    if(dwMaxFileCount < ha->dwFileTableSize)
+        nError = ERROR_DISK_FULL;
+
+    // ALL file names must be known in order to be able to rebuild hash table
+    if(nError == ERROR_SUCCESS && ha->pHashTable != NULL)
+    {
+        nError = CheckIfAllFilesKnown(ha);
+        if(nError == ERROR_SUCCESS)
+        {
+            // Calculate the hash table size for the new file limit
+            dwNewHashTableSize = GetNearestPowerOfTwo(dwMaxFileCount);
+
+            // Rebuild both file tables
+            nError = RebuildFileTable(ha, dwNewHashTableSize);
+        }
+    }
+
+    // We always have to rebuild the (attributes) file due to file table change
+    if(nError == ERROR_SUCCESS)
+    {
+        // Invalidate (listfile) and (attributes)
+        InvalidateInternalFiles(ha);
+
+        // Rebuild the HET table, if we have any
+        if(ha->pHetTable != NULL)
+            nError = RebuildHetTable(ha);
+    }
+
+    // Return the error
+    if(nError != ERROR_SUCCESS)
+        SetLastError(nError);
+    return (nError == ERROR_SUCCESS);
+}
+
+//-----------------------------------------------------------------------------
+// Archive compacting
 
 bool WINAPI SFileSetCompactCallback(HANDLE hMpq, SFILE_COMPACT_CALLBACK pfnCompactCB, void * pvUserData)
 {
@@ -450,9 +523,6 @@ bool WINAPI SFileSetCompactCallback(HANDLE hMpq, SFILE_COMPACT_CALLBACK pfnCompa
     return true;
 }
 
-//-----------------------------------------------------------------------------
-// Archive compacting
-
 bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bReserved */)
 {
     TFileStream * pTempStream = NULL;
@@ -460,8 +530,7 @@ bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bR
     ULONGLONG ByteOffset;
     ULONGLONG ByteCount;
     LPDWORD pFileKeys = NULL;
-    TCHAR szTempFile[MAX_PATH] = _T("");
-    TCHAR * szTemp = NULL;
+    TCHAR szTempFile[MAX_PATH+1] = _T("");
     int nError = ERROR_SUCCESS;
 
     // Test the valid parameters
@@ -492,18 +561,17 @@ bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bR
         // Initialize the progress variables for compact callback
         FileStream_GetSize(ha->pStream, &(ha->CompactTotalBytes));
         ha->CompactBytesProcessed = 0;
-        nError = CheckIfAllFilesKnown(ha, szListFile, pFileKeys);
+        nError = CheckIfAllKeysKnown(ha, szListFile, pFileKeys);
     }
 
     // Get the temporary file name and create it
     if(nError == ERROR_SUCCESS)
     {
-        _tcscpy(szTempFile, FileStream_GetFileName(ha->pStream));
-        if((szTemp = _tcsrchr(szTempFile, '.')) != NULL)
-            _tcscpy(szTemp + 1, _T("mp_"));
-        else
-            _tcscat(szTempFile, _T("_"));
+        // Create temporary file name. Prevent buffer overflow
+        StringCopyT(szTempFile, FileStream_GetFileName(ha->pStream), MAX_PATH);
+        StringCatT(szTempFile, _T(".tmp"), MAX_PATH);
 
+        // Create temporary file
         pTempStream = FileStream_CreateFile(szTempFile, STREAM_PROVIDER_FLAT | BASE_PROVIDER_FILE);
         if(pTempStream == NULL)
             nError = GetLastError();
@@ -557,45 +625,22 @@ bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bR
     if(nError == ERROR_SUCCESS)
         nError = CopyMpqFiles(ha, pFileKeys, pTempStream);
 
-    // Defragment the file table
-    if(nError == ERROR_SUCCESS)
-        nError = RebuildFileTable(ha, ha->pHeader->dwHashTableSize, ha->dwMaxFileCount);
-
-    // We also need to rebuild the HET table, if any
-    if(nError == ERROR_SUCCESS)
-    {
-        // Invalidate (listfile) and (attributes)
-        InvalidateInternalFiles(ha);
-
-        // Rebuild the HET table, if we have any
-        if(ha->pHetTable != NULL)
-            nError = RebuildHetTable(ha);
-    }
-
     // If succeeded, switch the streams
     if(nError == ERROR_SUCCESS)
     {
+        ha->dwFlags |= MPQ_FLAG_CHANGED;
         if(FileStream_Replace(ha->pStream, pTempStream))
             pTempStream = NULL;
         else
             nError = ERROR_CAN_NOT_COMPLETE;
     }
 
-    // If all succeeded, save the MPQ tables
-    if(nError == ERROR_SUCCESS)
+    // Final user notification
+    if(nError == ERROR_SUCCESS && ha->pfnCompactCB != NULL)
     {
-        //
-        // Note: We don't recalculate position of the MPQ tables at this point.
-        // SaveMPQTables does it automatically.
-        // 
-
-        nError = SaveMPQTables(ha);
-        if(nError == ERROR_SUCCESS && ha->pfnCompactCB != NULL)
-        {
-            ha->CompactBytesProcessed += (ha->pHeader->dwHashTableSize * sizeof(TMPQHash));
-            ha->CompactBytesProcessed += (ha->pHeader->dwBlockTableSize * sizeof(TMPQBlock));
-            ha->pfnCompactCB(ha->pvCompactUserData, CCB_CLOSING_ARCHIVE, ha->CompactBytesProcessed, ha->CompactTotalBytes);
-        }
+        ha->CompactBytesProcessed += (ha->pHeader->dwHashTableSize * sizeof(TMPQHash));
+        ha->CompactBytesProcessed += (ha->dwFileTableSize * sizeof(TMPQBlock));
+        ha->pfnCompactCB(ha->pvCompactUserData, CCB_CLOSING_ARCHIVE, ha->CompactBytesProcessed, ha->CompactTotalBytes);
     }
 
     // Cleanup and return
@@ -603,64 +648,6 @@ bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bR
         FileStream_Close(pTempStream);
     if(pFileKeys != NULL)
         STORM_FREE(pFileKeys);
-    if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
-    return (nError == ERROR_SUCCESS);
-}
-
-//-----------------------------------------------------------------------------
-// Changing hash table size
-
-DWORD WINAPI SFileGetMaxFileCount(HANDLE hMpq)
-{
-    TMPQArchive * ha = (TMPQArchive *)hMpq;
-
-    return ha->dwMaxFileCount;
-}
-
-bool WINAPI SFileSetMaxFileCount(HANDLE hMpq, DWORD dwMaxFileCount)
-{
-    TMPQArchive * ha = (TMPQArchive *)hMpq;
-    DWORD dwNewHashTableSize = 0;
-    int nError = ERROR_SUCCESS;
-
-    // Test the valid parameters
-    if(!IsValidMpqHandle(hMpq))
-        nError = ERROR_INVALID_HANDLE;
-    if(ha->dwFlags & MPQ_FLAG_READ_ONLY)
-        nError = ERROR_ACCESS_DENIED;
-    if(dwMaxFileCount < ha->dwFileTableSize)
-        nError = ERROR_DISK_FULL;
-
-    // ALL file names must be known in order to be able
-    // to rebuild hash table
-    if(nError == ERROR_SUCCESS)
-    {
-        nError = CheckIfAllFilesKnown(ha, NULL, NULL);
-    }
-
-    // If the MPQ has a hash table, then we relocate the hash table
-    if(nError == ERROR_SUCCESS)
-    {
-        // Calculate the hash table size for the new file limit
-        dwNewHashTableSize = GetHashTableSizeForFileCount(dwMaxFileCount);
-
-        // Rebuild both file tables
-        nError = RebuildFileTable(ha, dwNewHashTableSize, dwMaxFileCount);
-    }
-
-    // We always have to rebuild the (attributes) file due to file table change
-    if(nError == ERROR_SUCCESS)
-    {
-        // Invalidate (listfile) and (attributes)
-        InvalidateInternalFiles(ha);
-
-        // Rebuild the HET table, if we have any
-        if(ha->pHetTable != NULL)
-            nError = RebuildHetTable(ha);
-    }
-
-    // Return the error
     if(nError != ERROR_SUCCESS)
         SetLastError(nError);
     return (nError == ERROR_SUCCESS);

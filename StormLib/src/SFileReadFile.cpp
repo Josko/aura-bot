@@ -54,7 +54,7 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
         if(hf->SectorOffsets == NULL)
         {
             nError = AllocateSectorOffsets(hf, true);
-            if(nError != ERROR_SUCCESS)
+            if(nError != ERROR_SUCCESS || hf->SectorOffsets == NULL)
                 return nError;
         }
 
@@ -81,125 +81,132 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
 //              return nError;
 //      }
 
-        // If the file is compressed, also allocate secondary buffer
-        pbInSector = pbRawSector = STORM_ALLOC(BYTE, dwBytesToRead);
-        if(pbRawSector == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
-
         // Assign the temporary buffer as target for read operation
         dwRawSectorOffset = hf->SectorOffsets[dwSectorIndex];
         dwRawBytesToRead = hf->SectorOffsets[dwSectorIndex + dwSectorsToRead] - dwRawSectorOffset;
+
+        // If the file is compressed, also allocate secondary buffer
+        pbInSector = pbRawSector = STORM_ALLOC(BYTE, dwRawBytesToRead);
+        if(pbRawSector == NULL)
+            return ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Calculate raw file offset where the sector(s) are stored.
-    CalculateRawSectorOffset(RawFilePos, hf, dwRawSectorOffset);
+    RawFilePos = CalculateRawSectorOffset(hf, dwRawSectorOffset);
 
     // Set file pointer and read all required sectors
-    if(!FileStream_Read(ha->pStream, &RawFilePos, pbInSector, dwRawBytesToRead))
-        return GetLastError();
-    dwBytesRead = 0;
-
-    // Now we have to decrypt and decompress all file sectors that have been loaded
-    for(DWORD i = 0; i < dwSectorsToRead; i++)
+    if(FileStream_Read(ha->pStream, &RawFilePos, pbInSector, dwRawBytesToRead))
     {
-        DWORD dwRawBytesInThisSector = ha->dwSectorSize;
-        DWORD dwBytesInThisSector = ha->dwSectorSize;
-        DWORD dwIndex = dwSectorIndex + i;
-
-        // If there is not enough bytes in the last sector,
-        // cut the number of bytes in this sector
-        if(dwRawBytesInThisSector > dwBytesToRead)
-            dwRawBytesInThisSector = dwBytesToRead;
-        if(dwBytesInThisSector > dwBytesToRead)
-            dwBytesInThisSector = dwBytesToRead;
-
-        // If the file is compressed, we have to adjust the raw sector size
-        if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
-            dwRawBytesInThisSector = hf->SectorOffsets[dwIndex + 1] - hf->SectorOffsets[dwIndex];
-
-        // If the file is encrypted, we have to decrypt the sector
-        if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
+        // Now we have to decrypt and decompress all file sectors that have been loaded
+        for(DWORD i = 0; i < dwSectorsToRead; i++)
         {
-            BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
+            DWORD dwRawBytesInThisSector = ha->dwSectorSize;
+            DWORD dwBytesInThisSector = ha->dwSectorSize;
+            DWORD dwIndex = dwSectorIndex + i;
 
-            // If we don't know the key, try to detect it by file content
-            if(hf->dwFileKey == 0)
+            // If there is not enough bytes in the last sector,
+            // cut the number of bytes in this sector
+            if(dwRawBytesInThisSector > dwBytesToRead)
+                dwRawBytesInThisSector = dwBytesToRead;
+            if(dwBytesInThisSector > dwBytesToRead)
+                dwBytesInThisSector = dwBytesToRead;
+
+            // If the file is compressed, we have to adjust the raw sector size
+            if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS_MASK)
+                dwRawBytesInThisSector = hf->SectorOffsets[dwIndex + 1] - hf->SectorOffsets[dwIndex];
+
+            // If the file is encrypted, we have to decrypt the sector
+            if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
             {
-                hf->dwFileKey = DetectFileKeyByContent(pbInSector, dwBytesInThisSector);
+                BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
+
+                // If we don't know the key, try to detect it by file content
                 if(hf->dwFileKey == 0)
                 {
-                    nError = ERROR_UNKNOWN_FILE_KEY;
-                    break;
+                    hf->dwFileKey = DetectFileKeyByContent(pbInSector, dwBytesInThisSector, hf->dwDataSize);
+                    if(hf->dwFileKey == 0)
+                    {
+                        nError = ERROR_UNKNOWN_FILE_KEY;
+                        break;
+                    }
                 }
+
+                DecryptMpqBlock(pbInSector, dwRawBytesInThisSector, hf->dwFileKey + dwIndex);
+                BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
             }
 
-            DecryptMpqBlock(pbInSector, dwRawBytesInThisSector, hf->dwFileKey + dwIndex);
-            BSWAP_ARRAY32_UNSIGNED(pbInSector, dwRawBytesInThisSector);
-        }
-
-        // If the file has sector CRC check turned on, perform it
-        if(hf->bCheckSectorCRCs && hf->SectorChksums != NULL)
-        {
-            DWORD dwAdlerExpected = hf->SectorChksums[dwIndex];
-            DWORD dwAdlerValue = 0;
-
-            // We can only check sector CRC when it's not zero
-            // Neither can we check it if it's 0xFFFFFFFF.
-            if(dwAdlerExpected != 0 && dwAdlerExpected != 0xFFFFFFFF)
+            // If the file has sector CRC check turned on, perform it
+            if(hf->bCheckSectorCRCs && hf->SectorChksums != NULL)
             {
-                dwAdlerValue = adler32(0, pbInSector, dwRawBytesInThisSector);
-                if(dwAdlerValue != dwAdlerExpected)
+                DWORD dwAdlerExpected = hf->SectorChksums[dwIndex];
+                DWORD dwAdlerValue = 0;
+
+                // We can only check sector CRC when it's not zero
+                // Neither can we check it if it's 0xFFFFFFFF.
+                if(dwAdlerExpected != 0 && dwAdlerExpected != 0xFFFFFFFF)
                 {
-                    nError = ERROR_CHECKSUM_ERROR;
+                    dwAdlerValue = adler32(0, pbInSector, dwRawBytesInThisSector);
+                    if(dwAdlerValue != dwAdlerExpected)
+                    {
+                        nError = ERROR_CHECKSUM_ERROR;
+                        break;
+                    }
+                }
+            }
+
+            // If the sector is really compressed, decompress it.
+            // WARNING : Some sectors may not be compressed, it can be determined only
+            // by comparing uncompressed and compressed size !!!
+            if(dwRawBytesInThisSector < dwBytesInThisSector)
+            {
+                int cbOutSector = dwBytesInThisSector;
+                int cbInSector = dwRawBytesInThisSector;
+                int nResult = 0;
+
+                // Is the file compressed by Blizzard's multiple compression ?
+                if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS)
+                {
+                    // Remember the last used compression
+                    hf->dwCompression0 = pbInSector[0];
+
+                    // Decompress the data
+                    if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_2)
+                        nResult = SCompDecompress2(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                    else
+                        nResult = SCompDecompress(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                }
+
+                // Is the file compressed by PKWARE Data Compression Library ?
+                else if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
+                {
+                    nResult = SCompExplode(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                }
+
+                // Did the decompression fail ?
+                if(nResult == 0)
+                {
+                    nError = ERROR_FILE_CORRUPT;
                     break;
                 }
             }
-        }
-
-        // If the sector is really compressed, decompress it.
-        // WARNING : Some sectors may not be compressed, it can be determined only
-        // by comparing uncompressed and compressed size !!!
-        if(dwRawBytesInThisSector < dwBytesInThisSector)
-        {
-            int cbOutSector = dwBytesInThisSector;
-            int cbInSector = dwRawBytesInThisSector;
-            int nResult = 0;
-
-            // Is the file compressed by Blizzard's multiple compression ?
-            if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS)
+            else
             {
-                if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_2)
-                    nResult = SCompDecompress2(pbOutSector, &cbOutSector, pbInSector, cbInSector);
-                else
-                    nResult = SCompDecompress(pbOutSector, &cbOutSector, pbInSector, cbInSector);
+                if(pbOutSector != pbInSector)
+                    memcpy(pbOutSector, pbInSector, dwBytesInThisSector);
             }
 
-            // Is the file compressed by PKWARE Data Compression Library ?
-            else if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
-            {
-                nResult = SCompExplode(pbOutSector, &cbOutSector, pbInSector, cbInSector);
-            }
-
-            // Did the decompression fail ?
-            if(nResult == 0)
-            {
-                nError = ERROR_FILE_CORRUPT;
-                break;
-            }
+            // Move pointers
+            dwBytesToRead -= dwBytesInThisSector;
+            dwByteOffset += dwBytesInThisSector;
+            dwBytesRead += dwBytesInThisSector;
+            pbOutSector += dwBytesInThisSector;
+            pbInSector += dwRawBytesInThisSector;
+            dwSectorsDone++;
         }
-        else
-        {
-            if(pbOutSector != pbInSector)
-                memcpy(pbOutSector, pbInSector, dwBytesInThisSector);
-        }
-
-        // Move pointers
-        dwBytesToRead -= dwBytesInThisSector;
-        dwByteOffset += dwBytesInThisSector;
-        dwBytesRead += dwBytesInThisSector;
-        pbOutSector += dwBytesInThisSector;
-        pbInSector += dwRawBytesInThisSector;
-        dwSectorsDone++;
+    }
+    else
+    {
+        nError = GetLastError();
     }
 
     // Free all used buffers
@@ -217,21 +224,21 @@ static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
     TMPQArchive * ha = hf->ha;
     TFileEntry * pFileEntry = hf->pFileEntry;
     LPBYTE pbCompressed = NULL;
-    LPBYTE pbRawData = NULL;
+    LPBYTE pbRawData;
     int nError = ERROR_SUCCESS;
 
     // If the file buffer is not allocated yet, do it.
     if(hf->pbFileSector == NULL)
     {
         nError = AllocateSectorBuffer(hf);
-        if(nError != ERROR_SUCCESS)
+        if(nError != ERROR_SUCCESS || hf->pbFileSector == NULL)
             return nError;
-        pbRawData = hf->pbFileSector;
     }
 
     // If the file is a patch file, adjust raw data offset
     if(hf->pPatchInfo != NULL)
         RawFilePos += hf->pPatchInfo->dwLength;
+    pbRawData = hf->pbFileSector;
 
     // If the file sector is not loaded yet, do it
     if(hf->dwSectorOffs != 0)
@@ -286,6 +293,10 @@ static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
             // Is the file compressed by Blizzard's multiple compression ?
             if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS)
             {
+                // Remember the last used compression
+                hf->dwCompression0 = pbRawData[0];
+
+                // Decompress the file
                 if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_2)
                     nResult = SCompDecompress2(hf->pbFileSector, &cbOutBuffer, pbRawData, cbInBuffer);
                 else
@@ -356,7 +367,7 @@ static int ReadMpkFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
     if(hf->pbFileSector == NULL)
     {
         nError = AllocateSectorBuffer(hf);
-        if(nError != ERROR_SUCCESS)
+        if(nError != ERROR_SUCCESS || hf->pbFileSector == NULL)
             return nError;
         pbRawData = hf->pbFileSector;
     }
@@ -392,6 +403,7 @@ static int ReadMpkFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
         {
             int cbOutBuffer = (int)hf->dwDataSize;
 
+            hf->dwCompression0 = pbRawData[0];
             if(!SCompDecompressMpk(hf->pbFileSector, &cbOutBuffer, pbRawData, (int)pFileEntry->dwCmpSize))
                 nError = ERROR_FILE_CORRUPT;
         }
@@ -465,7 +477,7 @@ static int ReadMpqFileSectorFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
     if(hf->pbFileSector == NULL)
     {
         nError = AllocateSectorBuffer(hf);
-        if(nError != ERROR_SUCCESS)
+        if(nError != ERROR_SUCCESS || hf->pbFileSector == NULL)
             return nError;
     }
 
@@ -560,34 +572,34 @@ static int ReadMpqFileSectorFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
 
 static int ReadMpqFilePatchFile(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos, DWORD dwToRead, LPDWORD pdwBytesRead)
 {
+    TMPQPatcher Patcher;
     DWORD dwBytesToRead = dwToRead;
     DWORD dwBytesRead = 0;
     int nError = ERROR_SUCCESS;
 
     // Make sure that the patch file is loaded completely
-    if(hf->pbFileData == NULL)
+    if(nError == ERROR_SUCCESS && hf->pbFileData == NULL)
     {
-        // Load the original file and store its content to "pbOldData"
-        hf->pbFileData = STORM_ALLOC(BYTE, hf->pFileEntry->dwFileSize);
-        hf->cbFileData = hf->pFileEntry->dwFileSize;
-        if(hf->pbFileData == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
+        // Initialize patching process and allocate data
+        nError = Patch_InitPatcher(&Patcher, hf);
+        if(nError != ERROR_SUCCESS)
+            return nError;
 
-        // Read the file data
+        // Set the current data size
+        Patcher.cbFileData = hf->pFileEntry->dwFileSize;
+
+        // Initialize the patcher object with initial file data
         if(hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT)
-            nError = ReadMpqFileSingleUnit(hf, hf->pbFileData, 0, hf->cbFileData, &dwBytesRead);
+            nError = ReadMpqFileSingleUnit(hf, Patcher.pbFileData1, 0, Patcher.cbFileData, &dwBytesRead);
         else
-            nError = ReadMpqFileSectorFile(hf, hf->pbFileData, 0, hf->cbFileData, &dwBytesRead);
+            nError = ReadMpqFileSectorFile(hf, Patcher.pbFileData1, 0, Patcher.cbFileData, &dwBytesRead);
 
-        // Fix error code
-        if(nError == ERROR_SUCCESS && dwBytesRead != hf->cbFileData)
-            nError = ERROR_FILE_CORRUPT;
-
-        // Patch the file data
+        // Perform the patching process
         if(nError == ERROR_SUCCESS)
-            nError = PatchFileData(hf);
+            nError = Patch_Process(&Patcher, hf);
 
-        // Reset number of bytes read to zero
+        // Finalize the patcher structure
+        Patch_Finalize(&Patcher);
         dwBytesRead = 0;
     }
 
@@ -656,7 +668,9 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD
     DWORD dwBytesRead = 0;                      // Number of bytes read
     int nError = ERROR_SUCCESS;
 
-    // Keep compilers happy
+    // Always zero the result
+    if(pdwRead != NULL)
+        *pdwRead = 0;
     lpOverlapped = lpOverlapped;
 
     // Check valid parameters
@@ -671,6 +685,20 @@ bool WINAPI SFileReadFile(HANDLE hFile, void * pvBuffer, DWORD dwToRead, LPDWORD
         SetLastError(ERROR_INVALID_PARAMETER);
         return false;
     }
+
+    // If we didn't load the patch info yet, do it now
+    if(hf->pFileEntry != NULL && (hf->pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE) && hf->pPatchInfo == NULL)
+    {
+        nError = AllocatePatchInfo(hf, true);
+        if(nError != ERROR_SUCCESS || hf->pPatchInfo == NULL)
+        {
+            SetLastError(nError);
+            return false;
+        }
+    }
+
+    // Clear the last used compression
+    hf->dwCompression0 = 0;
 
     // If the file is local file, read the data directly from the stream
     if(hf->pStream != NULL)
@@ -773,9 +801,10 @@ DWORD WINAPI SFileGetFileSize(HANDLE hFile, LPDWORD pdwFileSizeHigh)
 DWORD WINAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHigh, DWORD dwMoveMethod)
 {
     TMPQFile * hf = (TMPQFile *)hFile;
-    ULONGLONG FilePosition;
-    ULONGLONG MoveOffset;
-    DWORD dwFilePosHi;
+    ULONGLONG OldPosition;
+    ULONGLONG NewPosition;
+    ULONGLONG FileSize;
+    ULONGLONG DeltaPos;
 
     // If the hFile is not a valid file handle, return an error.
     if(!IsValidFileHandle(hFile))
@@ -784,33 +813,47 @@ DWORD WINAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHi
         return SFILE_INVALID_POS;
     }
 
+    // Retrieve the file size for handling the limits
+    if(hf->pStream != NULL)
+    {
+        FileStream_GetSize(hf->pStream, &FileSize);
+    }
+    else
+    {
+        FileSize = SFileGetFileSize(hFile, NULL);
+    }
+
+    // Handle the NULL and non-NULL values of plFilePosHigh
+    // Non-NULL: The DeltaPos is combined from lFilePos and *lpFilePosHigh
+    // NULL: The DeltaPos is sign-extended value of lFilePos
+    DeltaPos = (plFilePosHigh != NULL) ? MAKE_OFFSET64(plFilePosHigh[0], lFilePos) : (ULONGLONG)(LONGLONG)lFilePos;
+
     // Get the relative point where to move from
     switch(dwMoveMethod)
     {
         case FILE_BEGIN:
-            FilePosition = 0;
+
+            // Move relative to the file begin.
+            OldPosition = 0;
             break;
 
         case FILE_CURRENT:
+            
+            // Retrieve the current file position
             if(hf->pStream != NULL)
             {
-                FileStream_GetPos(hf->pStream, &FilePosition);
+                FileStream_GetPos(hf->pStream, &OldPosition);
             }
             else
             {
-                FilePosition = hf->dwFilePos;
+                OldPosition = hf->dwFilePos;
             }
             break;
 
         case FILE_END:
-            if(hf->pStream != NULL)
-            {
-                FileStream_GetSize(hf->pStream, &FilePosition);
-            }
-            else
-            {
-                FilePosition = SFileGetFileSize(hFile, NULL);
-            }
+
+            // Move relative to the end of the file
+            OldPosition = FileSize;
             break;
 
         default:
@@ -818,47 +861,36 @@ DWORD WINAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHi
             return SFILE_INVALID_POS;
     }
 
-    // Now get the move offset. Note that both values form
-    // a signed 64-bit value (a file pointer can be moved backwards)
-    if(plFilePosHigh != NULL)
-        dwFilePosHi = *plFilePosHigh;
-    else
-        dwFilePosHi = (lFilePos & 0x80000000) ? 0xFFFFFFFF : 0;
-    MoveOffset = MAKE_OFFSET64(dwFilePosHi, lFilePos);
+    // Calculate the new position
+    NewPosition = OldPosition + DeltaPos;
 
-    // Now calculate the new file pointer
-    // Do not allow the file pointer to overflow
-    FilePosition = ((FilePosition + MoveOffset) > FilePosition) ? (FilePosition + MoveOffset) : 0;
+    // If moving backward, don't allow the new position go negative
+    if((LONGLONG)DeltaPos < 0)
+    {
+        if(NewPosition > FileSize)
+            NewPosition = 0;
+    }
+
+    // If moving forward, don't allow the new position go past the end of the file
+    else
+    {
+        if(NewPosition > FileSize)
+            NewPosition = FileSize;
+    }
 
     // Now apply the file pointer to the file
     if(hf->pStream != NULL)
     {
-        // Apply the new file position
-        if(!FileStream_Read(hf->pStream, &FilePosition, NULL, 0))
+        if(!FileStream_Read(hf->pStream, &NewPosition, NULL, 0))
             return SFILE_INVALID_POS;
-
-        // Return the new file position
-        if(plFilePosHigh != NULL)
-            *plFilePosHigh = (LONG)(FilePosition >> 32);
-        return (DWORD)FilePosition;
     }
     else
     {
-        // Files in MPQ can't be bigger than 4 GB.
-        // We don't allow to go past 4 GB
-        if(FilePosition >> 32)
-        {
-            SetLastError(ERROR_INVALID_PARAMETER);
-            return SFILE_INVALID_POS;
-        }
-
-        // Change the file position
-        hf->dwFilePos = (DWORD)FilePosition;
-
-        // Return the new file position
-        if(plFilePosHigh != NULL)
-            *plFilePosHigh = 0;
-        return (DWORD)FilePosition;
+        hf->dwFilePos = (DWORD)NewPosition;
     }
-}
 
+    // Return the new file position
+    if(plFilePosHigh != NULL)
+        *plFilePosHigh = (LONG)(NewPosition >> 32);
+    return (DWORD)NewPosition;
+}

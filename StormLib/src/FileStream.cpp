@@ -34,14 +34,14 @@
 // Local functions - platform-specific functions
 
 #ifndef PLATFORM_WINDOWS
-static int nLastError = ERROR_SUCCESS;
+static DWORD nLastError = ERROR_SUCCESS;
 
-int GetLastError()
+DWORD GetLastError()
 {
     return nLastError;
 }
 
-void SetLastError(int nError)
+void SetLastError(DWORD nError)
 {
     nLastError = nError;
 }
@@ -156,6 +156,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         if(fstat64(handle, &fileinfo) == -1)
         {
             nLastError = errno;
+            close(handle);
             return false;
         }
 
@@ -211,7 +212,7 @@ static bool BaseFile_Read(
         ssize_t bytes_read;
 
         // If the byte offset is different from the current file position,
-        // we have to update the file position
+        // we have to update the file position   xxx
         if(ByteOffset != pStream->Base.File.FilePos)
         {
             lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
@@ -447,7 +448,7 @@ static bool BaseMap_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD 
 
     // Open the file for read access
     hFile = CreateFile(szFileName, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-    if(hFile != NULL)
+    if(hFile != INVALID_HANDLE_VALUE)
     {
         // Retrieve file size. Don't allow mapping file of a zero size.
         FileSize.LowPart = GetFileSize(hFile, &FileSize.HighPart);
@@ -618,19 +619,16 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 
     // Don't connect to the internet
     if(!InternetGetConnectedState(&dwTemp, 0))
-        nError = GetLastError();
+        return false;
 
     // Initiate the connection to the internet
-    if(nError == ERROR_SUCCESS)
-    {
-        pStream->Base.Http.hInternet = InternetOpen(_T("StormLib HTTP MPQ reader"),
-                                                    INTERNET_OPEN_TYPE_PRECONFIG,
-                                                    NULL,
-                                                    NULL,
-                                                    0);
-        if(pStream->Base.Http.hInternet == NULL)
-            nError = GetLastError();
-    }
+    pStream->Base.Http.hInternet = InternetOpen(_T("StormLib HTTP MPQ reader"),
+                                                INTERNET_OPEN_TYPE_PRECONFIG,
+                                                NULL,
+                                                NULL,
+                                                0);
+    if(pStream->Base.Http.hInternet == NULL)
+        return false;
 
     // Connect to the server
     if(nError == ERROR_SUCCESS)
@@ -649,7 +647,10 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                       dwFlags,
                                                       0);
         if(pStream->Base.Http.hConnect == NULL)
-            nError = GetLastError();
+        {
+            InternetCloseHandle(pStream->Base.Http.hInternet);
+            return false;
+        }
     }
 
     // Now try to query the file size
@@ -1371,7 +1372,10 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
     {
         // Attempt to open the base stream
         if(!pStream->BaseOpen(pStream, pStream->szFileName, dwStreamFlags))
+        {
+            FileStream_Close(pStream);
             return NULL;
+        }
 
         // Load the bitmap, if required to
         if(dwStreamFlags & STREAM_FLAG_USE_BITMAP)
@@ -2818,11 +2822,11 @@ void FileStream_Close(TFileStream * pStream)
             FileStream_Close(pStream->pMaster);
         pStream->pMaster = NULL;
 
-        // Close the stream provider.
+        // Close the stream provider ...
         if(pStream->StreamClose != NULL)
             pStream->StreamClose(pStream);
         
-        // Also close base stream, if any
+        // ... or close base stream, if any
         else if(pStream->BaseClose != NULL)
             pStream->BaseClose(pStream);
 
@@ -2883,53 +2887,5 @@ void CopyFileName(char * szTarget, const TCHAR * szSource, size_t cchLength)
 {
     wcstombs(szTarget, szSource, cchLength);
     szTarget[cchLength] = 0;
-}
-#endif
-
-//-----------------------------------------------------------------------------
-// main - for testing purposes
-
-#ifdef __STORMLIB_TEST__
-int FileStream_Test(const TCHAR * szFileName, DWORD dwStreamFlags)
-{
-    TFileStream * pStream;
-    TMPQHeader MpqHeader;
-    ULONGLONG FilePos;
-    TMPQBlock * pBlock;
-    TMPQHash * pHash;
-
-    InitializeMpqCryptography();
-
-    pStream = FileStream_OpenFile(szFileName, dwStreamFlags);
-    if(pStream == NULL)
-        return GetLastError();
-
-    // Read the MPQ header
-    FileStream_Read(pStream, NULL, &MpqHeader, MPQ_HEADER_SIZE_V2);
-    if(MpqHeader.dwID != ID_MPQ)
-        return ERROR_FILE_CORRUPT;
-
-    // Read the hash table
-    pHash = STORM_ALLOC(TMPQHash, MpqHeader.dwHashTableSize);
-    if(pHash != NULL)
-    {
-        FilePos = MpqHeader.dwHashTablePos;
-        FileStream_Read(pStream, &FilePos, pHash, MpqHeader.dwHashTableSize * sizeof(TMPQHash));
-        DecryptMpqBlock(pHash, MpqHeader.dwHashTableSize * sizeof(TMPQHash), MPQ_KEY_HASH_TABLE);
-        STORM_FREE(pHash);
-    }
-
-    // Read the block table
-    pBlock = STORM_ALLOC(TMPQBlock, MpqHeader.dwBlockTableSize);
-    if(pBlock != NULL)
-    {
-        FilePos = MpqHeader.dwBlockTablePos;
-        FileStream_Read(pStream, &FilePos, pBlock, MpqHeader.dwBlockTableSize * sizeof(TMPQBlock));
-        DecryptMpqBlock(pBlock, MpqHeader.dwBlockTableSize * sizeof(TMPQBlock), MPQ_KEY_BLOCK_TABLE);
-        STORM_FREE(pBlock);
-    }
-
-    FileStream_Close(pStream);
-    return ERROR_SUCCESS;
 }
 #endif

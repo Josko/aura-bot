@@ -13,7 +13,8 @@
 /* 10.01.13  3.00  Lad  Refactored, beautified, documented :-)               */
 /*****************************************************************************/
 
-#include "../StormPort.h"
+#include <stddef.h>
+
 #include "adpcm.h"
 
 //-----------------------------------------------------------------------------
@@ -194,6 +195,7 @@ int CompressADPCM(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int cb
         return 2;
 
     // Set the initial step index for each channel
+    PredictedSamples[0] = PredictedSamples[1] = 0;
     StepIndexes[0] = StepIndexes[1] = INITIAL_ADPCM_STEP_INDEX;
 
     // Next, InitialSample value for each channel follows
@@ -306,6 +308,7 @@ int DecompressADPCM(void * pvOutBuffer, int cbOutBuffer, void * pvInBuffer, int 
     int ChannelIndex;                                   // Current channel index
 
     // Initialize the StepIndex for each channel
+    PredictedSamples[0] = PredictedSamples[1] = 0;
     StepIndexes[0] = StepIndexes[1] = INITIAL_ADPCM_STEP_INDEX;
 
 //  _tprintf(_T("== DCMP Started ==============\n"));

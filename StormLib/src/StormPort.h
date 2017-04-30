@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
-#if !defined(PLATFORM_DEFINED) && (defined(WIN32) || defined(WIN64))
+#if !defined(PLATFORM_DEFINED) && defined(_WIN32)
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #if _MSC_VER >= 1400
@@ -52,7 +52,7 @@
   #include <wininet.h>
   #define PLATFORM_LITTLE_ENDIAN
 
-  #ifdef WIN64
+  #ifdef _WIN64
     #define PLATFORM_64BIT
   #else
     #define PLATFORM_32BIT
@@ -171,6 +171,7 @@
   #define _tcschr   strchr
   #define _tcsrchr  strrchr
   #define _tcsstr   strstr
+  #define _tcsnicmp strncasecmp
   #define _tprintf  printf
   #define _stprintf sprintf
   #define _tremove  remove
@@ -263,6 +264,7 @@
 //-----------------------------------------------------------------------------
 // Macro for deprecated symbols
 
+/*
 #ifdef _MSC_VER
   #if _MSC_FULL_VER >= 140050320
     #define STORMLIB_DEPRECATED(_Text) __declspec(deprecated(_Text))
@@ -280,9 +282,10 @@
 // When a flag is deprecated, use this macro
 #ifndef _STORMLIB_NO_DEPRECATE
   #define STORMLIB_DEPRECATED_FLAG(type, oldflag, newflag)    \
-    const STORMLIB_DEPRECATED(#oldflag " is deprecated. Use " #newflag ". To supress this warning, define _STORMLIB_NO_DEPRECATE") type oldflag = (type)newflag;
+    const STORMLIB_DEPRECATED(#oldflag " is deprecated. Use " #newflag ". To supress this warning, define _STORMLIB_NO_DEPRECATE") static type oldflag = (type)newflag;
 #else
-  #define STORMLIB_DEPRECATED_FLAG(type, oldflag, newflag) const type oldflag = (type)newflag;
+#define STORMLIB_DEPRECATED_FLAG(type, oldflag, newflag) static type oldflag = (type)newflag;
 #endif
+*/
 
 #endif // __STORMPORT_H__
