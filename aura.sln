@@ -10,7 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aura", "src\aura.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BNCSutil", "bncsutil\vc8_build\BNCSutil.vcxproj", "{CFB9AEE6-C0BB-49B0-B0F5-F564975202B8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormLib", "StormLib\StormLib.vcxproj", "{78424708-1F6E-4D4B-920C-FB6D26847055}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StormLib", "StormLib\StormLib_vs17.vcxproj", "{78424708-1F6E-4D4B-920C-FB6D26847055}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
