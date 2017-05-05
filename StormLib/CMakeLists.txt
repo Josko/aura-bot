@@ -314,10 +314,6 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES PUBLIC_HEADER "src/StormLib.h;s
 if(BUILD_SHARED_LIBS)
     message(STATUS "Linking against dependent libraries dynamically")
 
-    if(APPLE)
-        set_target_properties(${LIBRARY_NAME} PROPERTIES FRAMEWORK true)
-        set_target_properties(${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-framework Carbon")
-    endif()
     if(UNIX)
         SET(VERSION_MAJOR "9")
         SET(VERSION_MINOR "21")
