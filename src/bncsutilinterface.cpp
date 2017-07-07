@@ -25,6 +25,9 @@
 
 #include <bncsutil/bncsutil.h>
 
+#include <bitset>
+#include <algorithm>
+
 using namespace std;
 
 //
@@ -47,23 +50,35 @@ void CBNCSUtilInterface::Reset(const string& userName, const string& userPasswor
   m_NLS = new NLS(userName, userPassword);
 }
 
+inline static string CaseInsensitiveFileExists(const string& path, string&& file)
+{
+  string mutated_file = file;
+
+  for (size_t perm = 0; perm < file.size(); ++perm)
+  {
+    bitset<32> bs(perm);
+    transform(file.begin(), file.end(), file.begin(), ::tolower);
+
+    for (size_t index = 0; index < perm; ++index)
+    {
+      if (bs[index])
+        mutated_file[index] = ::toupper(mutated_file[index]);
+    }
+
+    if (FileExists(path + mutated_file))
+      return path + mutated_file;
+  }
+
+  return "";
+}
+
 bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken)
 {
-  // set m_EXEVersion, m_EXEVersionHash, m_EXEInfo, m_InfoROC, m_InfoTFT
+  const string FileWar3EXE  = CaseInsensitiveFileExists(war3Path, "war3.exe");
+  const string FileStormDLL = CaseInsensitiveFileExists(war3Path, "storm.dll");
+  const string FileGameDLL  = CaseInsensitiveFileExists(war3Path, "game.dll");
 
-  const string FileWar3EXE  = war3Path + "war3.exe";
-  string       FileStormDLL = war3Path + "Storm.dll";
-
-  if (!FileExists(FileStormDLL))
-    FileStormDLL = war3Path + "storm.dll";
-
-  const string FileGameDLL = war3Path + "game.dll";
-
-  const bool ExistsWar3EXE  = FileExists(FileWar3EXE);
-  const bool ExistsStormDLL = FileExists(FileStormDLL);
-  const bool ExistsGameDLL  = FileExists(FileGameDLL);
-
-  if (ExistsWar3EXE && ExistsStormDLL && ExistsGameDLL)
+  if (!FileWar3EXE.empty() && !FileStormDLL.empty() && !FileGameDLL.empty())
   {
     // TODO: check getExeInfo return value to ensure 1024 bytes was enough
 
@@ -92,13 +107,13 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
   }
   else
   {
-    if (!ExistsWar3EXE)
+    if (FileWar3EXE.empty())
       Print("[BNCSUI] unable to open [" + FileWar3EXE + "]");
 
-    if (!ExistsStormDLL)
+    if (FileStormDLL.empty())
       Print("[BNCSUI] unable to open [" + FileStormDLL + "]");
 
-    if (!ExistsGameDLL)
+    if (FileGameDLL.empty())
       Print("[BNCSUI] unable to open [" + FileGameDLL + "]");
   }
 
