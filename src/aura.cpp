@@ -259,6 +259,8 @@ CAura::CAura(CConfig* CFG)
   else
     m_IRC = new CIRC(this, IRC_Server, IRC_NickName, IRC_UserName, IRC_Password, IRC_Channels, IRC_RootAdmins, IRC_Port, IRC_CommandTrigger[0]);
 
+  uint8_t HighestWar3Version = 0;
+
   // load the battle.net connections
   // we're just loading the config data and creating the CBNET classes here, the connections are established later (in the Update function)
 
@@ -308,6 +310,8 @@ CAura::CAura(CConfig* CFG)
     std::vector<uint8_t> EXEVersionHash     = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
     string               PasswordHashType   = CFG->GetString(Prefix + "custom_passwordhashtype", string());
 
+    HighestWar3Version = std::max(HighestWar3Version, War3Version);
+
     if (Server.empty())
       break;
 
@@ -329,11 +333,11 @@ CAura::CAura(CConfig* CFG)
     return;
   }
 
-  // extract common.j and blizzard.j from War3Patch.mpq if we can
+  // extract common.j and blizzard.j from War3Patch.mpq or War3.mpq (depending on version) if we can
   // these two files are necessary for calculating "map_crc" when loading maps so we make sure to do it before loading the default map
   // see CMap :: Load for more information
 
-  ExtractScripts();
+  ExtractScripts(HighestWar3Version);
 
   // load the default maps (note: make sure to run ExtractScripts first)
 
@@ -699,25 +703,35 @@ void CAura::SetConfigs(CConfig* CFG)
     m_VoteKickPercentage = 100;
 }
 
-void CAura::ExtractScripts()
+void CAura::ExtractScripts(const uint8_t War3Version)
 {
-  void*        PatchMPQ;
-  const string PatchMPQFileName = m_Warcraft3Path + "War3Patch.mpq";
+  void*        MPQ;
+  const string MPQFileName = [&]() {
+    if (War3Version >= 28)
+      return m_Warcraft3Path + "War3.mpq";
+    else
+      return m_Warcraft3Path + "War3Patch.mpq";
+  }();
 
 #ifdef WIN32
-  const wstring PatchMPQFileNameW = wstring(begin(m_Warcraft3Path), end(m_Warcraft3Path)) + _T("War3Patch.mpq");
+  const wstring MPQFileNameW = [&]() {
+    if (War3Patch >= 28)
+      return wstring(begin(m_Warcraft3Path), end(m_Warcraft3Path)) + _T("War3.mpq");
+    else
+      return wstring(begin(m_Warcraft3Path), end(m_Warcraft3Path)) + _T("War3Patch.mpq");
+  }();
 
-  if (SFileOpenArchive(PatchMPQFileNameW.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ))
+  if (SFileOpenArchive(MPQFileNameW.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &MPQ))
 #else
-  if (SFileOpenArchive(PatchMPQFileName.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &PatchMPQ))
+  if (SFileOpenArchive(MPQFileName.c_str(), 0, MPQ_OPEN_FORCE_MPQ_V1, &MPQ))
 #endif
   {
-    Print("[AURA] loading MPQ file [" + PatchMPQFileName + "]");
+    Print("[AURA] loading MPQ file [" + MPQFileName + "]");
     void* SubFile;
 
     // common.j
 
-    if (SFileOpenFileEx(PatchMPQ, R"(Scripts\common.j)", 0, &SubFile))
+    if (SFileOpenFileEx(MPQ, R"(Scripts\common.j)", 0, &SubFile))
     {
       const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
@@ -744,7 +758,7 @@ void CAura::ExtractScripts()
 
     // blizzard.j
 
-    if (SFileOpenFileEx(PatchMPQ, R"(Scripts\blizzard.j)", 0, &SubFile))
+    if (SFileOpenFileEx(MPQ, R"(Scripts\blizzard.j)", 0, &SubFile))
     {
       const uint32_t FileLength = SFileGetFileSize(SubFile, nullptr);
 
@@ -769,14 +783,14 @@ void CAura::ExtractScripts()
     else
       Print(R"([AURA] couldn't find Scripts\blizzard.j in MPQ file)");
 
-    SFileCloseArchive(PatchMPQ);
+    SFileCloseArchive(MPQ);
   }
   else
   {
 #ifdef WIN32
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((uint32_t)GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string((uint32_t)GetLastError()));
 #else
-    Print("[AURA] warning - unable to load MPQ file [" + PatchMPQFileName + "] - error code " + to_string((int32_t)GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string((int32_t)GetLastError()));
 #endif
   }
 }
