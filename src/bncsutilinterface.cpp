@@ -74,9 +74,14 @@ inline static string CaseInsensitiveFileExists(const string& path, string&& file
   return "";
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken)
+bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken, const uint8_t war3Version)
 {
-  const string FileWar3EXE  = CaseInsensitiveFileExists(war3Path, "war3.exe");
+  const string FileWar3EXE = [&]() {
+    if (war3Version >= 28)
+      return CaseInsensitiveFileExists(war3Path, "Warcraft III.exe");
+    else
+      return CaseInsensitiveFileExists(war3Path, "war3.exe");
+  }();
   const string FileStormDLL = CaseInsensitiveFileExists(war3Path, "storm.dll");
   const string FileGameDLL  = CaseInsensitiveFileExists(war3Path, "game.dll");
 
@@ -110,13 +115,13 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
   else
   {
     if (FileWar3EXE.empty())
-      Print("[BNCSUI] unable to open [" + FileWar3EXE + "]");
+      Print("[BNCSUI] unable to open War3EXE [" + FileWar3EXE + "]");
 
     if (FileStormDLL.empty())
-      Print("[BNCSUI] unable to open [" + FileStormDLL + "]");
+      Print("[BNCSUI] unable to open StormDLL [" + FileStormDLL + "]");
 
     if (FileGameDLL.empty())
-      Print("[BNCSUI] unable to open [" + FileGameDLL + "]");
+      Print("[BNCSUI] unable to open GameDLL [" + FileGameDLL + "]");
   }
 
   return false;
