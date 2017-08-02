@@ -44,6 +44,7 @@
 #include <StormLib.h>
 
 #ifdef WIN32
+#define NOMINMAX
 #include <ws2tcpip.h>
 #include <winsock.h>
 #include <process.h>
