@@ -27,6 +27,7 @@
 
 #include <bitset>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -53,8 +54,9 @@ void CBNCSUtilInterface::Reset(const string& userName, const string& userPasswor
 inline static string CaseInsensitiveFileExists(const string& path, string&& file)
 {
   string mutated_file = file;
+  const size_t NumberOfCombinations = std::pow(2, mutated_file.size());
 
-  for (size_t perm = 0; perm < file.size(); ++perm)
+  for (size_t perm = 0; perm < NumberOfCombinations; ++perm)
   {
     bitset<32> bs(perm);
     transform(file.begin(), file.end(), file.begin(), ::tolower);
