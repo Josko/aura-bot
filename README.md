@@ -55,7 +55,7 @@ The binary shall be generated in the `..\aura-bot\aura\Release` folder.
 
 Linux users will probably need some packages for it to build:
 
-* Debian/Ubuntu -- `apt-get install build-essential m4 libgmp3-dev cmake`
+* Debian/Ubuntu -- `apt-get install git build-essential m4 libgmp3-dev cmake libbz2-dev zlib1g-dev`
 * Arch Linux -- `pacman -S base-devel cmake`
 
 #### Steps
