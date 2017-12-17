@@ -725,7 +725,7 @@ bool CGame::Update(void* fd, void* send_fd)
 
     // check if we've hit the time limit
 
-    if (Time - m_LastReservedSeen > m_Aura->m_LobbyTimeLimit * 60)
+    if (Time - m_LastReservedSeen > static_cast<int64_t>(m_Aura->m_LobbyTimeLimit * 60))
     {
       Print("[GAME: " + m_GameName + "] is over (lobby time limit hit)");
       return true;
