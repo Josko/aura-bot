@@ -716,7 +716,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
 
 #ifdef WIN32
   const wstring MPQFileNameW = [&]() {
-    if (War3Patch >= 28)
+    if (War3Version >= 28)
       return wstring(begin(m_Warcraft3Path), end(m_Warcraft3Path)) + _T("War3.mpq");
     else
       return wstring(begin(m_Warcraft3Path), end(m_Warcraft3Path)) + _T("War3Patch.mpq");
