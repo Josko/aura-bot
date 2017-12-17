@@ -335,8 +335,6 @@ CTCPClient::CTCPClient()
 
 CTCPClient::~CTCPClient()
 {
-  if (m_Socket != INVALID_SOCKET)
-    closesocket(m_Socket);
 }
 
 void CTCPClient::Reset()
@@ -492,8 +490,6 @@ CTCPServer::CTCPServer()
 
 CTCPServer::~CTCPServer()
 {
-  if (m_Socket != INVALID_SOCKET)
-    closesocket(m_Socket);
 }
 
 bool CTCPServer::Listen(const string& address, uint16_t port)
@@ -583,8 +579,6 @@ CUDPSocket::CUDPSocket()
 
 CUDPSocket::~CUDPSocket()
 {
-  if (m_Socket != INVALID_SOCKET)
-    closesocket(m_Socket);
 }
 
 bool CUDPSocket::SendTo(struct sockaddr_in sin, const std::vector<uint8_t>& message)
