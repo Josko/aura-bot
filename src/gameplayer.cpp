@@ -213,7 +213,7 @@ bool CGamePlayer::Update(void* fd)
   // this works because in the lobby we send pings every 5 seconds and expect a response to each one
   // and in the game the Warcraft 3 client sends keepalives frequently (at least once per second it looks like)
 
-  if (Time - m_Socket->GetLastRecv() >= 30)
+  if (m_Socket && Time - m_Socket->GetLastRecv() >= 30)
     m_Game->EventPlayerDisconnectTimedOut(this);
 
   // GProxy++ acks
