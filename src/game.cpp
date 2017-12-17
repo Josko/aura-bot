@@ -3639,11 +3639,10 @@ void CGame::EventPlayerMapSize(CGamePlayer* player, CIncomingMapSize* mapSize)
   else if (player->GetDownloadStarted())
   {
     // calculate download rate
-
     const double Seconds = (double)(GetTicks() - player->GetStartedDownloadingTicks()) / 1000.f;
     const double Rate    = (double)MapSize / 1024.f / Seconds;
-    Print("[GAME: " + m_GameName + "] map download finished for player [" + player->GetName() + "] in " + to_string(Seconds) + " seconds");
-    SendAllChat("Player [" + player->GetName() + "] downloaded the map in " + to_string(Seconds) + " seconds (" + to_string(Rate) + " KB/sec)");
+    Print("[GAME: " + m_GameName + "] map download finished for player [" + player->GetName() + "] in " + ToFormattedString(Seconds) + " seconds");
+    SendAllChat("Player [" + player->GetName() + "] downloaded the map in " + ToFormattedString(Seconds) + " seconds (" + ToFormattedString(Rate) + " KB/sec)");
     player->SetDownloadFinished(true);
     player->SetFinishedDownloadingTime(GetTime());
   }
@@ -3841,10 +3840,10 @@ void CGame::EventGameLoaded()
 
   // send shortest, longest, and personal load times to each player
 
-  CGamePlayer* Shortest = nullptr;
-  CGamePlayer* Longest  = nullptr;
+  const CGamePlayer* Shortest = nullptr;
+  const CGamePlayer* Longest  = nullptr;
 
-  for (auto& player : m_Players)
+  for (const auto& player : m_Players)
   {
     if (!Shortest || player->GetFinishedLoadingTicks() < Shortest->GetFinishedLoadingTicks())
       Shortest = player;
@@ -3855,12 +3854,12 @@ void CGame::EventGameLoaded()
 
   if (Shortest && Longest)
   {
-    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + to_string((double)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
-    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + to_string((double)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + ToFormattedString((double)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + ToFormattedString((double)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
   }
 
   for (auto& player : m_Players)
-    SendChat(player, "Your load time was " + to_string((double)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendChat(player, "Your load time was " + ToFormattedString((double)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 }
 
 uint8_t CGame::GetSIDFromPID(uint8_t PID) const

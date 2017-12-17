@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <vector>
 #include <sstream>
+#include <iomanip>
 
 inline std::string ToHexString(uint32_t i)
 {
@@ -33,6 +34,13 @@ inline std::string ToHexString(uint32_t i)
   SS << std::hex << i;
   SS >> result;
   return result;
+}
+
+inline std::string ToFormattedString(const double d, const uint8_t precision = 2)
+{
+  std::ostringstream out;
+  out << std::fixed << std::setprecision(precision) << d;
+  return out.str();
 }
 
 inline std::vector<uint8_t> CreateByteArray(const uint8_t* a, const int32_t size)
