@@ -311,7 +311,7 @@ CAura::CAura(CConfig* CFG)
     std::vector<uint8_t> EXEVersionHash     = ExtractNumbers(CFG->GetString(Prefix + "custom_exeversionhash", string()), 4);
     string               PasswordHashType   = CFG->GetString(Prefix + "custom_passwordhashtype", string());
 
-    HighestWar3Version = std::max(HighestWar3Version, War3Version);
+    HighestWar3Version = (std::max)(HighestWar3Version, War3Version);
 
     if (Server.empty())
       break;
