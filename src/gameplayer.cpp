@@ -135,6 +135,8 @@ CGamePlayer::CGamePlayer(CPotentialPlayer* potential, uint8_t nPID, string nJoin
     m_JoinTime(GetTime()),
     m_LastMapPartSent(0),
     m_LastMapPartAcked(0),
+    m_StartedDownloadingTicks(0),
+    m_FinishedDownloadingTime(0),
     m_FinishedLoadingTicks(0),
     m_StartedLaggingTicks(0),
     m_LastGProxyWaitNoticeSentTime(0),
