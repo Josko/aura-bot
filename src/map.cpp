@@ -834,98 +834,103 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
       m_Slots.emplace_back(0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM);
   }
 
-  CheckValid();
+  const char* ErrorMessage = CheckValid();
+
+  if (ErrorMessage)
+    Print(std::string("[MAP] ") + ErrorMessage);
 }
 
-void CMap::CheckValid()
+const char* CMap::CheckValid()
 {
   // TODO: should this code fix any errors it sees rather than just warning the user?
 
   if (m_MapPath.empty() || m_MapPath.length() > 53)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_path detected");
+    return "invalid map_path detected";
   }
 
   if (m_MapPath.find('/') != string::npos)
-    Print(R"([MAP] warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\')");
+    Print(R"(warning - map_path contains forward slashes '/' but it must use Windows style back slashes '\')");
 
   if (m_MapSize.size() != 4)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_size detected");
+    return "invalid map_size detected";
   }
   else if (!m_MapData.empty() && m_MapData.size() != ByteArrayToUInt32(m_MapSize, false))
   {
     m_Valid = false;
-    Print("[MAP] invalid map_size detected - size mismatch with actual map data");
+    return "invalid map_size detected - size mismatch with actual map data";
   }
 
   if (m_MapInfo.size() != 4)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_info detected");
+    return "invalid map_info detected";
   }
 
   if (m_MapCRC.size() != 4)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_crc detected");
+    return "invalid map_crc detected";
   }
 
   if (m_MapSHA1.size() != 20)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_sha1 detected");
+    return "invalid map_sha1 detected";
   }
 
   if (m_MapSpeed != MAPSPEED_SLOW && m_MapSpeed != MAPSPEED_NORMAL && m_MapSpeed != MAPSPEED_FAST)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_speed detected");
+    return "invalid map_speed detected";
   }
 
   if (m_MapVisibility != MAPVIS_HIDETERRAIN && m_MapVisibility != MAPVIS_EXPLORED && m_MapVisibility != MAPVIS_ALWAYSVISIBLE && m_MapVisibility != MAPVIS_DEFAULT)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_visibility detected");
+    return "invalid map_visibility detected";
   }
 
   if (m_MapObservers != MAPOBS_NONE && m_MapObservers != MAPOBS_ONDEFEAT && m_MapObservers != MAPOBS_ALLOWED && m_MapObservers != MAPOBS_REFEREES)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_observers detected");
+    return "invalid map_observers detected";
   }
 
   if (m_MapWidth.size() != 2)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_width detected");
+    return "invalid map_width detected";
   }
 
   if (m_MapHeight.size() != 2)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_height detected");
+    return "invalid map_height detected";
   }
 
   if (m_MapNumPlayers == 0 || m_MapNumPlayers > 12)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_numplayers detected");
+    return "invalid map_numplayers detected";
   }
 
   if (m_MapNumTeams == 0 || m_MapNumTeams > 12)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_numteams detected");
+    return "invalid map_numteams detected";
   }
 
   if (m_Slots.empty() || m_Slots.size() > 12)
   {
     m_Valid = false;
-    Print("[MAP] invalid map_slot<x> detected");
+    return "invalid map_slot<x> detected";
   }
+
+  return nullptr;
 }
 
 uint32_t CMap::XORRotateLeft(uint8_t* data, uint32_t length)

@@ -157,7 +157,7 @@ public:
   inline std::vector<CGameSlot> GetSlots() const { return m_Slots; }
 
   void Load(CConfig* CFG, const std::string& nCFGFile);
-  void     CheckValid();
+  const char* CheckValid();
   uint32_t XORRotateLeft(uint8_t* data, uint32_t length);
 };
 

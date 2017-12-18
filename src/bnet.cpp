@@ -619,6 +619,14 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
                     MapCFG.Set("map_type", "dota");
 
                   m_Aura->m_Map->Load(&MapCFG, File);
+
+                  if (m_Aura->m_Map)
+                  {
+                    const char* ErrorMessage = m_Aura->m_Map->CheckValid();
+
+                    if (ErrorMessage)
+                      QueueChatCommand(std::string("Error while loading map: [") + ErrorMessage + "]", User, Whisper, m_IRC);
+                  }
                 }
                 else
                 {
