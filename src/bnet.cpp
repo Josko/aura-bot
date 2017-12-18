@@ -1241,6 +1241,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
               QueueChatCommand("Deleted [" + Payload + "]", User, Whisper, m_IRC);
             else
               QueueChatCommand("Removal failed", User, Whisper, m_IRC);
+
+            break;
           }
 
           //
@@ -1712,6 +1714,8 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
               delete GamePlayerSummary;
             }
+
+            break;
           }
 
           //
