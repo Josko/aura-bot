@@ -85,7 +85,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
   const string FileStormDLL = CaseInsensitiveFileExists(war3Path, "storm.dll");
   const string FileGameDLL  = CaseInsensitiveFileExists(war3Path, "game.dll");
 
-  if (!FileWar3EXE.empty() && !FileStormDLL.empty() && !FileGameDLL.empty())
+  if (!FileWar3EXE.empty() && (war3Version >= 29 || (!FileStormDLL.empty() && !FileGameDLL.empty())))
   {
     // TODO: check getExeInfo return value to ensure 1024 bytes was enough
 
@@ -94,7 +94,13 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
     uint32_t EXEVersionHash;
 
     getExeInfo(FileWar3EXE.c_str(), buf, 1024, &EXEVersion, BNCSUTIL_PLATFORM_X86);
-    checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);
+    if(war3Version >= 29)
+    {
+      static const char* filesArray[] = {FileWar3EXE.c_str()};
+      checkRevision(valueStringFormula.c_str(), filesArray, 1, extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);		
+    }
+    else 
+      checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);
     m_EXEInfo        = buf;
     m_EXEVersion     = CreateByteArray(EXEVersion, false);
     m_EXEVersionHash = CreateByteArray(EXEVersionHash, false);
@@ -117,10 +123,9 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
     if (FileWar3EXE.empty())
       Print("[BNCSUI] unable to open War3EXE [" + FileWar3EXE + "]");
 
-    if (FileStormDLL.empty())
+    if (FileStormDLL.empty() && war3Version < 29)
       Print("[BNCSUI] unable to open StormDLL [" + FileStormDLL + "]");
-
-    if (FileGameDLL.empty())
+    if (FileGameDLL.empty() && war3Version < 29)
       Print("[BNCSUI] unable to open GameDLL [" + FileGameDLL + "]");
   }
 
