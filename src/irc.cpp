@@ -139,6 +139,9 @@ bool CIRC::Update(void* fd, void* send_fd)
       if (!m_OriginalNick)
         m_Nickname = m_NicknameCpy;
 
+      if (m_Server.find("quakenet.org") == string::npos && !m_Password.empty())
+        SendIRC("PASS " + m_Password);
+
       SendIRC("NICK " + m_Nickname);
       SendIRC("USER " + m_Username + " " + m_Nickname + " " + m_Username + " :aura-bot");
 
