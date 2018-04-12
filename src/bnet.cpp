@@ -42,7 +42,7 @@ using namespace std;
 // CBNET
 //
 
-CBNET::CBNET(CAura* nAura, string nServer, string nServerAlias, string nCDKeyROC, string nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, string nUserName, string nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, std::vector<uint8_t> nEXEVersion, std::vector<uint8_t> nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
+CBNET::CBNET(CAura* nAura, string nServer, const string& nServerAlias, const string& nCDKeyROC, const string& nCDKeyTFT, string nCountryAbbrev, string nCountry, uint32_t nLocaleID, const string& nUserName, const string& nUserPassword, string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, std::vector<uint8_t> nEXEVersion, std::vector<uint8_t> nEXEVersionHash, string nPasswordHashType, uint32_t nHostCounterID)
   : m_Aura(nAura),
     m_Socket(new CTCPClient()),
     m_Protocol(new CBNETProtocol()),
