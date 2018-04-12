@@ -634,7 +634,13 @@ void CAura::EventBNETGameRefreshFailed(CBNET* bnet)
 {
   if (m_CurrentGame)
   {
-    m_CurrentGame->SendAllChat("Unable to create game on server [" + bnet->GetServer() + "]. Try another name");
+    // If the game has someone in it, advertise the fail only in the lobby (as it is probably a rehost).
+    // Otherwise whisper the game creator that the (re)host failed.
+
+    if (m_CurrentGame->GetNumHumanPlayers() != 0)
+      m_CurrentGame->SendAllChat("Unable to create game on server [" + bnet->GetServer() + "]. Try another name");
+    else
+      m_CurrentGame->GetCreatorServer()->QueueChatCommand("Unable to create game on server [" + bnet->GetServer() + "]. Try another name", m_CurrentGame->GetCreatorName(), true, string());
 
     Print2("[GAME: " + m_CurrentGame->GetGameName() + "] Unable to create game on server [" + bnet->GetServer() + "]. Try another name");
 
