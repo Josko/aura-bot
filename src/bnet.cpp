@@ -121,7 +121,7 @@ uint32_t CBNET::SetFD(void* fd, void* send_fd, int32_t* nfds)
 {
   if (!m_Socket->HasError() && m_Socket->GetConnected())
   {
-    m_Socket->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
+    m_Socket->SetFD(static_cast<fd_set*>(fd), static_cast<fd_set*>(send_fd), nfds);
     return 1;
   }
 
@@ -155,7 +155,7 @@ bool CBNET::Update(void* fd, void* send_fd)
   {
     // the socket is connected and everything appears to be working properly
 
-    m_Socket->DoRecv((fd_set*)fd);
+    m_Socket->DoRecv(static_cast<fd_set*>(fd));
 
     // extract as many packets as possible from the socket's receive buffer and put them in the m_Packets queue
 
@@ -176,7 +176,7 @@ bool CBNET::Update(void* fd, void* send_fd)
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint16_t             Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t             Length = static_cast<uint16_t>(Bytes[3] << 8 | Bytes[2]);
         const std::vector<uint8_t> Data   = std::vector<uint8_t>(begin(Bytes), begin(Bytes) + Length);
 
         if (Bytes.size() >= Length)
@@ -426,7 +426,7 @@ bool CBNET::Update(void* fd, void* send_fd)
       m_LastNullTime = Time;
     }
 
-    m_Socket->DoSend((fd_set*)send_fd);
+    m_Socket->DoSend(static_cast<fd_set*>(send_fd));
     return m_Exiting;
   }
 
@@ -487,7 +487,7 @@ bool CBNET::Update(void* fd, void* send_fd)
       Print2("[BNET: " + m_ServerAlias + "] connected");
       m_Socket->PutBytes(m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR());
       m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_INFO(m_War3Version, m_LocaleID, m_CountryAbbrev, m_Country));
-      m_Socket->DoSend((fd_set*)send_fd);
+      m_Socket->DoSend(static_cast<fd_set*>(send_fd));
       m_LastNullTime       = Time;
       m_LastOutPacketTicks = Ticks;
 
@@ -889,7 +889,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
                   break;
                 }
                 else
-                  m_Aura->m_CurrentGame->CloseSlot((uint8_t)(SID - 1), true);
+                  m_Aura->m_CurrentGame->CloseSlot(static_cast<uint8_t>(SID - 1), true);
               }
             }
             else
@@ -1164,7 +1164,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
               // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
               // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray((uint32_t)MAPGAMETYPE_UNKNOWN0, false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
+              m_Aura->m_UDPSocket->SendTo(IP, Port, m_Aura->m_CurrentGame->GetProtocol()->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray(static_cast<uint32_t>(MAPGAMETYPE_UNKNOWN0), false), m_Aura->m_CurrentGame->GetMap()->GetMapGameFlags(), m_Aura->m_CurrentGame->GetMap()->GetMapWidth(), m_Aura->m_CurrentGame->GetMap()->GetMapHeight(), m_Aura->m_CurrentGame->GetGameName(), "Clan 007", 0, m_Aura->m_CurrentGame->GetMap()->GetMapPath(), m_Aura->m_CurrentGame->GetMap()->GetMapCRC(), 12, 12, m_Aura->m_CurrentGame->GetHostPort(), m_Aura->m_CurrentGame->GetHostCounter() & 0x0FFFFFFF, m_Aura->m_CurrentGame->GetEntryKey()));
             }
 
             break;
@@ -1272,7 +1272,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
                   break;
                 }
                 else
-                  m_Aura->m_CurrentGame->OpenSlot((uint8_t)(SID - 1), true);
+                  m_Aura->m_CurrentGame->OpenSlot(static_cast<uint8_t>(SID - 1), true);
               }
             }
             else
@@ -1532,7 +1532,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
                   if (SS.fail())
                     Print("[BNET: " + m_ServerAlias + "] bad input #2 to swap command");
                   else
-                    m_Aura->m_CurrentGame->SwapSlots((uint8_t)(SID1 - 1), (uint8_t)(SID2 - 1));
+                    m_Aura->m_CurrentGame->SwapSlots(static_cast<uint8_t>(SID1 - 1), static_cast<uint8_t>(SID2 - 1));
                 }
               }
             }
@@ -1780,7 +1780,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             const int32_t GameNumber = stoi(Payload) - 1;
 
-            if (-1 < GameNumber && GameNumber < (int32_t)m_Aura->m_Games.size())
+            if (-1 < GameNumber && GameNumber < static_cast<int32_t>(m_Aura->m_Games.size()))
               QueueChatCommand("Players in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetPlayers(), User, Whisper, m_IRC);
             else if (GameNumber == -1 && m_Aura->m_CurrentGame)
               QueueChatCommand("Players in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetPlayers(), User, Whisper, m_IRC);
@@ -1803,7 +1803,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
 
             const int32_t GameNumber = stoi(Payload) - 1;
 
-            if (-1 < GameNumber && GameNumber < (int32_t)m_Aura->m_Games.size())
+            if (-1 < GameNumber && GameNumber < static_cast<int32_t>(m_Aura->m_Games.size()))
               QueueChatCommand("Observers in game [" + m_Aura->m_Games[GameNumber]->GetGameName() + "] are: " + m_Aura->m_Games[GameNumber]->GetObservers(), User, Whisper, m_IRC);
             else if (GameNumber == -1 && m_Aura->m_CurrentGame)
               QueueChatCommand("Observers in lobby [" + m_Aura->m_CurrentGame->GetGameName() + "] are: " + m_Aura->m_CurrentGame->GetObservers(), User, Whisper, m_IRC);

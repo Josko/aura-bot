@@ -71,7 +71,7 @@ uint32_t CIRC::SetFD(void* fd, void* send_fd, int32_t* nfds)
 
   if (!m_Socket->HasError() && m_Socket->GetConnected())
   {
-    m_Socket->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
+    m_Socket->SetFD(static_cast<fd_set*>(fd), static_cast<fd_set*>(send_fd), nfds);
     return 0;
   }
 
@@ -111,9 +111,9 @@ bool CIRC::Update(void* fd, void* send_fd)
       m_LastAntiIdleTime = Time;
     }
 
-    m_Socket->DoRecv((fd_set*)fd);
+    m_Socket->DoRecv(static_cast<fd_set*>(fd));
     ExtractPackets();
-    m_Socket->DoSend((fd_set*)send_fd);
+    m_Socket->DoSend(static_cast<fd_set*>(send_fd));
     return m_Exiting;
   }
 
@@ -145,7 +145,7 @@ bool CIRC::Update(void* fd, void* send_fd)
       SendIRC("NICK " + m_Nickname);
       SendIRC("USER " + m_Username + " " + m_Nickname + " " + m_Username + " :aura-bot");
 
-      m_Socket->DoSend((fd_set*)send_fd);
+      m_Socket->DoSend(static_cast<fd_set*>(send_fd));
 
       Print("[IRC: " + m_Server + "] connected");
 

@@ -47,7 +47,7 @@ void CSHA1::Transform(uint32_t state[5], uint8_t buffer[64])
 
   SHA1_WORKSPACE_BLOCK* block;
   static uint8_t        workspace[64];
-  block = (SHA1_WORKSPACE_BLOCK*)workspace;
+  block = reinterpret_cast<SHA1_WORKSPACE_BLOCK*>(workspace);
   memcpy(block, buffer, 64);
 
   // Copy state[] to working vars
@@ -184,7 +184,7 @@ void CSHA1::Final()
   uint8_t  finalcount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   for (i          = 0; i < 8; ++i)
-    finalcount[i] = (uint8_t)((m_count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255); // Endian independent
+    finalcount[i] = static_cast<uint8_t>((m_count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255); // Endian independent
 
   Update((uint8_t*)"\200", 1);
 
@@ -195,7 +195,7 @@ void CSHA1::Final()
 
   for (i = 0; i < 20; ++i)
   {
-    m_digest[i] = (uint8_t)((m_state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
+    m_digest[i] = static_cast<uint8_t>((m_state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
   }
 
   // Wipe variables for security reasons

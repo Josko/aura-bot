@@ -186,7 +186,7 @@ bool FileWrite(const string& file, uint8_t* data, uint32_t length)
 
   // write data
 
-  OS.write((const char*)data, length);
+  OS.write(reinterpret_cast<const char*>(data), length);
   OS.close();
   return true;
 }
