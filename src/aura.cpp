@@ -655,7 +655,7 @@ void CAura::EventGameDeleted(CGame* game)
   {
     bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over");
 
-    if (bnet->GetServer() == game->GetCreatorServer())
+    if (bnet == game->GetCreatorServer())
       bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over", game->GetCreatorName(), true, string());
   }
 }
@@ -861,60 +861,35 @@ void CAura::LoadIPToCountryData()
   }
 }
 
-void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
+void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string ownerName, string creatorName, CBNET* creatorServer, bool whisper)
 {
   if (!m_Enabled)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
     return;
   }
 
   if (gameName.size() > 31)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
     return;
   }
 
   if (!map->GetValid())
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
     return;
   }
 
   if (m_CurrentGame)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
     return;
   }
 
   if (m_Games.size() >= m_MaxGames)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + to_string(m_MaxGames) + ") has been reached", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + to_string(m_MaxGames) + ") has been reached", creatorName, whisper, string());
     return;
   }
 
@@ -924,7 +899,7 @@ void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string own
 
   for (auto& bnet : m_BNETs)
   {
-    if (whisper && bnet->GetServer() == creatorServer)
+    if (whisper && bnet == creatorServer)
     {
       // note that we send this whisper only on the creator server
 

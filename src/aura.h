@@ -105,7 +105,7 @@ public:
   void SetConfigs(CConfig* CFG);
   void ExtractScripts(const uint8_t War3Version);
   void LoadIPToCountryData();
-  void CreateGame(CMap* map, uint8_t gameState, std::string gameName, std::string ownerName, std::string creatorName, std::string creatorServer, bool whisper);
+  void CreateGame(CMap* map, uint8_t gameState, std::string gameName, std::string ownerName, std::string creatorName, CBNET* nCreatorServer, bool whisper);
 
   inline bool GetReady() const
   {

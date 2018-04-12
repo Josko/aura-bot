@@ -678,7 +678,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
           case HashCode("pub"):
           {
             if (!Payload.empty())
-              m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, Payload, User, User, m_Server, Whisper);
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, Payload, User, User, this, Whisper);
 
             break;
           }
@@ -690,7 +690,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
           case HashCode("priv"):
           {
             if (!Payload.empty())
-              m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, Payload, User, User, m_Server, Whisper);
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, Payload, User, User, this, Whisper);
 
             break;
           }
@@ -1317,7 +1317,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             {
               Owner    = Payload.substr(0, GameNameStart);
               GameName = Payload.substr(GameNameStart + 1);
-              m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, GameName, Owner, User, m_Server, Whisper);
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PRIVATE, GameName, Owner, User, this, Whisper);
             }
 
             break;
@@ -1342,7 +1342,7 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
             {
               Owner    = Payload.substr(0, GameNameStart);
               GameName = Payload.substr(GameNameStart + 1);
-              m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, GameName, Owner, User, m_Server, Whisper);
+              m_Aura->CreateGame(m_Aura->m_Map, GAME_PUBLIC, GameName, Owner, User, this, Whisper);
             }
 
             break;
