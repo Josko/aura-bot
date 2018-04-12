@@ -42,12 +42,12 @@ CBNCSUtilInterface::CBNCSUtilInterface(const string& userName, const string& use
 
 CBNCSUtilInterface::~CBNCSUtilInterface()
 {
-  delete (NLS*)m_NLS;
+  delete static_cast<NLS*>(m_NLS);
 }
 
 void CBNCSUtilInterface::Reset(const string& userName, const string& userPassword)
 {
-  delete (NLS*)m_NLS;
+  delete static_cast<NLS*>(m_NLS);
   m_NLS = new NLS(userName, userPassword);
 }
 
@@ -97,10 +97,10 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(bool TFT, const string& war3Path, c
     if(war3Version >= 29)
     {
       static const char* filesArray[] = {FileWar3EXE.c_str()};
-      checkRevision(valueStringFormula.c_str(), filesArray, 1, extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);		
+      checkRevision(valueStringFormula.c_str(), filesArray, 1, extractMPQNumber(mpqFileName.c_str()), reinterpret_cast<unsigned long*>(&EXEVersionHash));		
     }
     else 
-      checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);
+      checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), reinterpret_cast<unsigned long*>(&EXEVersionHash));
     m_EXEInfo        = buf;
     m_EXEVersion     = CreateByteArray(EXEVersion, false);
     m_EXEVersionHash = CreateByteArray(EXEVersionHash, false);
@@ -139,8 +139,8 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON()
   // set m_ClientKey
 
   char buf[32];
-  ((NLS*)m_NLS)->getPublicKey(buf);
-  m_ClientKey = CreateByteArray((uint8_t*)buf, 32);
+  (static_cast<NLS*>(m_NLS))->getPublicKey(buf);
+  m_ClientKey = CreateByteArray(reinterpret_cast<uint8_t*>(buf), 32);
   return true;
 }
 
@@ -149,8 +149,8 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint8
   // set m_M1
 
   char buf[20];
-  ((NLS*)m_NLS)->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
-  m_M1 = CreateByteArray((uint8_t*)buf, 20);
+  (static_cast<NLS*>(m_NLS))->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
+  m_M1 = CreateByteArray(reinterpret_cast<uint8_t*>(buf), 20);
   return true;
 }
 
@@ -160,7 +160,7 @@ bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string& userPassword)
 
   char buf[20];
   hashPassword(userPassword.c_str(), buf);
-  m_PvPGNPasswordHash = CreateByteArray((uint8_t*)buf, 20);
+  m_PvPGNPasswordHash = CreateByteArray(reinterpret_cast<uint8_t*>(buf), 20);
   return true;
 }
 
@@ -172,14 +172,14 @@ std::vector<uint8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32
   if (Decoder.isKeyValid())
   {
     const uint8_t Zeros[] = {0, 0, 0, 0};
-    AppendByteArray(KeyInfo, CreateByteArray((uint32_t)key.size(), false));
+    AppendByteArray(KeyInfo, CreateByteArray(static_cast<uint32_t>(key.size()), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Zeros, 4));
     size_t Length = Decoder.calculateHash(clientToken, serverToken);
     auto   buf    = new char[Length];
     Length        = Decoder.getHash(buf);
-    AppendByteArray(KeyInfo, CreateByteArray((uint8_t*)buf, Length));
+    AppendByteArray(KeyInfo, CreateByteArray(reinterpret_cast<uint8_t*>(buf), Length));
     delete[] buf;
   }
 

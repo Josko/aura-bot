@@ -59,7 +59,7 @@ bool CPotentialPlayer::Update(void* fd)
   if (!m_Socket)
     return false;
 
-  m_Socket->DoRecv((fd_set*)fd);
+  m_Socket->DoRecv(static_cast<fd_set*>(fd));
 
   // extract as many packets as possible from the socket's receive buffer and process them
 
@@ -226,7 +226,7 @@ bool CGamePlayer::Update(void* fd)
     m_LastGProxyAckTime = Time;
   }
 
-  m_Socket->DoRecv((fd_set*)fd);
+  m_Socket->DoRecv(static_cast<fd_set*>(fd));
 
   // extract as many packets as possible from the socket's receive buffer and process them
 

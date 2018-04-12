@@ -240,12 +240,12 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
     // calculate map_size
 
-    MapSize = CreateByteArray((uint32_t)m_MapData.size(), false);
+    MapSize = CreateByteArray(static_cast<uint32_t>(m_MapData.size()), false);
     Print("[MAP] calculated map_size = " + ByteArrayToDecString(MapSize));
 
     // calculate map_info (this is actually the CRC)
 
-    MapInfo = CreateByteArray((uint32_t)m_Aura->m_CRC->CalculateCRC((uint8_t*)m_MapData.c_str(), m_MapData.size()), false);
+    MapInfo = CreateByteArray(m_Aura->m_CRC->CalculateCRC((uint8_t*)m_MapData.c_str(), m_MapData.size()), false);
     Print("[MAP] calculated map_info = " + ByteArrayToDecString(MapInfo));
 
     // calculate map_crc (this is not the CRC) and map_sha1
@@ -290,8 +290,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
               {
                 Print("[MAP] overriding default common.j with map copy while calculating map_crc/sha1");
                 OverrodeCommonJ = true;
-                Val             = Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead);
-                m_Aura->m_SHA->Update((uint8_t*)SubFileData, BytesRead);
+                Val             = Val ^ XORRotateLeft(reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
+                m_Aura->m_SHA->Update(reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
               }
 
               delete[] SubFileData;
@@ -326,8 +326,8 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
               {
                 Print("[MAP] overriding default blizzard.j with map copy while calculating map_crc/sha1");
                 OverrodeBlizzardJ = true;
-                Val               = Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead);
-                m_Aura->m_SHA->Update((uint8_t*)SubFileData, BytesRead);
+                Val               = Val ^ XORRotateLeft(reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
+                m_Aura->m_SHA->Update(reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
               }
 
               delete[] SubFileData;
@@ -386,7 +386,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                     FoundScript = true;
 
                   Val = ROTL(Val ^ XORRotateLeft((uint8_t*)SubFileData, BytesRead), 3);
-                  m_Aura->m_SHA->Update((uint8_t*)SubFileData, BytesRead);
+                  m_Aura->m_SHA->Update(reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
                 }
 
                 delete[] SubFileData;
@@ -456,7 +456,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
             uint32_t RawMapNumPlayers;
             uint32_t RawMapNumTeams;
 
-            ISS.read((char*)&FileFormat, 4); // file format (18 = ROC, 25 = TFT)
+            ISS.read(reinterpret_cast<char*>(&FileFormat), 4); // file format (18 = ROC, 25 = TFT)
 
             if (FileFormat == 18 || FileFormat == 25)
             {
@@ -468,9 +468,9 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
               getline(ISS, GarbageString, '\0'); // players recommended
               ISS.seekg(32, ios::cur);           // camera bounds
               ISS.seekg(16, ios::cur);           // camera bounds complements
-              ISS.read((char*)&RawMapWidth, 4);  // map width
-              ISS.read((char*)&RawMapHeight, 4); // map height
-              ISS.read((char*)&RawMapFlags, 4);  // flags
+              ISS.read(reinterpret_cast<char*>(&RawMapWidth), 4);  // map width
+              ISS.read(reinterpret_cast<char*>(&RawMapHeight), 4); // map height
+              ISS.read(reinterpret_cast<char*>(&RawMapFlags), 4);  // flags
               ISS.seekg(1, ios::cur);            // map main ground type
 
               if (FileFormat == 18)
@@ -516,7 +516,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                 ISS.seekg(1, ios::cur);            // custom water tinting alpha value
               }
 
-              ISS.read((char*)&RawMapNumPlayers, 4); // number of players
+              ISS.read(reinterpret_cast<char*>(&RawMapNumPlayers), 4); // number of players
               uint32_t ClosedSlots = 0;
 
               for (uint32_t i = 0; i < RawMapNumPlayers; ++i)
@@ -526,9 +526,9 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                 uint32_t  Status;
                 uint32_t  Race;
 
-                ISS.read((char*)&Colour, 4); // colour
+                ISS.read(reinterpret_cast<char*>(&Colour), 4); // colour
                 Slot.SetColour(Colour);
-                ISS.read((char*)&Status, 4); // status
+                ISS.read(reinterpret_cast<char*>(&Status), 4); // status
 
                 if (Status == 1)
                   Slot.SetSlotStatus(SLOTSTATUS_OPEN);
@@ -544,7 +544,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                   ++ClosedSlots;
                 }
 
-                ISS.read((char*)&Race, 4); // race
+                ISS.read(reinterpret_cast<char*>(&Race), 4); // race
 
                 if (Race == 1)
                   Slot.SetRace(SLOTRACE_HUMAN);
@@ -568,15 +568,15 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                   Slots.push_back(Slot);
               }
 
-              ISS.read((char*)&RawMapNumTeams, 4); // number of teams
+              ISS.read(reinterpret_cast<char*>(&RawMapNumTeams), 4); // number of teams
 
               for (uint32_t i = 0; i < RawMapNumTeams; ++i)
               {
                 uint32_t Flags;
                 uint32_t PlayerMask;
 
-                ISS.read((char*)&Flags, 4);      // flags
-                ISS.read((char*)&PlayerMask, 4); // player mask
+                ISS.read(reinterpret_cast<char*>(&Flags), 4);      // flags
+                ISS.read(reinterpret_cast<char*>(&PlayerMask), 4); // player mask
 
                 for (uint8_t j = 0; j < 12; ++j)
                 {
@@ -600,9 +600,9 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
               MapOptions = RawMapFlags & (MAPOPT_MELEE | MAPOPT_FIXEDPLAYERSETTINGS | MAPOPT_CUSTOMFORCES);
               Print("[MAP] calculated map_options = " + to_string(MapOptions));
-              MapWidth = CreateByteArray((uint16_t)RawMapWidth, false);
+              MapWidth = CreateByteArray(static_cast<uint16_t>(RawMapWidth), false);
               Print("[MAP] calculated map_width = " + ByteArrayToDecString(MapWidth));
-              MapHeight = CreateByteArray((uint16_t)RawMapHeight, false);
+              MapHeight = CreateByteArray(static_cast<uint16_t>(RawMapHeight), false);
               Print("[MAP] calculated map_height = " + ByteArrayToDecString(MapHeight));
               MapNumPlayers = RawMapNumPlayers - ClosedSlots;
               Print("[MAP] calculated map_numplayers = " + to_string(MapNumPlayers));

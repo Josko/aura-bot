@@ -59,25 +59,25 @@ inline std::vector<uint8_t> CreateByteArray(const uint8_t c)
 inline std::vector<uint8_t> CreateByteArray(const uint16_t i, bool reverse)
 {
   if (!reverse)
-    return std::vector<uint8_t>{(uint8_t)i, (uint8_t)(i >> 8)};
+    return std::vector<uint8_t>{static_cast<uint8_t>(i), static_cast<uint8_t>(i >> 8)};
   else
-    return std::vector<uint8_t>{(uint8_t)(i >> 8), (uint8_t)i};
+    return std::vector<uint8_t>{static_cast<uint8_t>(i >> 8), static_cast<uint8_t>(i)};
 }
 
 inline std::vector<uint8_t> CreateByteArray(const uint32_t i, bool reverse)
 {
   if (!reverse)
-    return std::vector<uint8_t>{(uint8_t)i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24)};
+    return std::vector<uint8_t>{static_cast<uint8_t>(i), static_cast<uint8_t>(i >> 8), static_cast<uint8_t>(i >> 16), static_cast<uint8_t>(i >> 24)};
   else
-    return std::vector<uint8_t>{(uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t)i};
+    return std::vector<uint8_t>{static_cast<uint8_t>(i >> 24), static_cast<uint8_t>(i >> 16), static_cast<uint8_t>(i >> 8), static_cast<uint8_t>(i)};
 }
 
 inline std::vector<uint8_t> CreateByteArray(const int64_t i, bool reverse)
 {
   if (!reverse)
-    return std::vector<uint8_t>{(uint8_t)i, (uint8_t)(i >> 8), (uint8_t)(i >> 16), (uint8_t)(i >> 24)};
+    return std::vector<uint8_t>{static_cast<uint8_t>(i), static_cast<uint8_t>(i >> 8), static_cast<uint8_t>(i >> 16), static_cast<uint8_t>(i >> 24)};
   else
-    return std::vector<uint8_t>{(uint8_t)(i >> 24), (uint8_t)(i >> 16), (uint8_t)(i >> 8), (uint8_t)i};
+    return std::vector<uint8_t>{static_cast<uint8_t>(i >> 24), static_cast<uint8_t>(i >> 16), static_cast<uint8_t>(i >> 8), static_cast<uint8_t>(i)};
 }
 
 inline uint16_t ByteArrayToUInt16(const std::vector<uint8_t>& b, bool reverse, const uint32_t start = 0)
@@ -86,9 +86,9 @@ inline uint16_t ByteArrayToUInt16(const std::vector<uint8_t>& b, bool reverse, c
     return 0;
 
   if (!reverse)
-    return (uint16_t)(b[start + 1] << 8 | b[start]);
+    return static_cast<uint16_t>(b[start + 1] << 8 | b[start]);
   else
-    return (uint16_t)(b[start] << 8 | b[start + 1]);
+    return static_cast<uint16_t>(b[start] << 8 | b[start + 1]);
 }
 
 inline uint32_t ByteArrayToUInt32(const std::vector<uint8_t>& b, bool reverse, const uint32_t start = 0)
@@ -97,9 +97,9 @@ inline uint32_t ByteArrayToUInt32(const std::vector<uint8_t>& b, bool reverse, c
     return 0;
 
   if (!reverse)
-    return (uint32_t)(b[start + 3] << 24 | b[start + 2] << 16 | b[start + 1] << 8 | b[start]);
+    return static_cast<uint32_t>(b[start + 3] << 24 | b[start + 2] << 16 | b[start + 1] << 8 | b[start]);
   else
-    return (uint32_t)(b[start] << 24 | b[start + 1] << 16 | b[start + 2] << 8 | b[start + 3]);
+    return static_cast<uint32_t>(b[start] << 24 | b[start + 1] << 16 | b[start + 2] << 8 | b[start + 3]);
 }
 
 inline std::string ByteArrayToDecString(const std::vector<uint8_t>& b)
@@ -244,7 +244,7 @@ inline std::vector<uint8_t> ExtractNumbers(const std::string& s, const uint32_t 
 
     // TODO: if c > 255 handle the error instead of truncating
 
-    result.push_back((uint8_t)c);
+    result.push_back(static_cast<uint8_t>(c));
   }
 
   return result;
@@ -265,7 +265,7 @@ inline std::vector<uint8_t> ExtractHexNumbers(std::string& s)
 
     // TODO: if c > 255 handle the error instead of truncating
 
-    result.push_back((uint8_t)c);
+    result.push_back(static_cast<uint8_t>(c));
   }
 
   return result;
@@ -275,10 +275,10 @@ inline void AssignLength(std::vector<uint8_t>& content)
 {
   // insert the actual length of the content array into bytes 3 and 4 (indices 2 and 3)
 
-  const uint16_t Size = (uint16_t)content.size();
+  const uint16_t Size = static_cast<uint16_t>(content.size());
 
-  content[2] = (uint8_t)Size;
-  content[3] = (uint8_t)(Size >> 8);
+  content[2] = static_cast<uint8_t>(Size);
+  content[3] = static_cast<uint8_t>(Size >> 8);
 }
 
 inline std::string AddPathSeparator(const std::string& path)

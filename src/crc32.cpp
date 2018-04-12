@@ -68,7 +68,7 @@ uint32_t CCRC32::Reflect(uint32_t reflect, const uint8_t val) const
 uint32_t CCRC32::CalculateCRC(const uint8_t* data, std::size_t length, uint32_t previous_crc) const
 {
   uint32_t        crc     = ~previous_crc; // same as previousCrc32 ^ 0xFFFFFFFF
-  const uint32_t* current = (const uint32_t*)data;
+  const uint32_t* current = reinterpret_cast<const uint32_t*>(data);
 
   // enabling optimization (at least -O2) automatically unrolls the inner for-loop
   constexpr size_t  Unroll      = 4;
@@ -126,7 +126,7 @@ uint32_t CCRC32::CalculateCRC(const uint8_t* data, std::size_t length, uint32_t 
     length -= BytesAtOnce;
   }
 
-  const uint8_t* currentChar = (const uint8_t*)current;
+  const uint8_t* currentChar = reinterpret_cast<const uint8_t*>(current);
   // remaining 1 to 63 bytes (standard algorithm)
   while (length-- != 0)
     crc = (crc >> 8) ^ LUT[0][(crc & 0xFF) ^ *currentChar++];

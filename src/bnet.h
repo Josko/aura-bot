@@ -87,7 +87,7 @@ private:
   bool                             m_PvPGN;                     // if this BNET connection is actually a PvPGN
 
 public:
-  CBNET(CAura* nAura, std::string nServer, std::string nServerAlias, std::string nCDKeyROC, std::string nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, std::string nUserName, std::string nUserPassword, std::string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, std::vector<uint8_t> nEXEVersion, std::vector<uint8_t> nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
+  CBNET(CAura* nAura, std::string nServer, const std::string& nServerAlias, const std::string& nCDKeyROC, const std::string& nCDKeyTFT, std::string nCountryAbbrev, std::string nCountry, uint32_t nLocaleID, const std::string& nUserName, const std::string& nUserPassword, std::string nFirstChannel, char nCommandTrigger, uint8_t nWar3Version, std::vector<uint8_t> nEXEVersion, std::vector<uint8_t> nEXEVersionHash, std::string nPasswordHashType, uint32_t nHostCounterID);
   ~CBNET();
   CBNET(CBNET&) = delete;
 

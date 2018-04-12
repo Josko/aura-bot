@@ -204,7 +204,7 @@ CTCPSocket::CTCPSocket()
   // disable Nagle's algorithm
 
   int32_t OptVal = 1;
-  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char*)&OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&OptVal), sizeof(int32_t));
 }
 
 CTCPSocket::CTCPSocket(SOCKET nSocket, struct sockaddr_in nSIN)
@@ -295,7 +295,7 @@ void CTCPSocket::DoSend(fd_set* send_fd)
   {
     // socket is ready, send it
 
-    int32_t s = send(m_Socket, m_SendBuffer.c_str(), (int32_t)m_SendBuffer.size(), MSG_NOSIGNAL);
+    int32_t s = send(m_Socket, m_SendBuffer.c_str(), static_cast<int32_t>(m_SendBuffer.size()), MSG_NOSIGNAL);
 
     if (s > 0)
     {
@@ -368,7 +368,7 @@ void CTCPClient::Connect(const string& localaddress, const string& address, uint
 
     LocalSIN.sin_port = htons(0);
 
-    if (::bind(m_Socket, (struct sockaddr*)&LocalSIN, sizeof(LocalSIN)) == SOCKET_ERROR)
+    if (::bind(m_Socket, reinterpret_cast<struct sockaddr*>(&LocalSIN), sizeof(LocalSIN)) == SOCKET_ERROR)
     {
       m_HasError = true;
       m_Error    = GetLastError();
@@ -399,7 +399,7 @@ void CTCPClient::Connect(const string& localaddress, const string& address, uint
   m_SIN.sin_addr.s_addr = HostAddress;
   m_SIN.sin_port        = htons(port);
 
-  if (connect(m_Socket, (struct sockaddr*)&m_SIN, sizeof(m_SIN)) == SOCKET_ERROR)
+  if (connect(m_Socket, reinterpret_cast<struct sockaddr*>(&m_SIN), sizeof(m_SIN)) == SOCKET_ERROR)
   {
     if (GetLastError() != EINPROGRESS && GetLastError() != EWOULDBLOCK)
     {
@@ -509,7 +509,7 @@ bool CTCPServer::Listen(const string& address, uint16_t port)
 
   m_SIN.sin_port = htons(port);
 
-  if (::bind(m_Socket, (struct sockaddr*)&m_SIN, sizeof(m_SIN)) == SOCKET_ERROR)
+  if (::bind(m_Socket, reinterpret_cast<struct sockaddr*>(&m_SIN), sizeof(m_SIN)) == SOCKET_ERROR)
   {
     m_HasError = true;
     m_Error    = GetLastError();
@@ -546,7 +546,7 @@ CTCPSocket* CTCPServer::Accept(fd_set* fd)
 #ifdef WIN32
     if ((NewSocket = accept(m_Socket, (struct sockaddr*)&Addr, &AddrLen)) != INVALID_SOCKET)
 #else
-    if ((NewSocket = accept(m_Socket, (struct sockaddr*)&Addr, (socklen_t*)&AddrLen)) != INVALID_SOCKET)
+    if ((NewSocket = accept(m_Socket, reinterpret_cast<struct sockaddr*>(&Addr), reinterpret_cast<socklen_t*>(&AddrLen))) != INVALID_SOCKET)
 #endif
     {
       // success! return the new socket
@@ -570,7 +570,7 @@ CUDPSocket::CUDPSocket()
   // enable broadcast support
 
   int32_t OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char*)&OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&OptVal), sizeof(int32_t));
 
   // set default broadcast target
 
@@ -588,7 +588,7 @@ bool CUDPSocket::SendTo(struct sockaddr_in sin, const std::vector<uint8_t>& mess
 
   const string MessageString = string(begin(message), end(message));
 
-  if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, (struct sockaddr*)&sin, sizeof(sin)) == -1)
+  if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, reinterpret_cast<struct sockaddr*>(&sin), sizeof(sin)) == -1)
     return false;
 
   return true;
@@ -634,7 +634,7 @@ bool CUDPSocket::Broadcast(uint16_t port, const std::vector<uint8_t>& message)
 
   const string MessageString = string(begin(message), end(message));
 
-  if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, (struct sockaddr*)&sin, sizeof(sin)) == -1)
+  if (sendto(m_Socket, MessageString.c_str(), MessageString.size(), 0, reinterpret_cast<struct sockaddr*>(&sin), sizeof(sin)) == -1)
   {
     Print("[UDPSOCKET] failed to broadcast packet (port " + to_string(port) + ", size " + to_string(MessageString.size()) + " bytes)");
     return false;
@@ -678,7 +678,7 @@ void CUDPSocket::SetDontRoute(bool dontRoute)
   // don't route packets; make them ignore routes set by routing table and send them to the interface
   // belonging to the target address directly
 
-  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, (const char*)&OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_DONTROUTE, reinterpret_cast<const char*>(&OptVal), sizeof(int32_t));
 }
 
 void CUDPSocket::Reset()
@@ -689,7 +689,7 @@ void CUDPSocket::Reset()
   // enable broadcast support
 
   int32_t OptVal = 1;
-  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, (const char*)&OptVal, sizeof(int32_t));
+  setsockopt(m_Socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&OptVal), sizeof(int32_t));
 
   // set default broadcast target
 

@@ -106,13 +106,13 @@ public:
   CSQLITE3(CSQLITE3&) = delete;
 
   inline bool        GetReady() const { return m_Ready; }
-  inline std::string GetError() const { return sqlite3_errmsg((sqlite3*)m_DB); }
+  inline std::string GetError() const { return sqlite3_errmsg(static_cast<sqlite3*>(m_DB)); }
 
-  inline int32_t Step(void* Statement) { return sqlite3_step((sqlite3_stmt*)Statement); }
-  inline int32_t Prepare(const std::string& query, void** Statement) { return sqlite3_prepare_v2((sqlite3*)m_DB, query.c_str(), -1, (sqlite3_stmt**)Statement, nullptr); }
-  inline int32_t Finalize(void* Statement) { return sqlite3_finalize((sqlite3_stmt*)Statement); }
-  inline int32_t Reset(void* Statement) { return sqlite3_reset((sqlite3_stmt*)Statement); }
-  inline int32_t Exec(const std::string& query) { return sqlite3_exec((sqlite3*)m_DB, query.c_str(), nullptr, nullptr, nullptr); }
+  inline int32_t Step(void* Statement) { return sqlite3_step(static_cast<sqlite3_stmt*>(Statement)); }
+  inline int32_t Prepare(const std::string& query, void** Statement) { return sqlite3_prepare_v2(static_cast<sqlite3*>(m_DB), query.c_str(), -1, reinterpret_cast<sqlite3_stmt**>(Statement), nullptr); }
+  inline int32_t Finalize(void* Statement) { return sqlite3_finalize(static_cast<sqlite3_stmt*>(Statement)); }
+  inline int32_t Reset(void* Statement) { return sqlite3_reset(static_cast<sqlite3_stmt*>(Statement)); }
+  inline int32_t Exec(const std::string& query) { return sqlite3_exec(static_cast<sqlite3*>(m_DB), query.c_str(), nullptr, nullptr, nullptr); }
 };
 
 //
@@ -330,15 +330,15 @@ public:
   inline uint32_t GetTotalTowerKills() const { return m_TotalTowerKills; }
   inline uint32_t GetTotalRaxKills() const { return m_TotalRaxKills; }
   inline uint32_t GetTotalCourierKills() const { return m_TotalCourierKills; }
-  inline float    GetAvgKills() const { return m_TotalGames > 0 ? (float)m_TotalKills / m_TotalGames : 0.f; }
-  inline float    GetAvgDeaths() const { return m_TotalGames > 0 ? (float)m_TotalDeaths / m_TotalGames : 0.f; }
-  inline float    GetAvgCreepKills() const { return m_TotalGames > 0 ? (float)m_TotalCreepKills / m_TotalGames : 0.f; }
-  inline float    GetAvgCreepDenies() const { return m_TotalGames > 0 ? (float)m_TotalCreepDenies / m_TotalGames : 0.f; }
-  inline float    GetAvgAssists() const { return m_TotalGames > 0 ? (float)m_TotalAssists / m_TotalGames : 0.f; }
-  inline float    GetAvgNeutralKills() const { return m_TotalGames > 0 ? (float)m_TotalNeutralKills / m_TotalGames : 0.f; }
-  inline float    GetAvgTowerKills() const { return m_TotalGames > 0 ? (float)m_TotalTowerKills / m_TotalGames : 0.f; }
-  inline float    GetAvgRaxKills() const { return m_TotalGames > 0 ? (float)m_TotalRaxKills / m_TotalGames : 0.f; }
-  inline float    GetAvgCourierKills() const { return m_TotalGames > 0 ? (float)m_TotalCourierKills / m_TotalGames : 0.f; }
+  inline float    GetAvgKills() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalKills) / m_TotalGames : 0.f; }
+  inline float    GetAvgDeaths() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalDeaths) / m_TotalGames : 0.f; }
+  inline float    GetAvgCreepKills() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalCreepKills) / m_TotalGames : 0.f; }
+  inline float    GetAvgCreepDenies() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalCreepDenies) / m_TotalGames : 0.f; }
+  inline float    GetAvgAssists() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalAssists) / m_TotalGames : 0.f; }
+  inline float    GetAvgNeutralKills() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalNeutralKills) / m_TotalGames : 0.f; }
+  inline float    GetAvgTowerKills() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalTowerKills) / m_TotalGames : 0.f; }
+  inline float    GetAvgRaxKills() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalRaxKills) / m_TotalGames : 0.f; }
+  inline float    GetAvgCourierKills() const { return m_TotalGames > 0 ? static_cast<float>(m_TotalCourierKills) / m_TotalGames : 0.f; }
 };
 
 #endif // AURA_AURADB_H_

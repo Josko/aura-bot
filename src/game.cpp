@@ -283,13 +283,13 @@ uint32_t CGame::SetFD(void* fd, void* send_fd, int32_t* nfds)
 
   if (m_Socket)
   {
-    m_Socket->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
+    m_Socket->SetFD(static_cast<fd_set*>(fd), static_cast<fd_set*>(send_fd), nfds);
     ++NumFDs;
   }
 
   for (auto& player : m_Players)
   {
-    player->GetSocket()->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
+    player->GetSocket()->SetFD(static_cast<fd_set*>(fd), static_cast<fd_set*>(send_fd), nfds);
     ++NumFDs;
   }
 
@@ -297,7 +297,7 @@ uint32_t CGame::SetFD(void* fd, void* send_fd, int32_t* nfds)
   {
     if (potential->GetSocket())
     {
-      potential->GetSocket()->SetFD((fd_set*)fd, (fd_set*)send_fd, nfds);
+      potential->GetSocket()->SetFD(static_cast<fd_set*>(fd), static_cast<fd_set*>(send_fd), nfds);
       ++NumFDs;
     }
   }
@@ -372,7 +372,7 @@ bool CGame::Update(void* fd, void* send_fd)
       // flush the socket (e.g. in case a rejection message is queued)
 
       if ((*i)->GetSocket())
-        (*i)->GetSocket()->DoSend((fd_set*)send_fd);
+        (*i)->GetSocket()->DoSend(static_cast<fd_set*>(send_fd));
 
       delete *i;
       i = m_Potentials.erase(i);
@@ -749,7 +749,7 @@ bool CGame::Update(void* fd, void* send_fd)
 
   if (m_Socket)
   {
-    CTCPSocket* NewSocket = m_Socket->Accept((fd_set*)fd);
+    CTCPSocket* NewSocket = m_Socket->Accept(static_cast<fd_set*>(fd));
 
     if (NewSocket)
       m_Potentials.push_back(new CPotentialPlayer(m_Protocol, this, NewSocket));
@@ -768,12 +768,12 @@ void CGame::UpdatePost(void* send_fd)
   // in reality since we're queueing actions it might not make a big difference but oh well
 
   for (auto& player : m_Players)
-    player->GetSocket()->DoSend((fd_set*)send_fd);
+    player->GetSocket()->DoSend(static_cast<fd_set*>(send_fd));
 
   for (auto& potential : m_Potentials)
   {
     if (potential->GetSocket())
-      potential->GetSocket()->DoSend((fd_set*)send_fd);
+      potential->GetSocket()->DoSend(static_cast<fd_set*>(send_fd));
   }
 }
 
@@ -865,9 +865,9 @@ void CGame::SendAllChat(uint8_t fromPID, const string& message)
     else
     {
       if (message.size() > 127)
-        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray((uint32_t)0, false), message.substr(0, 127)));
+        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray(static_cast<uint32_t>(0), false), message.substr(0, 127)));
       else
-        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray((uint32_t)0, false), message));
+        SendAll(m_Protocol->SEND_W3GS_CHAT_FROM_HOST(fromPID, GetPIDs(), 32, CreateByteArray(static_cast<uint32_t>(0), false), message));
     }
   }
 }
@@ -1086,7 +1086,7 @@ void CGame::EventPlayerDisconnectTimedOut(CGamePlayer* player)
     {
       int64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((int64_t)m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > (static_cast<int64_t>(m_GProxyEmptyActions) + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1125,7 +1125,7 @@ void CGame::EventPlayerDisconnectSocketError(CGamePlayer* player)
     {
       int64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((int64_t)m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > (static_cast<int64_t>(m_GProxyEmptyActions) + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1157,7 +1157,7 @@ void CGame::EventPlayerDisconnectConnectionClosed(CGamePlayer* player)
     {
       int64_t TimeRemaining = (m_GProxyEmptyActions + 1) * 60 - (GetTime() - m_StartedLaggingTime);
 
-      if (TimeRemaining > ((int64_t)m_GProxyEmptyActions + 1) * 60)
+      if (TimeRemaining > (static_cast<int64_t>(m_GProxyEmptyActions) + 1) * 60)
         TimeRemaining = (m_GProxyEmptyActions + 1) * 60;
 
       SendAllChat(player->GetPID(), "Please wait for me to reconnect (" + to_string(TimeRemaining) + " seconds remain)");
@@ -1468,7 +1468,7 @@ void CGame::EventPlayerLeft(CGamePlayer* player, uint32_t reason)
 
 void CGame::EventPlayerLoaded(CGamePlayer* player)
 {
-  Print("[GAME: " + m_GameName + "] player [" + player->GetName() + "] finished loading in " + to_string((double)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+  Print("[GAME: " + m_GameName + "] player [" + player->GetName() + "] finished loading in " + to_string(static_cast<double>(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 
   SendAll(m_Protocol->SEND_W3GS_GAMELOADED_OTHERS(player->GetPID()));
 }
@@ -1810,7 +1810,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
               break;
             }
             else
-              CloseSlot((uint8_t)(SID - 1), true);
+              CloseSlot(static_cast<uint8_t>(SID - 1), true);
           }
 
           break;
@@ -2054,7 +2054,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
               // not a fake player
 
               if (!Fake)
-                OpenSlot((uint8_t)SID, true);
+                OpenSlot(static_cast<uint8_t>(SID), true);
             }
           }
 
@@ -2201,7 +2201,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
               if (SS.fail())
                 Print("[GAME: " + m_GameName + "] bad input #2 to swap command");
               else
-                SwapSlots((uint8_t)(SID1 - 1), (uint8_t)(SID2 - 1));
+                SwapSlots(static_cast<uint8_t>(SID1 - 1), static_cast<uint8_t>(SID2 - 1));
             }
           }
 
@@ -2291,13 +2291,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
                 Print("[GAME: " + m_GameName + "] bad input #2 to handicap command");
               else
               {
-                uint8_t SID = (uint8_t)(Slot - 1);
+                uint8_t SID = static_cast<uint8_t>(Slot - 1);
 
                 if (SID < m_Slots.size())
                 {
                   if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED)
                   {
-                    m_Slots[SID].SetHandicap((uint8_t)Handicap);
+                    m_Slots[SID].SetHandicap(static_cast<uint8_t>(Handicap));
                     SendAllSlotInfo();
                   }
                 }
@@ -2775,7 +2775,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
             if (SS.fail())
               Print("[GAME: " + m_GameName + "] bad input #2 to comp command");
             else
-              ComputerSlot((uint8_t)(Slot - 1), (uint8_t)Skill, true);
+              ComputerSlot(static_cast<uint8_t>(Slot - 1), static_cast<uint8_t>(Skill), true);
           }
 
           break;
@@ -2812,7 +2812,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
                 Print("[GAME: " + m_GameName + "] bad input #2 to compcolour command");
               else
               {
-                uint8_t SID = (uint8_t)(Slot - 1);
+                uint8_t SID = static_cast<uint8_t>(Slot - 1);
 
                 if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && Colour < 12 && SID < m_Slots.size())
                 {
@@ -2857,13 +2857,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
                 Print("[GAME: " + m_GameName + "] bad input #2 to comphandicap command");
               else
               {
-                uint8_t SID = (uint8_t)(Slot - 1);
+                uint8_t SID = static_cast<uint8_t>(Slot - 1);
 
                 if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && (Handicap == 50 || Handicap == 60 || Handicap == 70 || Handicap == 80 || Handicap == 90 || Handicap == 100) && SID < m_Slots.size())
                 {
                   if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer() == 1)
                   {
-                    m_Slots[SID].SetHandicap((uint8_t)Handicap);
+                    m_Slots[SID].SetHandicap(static_cast<uint8_t>(Handicap));
                     SendAllSlotInfo();
                   }
                 }
@@ -3115,7 +3115,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
                 Race = Race.substr(Start);
 
               transform(begin(Race), end(Race), begin(Race), ::tolower);
-              uint8_t SID = (uint8_t)(Slot - 1);
+              uint8_t SID = static_cast<uint8_t>(Slot - 1);
 
               if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && !(m_Map->GetMapFlags() & MAPFLAG_RANDOMRACES) && SID < m_Slots.size())
               {
@@ -3187,13 +3187,13 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
                 Print("[GAME: " + m_GameName + "] bad input #2 to compteam command");
               else
               {
-                uint8_t SID = (uint8_t)(Slot - 1);
+                uint8_t SID = static_cast<uint8_t>(Slot - 1);
 
                 if (!(m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS) && Team < 14 && SID < m_Slots.size())
                 {
                   if (m_Slots[SID].GetSlotStatus() == SLOTSTATUS_OCCUPIED && m_Slots[SID].GetComputer() == 1)
                   {
-                    m_Slots[SID].SetTeam((uint8_t)(Team - 1));
+                    m_Slots[SID].SetTeam(static_cast<uint8_t>(Team - 1));
                     SendAllSlotInfo();
                   }
                 }
@@ -3370,7 +3370,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
             player->SetKickVote(true);
             Print("[GAME: " + m_GameName + "] votekick against player [" + m_KickVotePlayer + "] started by player [" + User + "]");
-            SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string((uint32_t)ceil((GetNumHumanPlayers() - 1) * (float)m_Aura->m_VoteKickPercentage / 100) - 1) + " more votes are needed to pass");
+            SendAllChat("Player [" + User + "] voted to kick player [" + LastMatch->GetName() + "]. " + to_string(static_cast<uint32_t>(ceil((GetNumHumanPlayers() - 1) * static_cast<float>(m_Aura->m_VoteKickPercentage) / 100)) - 1) + " more votes are needed to pass");
             SendAllChat("Type " + string(1, m_Aura->m_CommandTrigger) + "yes to vote");
           }
         }
@@ -3391,7 +3391,7 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
         break;
 
       player->SetKickVote(true);
-      uint32_t Votes = 0, VotesNeeded = (uint32_t)ceil((GetNumHumanPlayers() - 1) * (float)m_Aura->m_VoteKickPercentage / 100);
+      uint32_t Votes = 0, VotesNeeded = static_cast<uint32_t>(ceil((GetNumHumanPlayers() - 1) * static_cast<float>(m_Aura->m_VoteKickPercentage) / 100));
 
       for (auto& player : m_Players)
       {
@@ -3581,7 +3581,7 @@ void CGame::EventPlayerDropRequest(CGamePlayer* player)
         ++Votes;
     }
 
-    if ((double)Votes / m_Players.size() > 0.50f)
+    if (static_cast<double>(Votes) / m_Players.size() > 0.50f)
       StopLaggers("lagged out (dropped by vote)");
   }
 }
@@ -3639,15 +3639,15 @@ void CGame::EventPlayerMapSize(CGamePlayer* player, CIncomingMapSize* mapSize)
   else if (player->GetDownloadStarted())
   {
     // calculate download rate
-    const double Seconds = (double)(GetTicks() - player->GetStartedDownloadingTicks()) / 1000.f;
-    const double Rate    = (double)MapSize / 1024.f / Seconds;
+    const double Seconds = static_cast<double>(GetTicks() - player->GetStartedDownloadingTicks()) / 1000.f;
+    const double Rate    = static_cast<double>(MapSize) / 1024.f / Seconds;
     Print("[GAME: " + m_GameName + "] map download finished for player [" + player->GetName() + "] in " + ToFormattedString(Seconds) + " seconds");
     SendAllChat("Player [" + player->GetName() + "] downloaded the map in " + ToFormattedString(Seconds) + " seconds (" + ToFormattedString(Rate) + " KB/sec)");
     player->SetDownloadFinished(true);
     player->SetFinishedDownloadingTime(GetTime());
   }
 
-  uint8_t       NewDownloadStatus = (uint8_t)((float)mapSize->GetMapSize() / MapSize * 100.f);
+  uint8_t       NewDownloadStatus = static_cast<uint8_t>(static_cast<float>(mapSize->GetMapSize()) / MapSize * 100.f);
   const uint8_t SID               = GetSIDFromPID(player->GetPID());
 
   if (NewDownloadStatus > 100)
@@ -3854,12 +3854,12 @@ void CGame::EventGameLoaded()
 
   if (Shortest && Longest)
   {
-    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + ToFormattedString((double)(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
-    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + ToFormattedString((double)(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Shortest load by player [" + Shortest->GetName() + "] was " + ToFormattedString(static_cast<double>(Shortest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendAllChat("Longest load by player [" + Longest->GetName() + "] was " + ToFormattedString(static_cast<double>(Longest->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
   }
 
   for (auto& player : m_Players)
-    SendChat(player, "Your load time was " + ToFormattedString((double)(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
+    SendChat(player, "Your load time was " + ToFormattedString(static_cast<double>(player->GetFinishedLoadingTicks() - m_StartedLoadingTicks) / 1000.f) + " seconds");
 }
 
 uint8_t CGame::GetSIDFromPID(uint8_t PID) const

@@ -76,7 +76,7 @@ int main(const int, const char* argv[])
 {
   // seed the PRNG
 
-  srand((uint32_t)time(nullptr));
+  srand(static_cast<uint32_t>(time(nullptr)));
 
   // disable sync since we don't use cstdio anyway
 
@@ -576,7 +576,7 @@ bool CAura::Update()
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t Length = static_cast<uint16_t>(Bytes[3] << 8 | Bytes[2]);
 
         if (Bytes.size() >= Length)
         {
@@ -776,7 +776,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print(R"([AURA] extracting Scripts\common.j from MPQ file to [)" + m_MapCFGPath + "common.j]");
-          FileWrite(m_MapCFGPath + "common.j", (uint8_t*)SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "common.j", reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
         }
         else
           Print(R"([AURA] warning - unable to extract Scripts\common.j from MPQ file)");
@@ -803,7 +803,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print(R"([AURA] extracting Scripts\blizzard.j from MPQ file to [)" + m_MapCFGPath + "blizzard.j]");
-          FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t*)SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "blizzard.j", reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
         }
         else
           Print(R"([AURA] warning - unable to extract Scripts\blizzard.j from MPQ file)");
@@ -823,7 +823,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
 #ifdef WIN32
     Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string((uint32_t)GetLastError()));
 #else
-    Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string((int32_t)GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string(static_cast<int32_t>(GetLastError())));
 #endif
   }
 }
@@ -874,7 +874,7 @@ void CAura::LoadIPToCountryData()
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
 
-        uint8_t NewPercent = (uint8_t)((float)in.tellg() / FileLength * 100);
+        uint8_t NewPercent = static_cast<uint8_t>((float)in.tellg() / FileLength * 100);
 
         if (NewPercent != Percent && NewPercent % 10 == 0)
         {
