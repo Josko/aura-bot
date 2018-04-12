@@ -96,5 +96,5 @@ $(COBJS): %.o: %.c
 
 clang-tidy:
 	@for file in $(OBJS); do \
-		clang-tidy "src/$$(basename $$file .o).cpp" -checks=* -- "$(CXXFLAGS) $(DFLAGS)"; \
+		clang-tidy "src/$$(basename $$file .o).cpp" -fix -checks=* -header-filter=src/* -- $(CXXFLAGS) $(DFLAGS); \
 	done;
