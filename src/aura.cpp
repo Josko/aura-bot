@@ -200,6 +200,13 @@ CAura::CAura(CConfig* CFG)
   m_UDPSocket->SetBroadcastTarget(CFG->GetString("udp_broadcasttarget", string()));
   m_UDPSocket->SetDontRoute(CFG->GetInt("udp_dontroute", 0) == 0 ? false : true);
 
+  m_TFT = CFG->GetInt("bot_tft", 1) == 0 ? false : true;
+
+  if (m_TFT)
+	  Print("[GHOST] acting as Warcraft III: The Frozen Throne");
+  else
+	  Print("[GHOST] acting as Warcraft III: Reign of Chaos");
+
   m_ReconnectPort = CFG->GetInt("bot_reconnectport", 6113);
 
   if (m_ReconnectSocket->Listen(m_BindAddress, m_ReconnectPort))
@@ -316,6 +323,24 @@ CAura::CAura(CConfig* CFG)
 
     if (Server.empty())
       break;
+
+	  if (CDKeyROC.empty())
+	  {
+		  Print("[AURA] missing " + Prefix + "cdkeyroc, skipping this battle.net connection");
+		  break;
+	  }
+
+	  if (m_TFT && CDKeyTFT.empty())
+	  {
+		  Print("[AURA] missing " + Prefix + "cdkeytft, skipping this battle.net connection");
+		  break;
+	  }
+
+	  if (UserName.empty())
+	  {
+		  Print("[AURA] missing " + Prefix + "username, skipping this battle.net connection");
+		  break;
+	  }
 
     Print("[AURA] found battle.net connection #" + to_string(i) + " for server [" + Server + "]");
 
