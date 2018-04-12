@@ -568,11 +568,11 @@ bool CGame::Update(void* fd, void* send_fd)
     }
   }
 
-  // start the gameover timer if there's only one player left
+  // start the gameover timer if there's only a configured number of players left
 
-  if (m_Players.size() == 1 && m_FakePlayers.empty() && m_GameOverTime == 0 && (m_GameLoading || m_GameLoaded))
+  if (m_Players.size() == m_Aura->m_NumPlayersToStartGameOver && m_FakePlayers.empty() && m_GameOverTime == 0 && (m_GameLoading || m_GameLoaded))
   {
-    Print("[GAME: " + m_GameName + "] gameover timer started (one player left)");
+    Print("[GAME: " + m_GameName + "] gameover timer started (" + std::to_string(m_Players.size()) + " player(s) left)");
     m_GameOverTime = Time;
   }
 
