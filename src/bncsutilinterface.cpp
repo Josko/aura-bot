@@ -59,16 +59,16 @@ inline static std::string CaseInsensitiveFileExists(const std::string& path, std
   for (size_t perm = 0; perm < NumberOfCombinations; ++perm)
   {
     std::bitset<64> bs(perm);
-	std::transform(mutated_file.begin(), mutated_file.end(), mutated_file.begin(), ::tolower);
+    std::transform(mutated_file.begin(), mutated_file.end(), mutated_file.begin(), ::tolower);
 
-	for (size_t index = 0; index < bs.size() && index < mutated_file.size(); ++index)
-	{
-	  if (bs[index])
-		mutated_file[index] = ::toupper(mutated_file[index]);
-	}
+    for (size_t index = 0; index < bs.size() && index < mutated_file.size(); ++index)
+    {
+      if (bs[index])
+        mutated_file[index] = ::toupper(mutated_file[index]);
+    }
 
-	if (FileExists(path + mutated_file))
-		return path + mutated_file;
+    if (FileExists(path + mutated_file))
+      return path + mutated_file;
   }
 
   return "";
