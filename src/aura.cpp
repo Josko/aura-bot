@@ -76,7 +76,7 @@ int main(const int, const char* argv[])
 {
   // seed the PRNG
 
-  srand((uint32_t)time(nullptr));
+  srand(static_cast<uint32_t>(time(nullptr)));
 
   // disable sync since we don't use cstdio anyway
 
@@ -215,6 +215,7 @@ CAura::CAura(CConfig* CFG)
   m_HostPort       = CFG->GetInt("bot_hostport", 6112);
   m_DefaultMap     = CFG->GetString("bot_defaultmap", "dota");
   m_LANWar3Version = CFG->GetInt("lan_war3version", 27);
+  m_NumPlayersToStartGameOver = CFG->GetInt("bot_gameoverplayernumber", 1);
 
   // read the rest of the general configuration
 
@@ -550,7 +551,7 @@ bool CAura::Update()
       {
         // bytes 2 and 3 contain the length of the packet
 
-        const uint16_t Length = (uint16_t)(Bytes[3] << 8 | Bytes[2]);
+        const uint16_t Length = static_cast<uint16_t>(Bytes[3] << 8 | Bytes[2]);
 
         if (Bytes.size() >= Length)
         {
@@ -634,7 +635,13 @@ void CAura::EventBNETGameRefreshFailed(CBNET* bnet)
 {
   if (m_CurrentGame)
   {
-    m_CurrentGame->SendAllChat("Unable to create game on server [" + bnet->GetServer() + "]. Try another name");
+    // If the game has someone in it, advertise the fail only in the lobby (as it is probably a rehost).
+    // Otherwise whisper the game creator that the (re)host failed.
+
+    if (m_CurrentGame->GetNumHumanPlayers() != 0)
+      m_CurrentGame->SendAllChat("Unable to create game on server [" + bnet->GetServer() + "]. Try another name");
+    else
+      m_CurrentGame->GetCreatorServer()->QueueChatCommand("Unable to create game on server [" + bnet->GetServer() + "]. Try another name", m_CurrentGame->GetCreatorName(), true, string());
 
     Print2("[GAME: " + m_CurrentGame->GetGameName() + "] Unable to create game on server [" + bnet->GetServer() + "]. Try another name");
 
@@ -655,7 +662,7 @@ void CAura::EventGameDeleted(CGame* game)
   {
     bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over");
 
-    if (bnet->GetServer() == game->GetCreatorServer())
+    if (bnet == game->GetCreatorServer())
       bnet->QueueChatCommand("Game [" + game->GetDescription() + "] is over", game->GetCreatorName(), true, string());
   }
 }
@@ -744,7 +751,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print(R"([AURA] extracting Scripts\common.j from MPQ file to [)" + m_MapCFGPath + "common.j]");
-          FileWrite(m_MapCFGPath + "common.j", (uint8_t*)SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "common.j", reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
         }
         else
           Print(R"([AURA] warning - unable to extract Scripts\common.j from MPQ file)");
@@ -771,7 +778,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
         if (SFileReadFile(SubFile, SubFileData, FileLength, &BytesRead, nullptr))
         {
           Print(R"([AURA] extracting Scripts\blizzard.j from MPQ file to [)" + m_MapCFGPath + "blizzard.j]");
-          FileWrite(m_MapCFGPath + "blizzard.j", (uint8_t*)SubFileData, BytesRead);
+          FileWrite(m_MapCFGPath + "blizzard.j", reinterpret_cast<uint8_t*>(SubFileData), BytesRead);
         }
         else
           Print(R"([AURA] warning - unable to extract Scripts\blizzard.j from MPQ file)");
@@ -791,7 +798,7 @@ void CAura::ExtractScripts(const uint8_t War3Version)
 #ifdef WIN32
     Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string((uint32_t)GetLastError()));
 #else
-    Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string((int32_t)GetLastError()));
+    Print("[AURA] warning - unable to load MPQ file [" + MPQFileName + "] - error code " + to_string(static_cast<int32_t>(GetLastError())));
 #endif
   }
 }
@@ -842,7 +849,7 @@ void CAura::LoadIPToCountryData()
         // it's probably going to take awhile to load the iptocountry data (~10 seconds on my 3.2 GHz P4 when using SQLite3)
         // so let's print a progress meter just to keep the user from getting worried
 
-        uint8_t NewPercent = (uint8_t)((float)in.tellg() / FileLength * 100);
+        uint8_t NewPercent = static_cast<uint8_t>((float)in.tellg() / FileLength * 100);
 
         if (NewPercent != Percent && NewPercent % 10 == 0)
         {
@@ -861,60 +868,35 @@ void CAura::LoadIPToCountryData()
   }
 }
 
-void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string ownerName, string creatorName, string creatorServer, bool whisper)
+void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string ownerName, string creatorName, CBNET* creatorServer, bool whisper)
 {
   if (!m_Enabled)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The bot is disabled", creatorName, whisper, string());
     return;
   }
 
   if (gameName.size() > 31)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The game name is too long (the maximum is 31 characters)", creatorName, whisper, string());
     return;
   }
 
   if (!map->GetValid())
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The currently loaded map config file is invalid", creatorName, whisper, string());
     return;
   }
 
   if (m_CurrentGame)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. Another game [" + m_CurrentGame->GetDescription() + "] is in the lobby", creatorName, whisper, string());
     return;
   }
 
   if (m_Games.size() >= m_MaxGames)
   {
-    for (auto& bnet : m_BNETs)
-    {
-      if (bnet->GetServer() == creatorServer)
-        bnet->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + to_string(m_MaxGames) + ") has been reached", creatorName, whisper, string());
-    }
-
+    creatorServer->QueueChatCommand("Unable to create game [" + gameName + "]. The maximum number of simultaneous games (" + to_string(m_MaxGames) + ") has been reached", creatorName, whisper, string());
     return;
   }
 
@@ -924,7 +906,7 @@ void CAura::CreateGame(CMap* map, uint8_t gameState, string gameName, string own
 
   for (auto& bnet : m_BNETs)
   {
-    if (whisper && bnet->GetServer() == creatorServer)
+    if (whisper && bnet == creatorServer)
     {
       // note that we send this whisper only on the creator server
 

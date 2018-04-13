@@ -133,7 +133,7 @@ CIncomingChatEvent* CBNETProtocol::RECEIVE_SID_CHATEVENT(const std::vector<uint8
     const std::vector<uint8_t> User    = ExtractCString(data, 28);
     const std::vector<uint8_t> Message = ExtractCString(data, User.size() + 29);
 
-    return new CIncomingChatEvent((CBNETProtocol::IncomingChatEvent)ByteArrayToUInt32(EventID, false),
+    return new CIncomingChatEvent(static_cast<CBNETProtocol::IncomingChatEvent>(ByteArrayToUInt32(EventID, false)),
                                   string(begin(User), end(User)),
                                   string(begin(Message), end(Message)));
   }
@@ -450,7 +450,7 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_STARTADVEX3(uint8_t state, const st
   string HostCounterString = ToHexString(hostCounter);
 
   if (HostCounterString.size() < 8)
-    HostCounterString.insert((size_t)0, (size_t)8 - HostCounterString.size(), '0');
+    HostCounterString.insert(static_cast<size_t>(0), static_cast<size_t>(8) - HostCounterString.size(), '0');
 
   HostCounterString = string(HostCounterString.rbegin(), HostCounterString.rend());
 
@@ -605,7 +605,7 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(const std::vector<uint8_
     AppendByteArrayFast(packet, exeVersion);     // EXE Version
     AppendByteArrayFast(packet, exeVersionHash); // EXE Version Hash
     AppendByteArray(packet, NumKeys, false);     // number of keys in this packet
-    AppendByteArray(packet, (uint32_t)0, false); // boolean Using Spawn (32 bit)
+    AppendByteArray(packet, static_cast<uint32_t>(0), false); // boolean Using Spawn (32 bit)
     AppendByteArrayFast(packet, keyInfoROC);     // ROC Key Info
     AppendByteArrayFast(packet, keyInfoTFT);     // TFT Key Info
     AppendByteArrayFast(packet, exeInfo);        // EXE Info
@@ -675,7 +675,7 @@ bool CBNETProtocol::ValidateLength(const std::vector<uint8_t>& content)
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
+  return (static_cast<uint16_t>(content[3] << 8 | content[2]) == content.size());
 }
 
 //
@@ -700,7 +700,7 @@ string CIncomingGameHost::GetIPString() const
   {
     for (uint32_t i = 0; i < 4; ++i)
     {
-      Result += to_string((uint32_t)m_IP[i]);
+      Result += to_string(static_cast<uint32_t>(m_IP[i]));
 
       if (i < 3)
         Result += ".";

@@ -269,7 +269,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_SLOTINFOJOIN(uint8_t PID, const st
     packet.push_back(W3GS_SLOTINFOJOIN);                       // W3GS_SLOTINFOJOIN
     packet.push_back(0);                                       // packet length will be assigned later
     packet.push_back(0);                                       // packet length will be assigned later
-    AppendByteArray(packet, (uint16_t)SlotInfo.size(), false); // SlotInfo length
+    AppendByteArray(packet, static_cast<uint16_t>(SlotInfo.size()), false); // SlotInfo length
     AppendByteArrayFast(packet, SlotInfo);                     // SlotInfo
     packet.push_back(PID);                                     // PID
     packet.push_back(2);                                       // AF_INET
@@ -359,7 +359,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_GAMELOADED_OTHERS(uint8_t PID)
 std::vector<uint8_t> CGameProtocol::SEND_W3GS_SLOTINFO(vector<CGameSlot>& slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots)
 {
   const std::vector<uint8_t> SlotInfo     = EncodeSlotInfo(slots, randomSeed, layoutStyle, playerSlots);
-  const uint16_t             SlotInfoSize = (uint16_t)SlotInfo.size();
+  const uint16_t             SlotInfoSize = static_cast<uint16_t>(SlotInfo.size());
 
   std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_SLOTINFO, 0, 0};
   AppendByteArray(packet, SlotInfoSize, false); // SlotInfo length
@@ -394,7 +394,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_INCOMING_ACTION(queue<CIncomingAct
       CIncomingAction* Action = actions.front();
       actions.pop();
       subpacket.push_back(Action->GetPID());
-      AppendByteArray(subpacket, (uint16_t)Action->GetAction()->size(), false);
+      AppendByteArray(subpacket, static_cast<uint16_t>(Action->GetAction()->size()), false);
       AppendByteArrayFast(subpacket, *Action->GetAction());
     } while (!actions.empty());
 
@@ -417,7 +417,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_CHAT_FROM_HOST(uint8_t fromPID, co
 {
   if (!toPIDs.empty() && !message.empty() && message.size() < 255)
   {
-    std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_CHAT_FROM_HOST, 0, 0, (uint8_t)toPIDs.size()};
+    std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_CHAT_FROM_HOST, 0, 0, static_cast<uint8_t>(toPIDs.size())};
     AppendByteArrayFast(packet, toPIDs);    // receivers
     packet.push_back(fromPID);              // sender
     packet.push_back(flag);                 // flag
@@ -598,7 +598,7 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_INCOMING_ACTION2(queue<CIncomingAc
       CIncomingAction* Action = actions.front();
       actions.pop();
       subpacket.push_back(Action->GetPID());
-      AppendByteArray(subpacket, (uint16_t)Action->GetAction()->size(), false);
+      AppendByteArray(subpacket, static_cast<uint16_t>(Action->GetAction()->size()), false);
       AppendByteArrayFast(subpacket, *Action->GetAction());
     }
 
@@ -625,13 +625,13 @@ bool CGameProtocol::ValidateLength(const std::vector<uint8_t>& content)
 {
   // verify that bytes 3 and 4 (indices 2 and 3) of the content array describe the length
 
-  return ((uint16_t)(content[3] << 8 | content[2]) == content.size());
+  return (static_cast<uint16_t>(content[3] << 8 | content[2]) == content.size());
 }
 
 std::vector<uint8_t> CGameProtocol::EncodeSlotInfo(const vector<CGameSlot>& slots, uint32_t randomSeed, uint8_t layoutStyle, uint8_t playerSlots)
 {
   std::vector<uint8_t> SlotInfo;
-  SlotInfo.push_back((uint8_t)slots.size()); // number of slots
+  SlotInfo.push_back(static_cast<uint8_t>(slots.size())); // number of slots
 
   for (auto& slot : slots)
     AppendByteArray(SlotInfo, slot.GetByteArray());

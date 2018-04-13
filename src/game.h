@@ -44,6 +44,7 @@ class CDBBan;
 class CDBGamePlayer;
 class CStats;
 class CIRC;
+class CBNET;
 
 class CGame
 {
@@ -70,7 +71,7 @@ protected:
   std::string                    m_VirtualHostName;               // host's name
   std::string                    m_OwnerName;                     // name of the player who owns this game (should be considered an admin)
   std::string                    m_CreatorName;                   // name of the player who created this game
-  std::string                    m_CreatorServer;                 // battle.net server the player who created this game was on
+  CBNET*                         m_CreatorServer;                 // battle.net server the player who created this game was on
   std::string                    m_KickVotePlayer;                // the player to be kicked with the currently running kick vote
   std::string                    m_HCLCommandString;              // the "HostBot Command Library" command std::string, used to pass a limited amount of data to specially designed maps
   std::string                    m_MapPath;                       // store the map path to save in the database on game end
@@ -118,7 +119,7 @@ protected:
   bool                           m_Desynced;                      // if the game has desynced or not
 
 public:
-  CGame(CAura* nAura, CMap* nMap, uint16_t nHostPort, uint8_t nGameState, std::string& nGameName, std::string& nOwnerName, std::string& nCreatorName, std::string& nCreatorServer);
+  CGame(CAura* nAura, CMap* nMap, uint16_t nHostPort, uint8_t nGameState, std::string& nGameName, std::string& nOwnerName, std::string& nCreatorName, CBNET* nCreatorServer);
   ~CGame();
   CGame(CGame&) = delete;
 
@@ -133,7 +134,7 @@ public:
   inline std::string    GetVirtualHostName() const { return m_VirtualHostName; }
   inline std::string    GetOwnerName() const { return m_OwnerName; }
   inline std::string    GetCreatorName() const { return m_CreatorName; }
-  inline std::string    GetCreatorServer() const { return m_CreatorServer; }
+  inline CBNET*         GetCreatorServer() const { return m_CreatorServer; }
   inline uint32_t       GetHostCounter() const { return m_HostCounter; }
   inline int64_t        GetLastLagScreenTime() const { return m_LastLagScreenTime; }
   inline bool           GetLocked() const { return m_Locked; }

@@ -42,12 +42,12 @@ CBNCSUtilInterface::CBNCSUtilInterface(const string& userName, const string& use
 
 CBNCSUtilInterface::~CBNCSUtilInterface()
 {
-  delete (NLS*)m_NLS;
+  delete static_cast<NLS*>(m_NLS);
 }
 
 void CBNCSUtilInterface::Reset(const string& userName, const string& userPassword)
 {
-  delete (NLS*)m_NLS;
+  delete static_cast<NLS*>(m_NLS);
   m_NLS = new NLS(userName, userPassword);
 }
 
@@ -59,16 +59,16 @@ inline static std::string CaseInsensitiveFileExists(const std::string& path, std
   for (size_t perm = 0; perm < NumberOfCombinations; ++perm)
   {
     std::bitset<64> bs(perm);
-	std::transform(mutated_file.begin(), mutated_file.end(), mutated_file.begin(), ::tolower);
+    std::transform(mutated_file.begin(), mutated_file.end(), mutated_file.begin(), ::tolower);
 
-	for (size_t index = 0; index < bs.size() && index < mutated_file.size(); ++index)
-	{
-	  if (bs[index])
-		mutated_file[index] = ::toupper(mutated_file[index]);
-	}
+    for (size_t index = 0; index < bs.size() && index < mutated_file.size(); ++index)
+    {
+      if (bs[index])
+        mutated_file[index] = ::toupper(mutated_file[index]);
+    }
 
-	if (FileExists(path + mutated_file))
-		return path + mutated_file;
+    if (FileExists(path + mutated_file))
+      return path + mutated_file;
   }
 
   return "";
@@ -85,7 +85,7 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
   const string FileStormDLL = CaseInsensitiveFileExists(war3Path, "storm.dll");
   const string FileGameDLL  = CaseInsensitiveFileExists(war3Path, "game.dll");
 
-  if (!FileWar3EXE.empty() && !FileStormDLL.empty() && !FileGameDLL.empty())
+  if (!FileWar3EXE.empty() && (war3Version >= 29 || (!FileStormDLL.empty() && !FileGameDLL.empty())))
   {
     // TODO: check getExeInfo return value to ensure 1024 bytes was enough
 
@@ -94,7 +94,13 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
     uint32_t EXEVersionHash;
 
     getExeInfo(FileWar3EXE.c_str(), buf, 1024, &EXEVersion, BNCSUTIL_PLATFORM_X86);
-    checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), (unsigned long*)&EXEVersionHash);
+    if(war3Version >= 29)
+    {
+      static const char* filesArray[] = {FileWar3EXE.c_str()};
+      checkRevision(valueStringFormula.c_str(), filesArray, 1, extractMPQNumber(mpqFileName.c_str()), reinterpret_cast<unsigned long*>(&EXEVersionHash));		
+    }
+    else 
+      checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), reinterpret_cast<unsigned long*>(&EXEVersionHash));
     m_EXEInfo        = buf;
     m_EXEVersion     = CreateByteArray(EXEVersion, false);
     m_EXEVersionHash = CreateByteArray(EXEVersionHash, false);
@@ -117,10 +123,9 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
     if (FileWar3EXE.empty())
       Print("[BNCSUI] unable to open War3EXE [" + FileWar3EXE + "]");
 
-    if (FileStormDLL.empty())
+    if (FileStormDLL.empty() && war3Version < 29)
       Print("[BNCSUI] unable to open StormDLL [" + FileStormDLL + "]");
-
-    if (FileGameDLL.empty())
+    if (FileGameDLL.empty() && war3Version < 29)
       Print("[BNCSUI] unable to open GameDLL [" + FileGameDLL + "]");
   }
 
@@ -132,8 +137,8 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGON()
   // set m_ClientKey
 
   char buf[32];
-  ((NLS*)m_NLS)->getPublicKey(buf);
-  m_ClientKey = CreateByteArray((uint8_t*)buf, 32);
+  (static_cast<NLS*>(m_NLS))->getPublicKey(buf);
+  m_ClientKey = CreateByteArray(reinterpret_cast<uint8_t*>(buf), 32);
   return true;
 }
 
@@ -142,8 +147,8 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint8
   // set m_M1
 
   char buf[20];
-  ((NLS*)m_NLS)->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
-  m_M1 = CreateByteArray((uint8_t*)buf, 20);
+  (static_cast<NLS*>(m_NLS))->getClientSessionKey(buf, string(begin(salt), end(salt)).c_str(), string(begin(serverKey), end(serverKey)).c_str());
+  m_M1 = CreateByteArray(reinterpret_cast<uint8_t*>(buf), 20);
   return true;
 }
 
@@ -153,7 +158,7 @@ bool CBNCSUtilInterface::HELP_PvPGNPasswordHash(const string& userPassword)
 
   char buf[20];
   hashPassword(userPassword.c_str(), buf);
-  m_PvPGNPasswordHash = CreateByteArray((uint8_t*)buf, 20);
+  m_PvPGNPasswordHash = CreateByteArray(reinterpret_cast<uint8_t*>(buf), 20);
   return true;
 }
 
@@ -165,14 +170,14 @@ std::vector<uint8_t> CBNCSUtilInterface::CreateKeyInfo(const string& key, uint32
   if (Decoder.isKeyValid())
   {
     const uint8_t Zeros[] = {0, 0, 0, 0};
-    AppendByteArray(KeyInfo, CreateByteArray((uint32_t)key.size(), false));
+    AppendByteArray(KeyInfo, CreateByteArray(static_cast<uint32_t>(key.size()), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getProduct(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Decoder.getVal1(), false));
     AppendByteArray(KeyInfo, CreateByteArray(Zeros, 4));
     size_t Length = Decoder.calculateHash(clientToken, serverToken);
     auto   buf    = new char[Length];
     Length        = Decoder.getHash(buf);
-    AppendByteArray(KeyInfo, CreateByteArray((uint8_t*)buf, Length));
+    AppendByteArray(KeyInfo, CreateByteArray(reinterpret_cast<uint8_t*>(buf), Length));
     delete[] buf;
   }
 
