@@ -491,7 +491,7 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_STARTADVEX3(uint8_t state, const st
     AppendByteArray(packet, CustomGame, 4);                // Custom Game
     AppendByteArrayFast(packet, gameName);                 // Game Name
     packet.push_back(0);                                   // Game Password is NULL
-    packet.push_back(110);                                 // Slots Free (ascii 98 = char 'n' = 23 slots free) - note: do not reduce this as this is the # of PID's Warcraft III will allocate
+    packet.push_back(110);                                 // Slots Free (ascii 110 = char 'n' = 23 slots free) - note: do not reduce this as this is the # of PID's Warcraft III will allocate
     AppendByteArrayFast(packet, HostCounterString, false); // Host Counter
     AppendByteArrayFast(packet, StatString);               // Stat String
     packet.push_back(0);                                   // Stat String null terminator (the stat string is encoded to remove all even numbers i.e. zeros)
