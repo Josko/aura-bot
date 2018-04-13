@@ -490,7 +490,7 @@ bool CBNET::Update(void* fd, void* send_fd)
       Print2("[BNET: " + m_ServerAlias + "] connected");
       m_Socket->PutBytes(m_Protocol->SEND_PROTOCOL_INITIALIZE_SELECTOR());
       m_Socket->PutBytes(m_Protocol->SEND_SID_AUTH_INFO(m_War3Version, m_Aura->m_TFT, m_LocaleID, m_CountryAbbrev, m_Country));
-      m_Socket->DoSend((fd_set*)send_fd);
+      m_Socket->DoSend(static_cast<fd_set*>(send_fd));
       m_LastNullTime       = Time;
       m_LastOutPacketTicks = Ticks;
 
