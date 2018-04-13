@@ -578,7 +578,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
                 ISS.read(reinterpret_cast<char*>(&Flags), 4);      // flags
                 ISS.read(reinterpret_cast<char*>(&PlayerMask), 4); // player mask
 
-                for (uint8_t j = 0; j < 12; ++j)
+                for (uint8_t j = 0; j < MAX_SLOTS; ++j)
                 {
                   if (PlayerMask & 1)
                   {
@@ -779,7 +779,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   if (Slots.empty())
   {
-    for (uint32_t Slot = 1; Slot <= 12; ++Slot)
+    for (uint32_t Slot = 1; Slot <= MAX_SLOTS; ++Slot)
     {
       string SlotString = CFG->GetString("map_slot" + to_string(Slot), string());
 
@@ -795,7 +795,7 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
     Print("[MAP] overriding slots");
     Slots.clear();
 
-    for (uint32_t Slot = 1; Slot <= 12; ++Slot)
+    for (uint32_t Slot = 1; Slot <= MAX_SLOTS; ++Slot)
     {
       string SlotString = CFG->GetString("map_slot" + to_string(Slot), string());
 
@@ -828,10 +828,10 @@ void CMap::Load(CConfig* CFG, const string& nCFGFile)
 
   if (m_MapObservers == MAPOBS_ALLOWED || m_MapObservers == MAPOBS_REFEREES)
   {
-    Print("[MAP] adding " + to_string(12 - m_Slots.size()) + " observer slots");
+    Print("[MAP] adding " + to_string(MAX_SLOTS - m_Slots.size()) + " observer slots");
 
-    while (m_Slots.size() < 12)
-      m_Slots.emplace_back(0, 255, SLOTSTATUS_OPEN, 0, 12, 12, SLOTRACE_RANDOM);
+    while (m_Slots.size() < MAX_SLOTS)
+      m_Slots.emplace_back(0, 255, SLOTSTATUS_OPEN, 0, MAX_SLOTS, MAX_SLOTS, SLOTRACE_RANDOM);
   }
 
   const char* ErrorMessage = CheckValid();
@@ -912,19 +912,19 @@ const char* CMap::CheckValid()
     return "invalid map_height detected";
   }
 
-  if (m_MapNumPlayers == 0 || m_MapNumPlayers > 12)
+  if (m_MapNumPlayers == 0 || m_MapNumPlayers > MAX_SLOTS)
   {
     m_Valid = false;
     return "invalid map_numplayers detected";
   }
 
-  if (m_MapNumTeams == 0 || m_MapNumTeams > 12)
+  if (m_MapNumTeams == 0 || m_MapNumTeams > MAX_SLOTS)
   {
     m_Valid = false;
     return "invalid map_numteams detected";
   }
 
-  if (m_Slots.empty() || m_Slots.size() > 12)
+  if (m_Slots.empty() || m_Slots.size() > MAX_SLOTS)
   {
     m_Valid = false;
     return "invalid map_slot<x> detected";

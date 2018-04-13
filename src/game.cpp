@@ -245,7 +245,7 @@ string CGame::GetPlayers() const
   {
     const uint8_t SID = GetSIDFromPID(player->GetPID());
 
-    if (player->GetLeftMessageSent() == false && m_Slots[SID].GetTeam() != 12)
+    if (player->GetLeftMessageSent() == false && m_Slots[SID].GetTeam() != MAX_SLOTS)
       Players += player->GetName() + ", ";
   }
 
@@ -265,7 +265,7 @@ string CGame::GetObservers() const
   {
     const uint8_t SID = GetSIDFromPID(player->GetPID());
 
-    if (player->GetLeftMessageSent() == false && m_Slots[SID].GetTeam() == 12)
+    if (player->GetLeftMessageSent() == false && m_Slots[SID].GetTeam() == MAX_SLOTS)
       Observers += player->GetName() + ", ";
   }
 
@@ -345,7 +345,7 @@ bool CGame::Update(void* fd, void* send_fd)
       // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
       // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
 
-      m_Aura->m_UDPSocket->Broadcast(6112, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray(static_cast<uint32_t>(MAPGAMETYPE_UNKNOWN0), false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
+      m_Aura->m_UDPSocket->Broadcast(6112, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray(static_cast<uint32_t>(MAPGAMETYPE_UNKNOWN0), false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), MAX_SLOTS, MAX_SLOTS, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
     }
 
     m_LastPingTime = Time;
@@ -734,7 +734,7 @@ bool CGame::Update(void* fd, void* send_fd)
 
   // create the virtual host player
 
-  if (!m_GameLoading && !m_GameLoaded && GetNumPlayers() < 12)
+  if (!m_GameLoading && !m_GameLoaded && GetNumPlayers() < MAX_SLOTS)
     CreateVirtualHost();
 
   // unlock the game
@@ -1331,7 +1331,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* 
   // we have a slot for the new player
   // make room for them by deleting the virtual host player if we have to
 
-  if (GetNumPlayers() >= 11)
+  if (GetNumPlayers() >= MAX_SLOTS-1)
     DeleteVirtualHost();
 
   // turning the CPotentialPlayer into a CGamePlayer is a bit of a pain because we have to be careful not to close the socket
@@ -1357,9 +1357,9 @@ void CGame::EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* 
   else
   {
     if (m_Map->GetMapFlags() & MAPFLAG_RANDOMRACES)
-      m_Slots[SID] = CGameSlot(Player->GetPID(), 255, SLOTSTATUS_OCCUPIED, 0, 12, 12, SLOTRACE_RANDOM);
+      m_Slots[SID] = CGameSlot(Player->GetPID(), 255, SLOTSTATUS_OCCUPIED, 0, MAX_SLOTS, MAX_SLOTS, SLOTRACE_RANDOM);
     else
-      m_Slots[SID] = CGameSlot(Player->GetPID(), 255, SLOTSTATUS_OCCUPIED, 0, 12, 12, SLOTRACE_RANDOM | SLOTRACE_SELECTABLE);
+      m_Slots[SID] = CGameSlot(Player->GetPID(), 255, SLOTSTATUS_OCCUPIED, 0, MAX_SLOTS, MAX_SLOTS, SLOTRACE_RANDOM | SLOTRACE_SELECTABLE);
 
     // try to pick a team and colour
     // make sure there aren't too many other players already
@@ -1368,7 +1368,7 @@ void CGame::EventPlayerJoined(CPotentialPlayer* potential, CIncomingJoinPlayer* 
 
     for (auto& slot : m_Slots)
     {
-      if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetTeam() != 12)
+      if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetTeam() != MAX_SLOTS)
         ++NumOtherPlayers;
     }
 
@@ -2686,8 +2686,8 @@ bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& 
 
             // note: the PrivateGame flag is not set when broadcasting to LAN (as you might expect)
             // note: we do not use m_Map->GetMapGameType because none of the filters are set when broadcasting to LAN (also as you might expect)
-
-            m_Aura->m_UDPSocket->SendTo(IP, Port, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray(static_cast<uint32_t>(MAPGAMETYPE_UNKNOWN0), false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), 12, 12, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
+            
+            m_Aura->m_UDPSocket->SendTo(IP, Port, m_Protocol->SEND_W3GS_GAMEINFO(m_Aura->m_LANWar3Version, CreateByteArray(static_cast<uint32_t>(MAPGAMETYPE_UNKNOWN0), false), m_Map->GetMapGameFlags(), m_Map->GetMapWidth(), m_Map->GetMapHeight(), m_GameName, "Clan 007", 0, m_Map->GetMapPath(), m_Map->GetMapCRC(), MAX_SLOTS, MAX_SLOTS, m_HostPort, m_HostCounter & 0x0FFFFFFF, m_EntryKey));
           }
 
           break;
@@ -3447,10 +3447,10 @@ void CGame::EventPlayerChangeTeam(CGamePlayer* player, uint8_t team)
   }
   else
   {
-    if (team > 12)
+    if (team > MAX_SLOTS)
       return;
 
-    if (team == 12)
+    if (team == MAX_SLOTS)
     {
       if (m_Map->GetMapObservers() != MAPOBS_ALLOWED && m_Map->GetMapObservers() != MAPOBS_REFEREES)
         return;
@@ -3466,7 +3466,7 @@ void CGame::EventPlayerChangeTeam(CGamePlayer* player, uint8_t team)
 
       for (auto& slot : m_Slots)
       {
-        if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetTeam() != 12 && slot.GetPID() != player->GetPID())
+        if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetTeam() != MAX_SLOTS && slot.GetPID() != player->GetPID())
           ++NumOtherPlayers;
       }
 
@@ -3480,13 +3480,13 @@ void CGame::EventPlayerChangeTeam(CGamePlayer* player, uint8_t team)
     {
       m_Slots[SID].SetTeam(team);
 
-      if (team == 12)
+      if (team == MAX_SLOTS)
       {
         // if they're joining the observer team give them the observer colour
 
-        m_Slots[SID].SetColour(12);
+        m_Slots[SID].SetColour(MAX_SLOTS);
       }
-      else if (m_Slots[SID].GetColour() == 12)
+      else if (m_Slots[SID].GetColour() == MAX_SLOTS)
       {
         // if they're joining a regular team give them an unused colour
 
@@ -3505,7 +3505,7 @@ void CGame::EventPlayerChangeColour(CGamePlayer* player, uint8_t colour)
   if (m_Map->GetMapOptions() & MAPOPT_FIXEDPLAYERSETTINGS)
     return;
 
-  if (colour > 11)
+  if (colour > MAX_SLOTS-1)
     return;
 
   uint8_t SID = GetSIDFromPID(player->GetPID());
@@ -3514,7 +3514,7 @@ void CGame::EventPlayerChangeColour(CGamePlayer* player, uint8_t colour)
   {
     // make sure the player isn't an observer
 
-    if (m_Slots[SID].GetTeam() == 12)
+    if (m_Slots[SID].GetTeam() == MAX_SLOTS)
       return;
 
     ColourSlot(SID, colour);
@@ -4026,7 +4026,7 @@ uint8_t CGame::GetNewColour() const
 {
   // find an unused colour for a player to use
 
-  for (uint8_t TestColour = 0; TestColour < 12; ++TestColour)
+  for (uint8_t TestColour = 0; TestColour < MAX_SLOTS; ++TestColour)
   {
     bool InUse = false;
 
@@ -4045,7 +4045,7 @@ uint8_t CGame::GetNewColour() const
 
   // this should never happen
 
-  return 12;
+  return MAX_SLOTS;
 }
 
 std::vector<uint8_t> CGame::GetPIDs() const
@@ -4304,7 +4304,7 @@ void CGame::ComputerSlot(uint8_t SID, uint8_t skill, bool kick)
 
 void CGame::ColourSlot(uint8_t SID, uint8_t colour)
 {
-  if (SID < m_Slots.size() && colour < 12)
+  if (SID < m_Slots.size() && colour < MAX_SLOTS)
   {
     // make sure the requested colour isn't already taken
 
@@ -4385,7 +4385,7 @@ void CGame::ShuffleSlots()
 
   for (auto& slot : m_Slots)
   {
-    if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetComputer() == 0 && slot.GetTeam() != 12)
+    if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetComputer() == 0 && slot.GetTeam() != MAX_SLOTS)
       PlayerSlots.push_back(slot);
   }
 
@@ -4431,7 +4431,7 @@ void CGame::ShuffleSlots()
 
   for (auto& slot : m_Slots)
   {
-    if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetComputer() == 0 && slot.GetTeam() != 12)
+    if (slot.GetSlotStatus() == SLOTSTATUS_OCCUPIED && slot.GetComputer() == 0 && slot.GetTeam() != MAX_SLOTS)
     {
       Slots.push_back(*CurrentPlayer);
       ++CurrentPlayer;
@@ -4668,14 +4668,14 @@ void CGame::DeleteVirtualHost()
 
 void CGame::CreateFakePlayer()
 {
-  if (m_FakePlayers.size() > 10)
+  if (m_FakePlayers.size() > MAX_SLOTS-2)
     return;
 
   uint8_t SID = GetEmptySlot(false);
 
   if (SID < m_Slots.size())
   {
-    if (GetNumPlayers() >= 11)
+    if (GetNumPlayers() >= MAX_SLOTS-1)
       DeleteVirtualHost();
 
     const uint8_t              FakePlayerPID = GetNewPID();
