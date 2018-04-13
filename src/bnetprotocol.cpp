@@ -562,7 +562,7 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, bool TFT, ui
 {
   const uint8_t ProtocolID[]    = {0, 0, 0, 0};
   const uint8_t PlatformID[]    = {54, 56, 88, 73}; // "IX86"
-  const uint8_t ProductID_ROC[] = {51, 82, 65, 87};	// "WAR3"
+  const uint8_t ProductID_ROC[] = {51, 82, 65, 87}; // "WAR3"
   const uint8_t ProductID_TFT[] = {80, 88, 51, 87}; // "W3XP"
   const uint8_t Version[]       = {ver, 0, 0, 0};
   const uint8_t Language[]      = {83, 85, 110, 101}; // "enUS"
