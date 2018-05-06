@@ -2,7 +2,7 @@
 ====
 [![Build Status](https://secure.travis-ci.org/Josko/aura-bot.png?branch=master)](http://travis-ci.org/Josko/aura-bot)
 [![Build Status](https://ci.appveyor.com/api/projects/status/u67db01q5nbt172l/branch/master?svg=true)](https://ci.appveyor.com/project/Josko/aura-bot/branch/master)
-[![Build Status](https://scan.coverity.com/projects/1748/badge.svg)](https://scan.coverity.com/projets/josko-aura-bot)
+[![Build Status](https://scan.coverity.com/projects/1748/badge.svg)](https://scan.coverity.com/projects/josko-aura-bot)
 
 Overview
 --------
