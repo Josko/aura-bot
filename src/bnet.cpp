@@ -1855,10 +1855,11 @@ void CBNET::ProcessChatEvent(const CIncomingChatEvent* chatEvent)
           {
             string message = "Status: ";
 
-            for (auto& bnet : m_Aura->m_BNETs)
+            for (const auto& bnet : m_Aura->m_BNETs)
               message += bnet->GetServer() + (bnet->GetLoggedIn() ? " [online], " : " [offline], ");
 
-            message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
+            if (m_Aura->m_IRC)
+              message += m_Aura->m_IRC->m_Server + (!m_Aura->m_IRC->m_WaitingToConnect ? " [online]" : " [offline]");
 
             QueueChatCommand(message, User, Whisper, m_IRC);
             break;
