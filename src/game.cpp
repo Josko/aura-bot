@@ -1617,7 +1617,9 @@ void CGame::EventPlayerChatToHost(CGamePlayer* player, CIncomingChatPlayer* chat
 
 bool CGame::EventPlayerBotCommand(CGamePlayer* player, string& command, string& payload)
 {
-  const string User = player->GetName(), Command = command, Payload = payload;
+  const string User = player->GetName();
+  const std::string& Command = command;
+  const std::string& Payload = payload;
 
   bool AdminCheck = false, RootAdminCheck = false;
 
