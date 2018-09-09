@@ -91,19 +91,21 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
 
     char     buf[1024];
     uint32_t EXEVersion;
-    uint32_t EXEVersionHash;
+    unsigned long EXEVersionHash;
 
     getExeInfo(FileWar3EXE.c_str(), buf, 1024, &EXEVersion, BNCSUTIL_PLATFORM_X86);
-    if(war3Version >= 29)
+
+    if (war3Version >= 29)
     {
-      static const char* filesArray[] = {FileWar3EXE.c_str()};
-      checkRevision(valueStringFormula.c_str(), filesArray, 1, extractMPQNumber(mpqFileName.c_str()), reinterpret_cast<unsigned long*>(&EXEVersionHash));		
+      const char* filesArray[] = {FileWar3EXE.c_str()};
+      checkRevision(valueStringFormula.c_str(), filesArray, 1, extractMPQNumber(mpqFileName.c_str()), &EXEVersionHash);
     }
     else 
-      checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), reinterpret_cast<unsigned long*>(&EXEVersionHash));
+      checkRevisionFlat(valueStringFormula.c_str(), FileWar3EXE.c_str(), FileStormDLL.c_str(), FileGameDLL.c_str(), extractMPQNumber(mpqFileName.c_str()), &EXEVersionHash);
+
     m_EXEInfo        = buf;
     m_EXEVersion     = CreateByteArray(EXEVersion, false);
-    m_EXEVersionHash = CreateByteArray(EXEVersionHash, false);
+    m_EXEVersionHash = CreateByteArray(int64_t(EXEVersionHash), false);
     m_KeyInfoROC     = CreateKeyInfo(keyROC, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
     m_KeyInfoTFT     = CreateKeyInfo(keyTFT, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
 
