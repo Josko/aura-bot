@@ -558,10 +558,11 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_NETGAMEPORT(uint16_t serverPort)
   return packet;
 }
 
-std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, const string& countryAbbrev, const string& country)
+std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, bool TFT, uint32_t localeID, const string& countryAbbrev, const string& country)
 {
   const uint8_t ProtocolID[]    = {0, 0, 0, 0};
   const uint8_t PlatformID[]    = {54, 56, 88, 73}; // "IX86"
+  const uint8_t ProductID_ROC[] = {51, 82, 65, 87}; // "WAR3"
   const uint8_t ProductID_TFT[] = {80, 88, 51, 87}; // "W3XP"
   const uint8_t Version[]       = {ver, 0, 0, 0};
   const uint8_t Language[]      = {83, 85, 110, 101}; // "enUS"
@@ -575,7 +576,12 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t loc
   packet.push_back(0);                        // packet length will be assigned later
   AppendByteArray(packet, ProtocolID, 4);     // Protocol ID
   AppendByteArray(packet, PlatformID, 4);     // Platform ID
-  AppendByteArray(packet, ProductID_TFT, 4);  // Product ID (TFT)
+
+  if (TFT)
+    AppendByteArray(packet, ProductID_TFT, 4);	// Product ID (TFT)
+  else
+    AppendByteArray(packet, ProductID_ROC, 4);	// Product ID (ROC)
+
   AppendByteArray(packet, Version, 4);        // Version
   AppendByteArray(packet, Language, 4);       // Language (hardcoded as enUS to ensure battle.net sends the bot messages in English)
   AppendByteArray(packet, LocalIP, 4);        // Local IP for NAT compatibility
@@ -589,7 +595,7 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_INFO(uint8_t ver, uint32_t loc
   return packet;
 }
 
-std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& exeVersion, const std::vector<uint8_t>& exeVersionHash, const std::vector<uint8_t>& keyInfoROC, const std::vector<uint8_t>& keyInfoTFT, const string& exeInfo, const string& keyOwnerName)
+std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(bool TFT, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& exeVersion, const std::vector<uint8_t>& exeVersionHash, const std::vector<uint8_t>& keyInfoROC, const std::vector<uint8_t>& keyInfoTFT, const string& exeInfo, const string& keyOwnerName)
 {
   std::vector<uint8_t> packet;
 
@@ -607,7 +613,10 @@ std::vector<uint8_t> CBNETProtocol::SEND_SID_AUTH_CHECK(const std::vector<uint8_
     AppendByteArray(packet, NumKeys, false);     // number of keys in this packet
     AppendByteArray(packet, static_cast<uint32_t>(0), false); // boolean Using Spawn (32 bit)
     AppendByteArrayFast(packet, keyInfoROC);     // ROC Key Info
-    AppendByteArrayFast(packet, keyInfoTFT);     // TFT Key Info
+
+    if (TFT)
+      AppendByteArrayFast(packet, keyInfoTFT);     // TFT Key Info
+
     AppendByteArrayFast(packet, exeInfo);        // EXE Info
     AppendByteArrayFast(packet, keyOwnerName);   // CD Key Owner Name
     AssignLength(packet);

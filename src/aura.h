@@ -86,6 +86,7 @@ public:
   bool                     m_AutoLock;                   // config value: auto lock games when the owner is present
   bool                     m_Ready;                      // indicates if there's lacking configuration info so we can quit
   bool                     m_LCPings;                    // config value: use LC style pings (divide actual pings by two)
+  bool                     m_TFT;                        // config value: TFT enabled or not
 
   explicit CAura(CConfig* CFG);
   ~CAura();

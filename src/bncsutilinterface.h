@@ -61,7 +61,7 @@ public:
 
   void Reset(const std::string& userName, const std::string& userPassword);
 
-  bool HELP_SID_AUTH_CHECK(const std::string& war3Path, const std::string& keyROC, const std::string& keyTFT, const std::string& valueStringFormula, const std::string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken, const uint8_t war3Version);
+  bool HELP_SID_AUTH_CHECK(bool TFT, const std::string& war3Path, const std::string& keyROC, const std::string& keyTFT, const std::string& valueStringFormula, const std::string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken, const uint8_t war3Version);
   bool HELP_SID_AUTH_ACCOUNTLOGON();
   bool HELP_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint8_t>& salt, const std::vector<uint8_t>& serverKey);
   bool HELP_PvPGNPasswordHash(const std::string& userPassword);

@@ -154,8 +154,8 @@ public:
   std::vector<uint8_t> SEND_SID_PING(const std::vector<uint8_t>& pingValue);
   std::vector<uint8_t> SEND_SID_LOGONRESPONSE(const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken, const std::vector<uint8_t>& passwordHash, const std::string& accountName);
   std::vector<uint8_t> SEND_SID_NETGAMEPORT(uint16_t serverPort);
-  std::vector<uint8_t> SEND_SID_AUTH_INFO(uint8_t ver, uint32_t localeID, const std::string& countryAbbrev, const std::string& country);
-  std::vector<uint8_t> SEND_SID_AUTH_CHECK(const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& exeVersion, const std::vector<uint8_t>& exeVersionHash, const std::vector<uint8_t>& keyInfoROC, const std::vector<uint8_t>& keyInfoTFT, const std::string& exeInfo, const std::string& keyOwnerName);
+  std::vector<uint8_t> SEND_SID_AUTH_INFO(uint8_t ver, bool TFT, uint32_t localeID, const std::string& countryAbbrev, const std::string& country);
+  std::vector<uint8_t> SEND_SID_AUTH_CHECK(bool TFT, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& exeVersion, const std::vector<uint8_t>& exeVersionHash, const std::vector<uint8_t>& keyInfoROC, const std::vector<uint8_t>& keyInfoTFT, const std::string& exeInfo, const std::string& keyOwnerName);
   std::vector<uint8_t> SEND_SID_AUTH_ACCOUNTLOGON(const std::vector<uint8_t>& clientPublicKey, const std::string& accountName);
   std::vector<uint8_t> SEND_SID_AUTH_ACCOUNTLOGONPROOF(const std::vector<uint8_t>& clientPasswordProof);
   std::vector<uint8_t> SEND_SID_FRIENDLIST();

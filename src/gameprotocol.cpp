@@ -469,10 +469,13 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_STOP_LAG(CGamePlayer* player)
   return packet;
 }
 
-std::vector<uint8_t> CGameProtocol::SEND_W3GS_GAMEINFO(uint8_t war3Version, const std::vector<uint8_t>& mapGameType, const std::vector<uint8_t>& mapFlags, const std::vector<uint8_t>& mapWidth, const std::vector<uint8_t>& mapHeight, const string& gameName, const string& hostName, uint32_t upTime, const string& mapPath, const std::vector<uint8_t>& mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
+std::vector<uint8_t> CGameProtocol::SEND_W3GS_GAMEINFO(bool TFT, uint8_t war3Version, const std::vector<uint8_t>& mapGameType, const std::vector<uint8_t>& mapFlags, const std::vector<uint8_t>& mapWidth, const std::vector<uint8_t>& mapHeight, const string& gameName, const string& hostName, uint32_t upTime, const string& mapPath, const std::vector<uint8_t>& mapCRC, uint32_t slotsTotal, uint32_t slotsOpen, uint16_t port, uint32_t hostCounter, uint32_t entryKey)
 {
   if (mapGameType.size() == 4 && mapFlags.size() == 4 && mapWidth.size() == 2 && mapHeight.size() == 2 && !gameName.empty() && !hostName.empty() && !mapPath.empty() && mapCRC.size() == 4)
   {
+    const uint8_t ProductID_ROC[] = {51, 82, 65, 87};	// "WAR3"
+    const uint8_t ProductID_TFT[] = {80, 88, 51, 87};	// "W3XP"
+    const uint8_t Version[] = {war3Version,  0,  0,  0};
     const uint8_t Unknown2[] = {1, 0, 0, 0};
 
     // make the stat string
@@ -489,8 +492,14 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_GAMEINFO(uint8_t war3Version, cons
     StatString = EncodeStatString(StatString);
 
     // make the rest of the packet
+    std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_GAMEINFO, 0, 0};
 
-    std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_GAMEINFO, 0, 0, 80, 88, 51, 87, war3Version, 0, 0, 0};
+    if (TFT)
+      AppendByteArray(packet, ProductID_TFT, 4); // Product ID (TFT)
+    else
+      AppendByteArray(packet, ProductID_ROC, 4); // Product ID (ROC)
+
+    AppendByteArray(packet, Version, 4);
     AppendByteArray(packet, hostCounter, false); // Host Counter
     AppendByteArray(packet, entryKey, false);    // Entry Key
     AppendByteArrayFast(packet, gameName);       // Game Name
@@ -511,9 +520,24 @@ std::vector<uint8_t> CGameProtocol::SEND_W3GS_GAMEINFO(uint8_t war3Version, cons
   return std::vector<uint8_t>();
 }
 
-std::vector<uint8_t> CGameProtocol::SEND_W3GS_CREATEGAME(uint8_t war3Version)
+std::vector<uint8_t> CGameProtocol::SEND_W3GS_CREATEGAME(bool TFT, uint8_t war3Version)
 {
-  return std::vector<uint8_t>{W3GS_HEADER_CONSTANT, W3GS_CREATEGAME, 16, 0, 80, 88, 51, 87, war3Version, 0, 0, 0, 1, 0, 0, 0};
+  const uint8_t ProductID_ROC[] = { 51, 82, 65, 87 };	// "WAR3"
+  const uint8_t ProductID_TFT[] = { 80, 88, 51, 87 };	// "W3XP"
+  const uint8_t Version[] = { war3Version,  0,  0,  0 };
+  const uint8_t Unknown2[] = { 1, 0, 0, 0 };
+
+  std::vector<uint8_t> packet = {W3GS_HEADER_CONSTANT, W3GS_CREATEGAME, 16, 0};
+
+  if (TFT)
+    AppendByteArray(packet, ProductID_TFT, 4); // Product ID (TFT)
+  else
+    AppendByteArray(packet, ProductID_ROC, 4); // Product ID (ROC)
+
+  AppendByteArray(packet, Version, 4);
+  AppendByteArray(packet, Unknown2, 4);
+
+  return packet;
 }
 
 std::vector<uint8_t> CGameProtocol::SEND_W3GS_REFRESHGAME(uint32_t players, uint32_t playerSlots)

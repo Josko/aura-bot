@@ -74,7 +74,7 @@ inline static std::string CaseInsensitiveFileExists(const std::string& path, std
   return "";
 }
 
-bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken, const uint8_t war3Version)
+bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(bool TFT, const string& war3Path, const string& keyROC, const string& keyTFT, const string& valueStringFormula, const string& mpqFileName, const std::vector<uint8_t>& clientToken, const std::vector<uint8_t>& serverToken, const uint8_t war3Version)
 {
   const string FileWar3EXE = [&]() {
     if (war3Version >= 28)
@@ -107,16 +107,18 @@ bool CBNCSUtilInterface::HELP_SID_AUTH_CHECK(const string& war3Path, const strin
     m_EXEVersion     = CreateByteArray(EXEVersion, false);
     m_EXEVersionHash = CreateByteArray(int64_t(EXEVersionHash), false);
     m_KeyInfoROC     = CreateKeyInfo(keyROC, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
-    m_KeyInfoTFT     = CreateKeyInfo(keyTFT, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
 
-    if (m_KeyInfoROC.size() == 36 && m_KeyInfoTFT.size() == 36)
+    if (TFT)
+      m_KeyInfoTFT     = CreateKeyInfo(keyTFT, ByteArrayToUInt32(clientToken, false), ByteArrayToUInt32(serverToken, false));
+
+    if (m_KeyInfoROC.size() == 36 && (!TFT || m_KeyInfoTFT.size() == 36))
       return true;
     else
     {
       if (m_KeyInfoROC.size() != 36)
         Print("[BNCSUI] unable to create ROC key info - invalid ROC key");
 
-      if (m_KeyInfoTFT.size() != 36)
+      if (TFT && m_KeyInfoTFT.size() != 36)
         Print("[BNCSUI] unable to create TFT key info - invalid TFT key");
     }
   }
