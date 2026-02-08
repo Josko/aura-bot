@@ -27,6 +27,7 @@
 
 #define BNET_HEADER_CONSTANT 255
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
